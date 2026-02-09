@@ -1,0 +1,529 @@
+<!-- Title -->
+    <div class="row">
+        <div class="col-12 mb-3">
+            <h1 class="h3 mb-2 mb-sm-0">Dashboard LibraryHub</h1>
+        </div>
+    </div>
+
+    <!-- Counter boxes START -->
+    <div class="row g-4 mb-4">
+        <!-- Counter item 1 : Livres -->
+        <div class="col-md-6 col-xxl-3">
+            <div class="card card-body bg-primary bg-opacity-10 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Digit -->
+                    <div>
+                        <h2 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end="1250" data-purecounter-delay="200">0</h2>
+                        <span class="mb-0 h6 fw-light">Livres Disponibles</span>
+                    </div>
+                    <!-- Icon -->
+                    <div class="icon-lg rounded-circle bg-primary text-white mb-0"><i class="fas fa-book fa-fw"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Counter item 2 : Membres -->
+        <div class="col-md-6 col-xxl-3">
+            <div class="card card-body bg-success bg-opacity-10 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Digit -->
+                    <div>
+                        <h2 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end="850" data-purecounter-delay="200">0</h2>
+                        <span class="mb-0 h6 fw-light">Membres Actifs</span>
+                    </div>
+                    <!-- Icon -->
+                    <div class="icon-lg rounded-circle bg-success text-white mb-0"><i class="fas fa-users fa-fw"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Counter item 3 : Prêts en cours -->
+        <div class="col-md-6 col-xxl-3">
+            <div class="card card-body bg-warning bg-opacity-10 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Digit -->
+                    <div>
+                        <h2 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end="320" data-purecounter-delay="200">0</h2>
+                        <span class="mb-0 h6 fw-light">Prêts en Cours</span>
+                    </div>
+                    <!-- Icon -->
+                    <div class="icon-lg rounded-circle bg-warning text-white mb-0"><i class="fas fa-exchange-alt fa-fw"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Counter item 4 : Retards -->
+        <div class="col-md-6 col-xxl-3">
+            <div class="card card-body bg-danger bg-opacity-10 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Digit -->
+                    <div>
+                        <h2 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end="45" data-purecounter-delay="200">0</h2>
+                        <span class="mb-0 h6 fw-light">Retards</span>
+                    </div>
+                    <!-- Icon -->
+                    <div class="icon-lg rounded-circle bg-danger text-white mb-0"><i class="fas fa-clock fa-fw"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Counter boxes END -->
+
+    <!-- Chart and Notifications START -->
+    <div class="row g-4 mb-4">
+
+        <!-- Chart START -->
+        <div class="col-xxl-8">
+            <div class="card shadow h-100">
+
+                <!-- Card header -->
+                <div class="card-header p-4 border-bottom">
+                    <h5 class="card-header-title">Statistiques des Emprunts (30 jours)</h5>
+                </div>
+
+                <!-- Card body -->
+                <div class="card-body">
+                    <!-- Apex chart -->
+                    <div id="ChartPayout"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Chart END -->
+
+        <!-- Notifications START -->
+        <div class="col-xxl-4">
+            <div class="card shadow h-100">
+                <!-- Card header -->
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center p-4">
+                    <h5 class="card-header-title">Notifications Récentes</h5>
+                    <a href="#" class="btn btn-link p-0 mb-0">Voir tout</a>
+                </div>
+
+                <!-- Card body START -->
+                <div class="card-body p-4">
+
+                    <!-- Notification item START -->
+                    <div class="d-flex justify-content-between position-relative">
+                        <div class="d-sm-flex">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-md flex-shrink-0">
+                                <img class="avatar-img rounded-circle" src="assets/images/avatar/09.jpg" alt="avatar">
+                            </div>
+                            <!-- Info -->
+                            <div class="ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                <h6 class="mb-0"><a href="#" class="stretched-link">Jean Dupont</a></h6>
+                                <p class="mb-0">Nouveau prêt #L759 pour "Symfony 6"</p>
+                                <span class="small">il y a 8 heures</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Notification item END -->
+
+                    <hr><!-- Divider -->
+
+                    <!-- Notification item START -->
+                    <div class="d-flex justify-content-between position-relative">
+                        <div class="d-sm-flex">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-md flex-shrink-0">
+                                <div class="avatar-img rounded-circle bg-purple bg-opacity-10">
+                                    <span class="text-purple position-absolute top-50 start-50 translate-middle fw-bold">ML</span>
+                                </div>
+                            </div>
+                            <!-- Info -->
+                            <div class="ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                <h6 class="mb-0"><a href="#" class="stretched-link">Marie Laurent</a></h6>
+                                <p class="mb-0">Retour retardé pour "Programmation Java"</p>
+                                <span class="small">il y a 8 heures</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Notification item END -->
+
+                    <hr><!-- Divider -->
+
+                    <!-- Notification item START -->
+                    <div class="d-flex justify-content-between position-relative">
+                        <div class="d-sm-flex">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-md flex-shrink-0">
+                                <div class="avatar-img rounded-circle bg-orange bg-opacity-10">
+                                    <span class="text-orange position-absolute top-50 start-50 translate-middle fw-bold">LB</span>
+                                </div>
+                            </div>
+                            <!-- Info -->
+                            <div class="ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                <h6 class="mb-0"><a href="#" class="stretched-link">Lucie Bernard</a></h6>
+                                <p class="mb-0">Nouvelle réservation pour "Algorithmes Avancés"</p>
+                                <span class="small">il y a 5 heures</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Notification item END -->
+
+                    <hr><!-- Divider -->
+
+                    <!-- Notification item START -->
+                    <div class="d-flex justify-content-between position-relative">
+                        <div class="d-sm-flex">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-md flex-shrink-0">
+                                <img class="avatar-img rounded-circle" src="assets/images/avatar/04.jpg" alt="avatar">
+                            </div>
+                            <!-- Info -->
+                            <div class="ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                <h6 class="mb-0"><a href="#" class="stretched-link">Thomas Moreau</a></h6>
+                                <p class="mb-0">Amende payée pour retard</p>
+                                <span class="small">il y a 9 heures</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Notification item END -->
+                    
+                </div>
+                <!-- Card body END -->
+            </div>
+        </div>
+        <!-- Notifications END -->
+    </div>
+    <!-- Chart and Notifications END -->
+
+    <!-- Top listed Cards START -->
+    <div class="row g-4">
+
+        <!-- Top membres START -->
+        <div class="col-lg-6 col-xxl-4">
+            <div class="card shadow h-100">
+
+                <!-- Card header -->
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center p-4">
+                    <h5 class="card-header-title">Top Membres</h5>
+                    <a href="#" class="btn btn-link p-0 mb-0">Voir tout</a>
+                </div>
+
+                <!-- Card body START -->
+                <div class="card-body p-4">
+
+                    <!-- Membre item START -->
+                    <div class="d-sm-flex justify-content-between align-items-center">
+                        <!-- Avatar and info -->
+                        <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-md flex-shrink-0">
+                                <img class="avatar-img rounded-circle" src="assets/images/avatar/09.jpg" alt="avatar">
+                            </div>
+                            <!-- Info -->
+                            <div class="ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                <h6 class="mb-1">Marie Martin<i class="bi bi-patch-check-fill text-info small ms-1"></i></h6>
+                                <ul class="list-inline mb-0 small">
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-book text-purple me-1"></i>18 Livres empruntés</li>
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-star text-warning me-1"></i>Membre depuis 2022</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Button -->
+                        <a href="#" class="btn btn-sm btn-light mb-0">Voir</a>
+                    </div>
+                    <!-- Membre item END -->
+
+                    <hr><!-- Divider -->
+
+                    <!-- Membre item START -->
+                    <div class="d-sm-flex justify-content-between align-items-center">
+                        <!-- Avatar and info -->
+                        <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-md flex-shrink-0">
+                                <img class="avatar-img rounded-circle" src="assets/images/avatar/03.jpg" alt="avatar">
+                            </div>
+                            <!-- Info -->
+                            <div class="ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                <h6 class="mb-1">Pierre Dubois</h6>
+                                <ul class="list-inline mb-0 small">
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-book text-purple me-1"></i>15 Livres empruntés</li>
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-star text-warning me-1"></i>Membre depuis 2023</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Button -->
+                        <a href="#" class="btn btn-sm btn-light mb-0">Voir</a>
+                    </div>
+                    <!-- Membre item END -->
+
+                    <hr><!-- Divider -->
+
+                    <!-- Membre item START -->
+                    <div class="d-sm-flex justify-content-between align-items-center">
+                        <!-- Avatar and info -->
+                        <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-md flex-shrink-0">
+                                <img class="avatar-img rounded-circle" src="assets/images/avatar/01.jpg" alt="avatar">
+                            </div>
+                            <!-- Info -->
+                            <div class="ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                <h6 class="mb-1">Sophie Lambert<i class="bi bi-patch-check-fill text-info small ms-1"></i></h6>
+                                <ul class="list-inline mb-0 small">
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-book text-purple me-1"></i>21 Livres empruntés</li>
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-star text-warning me-1"></i>Membre depuis 2021</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Button -->
+                        <a href="#" class="btn btn-sm btn-light mb-0">Voir</a>
+                    </div>
+                    <!-- Membre item END -->
+
+                    <hr><!-- Divider -->
+
+                    <!-- Membre item START -->
+                    <div class="d-sm-flex justify-content-between align-items-center">
+                        <!-- Avatar and info -->
+                        <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-md flex-shrink-0">
+                                <img class="avatar-img rounded-circle" src="assets/images/avatar/04.jpg" alt="avatar">
+                            </div>
+                            <!-- Info -->
+                            <div class="ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                <h6 class="mb-1">Luc Bernard</h6>
+                                <ul class="list-inline mb-0 small">
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-book text-purple me-1"></i>12 Livres empruntés</li>
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-star text-warning me-1"></i>Membre depuis 2023</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Button -->
+                        <a href="#" class="btn btn-sm btn-light mb-0">Voir</a>
+                    </div>
+                    <!-- Membre item END -->
+
+                    <hr><!-- Divider -->
+
+                    <!-- Membre item START -->
+                    <div class="d-sm-flex justify-content-between align-items-center">
+                        <!-- Avatar and info -->
+                        <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-md flex-shrink-0">
+                                <img class="avatar-img rounded-circle" src="assets/images/avatar/05.jpg" alt="avatar">
+                            </div>
+                            <!-- Info -->
+                            <div class="ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                <h6 class="mb-1">Julie Petit<i class="bi bi-patch-check-fill text-info small ms-1"></i></h6>
+                                <ul class="list-inline mb-0 small">
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-book text-purple me-1"></i>19 Livres empruntés</li>
+                                    <li class="list-inline-item fw-light me-2 mb-1 mb-sm-0"><i class="fas fa-star text-warning me-1"></i>Membre depuis 2022</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Button -->
+                        <a href="#" class="btn btn-sm btn-light mb-0">Voir</a>
+                    </div>
+                    <!-- Membre item END -->
+                    
+                </div>
+                <!-- Card body END -->
+            </div>
+        </div>
+        <!-- Top membres END -->
+
+        <!-- Annonces START -->
+        <div class="col-lg-6 col-xxl-4">
+            <div class="card shadow h-100">
+                <!-- Card header -->
+                <div class="card-header border-bottom p-4">
+                    <h5 class="card-header-title">Annonces & Actualités</h5>
+                </div>
+
+                <!-- Card body START -->
+                <div class="card-body p-4">
+                    <div class="custom-scrollbar h-300px">
+
+                        <!-- Annonce item START -->
+                        <div class="d-flex justify-content-between position-relative">
+                            <div class="d-sm-flex">
+                                <div class="icon-lg bg-purple bg-opacity-10 text-purple rounded-2 flex-shrink-0"><i class="fas fa-book fa-fw fs-5"></i></div>
+                                <!-- Info -->
+                                <div class="ms-0 ms-sm-3 mt-2 mt-sm-0">
+                                    <h6 class="mb-0"><a href="#" class="stretched-link">Nouveaux livres ajoutés</a></h6>
+                                    <p class="mb-0">50 nouveaux livres en informatique et littérature</p>
+                                    <span class="small">il y a 5 min</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Annonce item END -->
+
+                        <hr><!-- Divider -->
+
+                        <!-- Annonce item START -->
+                        <div class="d-flex justify-content-between position-relative">
+                            <div class="d-sm-flex">
+                                <div class="icon-lg bg-orange bg-opacity-10 text-orange rounded-2 flex-shrink-0"><i class="fas fa-calendar-alt fs-5"></i></div>
+                                <!-- Info -->
+                                <div class="ms-0 ms-sm-3 mt-2 mt-sm-0">
+                                    <h6 class="mb-0"><a href="#" class="stretched-link">Événement lecture ce weekend</a></h6>
+                                    <p class="mb-0">Club de lecture samedi à 14h dans la salle principale</p>
+                                    <span class="small">il y a 4 heures</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Annonce item END -->
+
+                        <hr><!-- Divider -->
+
+                        <!-- Annonce item START -->
+                        <div class="d-flex justify-content-between position-relative">
+                            <div class="d-sm-flex">
+                                <div class="icon-lg bg-info bg-opacity-10 text-info rounded-2 flex-shrink-0"><i class="fas fa-clock fs-5"></i></div>
+                                <!-- Info -->
+                                <div class="ms-0 ms-sm-3 mt-2 mt-sm-0">
+                                    <h6 class="mb-0"><a href="#" class="stretched-link">Changement heures d'ouverture</a></h6>
+                                    <p class="mb-0">Nouveaux horaires : 8h-19h en semaine, 9h-17h samedi</p>
+                                    <span class="small">il y a 2 jours</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Annonce item END -->
+
+                        <hr><!-- Divider -->
+
+                        <!-- Annonce item START -->
+                        <div class="d-flex justify-content-between position-relative">
+                            <div class="d-sm-flex">
+                                <div class="icon-lg bg-danger bg-opacity-10 text-danger rounded-2 flex-shrink-0"><i class="fas fa-laptop fs-5"></i></div>
+                                <!-- Info -->
+                                <div class="ms-0 ms-sm-3 mt-2 mt-sm-0">
+                                    <h6 class="mb-0"><a href="#" class="stretched-link">Nouveau système de réservation</a></h6>
+                                    <p class="mb-0">Réservation en ligne disponible sur notre site web</p>
+                                    <span class="small">il y a 3 jours</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Annonce item END -->
+                    </div>
+                </div>
+                <!-- Card body END -->
+
+                <!-- Card footer START -->
+                <div class="card-footer border-top">
+                    <div class="alert alert-success d-flex align-items-center mb-0 py-2">
+                        <div>
+                            <small class="mb-0">12 autres annonces</small>
+                        </div>
+                        <div class="ms-auto">
+                            <a class="btn btn-sm btn-success-soft mb-0" href="#!"> Voir tout </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card footer START -->
+            </div>
+        </div>
+        <!-- Annonces END -->
+
+        <!-- Catégories populaires START -->
+        <div class="col-lg-6 col-xxl-4">
+            <div class="card shadow h-100">
+
+                <!-- Card header -->
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center p-4">
+                    <h5 class="card-header-title">Catégories Populaires</h5>
+                    <a href="#" class="btn btn-link p-0 mb-0">Voir tout</a>
+                </div>
+
+                <!-- Card body START -->
+                <div class="card-body p-4">
+                    <!-- Chart -->
+                    <div class="col-sm-6 mx-auto">
+                        <div id="ChartTrafficViews"></div>
+                    </div>
+
+                    <!-- Content -->
+                    <ul class="list-group list-group-borderless mt-3">
+                        <li class="list-group-item"><i class="text-primary fas fa-circle me-2"></i>Informatique</li>
+                        <li class="list-group-item"><i class="text-success fas fa-circle me-2"></i>Littérature</li>
+                        <li class="list-group-item"><i class="text-warning fas fa-circle me-2"></i>Science</li>
+                        <li class="list-group-item"><i class="text-danger fas fa-circle me-2"></i>Histoire</li>
+                        <li class="list-group-item"><i class="text-info fas fa-circle me-2"></i>Philosophie</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Card body END -->
+        </div>
+        <!-- Catégories populaires END -->
+
+    </div>
+    <!-- Top listed Cards END -->
+
+    <!-- Livres populaires START -->
+    <div class="row g-4 mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center p-4">
+                    <h5 class="card-header-title">Livres les Plus Empruntés</h5>
+                    <a href="#" class="btn btn-link p-0 mb-0">Voir tout</a>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Auteur</th>
+                                    <th>Catégorie</th>
+                                    <th>Emprunts</th>
+                                    <th>Disponibilité</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Apprendre Symfony 6</td>
+                                    <td>Martin Dupont</td>
+                                    <td><span class="badge bg-primary">Informatique</span></td>
+                                    <td>128</td>
+                                    <td><span class="badge bg-success">Disponible</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-light">Voir</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Les Misérables</td>
+                                    <td>Victor Hugo</td>
+                                    <td><span class="badge bg-success">Littérature</span></td>
+                                    <td>95</td>
+                                    <td><span class="badge bg-warning">Emprunté</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-light">Voir</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Une Brève Histoire du Temps</td>
+                                    <td>Stephen Hawking</td>
+                                    <td><span class="badge bg-warning">Science</span></td>
+                                    <td>87</td>
+                                    <td><span class="badge bg-success">Disponible</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-light">Voir</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Algorithmes et Structures de Données</td>
+                                    <td>Robert Sedgewick</td>
+                                    <td><span class="badge bg-primary">Informatique</span></td>
+                                    <td>76</td>
+                                    <td><span class="badge bg-success">Disponible</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-light">Voir</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Le Petit Prince</td>
+                                    <td>Antoine de Saint-Exupéry</td>
+                                    <td><span class="badge bg-success">Littérature</span></td>
+                                    <td>65</td>
+                                    <td><span class="badge bg-warning">Emprunté</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-light">Voir</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Livres populaires END -->
+
+</div>
