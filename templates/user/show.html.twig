@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Details{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">User Details</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ path('app_user_index') }}">Users</a></li>
+                            <li class="breadcrumb-item active">{{ user.fullName }}</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-2"></i>Edit
+                    </a>
+                    <a href="{{ path('app_user_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Info Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if user.avatar %}
+                        <img src="{{ asset('uploads/avatars/' ~ user.avatar) }}" class="rounded-circle mb-3" width="120" height="120" alt="Avatar">
+                    {% else %}
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; font-size: 2.5rem;">
+                            {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
+                        </div>
+                    {% endif %}
+                    <h4>{{ user.fullName }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    {% if user.status == 'ACTIVE' %}
+                        <span class="badge bg-success fs-6">Active</span>
+                    {% elseif user.status == 'PENDING' %}
+                        <span class="badge bg-warning fs-6">Pending</span>
+                    {% else %}
+                        <span class="badge bg-danger fs-6">Inactive</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Card -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">User Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width: 200px;">Email</th>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Phone</th>
+                            <td>{{ user.phone ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Address</th>
+                            <td>{{ user.address ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Roles</th>
+                            <td>
+                                {% for role in user.userRoles %}
+                                    <span class="badge bg-info">{{ role.name }}</span>
+                                {% else %}
+                                    <span class="text-muted">No roles assigned</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Created At</th>
+                            <td>{{ user.createdAt|date('F d, Y H:i') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Login</th>
+                            <td>{{ user.lastLoginAt ? user.lastLoginAt|date('F d, Y H:i') : 'Never' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email Verified</th>
+                            <td>{{ user.emailVerifiedAt ? user.emailVerifiedAt|date('F d, Y H:i') : 'Not verified' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reading Profile -->
+            {% if user.readingProfile %}
+            <div class="card mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Reading Profile</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <h3 class="text-primary">{{ user.readingProfile.totalBooksRead }}</h3>
+                            <small class="text-muted">Books Read</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <h3 class="text-primary">{{ user.readingProfile.readingGoalPerMonth ?? '-' }}</h3>
+                            <small class="text-muted">Monthly Goal</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <h3 class="text-primary">{{ user.readingProfile.averageRating ?? '-' }}</h3>
+                            <small class="text-muted">Avg Rating</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

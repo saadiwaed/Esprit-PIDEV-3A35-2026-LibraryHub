@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Reading Profile{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">Create Reading Profile</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ path('app_reading_profile_index') }}">Reading Profiles</a></li>
+                            <li class="breadcrumb-item active">New</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="{{ path('app_reading_profile_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0">Profile Information</h5>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'class': 'row g-3', 'novalidate': 'novalidate'}}) }}
+                <div class="col-12">
+                    {{ form_row(form.user) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.readingGoalPerMonth) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.totalBooksRead) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.averageRating) }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Favorite Genres</label>
+                    <div class="d-flex flex-wrap gap-3">
+                        {% for child in form.favoriteGenres %}
+                            <div class="form-check">
+                                {{ form_widget(child, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(child, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Preferred Languages</label>
+                    <div class="d-flex flex-wrap gap-3">
+                        {% for child in form.preferredLanguages %}
+                            <div class="form-check">
+                                {{ form_widget(child, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(child, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-12">
+                    <hr>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-2"></i>Create Profile
+                    </button>
+                    <a href="{{ path('app_reading_profile_index') }}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
