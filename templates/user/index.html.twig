@@ -3,8 +3,7 @@
 {% block title %}Users Management{% endblock %}
 
 {% block body %}
-<div class="page-content">
-    <div class="page-content-wrapper border">
+<div class="container-fluid p-4">
         <!-- Title -->
         <div class="row mb-3">
             <div class="col-12 d-sm-flex justify-content-between align-items-center">
@@ -15,56 +14,56 @@
             </div>
         </div>
 
-        <!-- Flash messages -->
-        {% for label, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         {% endfor %}
+    {% endfor %}
 
-        <!-- Search Bar -->
-        <div class="row mb-3">
-            <div class="col-12">
-                <div class="card bg-transparent border">
-                    <div class="card-body">
-                        <form method="get" action="{{ path('app_user_index') }}" class="row g-3 align-items-center">
-                            <div class="col-md-10">
-                                <div class="position-relative">
-                                    <input type="text" 
-                                           name="search" 
-                                           id="userSearch" 
-                                           class="form-control" 
-                                           placeholder="Search by name or email..." 
-                                           value="{{ app.request.get('search') }}"
-                                           autocomplete="off">
-                                    <div id="searchSuggestions" class="position-absolute w-100 bg-white border rounded shadow-sm" style="display: none; z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
-                                </div>
+    <!-- Main content centered -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+
+            <!-- Search Bar -->
+            <div class="card bg-transparent border mb-3">
+                <div class="card-body">
+                    <form method="get" action="{{ path('app_user_index') }}" class="row g-3 align-items-center">
+                        <div class="col-md-10">
+                            <div class="position-relative">
+                                <input type="text" 
+                                       name="search" 
+                                       id="userSearch" 
+                                       class="form-control" 
+                                       placeholder="Search by name or email..." 
+                                       value="{{ app.request.get('search') }}"
+                                       autocomplete="off">
+                                <div id="searchSuggestions" class="position-absolute w-100 bg-white border rounded shadow-sm" style="display: none; z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
                             </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bi bi-search me-2"></i>Search
-                                </button>
-                                {% if app.request.get('search') %}
-                                    <a href="{{ path('app_user_index') }}" class="btn btn-secondary w-100 mt-2">
-                                        <i class="bi bi-x-circle me-2"></i>Clear
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search me-2"></i>Search
+                            </button>
+                            {% if app.request.get('search') %}
+                                <a href="{{ path('app_user_index') }}" class="btn btn-secondary w-100 mt-2">
+                                    <i class="bi bi-x-circle me-2"></i>Clear
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
 
-        <!-- Card START -->
-        <div class="card bg-transparent border">
-            <!-- Card body START -->
-            <div class="card-body">
-                <!-- Table START -->
-                <div class="table-responsive border-0">
+            <!-- Card START -->
+            <div class="card bg-transparent border">
+                <!-- Card body START -->
+                <div class="card-body">
+                    <!-- Table START -->
+                    <div class="table-responsive border-0">
                     <table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
                         <thead>
                             <tr>
@@ -147,7 +146,10 @@
         </div>
         <!-- Card END -->
 
-        <!-- Delete Modals -->
+        </div> {# end col-12 col-xl-10 #}
+    </div> {# end row justify-content-center #}
+
+    <!-- Delete Modals -->
         {% for user in users %}
             <div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ user.id }}" aria-hidden="true">
                 <div class="modal-dialog">
@@ -204,8 +206,8 @@
                                         <div class="d-flex align-items-center">
                                             <div class="avatar avatar-xs me-2">
                                                 ${user.avatar ? 
-                                                    `<img class="avatar-img rounded-circle" src="/uploads/avatars/${user.avatar}" alt="${user.fullName}">` :
-                                                    `<div class="avatar-img rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center">${user.initials}</div>`
+                                                    <img class="avatar-img rounded-circle" src="/uploads/avatars/${user.avatar}" alt="${user.fullName}"> :
+                                                    <div class="avatar-img rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center">${user.initials}</div>
                                                 }
                                             </div>
                                             <div>

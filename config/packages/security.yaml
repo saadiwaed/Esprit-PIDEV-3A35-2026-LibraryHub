@@ -62,9 +62,9 @@ security:
         
         # Admin and Librarian routes (other management features)
         - { path: ^/reading-profile, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
-        - { path: ^/club, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
-        - { path: ^/event, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
-        - { path: ^/reading-challenge, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
+        - { path: ^/club, roles: [ROLE_ADMIN, ROLE_LIBRARIAN, ROLE_MEMBER] }
+        - { path: ^/event, roles: [ROLE_ADMIN, ROLE_LIBRARIAN, ROLE_MEMBER] }
+        - { path: ^/reading-challenge, roles: [ROLE_ADMIN, ROLE_LIBRARIAN, ROLE_MEMBER] }
         - { path: ^/dashboard, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
         
         # Everything else requires authentication

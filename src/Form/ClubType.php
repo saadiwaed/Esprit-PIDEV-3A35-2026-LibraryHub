@@ -36,6 +36,7 @@ class ClubType extends AbstractType
                     return $status->getLabel();
                 },
             ])
+            
             ->add('createdDate', DateType::class, [
                 'widget' => 'single_text',
             ])

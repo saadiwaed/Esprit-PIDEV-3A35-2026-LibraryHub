@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Role;
+use App\Entity\ReadingProfile;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,10 +39,32 @@ class RegistrationController extends AbstractController
             // Set default status
             $user->setStatus('PENDING');
 
+            // ✅ 1. Récupérer ou créer le rôle MEMBRE
+            $roleRepository = $entityManager->getRepository(Role::class);
+            $memberRole = $roleRepository->findOneBy(['name' => 'ROLE_MEMBER']);
+            
+            if (!$memberRole) {
+                $memberRole = new Role();
+                $memberRole->setName('ROLE_MEMBER');
+                $memberRole->setDescription('Membre standard de LibraryHub');
+                $entityManager->persist($memberRole);
+            }
+            
+            // ✅ 2. Assigner le rôle MEMBRE à l'utilisateur
+            $user->addRole($memberRole);
+            
+            // ✅ 3. Créer un profil de lecture par défaut
+            $readingProfile = new ReadingProfile();
+            $readingProfile->setUser($user);
+            $readingProfile->setTotalBooksRead(0);
+
+            // Ajoute d'autres valeurs par défaut selon ton entité ReadingProfile
+            
+            $entityManager->persist($readingProfile);
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Registration successful! Please wait for admin approval.');
+            $this->addFlash('success', 'Inscription réussie ! Bienvenue sur LibraryHub. En attente d\'approbation administrateur.');
 
             return $this->redirectToRoute('app_login');
         }

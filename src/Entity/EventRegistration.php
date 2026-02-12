@@ -22,8 +22,8 @@ class EventRegistration
     #[ORM\JoinColumn(nullable: false)]
     private ?Event $event = null;
 
-    #[ORM\Column]
-    private ?\DateTimeInterface $registeredAt = null;
+    #[ORM\Column(type: 'datetime')]  // ✅ AJOUTE type: 'datetime'
+private ?\DateTimeInterface $registeredAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
@@ -42,7 +42,6 @@ class EventRegistration
 
     public function __construct()
     {
-        $this->registeredAt = new \DateTime();
     }
 
     // Getters/Setters...
@@ -185,4 +184,5 @@ class EventRegistration
         $this->status = RegistrationStatus::WAITLISTED;
         return $this;
     }
+    
 }

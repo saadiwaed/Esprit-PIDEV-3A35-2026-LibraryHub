@@ -110,18 +110,18 @@ final class ClubController extends AbstractController
     #[Route('/{id}/event/new', name: 'app_club_event_create', methods: ['GET', 'POST'])]
 public function createClubEvent(Request $request, Club $club, EntityManagerInterface $entityManager): Response
 {
-    // STRICT CHECK: Only the founder can create events for this club
+    // 🚨 VÉRIFICATION STRICTE : Seul le fondateur peut créer un événement POUR LE CLUB
     if ($club->getFounder() !== $this->getUser()) {
-        throw $this->createAccessDeniedException('Vous devez être le fondateur du club pour créer un événement.');
+        // Message clair : ce n'est PAS pour les événements personnels
+        $this->addFlash('error', 'Seul le fondateur du club peut créer des événements officiels pour ce club.');
+        return $this->redirectToRoute('app_club_show', ['id' => $club->getId()]);
     }
     
     $event = new Event();
     $event->setCreatedBy($this->getUser());
-    $event->addOrganizingClub($club); // Automatically link to this club
+    $event->addOrganizingClub($club);  // ✅ Lie au club
     
-    // ✅ FIXED: Use EventType::class, NOT EventTypes::class
     $form = $this->createForm(EventType::class, $event);
-    
     $form->handleRequest($request);
     
     if ($form->isSubmitted() && $form->isValid()) {
@@ -129,15 +129,17 @@ public function createClubEvent(Request $request, Club $club, EntityManagerInter
         $entityManager->flush();
         
         $this->addFlash('success', 'Événement créé pour le club ' . $club->getTitle());
-        
         return $this->redirectToRoute('app_club_show', ['id' => $club->getId()]);
     }
     
-    return $this->render('club/create_event.html.twig', [
+    return $this->render('event/new.html.twig', [
         'club' => $club,
         'form' => $form->createView(),
+        'button_label' => 'Créer l\'événement pour le club',
+        'hide_club_field' => true  // ✅ Cache le champ organizingClubs
     ]);
 }
+
 #[Route('/{id}/transfer-ownership', name: 'app_club_transfer_ownership', methods: ['POST'])]
 public function transferOwnership(Request $request, Club $club, EntityManagerInterface $entityManager): Response
 {

@@ -58,7 +58,7 @@ class EventType extends AbstractType
                 'class' => User::class,
                 'choice_label' => 'id',
             ])
-
+            
         ;
     }
 
