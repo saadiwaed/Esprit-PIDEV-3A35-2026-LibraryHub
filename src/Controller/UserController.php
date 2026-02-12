@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,9 +19,11 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class UserController extends AbstractController
 {
     #[Route('/', name: 'app_user_index', methods: ['GET'])]
-    public function index(Request $request, UserRepository $userRepository): Response
+    public function index(Request $request, UserRepository $userRepository, RoleRepository $roleRepository): Response
     {
         $search = $request->query->get('search', '');
+        $statusFilter = $request->query->get('status', '');
+        $roleFilter = $request->query->get('role', '');
         $page = max(1, (int) $request->query->get('page', 1));
         $limit = 4; // Number of users per page
         
@@ -28,19 +31,46 @@ class UserController extends AbstractController
         $queryBuilder = $userRepository->createQueryBuilder('u')
             ->orderBy('u.createdAt', 'DESC');
         
+        $hasWhere = false;
+        
+        // Apply search filter
         if ($search) {
             $queryBuilder
-                ->where('LOWER(u.firstName) LIKE LOWER(:query)')
+                ->where('(LOWER(u.firstName) LIKE LOWER(:query)')
                 ->orWhere('LOWER(u.lastName) LIKE LOWER(:query)')
                 ->orWhere('LOWER(u.email) LIKE LOWER(:query)')
-                ->orWhere("LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(:query)")
+                ->orWhere("LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(:query))")
                 ->setParameter('query', '%' . $search . '%');
+            $hasWhere = true;
+        }
+        
+        // Apply status filter
+        if ($statusFilter && in_array($statusFilter, ['PENDING', 'ACTIVE', 'INACTIVE'])) {
+            if ($hasWhere) {
+                $queryBuilder->andWhere('u.status = :status');
+            } else {
+                $queryBuilder->where('u.status = :status');
+                $hasWhere = true;
+            }
+            $queryBuilder->setParameter('status', $statusFilter);
+        }
+        
+        // Apply role filter
+        if ($roleFilter) {
+            $queryBuilder->join('u.roles', 'r');
+            if ($hasWhere) {
+                $queryBuilder->andWhere('r.id = :roleId');
+            } else {
+                $queryBuilder->where('r.id = :roleId');
+                $hasWhere = true;
+            }
+            $queryBuilder->setParameter('roleId', $roleFilter);
         }
         
         // Get total count for pagination
         $countQueryBuilder = clone $queryBuilder;
         $totalUsers = (int) $countQueryBuilder
-            ->select('COUNT(u.id)')
+            ->select('COUNT(DISTINCT u.id)')
             ->getQuery()
             ->getSingleScalarResult();
         
@@ -48,10 +78,14 @@ class UserController extends AbstractController
         
         // Apply pagination to get users
         $users = $queryBuilder
+            ->select('DISTINCT u')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+        
+        // Get all roles for filter dropdown
+        $allRoles = $roleRepository->findAll();
         
         return $this->render('user/index.html.twig', [
             'users' => $users,
@@ -60,6 +94,9 @@ class UserController extends AbstractController
             'totalUsers' => $totalUsers,
             'limit' => $limit,
             'search' => $search,
+            'statusFilter' => $statusFilter,
+            'roleFilter' => $roleFilter,
+            'allRoles' => $allRoles,
         ]);
     }
 

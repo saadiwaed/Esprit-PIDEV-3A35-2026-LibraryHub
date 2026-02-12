@@ -28,32 +28,68 @@
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
 
-            <!-- Search Bar -->
+            <!-- Search and Filters Bar -->
             <div class="card bg-transparent border mb-3">
                 <div class="card-body">
-                    <form method="get" action="{{ path('app_user_index') }}" class="row g-3 align-items-center">
-                        <div class="col-md-10">
-                            <div class="position-relative">
-                                <input type="text" 
-                                       name="search" 
-                                       id="userSearch" 
-                                       class="form-control" 
-                                       placeholder="Search by name or email..." 
-                                       value="{{ app.request.get('search') }}"
-                                       autocomplete="off">
-                                <div id="searchSuggestions" class="position-absolute w-100 bg-white border rounded shadow-sm" style="display: none; z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
+                    <form method="get" action="{{ path('app_user_index') }}" id="filterForm">
+                        {# Preserve page parameter when filtering #}
+                        {% if currentPage is defined and currentPage > 1 %}
+                            <input type="hidden" name="page" value="1">
+                        {% endif %}
+                        
+                        <div class="row g-3">
+                            <!-- Search Input -->
+                            <div class="col-md-5">
+                                <div class="position-relative">
+                                    <input type="text" 
+                                           name="search" 
+                                           id="userSearch" 
+                                           class="form-control" 
+                                           placeholder="Search by name or email..." 
+                                           value="{{ search|default('') }}"
+                                           autocomplete="off">
+                                    <div id="searchSuggestions" class="position-absolute w-100 bg-white border rounded shadow-sm" style="display: none; z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Filter -->
+                            <div class="col-md-3">
+                                <select name="status" class="form-select" id="statusFilter">
+                                    <option value="">All Statuses</option>
+                                    <option value="ACTIVE" {% if statusFilter|default('') == 'ACTIVE' %}selected{% endif %}>Active</option>
+                                    <option value="PENDING" {% if statusFilter|default('') == 'PENDING' %}selected{% endif %}>Pending</option>
+                                    <option value="INACTIVE" {% if statusFilter|default('') == 'INACTIVE' %}selected{% endif %}>Inactive</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Role Filter -->
+                            <div class="col-md-3">
+                                <select name="role" class="form-select" id="roleFilter">
+                                    <option value="">All Roles</option>
+                                    {% for role in allRoles|default([]) %}
+                                        <option value="{{ role.id }}" {% if roleFilter|default('') == role.id %}selected{% endif %}>{{ role.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary w-100" title="Apply Filters">
+                                    <i class="bi bi-funnel"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-search me-2"></i>Search
-                            </button>
-                            {% if app.request.get('search') %}
-                                <a href="{{ path('app_user_index') }}" class="btn btn-secondary w-100 mt-2">
-                                    <i class="bi bi-x-circle me-2"></i>Clear
+                        
+                        <!-- Clear Filters Button -->
+                        {% if search or statusFilter or roleFilter %}
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <a href="{{ path('app_user_index') }}" class="btn btn-sm btn-secondary">
+                                    <i class="bi bi-x-circle me-2"></i>Clear All Filters
                                 </a>
-                            {% endif %}
+                            </div>
                         </div>
+                        {% endif %}
                     </form>
                 </div>
             </div>
@@ -146,6 +182,11 @@
             
             <!-- Pagination START -->
             {% if totalUsers is defined %}
+            {% set paginationParams = {} %}
+            {% if search %}{% set paginationParams = paginationParams|merge({'search': search}) %}{% endif %}
+            {% if statusFilter %}{% set paginationParams = paginationParams|merge({'status': statusFilter}) %}{% endif %}
+            {% if roleFilter %}{% set paginationParams = paginationParams|merge({'role': roleFilter}) %}{% endif %}
+            
             <div class="card-footer bg-transparent border-top">
                 <div class="d-flex justify-content-between align-items-center flex-wrap">
                     <div class="mb-2 mb-md-0">
@@ -163,7 +204,7 @@
                             {# Previous button #}
                             <li class="page-item {% if currentPage == 1 %}disabled{% endif %}">
                                 {% if currentPage > 1 %}
-                                    <a class="page-link" href="{{ path('app_user_index', {'page': currentPage - 1, 'search': search|default('')}) }}" aria-label="Previous">
+                                    <a class="page-link" href="{{ path('app_user_index', paginationParams|merge({'page': currentPage - 1})) }}" aria-label="Previous">
                                         <span aria-hidden="true">&laquo;</span>
                                     </a>
                                 {% else %}
@@ -179,7 +220,7 @@
                             
                             {% if startPage > 1 %}
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ path('app_user_index', {'page': 1, 'search': search|default('')}) }}">1</a>
+                                    <a class="page-link" href="{{ path('app_user_index', paginationParams|merge({'page': 1})) }}">1</a>
                                 </li>
                                 {% if startPage > 2 %}
                                     <li class="page-item disabled">
@@ -190,7 +231,7 @@
                             
                             {% for page in startPage..endPage %}
                                 <li class="page-item {% if page == currentPage %}active{% endif %}">
-                                    <a class="page-link" href="{{ path('app_user_index', {'page': page, 'search': search|default('')}) }}">{{ page }}</a>
+                                    <a class="page-link" href="{{ path('app_user_index', paginationParams|merge({'page': page})) }}">{{ page }}</a>
                                 </li>
                             {% endfor %}
                             
@@ -201,14 +242,14 @@
                                     </li>
                                 {% endif %}
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ path('app_user_index', {'page': totalPages, 'search': search|default('')}) }}">{{ totalPages }}</a>
+                                    <a class="page-link" href="{{ path('app_user_index', paginationParams|merge({'page': totalPages})) }}">{{ totalPages }}</a>
                                 </li>
                             {% endif %}
                             
                             {# Next button #}
                             <li class="page-item {% if currentPage == totalPages %}disabled{% endif %}">
                                 {% if currentPage < totalPages %}
-                                    <a class="page-link" href="{{ path('app_user_index', {'page': currentPage + 1, 'search': search|default('')}) }}" aria-label="Next">
+                                    <a class="page-link" href="{{ path('app_user_index', paginationParams|merge({'page': currentPage + 1})) }}" aria-label="Next">
                                         <span aria-hidden="true">&raquo;</span>
                                     </a>
                                 {% else %}
@@ -224,8 +265,6 @@
             </div>
             {% endif %}
             <!-- Pagination END -->
-        </div>
-        <!-- Card END -->
         </div>
         <!-- Card END -->
 
@@ -265,7 +304,26 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('userSearch');
             const suggestionsDiv = document.getElementById('searchSuggestions');
+            const statusFilter = document.getElementById('statusFilter');
+            const roleFilter = document.getElementById('roleFilter');
+            const filterForm = document.getElementById('filterForm');
             let timeoutId;
+            
+            // Auto-submit form when filters change (optional - can be removed if you prefer manual submit)
+            // Uncomment the following lines if you want auto-submit on filter change:
+            /*
+            if (statusFilter) {
+                statusFilter.addEventListener('change', function() {
+                    filterForm.submit();
+                });
+            }
+            
+            if (roleFilter) {
+                roleFilter.addEventListener('change', function() {
+                    filterForm.submit();
+                });
+            }
+            */
 
             searchInput.addEventListener('input', function() {
                 clearTimeout(timeoutId);
