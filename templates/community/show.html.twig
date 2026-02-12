@@ -76,6 +76,39 @@
                     <span class="badge bg-secondary">{{ posts|length }}</span>
                 </div>
                 <div class="card-body p-0">
+                    <div class="p-3 border-bottom">
+                        <form method="get" action="{{ path('app_community_show', {'id': community.id}) }}">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-12 col-lg-7">
+                                    <label for="community-post-search" class="form-label mb-1">Recherche</label>
+                                    <input
+                                        id="community-post-search"
+                                        name="q"
+                                        type="search"
+                                        class="form-control"
+                                        placeholder="Titre ou contenu du post"
+                                        value="{{ postFilters.q }}"
+                                    >
+                                </div>
+                                <div class="col-12 col-md-6 col-lg-3">
+                                    <label for="community-post-sort" class="form-label mb-1">Tri</label>
+                                    <select id="community-post-sort" name="sort" class="form-select">
+                                        <option value="newest" {{ postFilters.sort == 'newest' ? 'selected' : '' }}>Plus recents</option>
+                                        <option value="oldest" {{ postFilters.sort == 'oldest' ? 'selected' : '' }}>Plus anciens</option>
+                                        <option value="most_commented" {{ postFilters.sort == 'most_commented' ? 'selected' : '' }}>Plus commentes</option>
+                                        <option value="title_asc" {{ postFilters.sort == 'title_asc' ? 'selected' : '' }}>Titre A-Z</option>
+                                        <option value="title_desc" {{ postFilters.sort == 'title_desc' ? 'selected' : '' }}>Titre Z-A</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6 col-lg-2 d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">Appliquer</button>
+                                    {% if postFilters.q or postFilters.sort != 'newest' %}
+                                        <a href="{{ path('app_community_show', {'id': community.id}) }}" class="btn btn-outline-secondary">Reinitialiser</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">

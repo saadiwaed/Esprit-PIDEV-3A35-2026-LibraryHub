@@ -21,10 +21,17 @@ use Symfony\Component\Routing\Attribute\Route;
 final class PostController extends AbstractController
 {
     #[Route('/post', name: 'app_post_index', methods: ['GET'])]
-    public function index(PostRepository $postRepository): Response
+    public function index(Request $request, PostRepository $postRepository): Response
     {
+        $search = $this->normalizeSearch($request->query->getString('q'));
+        $sort = $this->normalizePostSort($request->query->getString('sort', 'newest'));
+
         return $this->render('post/index.html.twig', [
-            'posts' => $postRepository->findBy([], ['createdAt' => 'DESC']),
+            'posts' => $postRepository->findForAdmin($search, $sort),
+            'filters' => [
+                'q' => $search ?? '',
+                'sort' => $sort,
+            ],
         ]);
     }
 
@@ -211,6 +218,21 @@ final class PostController extends AbstractController
         return $this->render('forum_front/post/show.html.twig', [
             'post' => $post,
         ]);
+    }
+
+    private function normalizeSearch(?string $search): ?string
+    {
+        $search = trim((string) $search);
+
+        return $search === '' ? null : $search;
+    }
+
+    private function normalizePostSort(?string $sort): string
+    {
+        $sort = strtolower(trim((string) $sort));
+        $allowed = ['newest', 'oldest', 'most_commented', 'title_asc', 'title_desc'];
+
+        return in_array($sort, $allowed, true) ? $sort : 'newest';
     }
 
     /**

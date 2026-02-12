@@ -16,10 +16,17 @@ use Symfony\Component\Routing\Attribute\Route;
 final class CommunityController extends AbstractController
 {
     #[Route('/community', name: 'app_community_index', methods: ['GET'])]
-    public function index(CommunityRepository $communityRepository): Response
+    public function index(Request $request, CommunityRepository $communityRepository): Response
     {
+        $search = $this->normalizeSearch($request->query->getString('q'));
+        $sort = $this->normalizeCommunitySort($request->query->getString('sort', 'newest'));
+
         return $this->render('community/index.html.twig', [
-            'communities' => $communityRepository->findBy([], ['createdAt' => 'DESC']),
+            'communities' => $communityRepository->findForAdmin($search, $sort),
+            'filters' => [
+                'q' => $search ?? '',
+                'sort' => $sort,
+            ],
         ]);
     }
 
@@ -46,11 +53,18 @@ final class CommunityController extends AbstractController
     }
 
     #[Route('/community/{id}', name: 'app_community_show', methods: ['GET'])]
-    public function show(Community $community, PostRepository $postRepository): Response
+    public function show(Community $community, PostRepository $postRepository, Request $request): Response
     {
+        $search = $this->normalizeSearch($request->query->getString('q'));
+        $sort = $this->normalizePostSort($request->query->getString('sort', 'newest'));
+
         return $this->render('community/show.html.twig', [
             'community' => $community,
-            'posts' => $postRepository->findByCommunityForAdmin($community),
+            'posts' => $postRepository->findByCommunityForAdmin($community, $search, $sort),
+            'postFilters' => [
+                'q' => $search ?? '',
+                'sort' => $sort,
+            ],
         ]);
     }
 
@@ -90,23 +104,60 @@ final class CommunityController extends AbstractController
     #[Route('/forum/communities', name: 'app_front_community_index', methods: ['GET'])]
     #[Route('/index-2.html', name: 'app_front_community_index_legacy', methods: ['GET'])]
     #[Route('/index-7.html', name: 'app_front_community_index_legacy_alt', methods: ['GET'])]
-    public function frontIndex(CommunityRepository $communityRepository): Response
+    public function frontIndex(Request $request, CommunityRepository $communityRepository): Response
     {
+        $search = $this->normalizeSearch($request->query->getString('q'));
+        $sort = $this->normalizeCommunitySort($request->query->getString('sort', 'newest'));
+
         return $this->render('forum_front/community/index.html.twig', [
-            'communities' => $communityRepository->findPublicApproved(),
+            'communities' => $communityRepository->findPublicApprovedByFilters($search, $sort),
+            'filters' => [
+                'q' => $search ?? '',
+                'sort' => $sort,
+            ],
         ]);
     }
 
     #[Route('/forum/communities/{id}', name: 'app_front_community_show', methods: ['GET'])]
-    public function frontShow(Community $community, PostRepository $postRepository): Response
+    public function frontShow(Community $community, PostRepository $postRepository, Request $request): Response
     {
         if (!$community->isPublic() || $community->getStatus() !== CommunityStatus::APPROVED) {
             throw $this->createNotFoundException('Communaute introuvable.');
         }
 
+        $search = $this->normalizeSearch($request->query->getString('q'));
+        $sort = $this->normalizePostSort($request->query->getString('sort', 'newest'));
+
         return $this->render('forum_front/community/show.html.twig', [
             'community' => $community,
-            'posts' => $postRepository->findVisibleByCommunity($community),
+            'posts' => $postRepository->findVisibleByCommunity($community, $search, $sort),
+            'postFilters' => [
+                'q' => $search ?? '',
+                'sort' => $sort,
+            ],
         ]);
+    }
+
+    private function normalizeSearch(?string $search): ?string
+    {
+        $search = trim((string) $search);
+
+        return $search === '' ? null : $search;
+    }
+
+    private function normalizePostSort(?string $sort): string
+    {
+        $sort = strtolower(trim((string) $sort));
+        $allowed = ['newest', 'oldest', 'most_commented', 'title_asc', 'title_desc'];
+
+        return in_array($sort, $allowed, true) ? $sort : 'newest';
+    }
+
+    private function normalizeCommunitySort(?string $sort): string
+    {
+        $sort = strtolower(trim((string) $sort));
+        $allowed = ['newest', 'oldest', 'name_asc', 'name_desc', 'most_posts', 'most_members'];
+
+        return in_array($sort, $allowed, true) ? $sort : 'newest';
     }
 }
