@@ -14,7 +14,7 @@ class EventRegistration
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventRegistrations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
@@ -22,7 +22,7 @@ class EventRegistration
     #[ORM\JoinColumn(nullable: false)]
     private ?Event $event = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $registeredAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -31,7 +31,7 @@ class EventRegistration
     #[ORM\Column(enumType: RegistrationStatus::class)]
     private RegistrationStatus $status = RegistrationStatus::PENDING;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $attendedAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]

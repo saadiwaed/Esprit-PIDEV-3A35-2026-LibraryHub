@@ -16,17 +16,17 @@ class ChallengeParticipant
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'challengeParticipants')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $participant = null;
 
-    #[ORM\Column]
+  #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $joinedAt = null;
 
     #[ORM\Column]
     private int $booksRead = 0;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $completedAt = null;
 
     #[ORM\Column(enumType: ParticipationStatus::class)]

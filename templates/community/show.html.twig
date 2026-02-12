@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Communauté : {{ community.name }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>{{ community.name }}</h1>
+
+        <table class="table table-bordered">
+            <tr>
+                <th>ID</th>
+                <td>{{ community.id }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ community.name }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ community.description }}</td>
+            </tr>
+            <tr>
+                <th>Objectif</th>
+                <td>{{ community.purpose }}</td>
+            </tr>
+            <tr>
+                <th>Règles</th>
+                <td>{{ community.rules ?? 'Aucune règle définie' }}</td>
+            </tr>
+            <tr>
+                <th>Icône</th>
+                <td>{{ community.icon ?? '—' }}</td>
+            </tr>
+            <tr>
+                <th>Message de bienvenue</th>
+                <td>{{ community.welcomeMessage ?? '—' }}</td>
+            </tr>
+            <tr>
+                <th>Email de contact</th>
+                <td>{{ community.contactEmail ?? '—' }}</td>
+            </tr>
+            <tr>
+                <th>Publique</th>
+                <td>{{ community.isPublic ? 'Oui' : 'Non' }}</td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>
+                    <span class="badge {{ community.status.getBadgeClass() }}">
+                        {{ community.status.getLabel() }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th>Nombre de membres</th>
+                <td>{{ community.memberCount }}</td>
+            </tr>
+            <tr>
+                <th>Nombre de posts</th>
+                <td>{{ community.postCount }}</td>
+            </tr>
+            <tr>
+                <th>Créée le</th>
+                <td>{{ community.createdAt ? community.createdAt|date('d/m/Y à H:i') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Accepte les posts</th>
+                <td>{{ community.canAcceptPosts() ? 'Oui' : 'Non' }}</td>
+            </tr>
+        </table>
+
+        <a href="{{ path('app_community_index') }}" class="btn btn-secondary">Retour à la liste</a>
+        <a href="{{ path('app_community_edit', {'id': community.id}) }}" class="btn btn-warning">Modifier</a>
+
+        {{ include('community/_delete_form.html.twig') }}
+    </div>
+{% endblock %}

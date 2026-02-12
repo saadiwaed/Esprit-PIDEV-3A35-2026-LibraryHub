@@ -25,3 +25,6 @@
 ###> symfony/asset-mapper ###
 /assets/vendor/
 ###< symfony/asset-mapper ###
+# .gitignore (add this line)
+/public/uploads/attachments/*
+!/public/uploads/attachments/.gitkeep

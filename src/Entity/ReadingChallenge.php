@@ -12,7 +12,7 @@ use App\Enum\ParticipationStatus;
 #[ORM\Table(name: 'reading_challenges')]
 class ReadingChallenge
 {
-        #[ORM\Id]
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
@@ -41,17 +41,17 @@ class ReadingChallenge
     #[ORM\OneToMany(mappedBy: 'challenge', targetEntity: ChallengeParticipant::class)]
     private Collection $participants;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $startDate = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $endDate = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdChallenges')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $createdBy = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdDate = null;
 
     public function __construct()

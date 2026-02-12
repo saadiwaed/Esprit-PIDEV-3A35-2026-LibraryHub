@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Post : {{ post.title }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>{{ post.title }}</h1>
+
+        {% if post.spoilerWarning %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-1"></i> Ce post contient des spoilers
+            </div>
+        {% endif %}
+
+        <table class="table table-bordered">
+            <tr>
+                <th>ID</th>
+                <td>{{ post.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ post.title }}</td>
+            </tr>
+            <tr>
+                <th>Contenu</th>
+                <td>{{ post.content|nl2br }}</td>
+            </tr>
+            <tr>
+                <th>Communauté</th>
+                <td>
+                    {% if post.community %}
+                        <a href="{{ path('app_community_show', {'id': post.community.id}) }}">
+                            {{ post.community.name }}
+                        </a>
+                    {% else %}
+                        <em>—</em>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>
+                    <span class="badge {{ post.status.getBadgeClass() }}">
+                        {{ post.status.getLabel() }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th>Spoiler</th>
+                <td>{{ post.spoilerWarning ? 'Oui' : 'Non' }}</td>
+            </tr>
+            <tr>
+                <th>Épinglé</th>
+                <td>{{ post.isPinned ? 'Oui' : 'Non' }}</td>
+            </tr>
+            <tr>
+                <th>Commentaires autorisés</th>
+                <td>{{ post.allowComments ? 'Oui' : 'Non' }}</td>
+            </tr>
+            <tr>
+                <th>URL externe</th>
+                <td>
+                    {% if post.externalUrl %}
+                        <a href="{{ post.externalUrl }}" target="_blank">{{ post.externalUrl }}</a>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Commentaires</th>
+                <td>{{ post.commentCount }}</td>
+            </tr>
+            <tr>
+                <th>Créé le</th>
+                <td>{{ post.createdAt ? post.createdAt|date('d/m/Y à H:i') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Visible</th>
+                <td>{{ post.isVisible() ? 'Oui' : 'Non' }}</td>
+            </tr>
+            <tr>
+                <th>Pièces jointes</th>
+                <td>
+                    {% if post.hasAttachments() %}
+                        <span class="badge bg-info mb-2">{{ post.getAttachmentCount() }} fichier(s)</span>
+                        <div class="row mt-2">
+                            {% for attachment in post.attachments %}
+                                <div class="col-md-4 mb-2">
+                                    {% if attachment.isImage() %}
+                                        <a href="{{ asset('uploads/attachments/' ~ attachment.filePath) }}" target="_blank">
+                                            <img src="{{ asset('uploads/attachments/' ~ attachment.filePath) }}"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 alt="{{ attachment.getDisplayName() }}"
+                                                 style="max-height: 150px; object-fit: cover;">
+                                        </a>
+                                    {% elseif attachment.isPdf() %}
+                                        <a href="{{ asset('uploads/attachments/' ~ attachment.filePath) }}"
+                                           target="_blank" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-file-pdf me-1"></i> {{ attachment.getDisplayName() }}
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ asset('uploads/attachments/' ~ attachment.filePath) }}"
+                                           target="_blank" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-download me-1"></i> {{ attachment.getDisplayName() }}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <em class="text-muted">Aucune pièce jointe</em>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <a href="{{ path('app_post_index') }}" class="btn btn-secondary">Retour à la liste</a>
+        <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="btn btn-warning">Modifier</a>
+
+        {{ include('post/_delete_form.html.twig') }}
+    </div>
+{% endblock %}

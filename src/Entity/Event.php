@@ -69,7 +69,7 @@ class Event
     #[ORM\Column(type: 'string', length: 20, enumType: EventStatus::class)]
     private EventStatus $status = EventStatus::UPCOMING;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdEvents')]
     #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: false)]
     private ?User $createdBy = null;
 

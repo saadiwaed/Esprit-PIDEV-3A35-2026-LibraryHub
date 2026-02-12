@@ -142,24 +142,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: ReadingChallenge::class, mappedBy: 'createdBy')]
     private Collection $createdChallenges;
 
-    // Un utilisateur peut avoir plusieurs avis (reviews)
-    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'user')]
-    private Collection $reviews;
-
-    // Un utilisateur peut avoir plusieurs prêts (loans)
-    #[ORM\OneToMany(targetEntity: Loan::class, mappedBy: 'member')]
-    private Collection $loans;
-
-    // Un utilisateur peut avoir plusieurs amendes (penalties)
-    #[ORM\OneToMany(targetEntity: Penalty::class, mappedBy: 'user')]
-    private Collection $penalties;
-
-
-
-    // Un utilisateur peut recevoir plusieurs notifications
-    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user')]
-    private Collection $notifications;
-
     public function __construct()
     {
         $this->clubs = new ArrayCollection();
@@ -168,10 +150,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->eventRegistrations = new ArrayCollection();
         $this->challengeParticipants = new ArrayCollection();
         $this->createdChallenges = new ArrayCollection();
-        $this->reviews = new ArrayCollection();
-        $this->loans = new ArrayCollection();
-        $this->penalties = new ArrayCollection();
-        $this->notifications = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
