@@ -1,0 +1,78 @@
+﻿{% extends 'forum_front/layout.html.twig' %}
+
+{% block title %}Forum - {{ community.name }}{% endblock %}
+
+{% block body %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+            <div>
+                <a href="{{ path('app_front_community_index') }}" class="text-decoration-none small">&larr; Retour aux communautes</a>
+                <h1 class="h2 mt-2 mb-1">{{ community.name }}</h1>
+                <p class="text-muted mb-0">{{ community.description }}</p>
+            </div>
+            <a href="{{ path('app_front_post_new', {'id': community.id}) }}" class="btn btn-primary">
+                <i class="fas fa-pen me-1"></i> Ajouter un post
+            </a>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card border shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h6">Objectif</h2>
+                        <p class="mb-0">{{ community.purpose }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h6">Regles</h2>
+                        <p class="mb-0">{{ community.rules ?: 'Aucune regle specifique.' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h6">Statistiques</h2>
+                        <p class="mb-1"><strong>{{ community.memberCount }}</strong> membres</p>
+                        <p class="mb-0"><strong>{{ posts|length }}</strong> posts visibles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Posts de la communaute</h2>
+                <span class="badge bg-secondary">{{ posts|length }}</span>
+            </div>
+            <div class="card-body">
+                {% for post in posts %}
+                    <article class="border rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="h6 mb-0">
+                                <a class="text-decoration-none" href="{{ path('app_front_post_show', {'id': post.id}) }}">{{ post.title }}</a>
+                            </h3>
+                            {% if post.isPinned %}
+                                <span class="badge bg-warning text-dark">Pinned</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-muted mb-2">
+                            {{ post.content|striptags|length > 180 ? post.content|striptags|slice(0, 180) ~ '...' : post.content|striptags }}
+                        </p>
+                        <div class="small text-muted d-flex gap-3">
+                            <span>{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</span>
+                            <span>{{ post.commentCount }} commentaire(s)</span>
+                        </div>
+                    </article>
+                {% else %}
+                    <div class="alert alert-light border mb-0">Aucun post publie dans cette communaute. Soyez le premier a publier.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

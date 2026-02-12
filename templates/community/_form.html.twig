@@ -1,0 +1,21 @@
+﻿{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">{{ form_row(form.name) }}</div>
+            <div class="col-md-6">{{ form_row(form.contactEmail) }}</div>
+            <div class="col-12">{{ form_row(form.description) }}</div>
+            <div class="col-12">{{ form_row(form.purpose) }}</div>
+            <div class="col-md-6">{{ form_row(form.icon) }}</div>
+            <div class="col-md-6">{{ form_row(form.status) }}</div>
+            <div class="col-12">{{ form_row(form.rules) }}</div>
+            <div class="col-12">{{ form_row(form.welcomeMessage) }}</div>
+            <div class="col-12">{{ form_row(form.isPublic) }}</div>
+        </div>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+        <a href="{{ path('app_community_index') }}" class="btn btn-light">Annuler</a>
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+    </div>
+</div>
+{{ form_end(form) }}

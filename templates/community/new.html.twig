@@ -1,75 +1,14 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
-{% block title %}Nouvelle Communauté{% endblock %}
+{% block title %}Administration - Nouvelle communaute{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1>Créer une Communauté</h1>
-
-        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-
-        <table class="table table-bordered">
-            <tr>
-                <td>{{ form_label(form.name) }}</td>
-                <td>{{ form_widget(form.name) }}</td>
-                <td>{{ form_errors(form.name) }}</td>
-            </tr>
-            <tr>
-                <td>{{ form_label(form.description) }}</td>
-                <td>{{ form_widget(form.description) }}</td>
-                <td>{{ form_errors(form.description) }}</td>
-            </tr>
-            <tr>
-                <td>{{ form_label(form.purpose) }}</td>
-                <td>{{ form_widget(form.purpose) }}</td>
-                <td>{{ form_errors(form.purpose) }}</td>
-            </tr>
-            <tr>
-                <td>{{ form_label(form.rules) }}</td>
-                <td>{{ form_widget(form.rules) }}</td>
-                <td>{{ form_errors(form.rules) }}</td>
-            </tr>
-            <tr>
-                <td>{{ form_label(form.icon) }}</td>
-                <td>{{ form_widget(form.icon) }}</td>
-                <td>{{ form_errors(form.icon) }}</td>
-            </tr>
-            <tr>
-                <td>{{ form_label(form.welcomeMessage) }}</td>
-                <td>{{ form_widget(form.welcomeMessage) }}</td>
-                <td>{{ form_errors(form.welcomeMessage) }}</td>
-            </tr>
-            <tr>
-                <td>{{ form_label(form.contactEmail) }}</td>
-                <td>{{ form_widget(form.contactEmail) }}</td>
-                <td>{{ form_errors(form.contactEmail) }}</td>
-            </tr>
-            <tr>
-                <td>{{ form_label(form.isPublic) }}</td>
-                <td>{{ form_widget(form.isPublic) }}</td>
-                <td>{{ form_errors(form.isPublic) }}</td>
-            </tr>
-            <tr>
-                <td>{{ form_label(form.status) }}</td>
-                <td>{{ form_widget(form.status) }}</td>
-                <td>{{ form_errors(form.status) }}</td>
-            </tr>
-        </table>
-
-        <div class="mt-3">
-            {{ form_widget(form.save) }}
-            <a href="{{ path('app_community_index') }}" class="btn btn-secondary">Annuler</a>
-        </div>
-
-        {{ form_end(form) }}
+<div class="container-fluid p-4">
+    <div class="mb-4">
+        <h1 class="h3 mb-1">Creer une communaute</h1>
+        <p class="text-muted mb-0">Ajoutez une nouvelle communaute visible dans le forum.</p>
     </div>
 
-    <style>
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 10px; border: 1px solid #ddd; vertical-align: top; }
-        td:first-child { width: 200px; font-weight: bold; background-color: #f8f9fa; }
-        .form-control, .form-select { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; }
-        .form-check-input { margin-top: 5px; }
-        li { color: #dc3545; font-size: 0.9em; list-style: none; }
-    </style>
+    {{ include('community/_form.html.twig', {form: form}) }}
+</div>
 {% endblock %}
