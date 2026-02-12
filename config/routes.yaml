@@ -1,3 +1,17 @@
+loan_legacy_index:
+    path: /loan/
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: loan_index
+        permanent: false
+
+loan_legacy_index_no_slash:
+    path: /loan
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: loan_index
+        permanent: false
+
 controllers:
     resource:
         path: ../src/Controller/

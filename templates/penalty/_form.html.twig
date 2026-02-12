@@ -1,0 +1,116 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    {% include 'partials/_form_errors.html.twig' with {
+        form: form,
+        title: 'Erreur dans le formulaire d\'amende :'
+    } only %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_row(form.amount, {
+                    label_attr: {class: form.amount.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.issueDate, {
+                    label_attr: {class: form.issueDate.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.status, {
+                    label_attr: {class: form.status.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_row(form.reason, {
+                    label_attr: {class: form.reason.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+
+            <div class="mb-3" id="custom-reason-wrapper">
+                {{ form_row(form.customReason, {
+                    label_attr: {class: form.customReason.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.loan, {
+                    label_attr: {class: form.loan.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.waived, {
+                    label_attr: {class: form.waived.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        {{ form_row(form.notes, {
+            attr: {'rows': 5},
+            label_attr: {class: form.notes.vars.errors|length > 0 ? 'has-error-label' : ''}
+        }) }}
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-check-circle"></i> {{ button_label|default('Enregistrer') }}
+        </button>
+        <button type="reset" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+        </button>
+    </div>
+
+{{ form_end(form) }}
+
+{% if form.vars.submitted and not form.vars.valid %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const summary = document.getElementById('form-error-summary');
+            if (summary) {
+                summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                summary.focus();
+            }
+
+            const firstInvalid = document.querySelector('form .is-invalid, form .form-check-input.is-invalid');
+            if (firstInvalid) {
+                window.setTimeout(function () {
+                    firstInvalid.focus();
+                }, 120);
+            }
+        });
+    </script>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const reasonSelect = document.querySelector('[data-reason-select="1"]');
+        const customReasonInput = document.querySelector('[data-custom-reason="1"]');
+        const customReasonWrapper = document.getElementById('custom-reason-wrapper');
+
+        if (!reasonSelect || !customReasonInput || !customReasonWrapper) {
+            return;
+        }
+
+        const toggleCustomReason = function () {
+            const isOther = reasonSelect.value === 'other';
+            customReasonWrapper.style.display = isOther ? '' : 'none';
+            customReasonInput.required = isOther;
+
+            if (!isOther) {
+                customReasonInput.value = '';
+            }
+        };
+
+        reasonSelect.addEventListener('change', toggleCustomReason);
+        toggleCustomReason();
+    });
+</script>

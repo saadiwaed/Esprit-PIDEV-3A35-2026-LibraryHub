@@ -1,0 +1,20 @@
+{% set fieldLabel = current_form.vars.label is same as(false)
+    ? current_form.vars.name|replace({'_': ' '})|title
+    : (current_form.vars.label ?: current_form.vars.name|replace({'_': ' '})|title)
+%}
+
+{% for error in current_form.vars.errors %}
+    <li>
+        {% if current_form is not same as(root_form) %}
+            <span class="fw-semibold">{{ fieldLabel }}:</span>
+        {% endif %}
+        {{ error.message }}
+    </li>
+{% endfor %}
+
+{% for child in current_form %}
+    {% include 'partials/_form_error_items.html.twig' with {
+        current_form: child,
+        root_form: root_form
+    } only %}
+{% endfor %}

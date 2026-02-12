@@ -27,7 +27,7 @@
 <ul class="navbar-nav flex-column" id="navbar-sidebar">
     
     <!-- Menu item 1 -->
-    <li class="nav-item"><a href="admin-dashboard.html" class="nav-link active"><i class="bi bi-house fa-fw me-2"></i>Dashboard</a></li>
+    <li class="nav-item"><a href="{{ path('app_home') }}" class="nav-link active"><i class="bi bi-house fa-fw me-2"></i>Dashboard</a></li>
     
     <!-- Title -->
     <li class="nav-item ms-2 my-2">Navigation Principale</li>
@@ -38,30 +38,16 @@
             <i class="bi bi-book fa-fw me-2"></i>Catalogue
         </a>
         <ul class="nav collapse flex-column" id="collapseCatalogue" data-bs-parent="#navbar-sidebar">
-            <li class="nav-item"> <a class="nav-link" href="#">Tous les livres</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Catégories</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Recherche avancée</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Nouveautés</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_index') }}">Clubs</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_index') }}">Evenements</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('app_reading_challenge_index') }}">Defis de Lecture</a></li>
         </ul>
     </li>
 
-    <!-- Mes emprunts -->
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="collapse" href="#collapseEmprunts" role="button" aria-expanded="false" aria-controls="collapseEmprunts">
-            <i class="fas fa-book-reader fa-fw me-2"></i>Mes emprunts
-        </a>
-        <ul class="nav collapse flex-column" id="collapseEmprunts" data-bs-parent="#navbar-sidebar">
-            <li class="nav-item"> <a class="nav-link" href="#">En cours</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Historique</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Renouvellements</a></li>
-        </ul>
-    </li>
 
-    <!-- Mes réservations -->
-    <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-bookmark fa-fw me-2"></i>Mes réservations</a></li>
+    <!-- Accueil -->
+    <li class="nav-item"> <a class="nav-link" href="{{ path('app_frontoffice') }}"><i class="bi bi-house fa-fw me-2"></i>Accueil</a></li>
 
-    <!-- Mes avis -->
-    <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-star fa-fw me-2"></i>Mes avis</a></li>
 
     <!-- Mon profil -->
     <li class="nav-item">
@@ -70,13 +56,10 @@
         </a>
         <ul class="nav collapse flex-column" id="collapseProfil" data-bs-parent="#navbar-sidebar">
             <li class="nav-item"> <a class="nav-link" href="#">Informations</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Paramètres</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Mon abonnement</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Parametres</a></li>
         </ul>
     </li>
 
-    <!-- Amendes -->
-    <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-cash-coin fa-fw me-2"></i>Mes amendes</a></li>
 
     <!-- Notifications -->
     <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-bell fa-fw me-2"></i>Notifications</a></li>
@@ -91,10 +74,15 @@
             <i class="bi bi-arrow-left-right fa-fw me-2"></i>Gestion prêts
         </a>
         <ul class="nav collapse flex-column" id="collapseGestionPrets" data-bs-parent="#navbar-sidebar">
-            <li class="nav-item"> <a class="nav-link" href="#">Prêts en cours</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Retours aujourd'hui</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Nouveau prêt</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Retards</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_index') }}">Tous les prêts</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_renewal_index') }}">Renouvellements</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_new') }}">Nouveau prêt</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('penalty_index') }}">Amendes</a></li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_stats_index') }}">
+                    <i class="bi bi-graph-up me-2"></i> Statistiques
+                </a>
+            </li>
         </ul>
     </li>
 
