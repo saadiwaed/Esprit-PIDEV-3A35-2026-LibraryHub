@@ -94,6 +94,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\CitationService;
+
 
 
 #[Route('/journal')]
@@ -103,7 +105,7 @@ final class JournalLectureController extends AbstractController
     // FRONT OFFICE - Liste des journaux
     // ===========================================
     #[Route('/', name: 'app_front_journal_index', methods: ['GET'])]
-    public function frontIndex( Request $request,JournalLectureRepository $journalLectureRepository): Response
+    public function frontIndex( Request $request,JournalLectureRepository $journalLectureRepository,CitationService $citationService ): Response
    {
     $userId = 1; // Simulation utilisateur connecté
     
@@ -191,6 +193,9 @@ final class JournalLectureController extends AbstractController
         ->getQuery()
         ->getSingleColumnResult();
 
+        // ✅ CITATION SUR LA LECTURE
+    $citation = $citationService->getCitationLecture();
+
     return $this->render('frontoffice/journal/index.html.twig', [
         'journal_lectures' => $journalLectures,
         'total_lectures' => $totalLectures,
@@ -202,6 +207,8 @@ final class JournalLectureController extends AbstractController
         'filterNote' => $filterNote,
         'lieux' => $lieux,
         'notes' => [1, 2, 3, 4, 5],
+                'citation' => $citation,
+
     ]);
 }
     // ===========================================

@@ -1,13 +1,11 @@
 {% extends 'frontoffice/base_defi.html.twig' %}
 
-
-
 {% block title %}🎯 {{ defi.titre }} - LibraryHub{% endblock %}
 
-
 {% block body %}
-<!-- HEADER DU DÉFI -->
-
+<!-- ======================================== -->
+<!-- 🎯 HEADER DU DÉFI -->
+<!-- ======================================== -->
 <section class="position-relative py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
     <div class="container">
         <div class="row">
@@ -78,7 +76,9 @@
     </div>
 </section>
 
-<!-- CONTENU PRINCIPAL -->
+<!-- ======================================== -->
+<!-- 📋 CONTENU PRINCIPAL -->
+<!-- ======================================== -->
 <section class="py-5">
     <div class="container">
         <div class="row g-4">
@@ -87,7 +87,7 @@
             <!-- ======================================== -->
             <div class="col-lg-8">
                 
-                <!-- DESCRIPTION -->
+                <!-- 📝 DESCRIPTION -->
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body p-4">
                         <h4 class="fw-bold mb-3">
@@ -97,7 +97,7 @@
                     </div>
                 </div>
 
-                <!-- 🎯 PROGRESSION AMÉLIORÉE -->
+                <!-- 📊 PROGRESSION -->
                 <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                     <div class="card-body p-4 text-white">
                         <div class="row align-items-center">
@@ -250,7 +250,7 @@
             <!-- ======================================== -->
             <div class="col-lg-4">
                 
-                <!-- RÉCOMPENSE -->
+                <!-- 🎁 RÉCOMPENSE -->
                 {% if defi.recompense %}
                     <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
                         <div class="card-body p-4 text-white">
@@ -267,7 +267,9 @@
                     </div>
                 {% endif %}
 
-                <!-- 💡 CONSEIL INTELLIGENT -->
+                <!-- ======================================== -->
+                <!-- 💡 BLOC 1 : CONSEIL INTELLIGENT (PERSONNALISÉ) -->
+                <!-- ======================================== -->
                 <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                     <div class="card-body p-4 text-white">
                         <div class="d-flex align-items-center mb-3">
@@ -280,7 +282,7 @@
                         {% set jours_restants = jours_restants|default(0) %}
                         {% set progression_journaliere = jours_restants > 0 ? reste / jours_restants : 0 %}
                         
-                        <div class="bg-white bg-opacity-10 rounded-3 p-3 mb-3">
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
                             <p class="mb-2">
                                 {% if defi.statut == 'Terminé' %}
                                     🎉 Félicitations ! Tu as réussi ce défi !
@@ -305,16 +307,44 @@
                                 {% endif %}
                             </p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- ======================================== -->
+                <!-- 💬 BLOC 2 : CITATION DU JOUR (API) -->
+                <!-- ======================================== -->
+                <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #9c27b0 0%, #6a1b9a 100%);">
+                    <div class="card-body p-4 text-white">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-white bg-opacity-20 rounded-3 p-3 me-3">
+                                <i class="fas fa-quote-right fa-2x text-warning"></i>
+                            </div>
+                            <h5 class="text-white mb-0">💬 CITATION DU JOUR</h5>
+                        </div>
                         
-                        <div class="text-center">
-                            <i class="fas fa-quote-left opacity-50 me-1"></i>
-                            "Chaque page tournée est un pas de plus vers ta réussite"
-                            <i class="fas fa-quote-right opacity-50 ms-1"></i>
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="fas fa-quote-left text-warning"></i>
+                                </div>
+                                <div>
+                                    <p class="fst-italic mb-1">"{{ citation.contenu|default('Chaque page tournée est un pas de plus vers ta réussite') }}"</p>
+                                    <small class="text-white-50">— {{ citation.auteur|default('LibraryHub') }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end mt-2">
+                            <small class="text-white-50">
+                                <i class="fas fa-sync-alt me-1"></i> Nouvelle citation chaque jour
+                            </small>
                         </div>
                     </div>
                 </div>
 
+                <!-- ======================================== -->
                 <!-- 📊 STATISTIQUES RAPIDES -->
+                <!-- ======================================== -->
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-3">
@@ -345,7 +375,9 @@
     </div> <!-- FIN CONTAINER -->
 </section>
 
+<!-- ======================================== -->
 <!-- ℹ️ MÉTA-INFORMATIONS -->
+<!-- ======================================== -->
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">

@@ -96,6 +96,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\CitationService;
+
+
+
 
 #[Route('/defis')]
 final class DefiPersonelController extends AbstractController
@@ -211,7 +215,9 @@ final class DefiPersonelController extends AbstractController
 public function frontIndex(
     Request $request,
     DefiPersonelRepository $defiPersonelRepository,
-    JournalLectureRepository $journalLectureRepository
+    JournalLectureRepository $journalLectureRepository,
+        CitationService $citationService  // ✅ AJOUTER ICI
+
 ): Response {
     $userId = 1;
     
@@ -383,6 +389,10 @@ public function frontIndex(
         'total_termines_bdd' => $totalTermines,
     ]);
 
+     // ✅ RÉCUPÉRER LES CITATIONS
+    $citation = $citationService->getCitationAleatoire();
+    $citationMotivation = $citationService->getCitationMotivation();
+
     return $this->render('frontoffice/defi/index.html.twig', [
         'defis' => $defisFiltres,
         'defis_actifs' => $defisActifs,
@@ -400,13 +410,15 @@ public function frontIndex(
         'types' => $types,
         'statuts' => $statuts,
         'difficultes' => $difficultes,
+         'citation' => $citation,
+        'citationMotivation' => $citationMotivation,
     ]);
 }
 
         // ✅ 3. DÉTAIL D'UN DÉFI (AVEC PROGRESSION)
     // ===========================================
     #[Route('/{id}', name: 'app_front_defi_show', methods: ['GET'])]
-    public function frontShow(DefiPersonel $defiPersonel, JournalLectureRepository $journalLectureRepository): Response
+    public function frontShow(DefiPersonel $defiPersonel, JournalLectureRepository $journalLectureRepository,CitationService $citationService): Response
     {
         // Vérification sécurité
         if ($defiPersonel->getUserId() != 1) {
@@ -441,6 +453,13 @@ public function frontIndex(
         $joursRestants = $aujourdhui->diff($dateFin)->days;
         $rythmeRecommande = $joursRestants > 0 ? round($reste / $joursRestants, 1) : 0;
 
+        // ✅ CITATION PERSONNALISÉE
+    if ($defiPersonel->getStatut() === 'Terminé') {
+        $citation = $citationService->getCitationMotivation();
+    } else {
+        $citation = $citationService->getCitationLecture();
+    }
+
         return $this->render('frontoffice/defi/show.html.twig', [
             'defi' => $defiPersonel,
             'journaux' => $journaux,
@@ -449,7 +468,9 @@ public function frontIndex(
             'pourcentage' => $pourcentage,
             'jours_restants' => $joursRestants,
             'rythme_recommande' => $rythmeRecommande,
-            'total_lectures' => count($journaux)
+            'total_lectures' => count($journaux),
+                    'citation' => $citation
+
         ]);
     }
 
