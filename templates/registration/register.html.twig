@@ -84,31 +84,36 @@
                                 </a>
                             </div>
 
-                            <!-- Form START -->
-                            {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate', 'class': 'mt-4'}}) }}
+                            <!-- Form START (contrôle de saisie: email format + password min 4, même logique que Sign In) -->
+                            {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate', 'class': 'mt-4', 'id': 'registerForm'}}) }}
                                 <!-- First Name -->
                                 <div class="mb-3">
                                     {{ form_row(registrationForm.firstName) }}
+                                    <div id="registerFirstNameError" class="invalid-feedback" style="display: none;"></div>
                                 </div>
 
                                 <!-- Last Name -->
                                 <div class="mb-3">
                                     {{ form_row(registrationForm.lastName) }}
+                                    <div id="registerLastNameError" class="invalid-feedback" style="display: none;"></div>
                                 </div>
 
                                 <!-- Email -->
-                                <div class="mb-3">
+                                <div class="mb-3" id="wrapEmail">
                                     {{ form_row(registrationForm.email) }}
+                                    <div id="registerEmailError" class="invalid-feedback" style="display: none;"></div>
                                 </div>
 
                                 <!-- Password -->
-                                <div class="mb-3">
+                                <div class="mb-3" id="wrapPassword">
                                     {{ form_row(registrationForm.plainPassword.first) }}
+                                    <div id="registerPasswordError" class="invalid-feedback" style="display: none;"></div>
                                 </div>
 
                                 <!-- Confirm Password -->
                                 <div class="mb-3">
                                     {{ form_row(registrationForm.plainPassword.second) }}
+                                    <div id="registerConfirmPasswordError" class="invalid-feedback" style="display: none;"></div>
                                 </div>
 
                                 <!-- Terms and Conditions -->
@@ -148,5 +153,97 @@
 <!-- Bootstrap JS -->
 <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/js/functions.js') }}"></script>
+<!-- Contrôle de saisie Sign Up: First Name, Last Name, Email, Password min 4, Confirm Password required -->
+<script>
+(function() {
+    var form = document.getElementById('registerForm');
+    if (!form) return;
+    var firstNameInput = form.querySelector('input[name*="[firstName]"]');
+    var lastNameInput = form.querySelector('input[name*="[lastName]"]');
+    var emailInput = form.querySelector('input[name*="[email]"]');
+    var passwordInputs = form.querySelectorAll('input[type="password"]');
+    var passwordInput = passwordInputs[0];
+    var confirmPasswordInput = passwordInputs[1];
+    var firstNameError = document.getElementById('registerFirstNameError');
+    var lastNameError = document.getElementById('registerLastNameError');
+    var emailError = document.getElementById('registerEmailError');
+    var passwordError = document.getElementById('registerPasswordError');
+    var confirmPasswordError = document.getElementById('registerConfirmPasswordError');
+
+    if (!firstNameInput || !lastNameInput || !emailInput || !passwordInput || !confirmPasswordInput ||
+        !firstNameError || !lastNameError || !emailError || !passwordError || !confirmPasswordError) return;
+
+    function showError(inputEl, errorEl, message) {
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+        inputEl.classList.add('is-invalid');
+    }
+    function clearError(inputEl, errorEl) {
+        errorEl.textContent = '';
+        errorEl.style.display = 'none';
+        inputEl.classList.remove('is-invalid');
+    }
+
+    function isEmailValid(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+    }
+
+    form.addEventListener('submit', function(e) {
+        var ok = true;
+        clearError(firstNameInput, firstNameError);
+        clearError(lastNameInput, lastNameError);
+        clearError(emailInput, emailError);
+        clearError(passwordInput, passwordError);
+        clearError(confirmPasswordInput, confirmPasswordError);
+
+        var firstName = (firstNameInput.value || '').trim();
+        if (firstName === '') {
+            showError(firstNameInput, firstNameError, 'Ce champ est obligatoire.');
+            ok = false;
+        }
+
+        var lastName = (lastNameInput.value || '').trim();
+        if (lastName === '') {
+            showError(lastNameInput, lastNameError, 'Ce champ est obligatoire.');
+            ok = false;
+        }
+
+        var email = (emailInput.value || '').trim();
+        if (email === '') {
+            showError(emailInput, emailError, 'Ce champ est obligatoire.');
+            ok = false;
+        } else if (!isEmailValid(email)) {
+            showError(emailInput, emailError, 'Veuillez saisir une adresse e-mail valide (ex: utilisateur@exemple.com).');
+            ok = false;
+        }
+
+        var password = (passwordInput.value || '');
+        if (password === '') {
+            showError(passwordInput, passwordError, 'Ce champ est obligatoire.');
+            ok = false;
+        } else if (password.length < 4) {
+            showError(passwordInput, passwordError, 'Le mot de passe doit contenir au moins 4 caractères.');
+            ok = false;
+        }
+
+        var confirmPassword = (confirmPasswordInput.value || '');
+        if (confirmPassword === '') {
+            showError(confirmPasswordInput, confirmPasswordError, 'Ce champ est obligatoire.');
+            ok = false;
+        } else if (password !== confirmPassword) {
+            showError(confirmPasswordInput, confirmPasswordError, 'Les deux mots de passe ne correspondent pas.');
+            ok = false;
+        }
+
+        if (!ok) e.preventDefault();
+    });
+
+    firstNameInput.addEventListener('input', function() { clearError(firstNameInput, firstNameError); });
+    lastNameInput.addEventListener('input', function() { clearError(lastNameInput, lastNameError); });
+    emailInput.addEventListener('input', function() { clearError(emailInput, emailError); });
+    passwordInput.addEventListener('input', function() { clearError(passwordInput, passwordError); });
+    confirmPasswordInput.addEventListener('input', function() { clearError(confirmPasswordInput, confirmPasswordError); });
+})();
+</script>
 </body>
 </html>

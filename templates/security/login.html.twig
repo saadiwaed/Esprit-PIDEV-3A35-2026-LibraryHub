@@ -92,29 +92,31 @@
                                 </a>
                             </div>
 
-                            <!-- Form START -->
-                            <form method="post" class="mt-4">
-                                <!-- Email -->
+                            <!-- Form START - Workshop: novalidate pour contrôle de saisie (form_errors sous les champs) -->
+                            <form method="post" class="mt-4" novalidate id="loginForm">
+                                <!-- Email : structure workshop = label + widget + erreurs -->
                                 <div class="mb-3">
                                     <label for="inputEmail" class="form-label">Email Address</label>
-                                    <input type="email" 
-                                           name="_username" 
-                                           id="inputEmail" 
-                                           class="form-control" 
-                                           value="{{ last_username }}" 
-                                           required 
-                                           placeholder="your.email@example.com">
+                                    <input type="text"
+                                           name="_username"
+                                           id="inputEmail"
+                                           class="form-control"
+                                           value="{{ last_username }}"
+                                           placeholder="your.email@example.com"
+                                           autocomplete="email">
+                                    <div id="inputEmailError" class="invalid-feedback" style="display: none;"></div>
                                 </div>
 
-                                <!-- Password -->
+                                <!-- Password : structure workshop = label + widget + erreurs -->
                                 <div class="mb-3 position-relative">
                                     <label for="inputPassword" class="form-label">Password</label>
-                                    <input type="password" 
-                                           name="_password" 
-                                           id="inputPassword" 
-                                           class="form-control" 
-                                           required 
-                                           placeholder="Enter your password">
+                                    <input type="password"
+                                           name="_password"
+                                           id="inputPassword"
+                                           class="form-control"
+                                           placeholder="Enter your password"
+                                           autocomplete="current-password">
+                                    <div id="inputPasswordError" class="invalid-feedback" style="display: none;"></div>
                                 </div>
 
                                 <!-- Remember me -->
@@ -159,5 +161,56 @@
 <!-- Bootstrap JS -->
 <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/js/functions.js') }}"></script>
+<!-- Contrôle de saisie (workshop: messages sous les champs, texte uniquement) -->
+<script>
+(function() {
+    var form = document.getElementById('loginForm');
+    var emailInput = document.getElementById('inputEmail');
+    var passwordInput = document.getElementById('inputPassword');
+    var emailError = document.getElementById('inputEmailError');
+    var passwordError = document.getElementById('inputPasswordError');
+
+    function showError(inputEl, errorEl, message) {
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+        inputEl.classList.add('is-invalid');
+    }
+    function clearError(inputEl, errorEl) {
+        errorEl.textContent = '';
+        errorEl.style.display = 'none';
+        inputEl.classList.remove('is-invalid');
+    }
+
+    function isEmailValid(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+    }
+
+    form.addEventListener('submit', function(e) {
+        var ok = true;
+        clearError(emailInput, emailError);
+        clearError(passwordInput, passwordError);
+
+        var email = (emailInput.value || '').trim();
+        if (email === '') {
+            showError(emailInput, emailError, 'Ce champ est obligatoire.');
+            ok = false;
+        } else if (!isEmailValid(email)) {
+            showError(emailInput, emailError, 'Veuillez saisir une adresse e-mail valide (ex: utilisateur@exemple.com).');
+            ok = false;
+        }
+
+        var password = (passwordInput.value || '');
+        if (password === '') {
+            showError(passwordInput, passwordError, 'Ce champ est obligatoire.');
+            ok = false;
+        }
+
+        if (!ok) e.preventDefault();
+    });
+
+    emailInput.addEventListener('input', function() { clearError(emailInput, emailError); });
+    passwordInput.addEventListener('input', function() { clearError(passwordInput, passwordError); });
+})();
+</script>
 </body>
 </html>
