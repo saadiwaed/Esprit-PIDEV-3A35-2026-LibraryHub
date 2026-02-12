@@ -121,6 +121,87 @@
                 <!-- Table END -->
             </div>
             <!-- Card body END -->
+            
+            <!-- Pagination START -->
+            {% if totalRoles is defined %}
+            <div class="card-footer bg-transparent border-top">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div class="mb-2 mb-md-0">
+                        <small class="text-muted">
+                            {% if totalPages is defined and totalPages > 1 %}
+                                Showing {{ ((currentPage - 1) * limit) + 1 }} to {{ min(currentPage * limit, totalRoles) }} of {{ totalRoles }} roles
+                            {% else %}
+                                Total: {{ totalRoles }} role(s)
+                            {% endif %}
+                        </small>
+                    </div>
+                    {% if totalPages is defined and totalPages > 1 %}
+                    <nav aria-label="Role pagination">
+                        <ul class="pagination pagination-sm mb-0">
+                            {# Previous button #}
+                            <li class="page-item {% if currentPage == 1 %}disabled{% endif %}">
+                                {% if currentPage > 1 %}
+                                    <a class="page-link" href="{{ path('app_role_index', {'page': currentPage - 1, 'search': search|default('')}) }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                {% else %}
+                                    <span class="page-link" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </span>
+                                {% endif %}
+                            </li>
+                            
+                            {# Page numbers #}
+                            {% set startPage = max(1, currentPage - 2) %}
+                            {% set endPage = min(totalPages, currentPage + 2) %}
+                            
+                            {% if startPage > 1 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ path('app_role_index', {'page': 1, 'search': search|default('')}) }}">1</a>
+                                </li>
+                                {% if startPage > 2 %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                            
+                            {% for page in startPage..endPage %}
+                                <li class="page-item {% if page == currentPage %}active{% endif %}">
+                                    <a class="page-link" href="{{ path('app_role_index', {'page': page, 'search': search|default('')}) }}">{{ page }}</a>
+                                </li>
+                            {% endfor %}
+                            
+                            {% if endPage < totalPages %}
+                                {% if endPage < totalPages - 1 %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ path('app_role_index', {'page': totalPages, 'search': search|default('')}) }}">{{ totalPages }}</a>
+                                </li>
+                            {% endif %}
+                            
+                            {# Next button #}
+                            <li class="page-item {% if currentPage == totalPages %}disabled{% endif %}">
+                                {% if currentPage < totalPages %}
+                                    <a class="page-link" href="{{ path('app_role_index', {'page': currentPage + 1, 'search': search|default('')}) }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                {% else %}
+                                    <span class="page-link" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            <!-- Pagination END -->
         </div>
         <!-- Card END -->
 

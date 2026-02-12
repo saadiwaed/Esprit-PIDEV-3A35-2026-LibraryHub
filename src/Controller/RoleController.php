@@ -18,15 +18,43 @@ class RoleController extends AbstractController
     public function index(Request $request, RoleRepository $roleRepository): Response
     {
         $search = $request->query->get('search', '');
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = 4; // Number of roles per page
+        
+        // Build base query
+        $queryBuilder = $roleRepository->createQueryBuilder('r')
+            ->orderBy('r.name', 'ASC');
         
         if ($search) {
-            $roles = $roleRepository->searchByNameOrDescription($search);
-        } else {
-            $roles = $roleRepository->findAll();
+            $queryBuilder
+                ->where('LOWER(r.name) LIKE LOWER(:query)')
+                ->orWhere('LOWER(r.description) LIKE LOWER(:query)')
+                ->setParameter('query', '%' . $search . '%');
         }
+        
+        // Get total count for pagination
+        $countQueryBuilder = clone $queryBuilder;
+        $totalRoles = (int) $countQueryBuilder
+            ->select('COUNT(r.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        $totalPages = $totalRoles > 0 ? (int) ceil($totalRoles / $limit) : 1;
+        
+        // Apply pagination to get roles
+        $roles = $queryBuilder
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
         
         return $this->render('role/index.html.twig', [
             'roles' => $roles,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalRoles' => $totalRoles,
+            'limit' => $limit,
+            'search' => $search,
         ]);
     }
 

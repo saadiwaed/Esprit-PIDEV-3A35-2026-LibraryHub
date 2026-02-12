@@ -21,15 +21,45 @@ class UserController extends AbstractController
     public function index(Request $request, UserRepository $userRepository): Response
     {
         $search = $request->query->get('search', '');
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = 4; // Number of users per page
+        
+        // Build base query
+        $queryBuilder = $userRepository->createQueryBuilder('u')
+            ->orderBy('u.createdAt', 'DESC');
         
         if ($search) {
-            $users = $userRepository->searchByNameOrEmail($search);
-        } else {
-            $users = $userRepository->findAll();
+            $queryBuilder
+                ->where('LOWER(u.firstName) LIKE LOWER(:query)')
+                ->orWhere('LOWER(u.lastName) LIKE LOWER(:query)')
+                ->orWhere('LOWER(u.email) LIKE LOWER(:query)')
+                ->orWhere("LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(:query)")
+                ->setParameter('query', '%' . $search . '%');
         }
+        
+        // Get total count for pagination
+        $countQueryBuilder = clone $queryBuilder;
+        $totalUsers = (int) $countQueryBuilder
+            ->select('COUNT(u.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        $totalPages = $totalUsers > 0 ? (int) ceil($totalUsers / $limit) : 1;
+        
+        // Apply pagination to get users
+        $users = $queryBuilder
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
         
         return $this->render('user/index.html.twig', [
             'users' => $users,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalUsers' => $totalUsers,
+            'limit' => $limit,
+            'search' => $search,
         ]);
     }
 

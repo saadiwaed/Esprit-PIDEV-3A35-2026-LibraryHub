@@ -18,15 +18,47 @@ class ReadingProfileController extends AbstractController
     public function index(Request $request, ReadingProfileRepository $readingProfileRepository): Response
     {
         $search = $request->query->get('search', '');
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = 4; // Number of reading profiles per page
+        
+        // Build base query
+        $queryBuilder = $readingProfileRepository->createQueryBuilder('rp')
+            ->join('rp.user', 'u')
+            ->orderBy('u.firstName', 'ASC')
+            ->addOrderBy('u.lastName', 'ASC');
         
         if ($search) {
-            $readingProfiles = $readingProfileRepository->searchByUserNameOrEmail($search);
-        } else {
-            $readingProfiles = $readingProfileRepository->findAll();
+            $queryBuilder
+                ->where('LOWER(u.firstName) LIKE LOWER(:query)')
+                ->orWhere('LOWER(u.lastName) LIKE LOWER(:query)')
+                ->orWhere('LOWER(u.email) LIKE LOWER(:query)')
+                ->orWhere("LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(:query)")
+                ->setParameter('query', '%' . $search . '%');
         }
+        
+        // Get total count for pagination
+        $countQueryBuilder = clone $queryBuilder;
+        $totalProfiles = (int) $countQueryBuilder
+            ->select('COUNT(rp.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        $totalPages = $totalProfiles > 0 ? (int) ceil($totalProfiles / $limit) : 1;
+        
+        // Apply pagination to get reading profiles
+        $readingProfiles = $queryBuilder
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
         
         return $this->render('reading_profile/index.html.twig', [
             'reading_profiles' => $readingProfiles,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalProfiles' => $totalProfiles,
+            'limit' => $limit,
+            'search' => $search,
         ]);
     }
 
