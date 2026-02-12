@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ author.fullName }} – Auteur{% endblock %}
+{% block body %}
+<div class="container-fluid p-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="{{ path(area ~ '_author_index') }}">Auteurs</a></li>
+            <li class="breadcrumb-item active">{{ author.fullName }}</li>
+        </ol>
+    </nav>
+    <div class="row">
+        <div class="col-lg-4 col-xl-3 mb-4">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="bg-light d-flex align-items-center justify-content-center" style="min-height: 280px;">
+                    {% if author.photo %}
+                        <img src="{{ asset(author.photo) }}" alt="{{ author.fullName }}" class="w-100 h-100 object-fit-cover">
+                    {% else %}
+                        <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center text-primary" style="width: 160px; height: 160px;">
+                            <i class="bi bi-person-fill display-1"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-body text-center">
+                    <h1 class="h4 mb-1">{{ author.fullName }}</h1>
+                    {% if author.nationality %}
+                        <p class="text-muted small mb-3"><i class="bi bi-globe me-1"></i>{{ author.nationality }}</p>
+                    {% endif %}
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a href="{{ path(area ~ '_author_edit', { id: author.id }) }}" class="btn btn-primary">Modifier</a>
+                        {{ include('catalog/backoffice/author/_delete_form.html.twig') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8 col-xl-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h2 class="h5 mb-0">Biographie</h2>
+                </div>
+                <div class="card-body">
+                    {% if author.biography %}
+                        <div class="prose">{{ author.biography|nl2br }}</div>
+                    {% else %}
+                        <p class="text-muted mb-0">Aucune biographie renseignée.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Livres ({{ author.books|length }})</h2>
+                    {% if area == 'admin' or area == 'biblio' %}
+                        <a href="{{ path(area ~ '_book_new') }}" class="btn btn-sm btn-outline-primary">Ajouter un livre</a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if author.books|length > 0 %}
+                    <ul class="list-group list-group-flush">
+                        {% for book in author.books %}
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <a href="{{ path(area ~ '_book_show', { id: book.id }) }}" class="text-decoration-none">{{ book.title }}</a>
+                            <span class="badge bg-light text-dark">{{ book.category.name }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted mb-0">Aucun livre pour cet auteur.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

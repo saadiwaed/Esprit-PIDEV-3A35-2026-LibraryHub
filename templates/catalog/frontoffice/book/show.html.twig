@@ -1,0 +1,60 @@
+{% extends 'frontoffice/base.html.twig' %}
+{% block title %}{{ book.title }} – Livre{% endblock %}
+{% block main_content %}
+<section class="py-5">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path(area ~ '_catalog_index') }}">Catalogue</a></li>
+                <li class="breadcrumb-item"><a href="{{ path(area ~ '_book_index') }}">Livres</a></li>
+                <li class="breadcrumb-item active">{{ (book.title)|length > 40 ? (book.title)|slice(0, 40) ~ '…' : book.title }}</li>
+            </ol>
+        </nav>
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm overflow-hidden sticky-top">
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                        {% if book.coverImage %}
+                            <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="w-100 h-100 object-fit-cover">
+                        {% else %}
+                            <div class="text-muted text-center p-4">
+                                <i class="bi bi-journal-bookmark display-1"></i>
+                                <p class="mb-0 mt-2">Sans couverture</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <span class="badge bg-primary mb-2">{{ book.category.name }}</span>
+                <h1 class="h2 mb-2">{{ book.title }}</h1>
+                <p class="text-muted mb-4">
+                    <a href="{{ path(area ~ '_author_show', { id: book.author.id }) }}" class="text-decoration-none">{{ book.author.fullName }}</a>
+                </p>
+                <ul class="list-unstyled mb-4">
+                    {% if book.publisher %}<li class="mb-2"><strong>Éditeur :</strong> {{ book.publisher }}</li>{% endif %}
+                    {% if book.publicationYear %}<li class="mb-2"><strong>Année :</strong> {{ book.publicationYear }}</li>{% endif %}
+                    {% if book.pageCount %}<li class="mb-2"><strong>Pages :</strong> {{ book.pageCount }}</li>{% endif %}
+                    {% if book.language %}<li class="mb-2"><strong>Langue :</strong> {{ book.language }}</li>{% endif %}
+                    <li class="mb-2"><strong>Statut :</strong>
+                        {% if book.status == 'available' %}Disponible
+                        {% elseif book.status == 'borrowed' %}Emprunté
+                        {% elseif book.status == 'reserved' %}Réservé
+                        {% else %}En maintenance{% endif %}
+                    </li>
+                </ul>
+                {% if book.description %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 py-3">
+                        <h2 class="h5 mb-0">Description</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="prose">{{ book.description|nl2br }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
