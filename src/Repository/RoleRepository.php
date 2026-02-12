@@ -40,19 +40,4 @@ class RoleRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
-
-    /**
-     * Search roles by name or description
-     */
-    public function searchByNameOrDescription(string $query, int $limit = 10): array
-    {
-        return $this->createQueryBuilder('r')
-            ->where('LOWER(r.name) LIKE LOWER(:query)')
-            ->orWhere('LOWER(r.description) LIKE LOWER(:query)')
-            ->setParameter('query', '%' . $query . '%')
-            ->orderBy('r.name', 'ASC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-    }
 }

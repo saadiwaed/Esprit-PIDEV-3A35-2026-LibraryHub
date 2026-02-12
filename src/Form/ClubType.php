@@ -5,15 +5,15 @@ namespace App\Form;
 use App\Entity\Club;
 use App\Entity\Event;
 use App\Entity\User;
-use App\Enum\ClubStatus; // ADD THIS
+use App\Enum\ClubStatus;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType; // ADD THIS
-use Symfony\Component\Form\Extension\Core\Type\DateType; // ADD for dates
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType; // ADD for boolean
-use Symfony\Component\Form\Extension\Core\Type\SubmitType; 
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class ClubType extends AbstractType
 {
@@ -29,17 +29,24 @@ class ClubType extends AbstractType
             ->add('isPrivate', CheckboxType::class, [
                 'required' => false,
             ])
-            ->add('status', ChoiceType::class, [ // FIX THIS LINE
+            ->add('status', ChoiceType::class, [
                 'choices' => ClubStatus::cases(),
                 'choice_value' => 'value',
                 'choice_label' => function (ClubStatus $status) {
                     return $status->getLabel();
                 },
             ])
-            ->add('createdDate', DateType::class, [ // Specify date type
+            ->add('createdDate', DateType::class, [
                 'widget' => 'single_text',
             ])
-            ->add('image')
+            ->add('imageFile', VichImageType::class, [
+                'label' => 'Image du club',
+                'required' => false, // Changed to false for edit
+                'allow_delete' => false,
+                'download_uri' => false,
+                'image_uri' => true,
+                'attr' => ['class' => 'form-control']
+            ])
             ->add('founder', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'id',
@@ -57,11 +64,8 @@ class ClubType extends AbstractType
                 'class' => Event::class,
                 'choice_label' => 'id',
                 'multiple' => true,
-            ])
-            ->add('save', SubmitType::class, [
-                'label' => 'Enregistrer',
-            ])
-        ;
+            ]);
+            // REMOVED the ->add('save', SubmitType::class) line
     }
 
     public function configureOptions(OptionsResolver $resolver): void

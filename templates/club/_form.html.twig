@@ -1,4 +1,3 @@
-{# templates/event/_form.html.twig #}
 {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
 <table class="table table-bordered">
@@ -15,21 +14,21 @@
     </tr>
 
     <tr>
-        <td>{{ form_label(form.startDateTime, "Date et heure de début") }}</td>
-        <td>{{ form_widget(form.startDateTime, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.startDateTime) }}</td>
+        <td>{{ form_label(form.category, "Catégorie") }}</td>
+        <td>{{ form_widget(form.category, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.category) }}</td>
     </tr>
 
     <tr>
-        <td>{{ form_label(form.endDateTime, "Date et heure de fin") }}</td>
-        <td>{{ form_widget(form.endDateTime, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.endDateTime) }}</td>
+        <td>{{ form_label(form.meetingDate, "Date de réunion") }}</td>
+        <td>{{ form_widget(form.meetingDate, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.meetingDate) }}</td>
     </tr>
 
     <tr>
-        <td>{{ form_label(form.location, "Lieu") }}</td>
-        <td>{{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.location) }}</td>
+        <td>{{ form_label(form.meetingLocation, "Lieu de réunion") }}</td>
+        <td>{{ form_widget(form.meetingLocation, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.meetingLocation) }}</td>
     </tr>
 
     <tr>
@@ -39,30 +38,15 @@
     </tr>
 
     <tr>
-        <td>{{ form_label(form.registrationDeadline, "Date limite d'inscription") }}</td>
-        <td>{{ form_widget(form.registrationDeadline, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.registrationDeadline) }}</td>
+        <td>{{ form_label(form.isPrivate, "Privé") }}</td>
+        <td>{{ form_widget(form.isPrivate, {'attr': {'class': 'form-check-input'}}) }}</td>
+        <td>{{ form_errors(form.isPrivate) }}</td>
     </tr>
 
     <tr>
         <td>{{ form_label(form.status, "Statut") }}</td>
         <td>{{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}</td>
         <td>{{ form_errors(form.status) }}</td>
-    </tr>
-
-    <tr>
-    <td>{{ form_label(form.type, "Type d'événement") }}</td>
-    <td>
-        {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
-        <small class="text-muted">
-            {% for type in enum('App\\Enum\\EventType').cases() %}
-                <span class="badge bg-light text-dark me-1">
-                    <i class="fas fa-{{ type.getIcon() }}"></i> {{ type.getLabel() }}
-                </span>
-            {% endfor %}
-        </small>
-    </td>
-    <td>{{ form_errors(form.type) }}</td>
     </tr>
 
     <tr>
@@ -78,21 +62,33 @@
     </tr>
 
     <tr>
+        <td>{{ form_label(form.founder, "Fondateur") }}</td>
+        <td>{{ form_widget(form.founder, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.founder) }}</td>
+    </tr>
+
+    <tr>
+        <td>{{ form_label(form.members, "Membres") }}</td>
+        <td>{{ form_widget(form.members, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.members) }}</td>
+    </tr>
+
+    <tr>
         <td>{{ form_label(form.createdBy, "Créé par") }}</td>
         <td>{{ form_widget(form.createdBy, {'attr': {'class': 'form-control'}}) }}</td>
         <td>{{ form_errors(form.createdBy) }}</td>
     </tr>
 
     <tr>
-        <td>{{ form_label(form.organizingClubs, "Clubs organisateurs") }}</td>
-        <td>{{ form_widget(form.organizingClubs, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.organizingClubs) }}</td>
+        <td>{{ form_label(form.organizedEvents, "Événements organisés") }}</td>
+        <td>{{ form_widget(form.organizedEvents, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.organizedEvents) }}</td>
     </tr>
 </table>
 
 <div class="mt-3">
     <button type="submit" class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
-    <a href="{{ path('app_event_index') }}" class="btn btn-secondary">Annuler</a>
+    <a href="{{ path('app_club_index') }}" class="btn btn-secondary">Annuler</a>
 </div>
 
 {{ form_end(form) }}
