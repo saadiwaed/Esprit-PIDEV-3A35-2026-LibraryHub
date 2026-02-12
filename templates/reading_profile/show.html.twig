@@ -3,119 +3,132 @@
 {% block title %}Reading Profile Details{% endblock %}
 
 {% block body %}
-<div class="container-fluid p-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
+<div class="page-content">
+    <div class="page-content-wrapper border">
+        <!-- Title -->
+        <div class="row mb-3">
+            <div class="col-12 d-sm-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-2 mb-sm-0">Reading Profile Details</h1>
                 <div>
-                    <h1 class="h3 mb-0">Reading Profile</h1>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ path('app_reading_profile_index') }}">Reading Profiles</a></li>
-                            <li class="breadcrumb-item active">{{ reading_profile.user.fullName }}</li>
-                        </ol>
-                    </nav>
-                </div>
-                <div>
-                    <a href="{{ path('app_reading_profile_edit', {'id': reading_profile.id}) }}" class="btn btn-primary">
-                        <i class="bi bi-pencil me-2"></i>Edit
+                    <a href="{{ path('app_reading_profile_edit', {'id': reading_profile.id}) }}" class="btn btn-sm btn-success mb-0 me-2">
+                        <i class="bi bi-pencil-square me-2"></i>Edit
                     </a>
-                    <a href="{{ path('app_reading_profile_index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-2"></i>Back
+                    <a href="{{ path('app_reading_profile_index') }}" class="btn btn-sm btn-secondary mb-0">
+                        <i class="bi bi-arrow-left me-2"></i>Back to List
                     </a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <!-- Stats Cards -->
-        <div class="col-md-4 mb-4">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <i class="bi bi-book fs-1 mb-2"></i>
-                    <h2>{{ reading_profile.totalBooksRead }}</h2>
-                    <p class="mb-0">Books Read</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <i class="bi bi-calendar-check fs-1 mb-2"></i>
-                    <h2>{{ reading_profile.readingGoalPerMonth ?? '-' }}</h2>
-                    <p class="mb-0">Monthly Goal</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card bg-warning text-dark">
-                <div class="card-body text-center">
-                    <i class="bi bi-star-fill fs-1 mb-2"></i>
-                    <h2>{{ reading_profile.averageRating ?? '-' }}</h2>
-                    <p class="mb-0">Average Rating</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- User Info -->
-        <div class="col-lg-4 mb-4">
-            <div class="card">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">User</h5>
-                </div>
-                <div class="card-body text-center">
-                    {% if reading_profile.user.avatar %}
-                        <img src="{{ asset('uploads/avatars/' ~ reading_profile.user.avatar) }}" class="rounded-circle mb-3" width="80" height="80" alt="Avatar">
-                    {% else %}
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">
-                            {{ reading_profile.user.firstName|first|upper }}{{ reading_profile.user.lastName|first|upper }}
+        <!-- Card START -->
+        <div class="card bg-transparent border">
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- User Info -->
+                    <div class="col-12">
+                        <h5 class="mb-3">User Information</h5>
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="avatar avatar-lg me-3">
+                                {% if reading_profile.user.avatar %}
+                                    <img class="avatar-img rounded-circle" src="{{ asset('uploads/avatars/' ~ reading_profile.user.avatar) }}" alt="{{ reading_profile.user.fullName }}">
+                                {% else %}
+                                    <div class="avatar-img rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fs-3">
+                                        {{ reading_profile.user.firstName|first }}{{ reading_profile.user.lastName|first }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h4 class="mb-1">{{ reading_profile.user.fullName }}</h4>
+                                <p class="mb-0 text-muted">{{ reading_profile.user.email }}</p>
+                            </div>
                         </div>
-                    {% endif %}
-                    <h5>{{ reading_profile.user.fullName }}</h5>
-                    <p class="text-muted mb-2">{{ reading_profile.user.email }}</p>
-                    <a href="{{ path('app_user_show', {'id': reading_profile.user.id}) }}" class="btn btn-sm btn-outline-primary">
-                        View User Profile
-                    </a>
-                </div>
-            </div>
-        </div>
+                    </div>
 
-        <!-- Preferences -->
-        <div class="col-lg-8 mb-4">
-            <div class="card">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">Reading Preferences</h5>
-                </div>
-                <div class="card-body">
-                    <h6 class="text-muted mb-3">Favorite Genres</h6>
-                    <div class="mb-4">
+                    <!-- Reading Statistics -->
+                    <div class="col-12">
+                        <h5 class="mb-3">Reading Statistics</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="card bg-primary bg-opacity-10 border-0">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-book-fill fs-1 text-primary mb-2"></i>
+                                        <h3 class="mb-1 text-primary">{{ reading_profile.totalBooksRead }}</h3>
+                                        <p class="mb-0 text-muted">Books Read</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-success bg-opacity-10 border-0">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-trophy-fill fs-1 text-success mb-2"></i>
+                                        <h3 class="mb-1 text-success">
+                                            {{ reading_profile.readingGoalPerMonth ?: 'Not Set' }}
+                                        </h3>
+                                        <p class="mb-0 text-muted">Monthly Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-warning bg-opacity-10 border-0">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-star-fill fs-1 text-warning mb-2"></i>
+                                        <h3 class="mb-1 text-warning">
+                                            {{ reading_profile.averageRating ? (reading_profile.averageRating|number_format(1)) : 'N/A' }}
+                                        </h3>
+                                        <p class="mb-0 text-muted">Average Rating</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Favorite Genres -->
+                    <div class="col-12">
+                        <h5 class="mb-3 mt-3">Favorite Genres</h5>
                         {% if reading_profile.favoriteGenres %}
-                            {% for genre in reading_profile.favoriteGenres %}
-                                <span class="badge bg-info me-1 mb-1 fs-6">{{ genre }}</span>
-                            {% endfor %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for genre in reading_profile.favoriteGenres %}
+                                    <span class="badge bg-info bg-opacity-10 text-info fs-6 px-3 py-2">
+                                        <i class="bi bi-bookmark-fill me-1"></i>{{ genre }}
+                                    </span>
+                                {% endfor %}
+                            </div>
                         {% else %}
                             <p class="text-muted">No favorite genres selected</p>
                         {% endif %}
                     </div>
 
-                    <h6 class="text-muted mb-3">Preferred Languages</h6>
-                    <div>
+                    <!-- Preferred Languages -->
+                    <div class="col-12">
+                        <h5 class="mb-3 mt-3">Preferred Languages</h5>
                         {% if reading_profile.preferredLanguages %}
-                            {% for language in reading_profile.preferredLanguages %}
-                                <span class="badge bg-secondary me-1 mb-1 fs-6">{{ language }}</span>
-                            {% endfor %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for language in reading_profile.preferredLanguages %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary fs-6 px-3 py-2">
+                                        <i class="bi bi-globe me-1"></i>{{ language }}
+                                    </span>
+                                {% endfor %}
+                            </div>
                         {% else %}
                             <p class="text-muted">No preferred languages selected</p>
                         {% endif %}
                     </div>
+
+                    <!-- Quick Actions -->
+                    <div class="col-12">
+                        <div class="mt-4 d-flex gap-2">
+                            <a href="{{ path('app_user_show', {'id': reading_profile.user.id}) }}" class="btn btn-info">
+                                <i class="bi bi-person me-2"></i>View User Profile
+                            </a>
+                            <a href="{{ path('app_reading_profile_edit', {'id': reading_profile.id}) }}" class="btn btn-success">
+                                <i class="bi bi-pencil-square me-2"></i>Edit Reading Profile
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <!-- Card END -->
     </div>
 </div>
 {% endblock %}

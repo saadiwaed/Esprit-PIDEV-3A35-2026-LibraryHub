@@ -28,47 +28,70 @@ class UserType extends AbstractType
 
         $builder
             ->add('email', EmailType::class, [
-                'label' => 'Email',
+                'label' => 'Email Address',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter email address',
-                ],
+                    'placeholder' => 'user@example.com'
+                ]
             ])
             ->add('firstName', TextType::class, [
                 'label' => 'First Name',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter first name',
-                ],
+                    'placeholder' => 'John'
+                ]
             ])
             ->add('lastName', TextType::class, [
                 'label' => 'Last Name',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter last name',
-                ],
+                    'placeholder' => 'Doe'
+                ]
             ])
             ->add('phone', TelType::class, [
-                'label' => 'Phone',
+                'label' => 'Phone Number',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter phone number',
-                ],
+                    'placeholder' => '+1234567890'
+                ]
             ])
             ->add('address', TextareaType::class, [
                 'label' => 'Address',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter address',
                     'rows' => 3,
+                    'placeholder' => 'Full address...'
+                ]
+            ])
+            ->add('status', ChoiceType::class, [
+                'label' => 'Account Status',
+                'choices' => [
+                    'Pending' => 'PENDING',
+                    'Active' => 'ACTIVE',
+                    'Inactive' => 'INACTIVE',
                 ],
+                'attr' => ['class' => 'form-select']
+            ])
+            ->add('userRoles', EntityType::class, [
+                'class' => Role::class,
+                'choice_label' => 'name',
+                'label' => 'User Roles',
+                'multiple' => true,
+                'expanded' => true,
+                'attr' => ['class' => 'roles-checkboxes'],
+                'help' => 'Select one or more roles for this user',
+                'required' => false
             ])
             ->add('avatarFile', FileType::class, [
                 'label' => 'Avatar Image',
                 'mapped' => false,
                 'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'accept' => 'image/*'
+                ],
                 'constraints' => [
                     new File([
                         'maxSize' => '2M',
@@ -76,40 +99,16 @@ class UserType extends AbstractType
                             'image/jpeg',
                             'image/png',
                             'image/gif',
+                            'image/webp',
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG or GIF)',
+                        'mimeTypesMessage' => 'Please upload a valid image file (JPEG, PNG, GIF, WEBP)',
                     ])
                 ],
-                'attr' => [
-                    'class' => 'form-control',
-                    'accept' => 'image/*',
-                ],
+                'help' => 'Max file size: 2MB'
             ])
-            ->add('status', ChoiceType::class, [
-                'label' => 'Status',
-                'choices' => [
-                    'Pending' => 'PENDING',
-                    'Active' => 'ACTIVE',
-                    'Inactive' => 'INACTIVE',
-                ],
-                'attr' => [
-                    'class' => 'form-select',
-                ],
-            ])
-            ->add('userRoles', EntityType::class, [
-                'class' => Role::class,
-                'choice_label' => 'name',
-                'multiple' => true,
-                'expanded' => true,
-                'required' => false,
-                'label' => 'Roles',
-                'by_reference' => false,
-                'attr' => [
-                    'class' => 'form-check-group',
-                ],
-            ]);
+        ;
 
-        // Password field - required for new users, optional for edit
+        // Only add password field for new users
         if (!$isEdit) {
             $builder->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
@@ -118,27 +117,32 @@ class UserType extends AbstractType
                     'label' => 'Password',
                     'attr' => [
                         'class' => 'form-control',
-                        'placeholder' => 'Enter password',
-                    ],
-                    'constraints' => [
-                        new NotBlank(['message' => 'Please enter a password']),
-                        new Length([
-                            'min' => 8,
-                            'minMessage' => 'Password must be at least {{ limit }} characters',
-                            'max' => 255,
-                        ]),
-                    ],
+                        'autocomplete' => 'new-password',
+                        'placeholder' => 'Enter password'
+                    ]
                 ],
                 'second_options' => [
                     'label' => 'Confirm Password',
                     'attr' => [
                         'class' => 'form-control',
-                        'placeholder' => 'Confirm password',
-                    ],
+                        'autocomplete' => 'new-password',
+                        'placeholder' => 'Confirm password'
+                    ]
                 ],
                 'invalid_message' => 'The password fields must match.',
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter a password',
+                    ]),
+                    new Length([
+                        'min' => 6,
+                        'minMessage' => 'Your password should be at least {{ limit }} characters',
+                        'max' => 4096,
+                    ]),
+                ],
             ]);
         } else {
+            // For edit, make password optional
             $builder->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
@@ -147,24 +151,26 @@ class UserType extends AbstractType
                     'label' => 'New Password (leave blank to keep current)',
                     'attr' => [
                         'class' => 'form-control',
-                        'placeholder' => 'Enter new password',
-                    ],
-                    'constraints' => [
-                        new Length([
-                            'min' => 8,
-                            'minMessage' => 'Password must be at least {{ limit }} characters',
-                            'max' => 255,
-                        ]),
-                    ],
+                        'autocomplete' => 'new-password',
+                        'placeholder' => 'Enter new password (optional)'
+                    ]
                 ],
                 'second_options' => [
                     'label' => 'Confirm New Password',
                     'attr' => [
                         'class' => 'form-control',
-                        'placeholder' => 'Confirm new password',
-                    ],
+                        'autocomplete' => 'new-password',
+                        'placeholder' => 'Confirm new password'
+                    ]
                 ],
                 'invalid_message' => 'The password fields must match.',
+                'constraints' => [
+                    new Length([
+                        'min' => 6,
+                        'minMessage' => 'Your password should be at least {{ limit }} characters',
+                        'max' => 4096,
+                    ]),
+                ],
             ]);
         }
     }

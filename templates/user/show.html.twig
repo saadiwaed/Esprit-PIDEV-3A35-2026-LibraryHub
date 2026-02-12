@@ -3,129 +3,159 @@
 {% block title %}User Details{% endblock %}
 
 {% block body %}
-<div class="container-fluid p-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
+<div class="page-content">
+    <div class="page-content-wrapper border">
+        <!-- Title -->
+        <div class="row mb-3">
+            <div class="col-12 d-sm-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-2 mb-sm-0">User Details</h1>
                 <div>
-                    <h1 class="h3 mb-0">User Details</h1>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ path('app_user_index') }}">Users</a></li>
-                            <li class="breadcrumb-item active">{{ user.fullName }}</li>
-                        </ol>
-                    </nav>
-                </div>
-                <div>
-                    <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-primary">
-                        <i class="bi bi-pencil me-2"></i>Edit
+                    <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-success mb-0 me-2">
+                        <i class="bi bi-pencil-square me-2"></i>Edit
                     </a>
-                    <a href="{{ path('app_user_index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-2"></i>Back
+                    <a href="{{ path('app_user_index') }}" class="btn btn-sm btn-secondary mb-0">
+                        <i class="bi bi-arrow-left me-2"></i>Back to List
                     </a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <!-- User Info Card -->
-        <div class="col-lg-4 mb-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    {% if user.avatar %}
-                        <img src="{{ asset('uploads/avatars/' ~ user.avatar) }}" class="rounded-circle mb-3" width="120" height="120" alt="Avatar">
-                    {% else %}
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; font-size: 2.5rem;">
-                            {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
-                        </div>
-                    {% endif %}
-                    <h4>{{ user.fullName }}</h4>
-                    <p class="text-muted">{{ user.email }}</p>
-                    {% if user.status == 'ACTIVE' %}
-                        <span class="badge bg-success fs-6">Active</span>
-                    {% elseif user.status == 'PENDING' %}
-                        <span class="badge bg-warning fs-6">Pending</span>
-                    {% else %}
-                        <span class="badge bg-danger fs-6">Inactive</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Details Card -->
-        <div class="col-lg-8 mb-4">
-            <div class="card">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">User Information</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-borderless">
-                        <tr>
-                            <th style="width: 200px;">Email</th>
-                            <td>{{ user.email }}</td>
-                        </tr>
-                        <tr>
-                            <th>Phone</th>
-                            <td>{{ user.phone ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Address</th>
-                            <td>{{ user.address ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Roles</th>
-                            <td>
-                                {% for role in user.userRoles %}
-                                    <span class="badge bg-info">{{ role.name }}</span>
+        <!-- Card START -->
+        <div class="card bg-transparent border">
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Avatar and Basic Info -->
+                    <div class="col-12">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="avatar avatar-xl me-3">
+                                {% if user.avatar %}
+                                    <img class="avatar-img rounded-circle" src="{{ asset('uploads/avatars/' ~ user.avatar) }}" alt="{{ user.fullName }}">
                                 {% else %}
-                                    <span class="text-muted">No roles assigned</span>
-                                {% endfor %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Created At</th>
-                            <td>{{ user.createdAt|date('F d, Y H:i') }}</td>
-                        </tr>
-                        <tr>
-                            <th>Last Login</th>
-                            <td>{{ user.lastLoginAt ? user.lastLoginAt|date('F d, Y H:i') : 'Never' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Email Verified</th>
-                            <td>{{ user.emailVerifiedAt ? user.emailVerifiedAt|date('F d, Y H:i') : 'Not verified' }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Reading Profile -->
-            {% if user.readingProfile %}
-            <div class="card mt-4">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">Reading Profile</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 text-center mb-3">
-                            <h3 class="text-primary">{{ user.readingProfile.totalBooksRead }}</h3>
-                            <small class="text-muted">Books Read</small>
-                        </div>
-                        <div class="col-md-4 text-center mb-3">
-                            <h3 class="text-primary">{{ user.readingProfile.readingGoalPerMonth ?? '-' }}</h3>
-                            <small class="text-muted">Monthly Goal</small>
-                        </div>
-                        <div class="col-md-4 text-center mb-3">
-                            <h3 class="text-primary">{{ user.readingProfile.averageRating ?? '-' }}</h3>
-                            <small class="text-muted">Avg Rating</small>
+                                    <div class="avatar-img rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fs-1">
+                                        {{ user.firstName|first }}{{ user.lastName|first }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h3 class="mb-1">{{ user.fullName }}</h3>
+                                <p class="mb-0 text-muted">{{ user.email }}</p>
+                                {% if user.status == 'ACTIVE' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success">Active</span>
+                                {% elseif user.status == 'PENDING' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning">Pending</span>
+                                {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger">Inactive</span>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Contact Information -->
+                    <div class="col-12">
+                        <h5 class="mb-3">Contact Information</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Email</h6>
+                                <p class="mb-0">{{ user.email }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Phone</h6>
+                                <p class="mb-0">{{ user.phone ?: 'Not provided' }}</p>
+                            </div>
+                            <div class="col-12">
+                                <h6 class="text-muted mb-1">Address</h6>
+                                <p class="mb-0">{{ user.address ?: 'Not provided' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Information -->
+                    <div class="col-12">
+                        <h5 class="mb-3 mt-3">Account Information</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Status</h6>
+                                {% if user.status == 'ACTIVE' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success fs-6">Active</span>
+                                {% elseif user.status == 'PENDING' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning fs-6">Pending</span>
+                                {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fs-6">Inactive</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Created At</h6>
+                                <p class="mb-0">{{ user.createdAt|date('F d, Y H:i') }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Last Login</h6>
+                                <p class="mb-0">{{ user.lastLoginAt ? user.lastLoginAt|date('F d, Y H:i') : 'Never' }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1">Email Verified</h6>
+                                <p class="mb-0">
+                                    {% if user.emailVerifiedAt %}
+                                        <span class="badge bg-success bg-opacity-10 text-success">Verified on {{ user.emailVerifiedAt|date('Y-m-d') }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning bg-opacity-10 text-warning">Not Verified</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Roles -->
+                    <div class="col-12">
+                        <h5 class="mb-3 mt-3">Assigned Roles</h5>
+                        {% if user.userRoles|length > 0 %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for role in user.userRoles %}
+                                    <span class="badge bg-info bg-opacity-10 text-info fs-6">
+                                        {{ role.name }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No roles assigned</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Reading Profile -->
+                    {% if user.readingProfile %}
+                    <div class="col-12">
+                        <h5 class="mb-3 mt-3">Reading Profile</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <h6 class="text-muted mb-1">Total Books Read</h6>
+                                <p class="mb-0 fs-4 fw-bold text-primary">{{ user.readingProfile.totalBooksRead }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="text-muted mb-1">Reading Goal/Month</h6>
+                                <p class="mb-0 fs-4 fw-bold text-success">
+                                    {{ user.readingProfile.readingGoalPerMonth ?: 'Not set' }}
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="text-muted mb-1">Average Rating</h6>
+                                <p class="mb-0 fs-4 fw-bold text-warning">
+                                    {{ user.readingProfile.averageRating ? (user.readingProfile.averageRating|number_format(1) ~ ' ⭐') : 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                        <a href="{{ path('app_reading_profile_show', {'id': user.readingProfile.id}) }}" class="btn btn-sm btn-info mt-3">
+                            <i class="bi bi-book me-2"></i>View Full Reading Profile
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <h5 class="mb-3 mt-3">Reading Profile</h5>
+                        <p class="text-muted">No reading profile created yet</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-            {% endif %}
         </div>
+        <!-- Card END -->
     </div>
 </div>
 {% endblock %}

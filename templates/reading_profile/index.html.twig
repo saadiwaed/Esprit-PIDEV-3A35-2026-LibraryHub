@@ -3,318 +3,249 @@
 {% block title %}Reading Profiles{% endblock %}
 
 {% block body %}
-<div class="container-fluid p-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0">Reading Profiles</h1>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Reading Profiles</li>
-                        </ol>
-                    </nav>
-                </div>
-                <a href="{{ path('app_reading_profile_new') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg me-2"></i>Add New Profile
+<div class="page-content">
+    <div class="page-content-wrapper border">
+        <!-- Title -->
+        <div class="row mb-3">
+            <div class="col-12 d-sm-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-2 mb-sm-0">Reading Profiles</h1>
+                <a href="{{ path('app_reading_profile_new') }}" class="btn btn-sm btn-primary mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Profile
                 </a>
             </div>
         </div>
-    </div>
 
-    <!-- Flash Messages -->
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i>{{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    {% endfor %}
-    {% for message in app.flashes('error') %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-circle me-2"></i>{{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    {% endfor %}
-
-    <!-- Profiles Table -->
-    <div class="card">
-        <div class="card-header bg-white py-3">
-            <form action="{{ path('app_reading_profile_index') }}" method="GET" id="filterForm">
-                <div class="row g-3 align-items-center">
-                    <div class="col-auto">
-                        <h5 class="card-title mb-0">All Reading Profiles</h5>
-                    </div>
-                    <div class="col-auto ms-auto">
-                        <!-- Search Box -->
-                        <div class="position-relative">
-                            <div class="input-group" style="width: 250px;">
-                                <span class="input-group-text bg-white border-end-0">
-                                    <i class="bi bi-search"></i>
-                                </span>
-                                <input type="text" 
-                                       class="form-control border-start-0" 
-                                       id="searchInput" 
-                                       name="q" 
-                                       placeholder="Search user name or email..." 
-                                       value="{{ search|default('') }}"
-                                       autocomplete="off">
-                            </div>
-                            <!-- Autocomplete dropdown -->
-                            <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <!-- Books Read Filter -->
-                        <select name="booksRead" class="form-select" onchange="this.form.submit()" style="width: 140px;">
-                            <option value="">Books Read</option>
-                            <option value="0-10" {{ currentBooksRead|default('') == '0-10' ? 'selected' : '' }}>0 - 10</option>
-                            <option value="11-50" {{ currentBooksRead|default('') == '11-50' ? 'selected' : '' }}>11 - 50</option>
-                            <option value="50+" {{ currentBooksRead|default('') == '50+' ? 'selected' : '' }}>50+</option>
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <!-- Has Goal Filter -->
-                        <select name="hasGoal" class="form-select" onchange="this.form.submit()" style="width: 150px;">
-                            <option value="">Reading Goal</option>
-                            <option value="with" {{ currentHasGoal|default('') == 'with' ? 'selected' : '' }}>With Goal</option>
-                            <option value="without" {{ currentHasGoal|default('') == 'without' ? 'selected' : '' }}>Without Goal</option>
-                        </select>
-                    </div>
-                    {% if search|default('') or currentBooksRead|default('') or currentHasGoal|default('') %}
-                    <div class="col-auto">
-                        <a href="{{ path('app_reading_profile_index') }}" class="btn btn-outline-secondary" title="Clear all filters">
-                            <i class="bi bi-x-lg me-1"></i>Clear
-                        </a>
-                    </div>
-                    {% endif %}
+        <!-- Flash messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </form>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>User</th>
-                            <th>Books Read</th>
-                            <th>Monthly Goal</th>
-                            <th>Avg Rating</th>
-                            <th>Favorite Genres</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for profile in reading_profiles %}
-                        <tr>
-                            <td>
-                                <a href="{{ path('app_user_show', {'id': profile.user.id}) }}">
-                                    {{ profile.user.fullName }}
-                                </a>
-                            </td>
-                            <td>
-                                <span class="badge bg-primary fs-6">{{ profile.totalBooksRead }}</span>
-                            </td>
-                            <td>{{ profile.readingGoalPerMonth ?? '-' }}</td>
-                            <td>
-                                {% if profile.averageRating %}
-                                    <span class="text-warning">
-                                        {% for i in 1..5 %}
-                                            {% if i <= profile.averageRating %}
-                                                <i class="bi bi-star-fill"></i>
-                                            {% else %}
-                                                <i class="bi bi-star"></i>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </span>
-                                    <small class="text-muted">({{ profile.averageRating }})</small>
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if profile.favoriteGenres %}
-                                    {% for genre in profile.favoriteGenres|slice(0, 3) %}
-                                        <span class="badge bg-secondary">{{ genre }}</span>
-                                    {% endfor %}
-                                    {% if profile.favoriteGenres|length > 3 %}
-                                        <span class="badge bg-light text-dark">+{{ profile.favoriteGenres|length - 3 }}</span>
-                                    {% endif %}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                            <td class="text-end">
-                                <a href="{{ path('app_reading_profile_show', {'id': profile.id}) }}" class="btn btn-sm btn-outline-info" title="View">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a href="{{ path('app_reading_profile_edit', {'id': profile.id}) }}" class="btn btn-sm btn-outline-primary" title="Edit">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ profile.id }}" title="Delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+            {% endfor %}
+        {% endfor %}
 
-                        <!-- Delete Modal -->
-                        <div class="modal fade" id="deleteModal{{ profile.id }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Confirm Delete</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Are you sure you want to delete the reading profile for <strong>{{ profile.user.fullName }}</strong>?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <form action="{{ path('app_reading_profile_delete', {'id': profile.id}) }}" method="post" style="display: inline;">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ profile.id) }}">
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </div>
+        <!-- Search Bar -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card bg-transparent border">
+                    <div class="card-body">
+                        <form method="get" action="{{ path('app_reading_profile_index') }}" class="row g-3 align-items-center">
+                            <div class="col-md-10">
+                                <div class="position-relative">
+                                    <input type="text" 
+                                           name="search" 
+                                           id="profileSearch" 
+                                           class="form-control" 
+                                           placeholder="Search by user name or email..." 
+                                           value="{{ app.request.get('search') }}"
+                                           autocomplete="off">
+                                    <div id="searchSuggestions" class="position-absolute w-100 bg-white border rounded shadow-sm" style="display: none; z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
                                 </div>
                             </div>
-                        </div>
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
-                                <i class="bi bi-inbox fs-1 text-muted"></i>
-                                <p class="text-muted mb-0">No reading profiles found</p>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-search me-2"></i>Search
+                                </button>
+                                {% if app.request.get('search') %}
+                                    <a href="{{ path('app_reading_profile_index') }}" class="btn btn-secondary w-100 mt-2">
+                                        <i class="bi bi-x-circle me-2"></i>Clear
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Card START -->
+        <div class="card bg-transparent border">
+            <!-- Card body START -->
+            <div class="card-body">
+                <!-- Table START -->
+                <div class="table-responsive border-0">
+                    <table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="border-0 rounded-start">ID</th>
+                                <th scope="col" class="border-0">User</th>
+                                <th scope="col" class="border-0">Books Read</th>
+                                <th scope="col" class="border-0">Goal/Month</th>
+                                <th scope="col" class="border-0">Avg Rating</th>
+                                <th scope="col" class="border-0">Favorite Genres</th>
+                                <th scope="col" class="border-0 rounded-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for reading_profile in reading_profiles %}
+                            <tr>
+                                <td>{{ reading_profile.id }}</td>
+                                <td>
+                                    <h6 class="mb-0">{{ reading_profile.user.fullName }}</h6>
+                                    <small class="text-muted">{{ reading_profile.user.email }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">
+                                        {{ reading_profile.totalBooksRead }} books
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if reading_profile.readingGoalPerMonth %}
+                                        <span class="badge bg-success bg-opacity-10 text-success">
+                                            {{ reading_profile.readingGoalPerMonth }}/month
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">Not set</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if reading_profile.averageRating %}
+                                        <span class="badge bg-warning bg-opacity-10 text-warning">
+                                            {{ reading_profile.averageRating|number_format(1) }} ⭐
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if reading_profile.favoriteGenres %}
+                                        {{ reading_profile.favoriteGenres|slice(0, 2)|join(', ') }}
+                                        {% if reading_profile.favoriteGenres|length > 2 %}
+                                            <small class="text-muted">+{{ reading_profile.favoriteGenres|length - 2 }} more</small>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">None</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ path('app_reading_profile_show', {'id': reading_profile.id}) }}" class="btn btn-sm btn-info-soft me-1 mb-1 mb-md-0" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_reading_profile_edit', {'id': reading_profile.id}) }}" class="btn btn-sm btn-success-soft me-1 mb-1 mb-md-0" title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger-soft mb-0" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal{{ reading_profile.id }}"
+                                            title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <div class="py-5">
+                                        <i class="bi bi-book display-4 text-muted"></i>
+                                        <p class="mt-3 text-muted">No reading profiles found</p>
+                                        <a href="{{ path('app_reading_profile_new') }}" class="btn btn-primary">Create First Profile</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Table END -->
+            </div>
+            <!-- Card body END -->
+        </div>
+        <!-- Card END -->
+
+        <!-- Delete Modals -->
+        {% for reading_profile in reading_profiles %}
+            <div class="modal fade" id="deleteModal{{ reading_profile.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ reading_profile.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel{{ reading_profile.id }}">Confirm Delete</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete the reading profile for <strong>{{ reading_profile.user.fullName }}</strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="post" action="{{ path('app_reading_profile_delete', {'id': reading_profile.id}) }}" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reading_profile.id) }}">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
     </div>
 </div>
+{% endblock %}
 
-<style>
-.autocomplete-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #dee2e6;
-    border-top: none;
-    border-radius: 0 0 0.375rem 0.375rem;
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 1050;
-    display: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-.autocomplete-dropdown.show {
-    display: block;
-}
-.autocomplete-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-}
-.autocomplete-item:last-child {
-    border-bottom: none;
-}
-.autocomplete-item:hover, .autocomplete-item.active {
-    background-color: #f8f9fa;
-}
-.autocomplete-item .name {
-    font-weight: 500;
-    color: #333;
-}
-.autocomplete-item .email {
-    font-size: 0.85em;
-    color: #666;
-}
-</style>
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('profileSearch');
+            const suggestionsDiv = document.getElementById('searchSuggestions');
+            let timeoutId;
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const dropdown = document.getElementById('autocompleteDropdown');
-    const filterForm = document.getElementById('filterForm');
-    let debounceTimer;
-    let currentIndex = -1;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(timeoutId);
+                const query = this.value.trim();
 
-    searchInput.addEventListener('input', function() {
-        clearTimeout(debounceTimer);
-        const query = this.value.trim();
-        
-        if (query.length < 2) {
-            dropdown.classList.remove('show');
-            dropdown.innerHTML = '';
-            return;
-        }
+                if (query.length < 2) {
+                    suggestionsDiv.style.display = 'none';
+                    return;
+                }
 
-        debounceTimer = setTimeout(() => {
-            fetch(`{{ path('app_reading_profile_search') }}?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length === 0) {
-                        dropdown.classList.remove('show');
-                        return;
-                    }
+                timeoutId = setTimeout(function() {
+                    fetch('{{ path('app_reading_profile_search') }}?q=' + encodeURIComponent(query))
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length === 0) {
+                                suggestionsDiv.innerHTML = '<div class="p-2 text-muted">No results found</div>';
+                                suggestionsDiv.style.display = 'block';
+                            } else {
+                                suggestionsDiv.innerHTML = data.map(profile => `
+                                    <div class="suggestion-item p-2 border-bottom" style="cursor: pointer;" data-name="${profile.userName}">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="fw-bold">${profile.userName}</div>
+                                                <small class="text-muted">${profile.userEmail} - ${profile.booksRead} books read</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('');
+                                suggestionsDiv.style.display = 'block';
 
-                    dropdown.innerHTML = data.map((item, index) => `
-                        <div class="autocomplete-item" data-value="${item.name}" data-index="${index}">
-                            <div class="name">${item.name}</div>
-                            <div class="email">${item.email}</div>
-                        </div>
-                    `).join('');
-
-                    dropdown.classList.add('show');
-                    currentIndex = -1;
-
-                    // Add click handlers
-                    dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
-                        item.addEventListener('click', function() {
-                            searchInput.value = this.dataset.value;
-                            dropdown.classList.remove('show');
-                            filterForm.submit();
+                                document.querySelectorAll('.suggestion-item').forEach(item => {
+                                    item.addEventListener('click', function() {
+                                        searchInput.value = this.dataset.name;
+                                        suggestionsDiv.style.display = 'none';
+                                        searchInput.form.submit();
+                                    });
+                                    
+                                    item.addEventListener('mouseenter', function() {
+                                        this.style.backgroundColor = '#f8f9fa';
+                                    });
+                                    
+                                    item.addEventListener('mouseleave', function() {
+                                        this.style.backgroundColor = '';
+                                    });
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Search error:', error);
+                            suggestionsDiv.style.display = 'none';
                         });
-                    });
-                });
-        }, 300);
-    });
+                }, 300);
+            });
 
-    // Keyboard navigation
-    searchInput.addEventListener('keydown', function(e) {
-        const items = dropdown.querySelectorAll('.autocomplete-item');
-        
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            currentIndex = Math.min(currentIndex + 1, items.length - 1);
-            updateActiveItem(items);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            currentIndex = Math.max(currentIndex - 1, -1);
-            updateActiveItem(items);
-        } else if (e.key === 'Enter' && currentIndex >= 0) {
-            e.preventDefault();
-            items[currentIndex].click();
-        } else if (e.key === 'Escape') {
-            dropdown.classList.remove('show');
-        }
-    });
-
-    function updateActiveItem(items) {
-        items.forEach((item, index) => {
-            item.classList.toggle('active', index === currentIndex);
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.style.display = 'none';
+                }
+            });
         });
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
-});
-</script>
+    </script>
 {% endblock %}

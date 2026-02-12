@@ -16,85 +16,43 @@ class RoleRepository extends ServiceEntityRepository
         parent::__construct($registry, Role::class);
     }
 
-    public function save(Role $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
+    //    /**
+    //     * @return Role[] Returns an array of Role objects
+    //     */
+    //    public function findByExampleField($value): array
+    //    {
+    //        return $this->createQueryBuilder('r')
+    //            ->andWhere('r.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->orderBy('r.id', 'ASC')
+    //            ->setMaxResults(10)
+    //            ->getQuery()
+    //            ->getResult()
+    //        ;
+    //    }
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
-    public function remove(Role $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
-    /**
-     * Find a role by its name
-     */
-    public function findByName(string $name): ?Role
-    {
-        return $this->createQueryBuilder('r')
-            ->andWhere('r.name = :name')
-            ->setParameter('name', $name)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
+    //    public function findOneBySomeField($value): ?Role
+    //    {
+    //        return $this->createQueryBuilder('r')
+    //            ->andWhere('r.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->getQuery()
+    //            ->getOneOrNullResult()
+    //        ;
+    //    }
 
     /**
-     * Get all roles ordered by name
+     * Search roles by name or description
      */
-    public function findAllOrderedByName(): array
+    public function searchByNameOrDescription(string $query, int $limit = 10): array
     {
         return $this->createQueryBuilder('r')
-            ->orderBy('r.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Search roles by name (for autocomplete)
-     */
-    public function searchByName(string $query, int $limit = 50): array
-    {
-        return $this->createQueryBuilder('r')
-            ->where('r.name LIKE :query')
+            ->where('LOWER(r.name) LIKE LOWER(:query)')
+            ->orWhere('LOWER(r.description) LIKE LOWER(:query)')
             ->setParameter('query', '%' . $query . '%')
             ->orderBy('r.name', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
-    }
-
-    /**
-     * Find roles with filters (search, hasUsers)
-     */
-    public function findWithFilters(?string $search = null, ?string $hasUsers = null): array
-    {
-        $qb = $this->createQueryBuilder('r')
-            ->leftJoin('r.users', 'u')
-            ->groupBy('r.id');
-
-        // Apply search filter
-        if ($search) {
-            $qb->andWhere('r.name LIKE :search')
-               ->setParameter('search', '%' . $search . '%');
-        }
-
-        // Apply hasUsers filter
-        if ($hasUsers === 'with') {
-            $qb->having('COUNT(u.id) > 0');
-        } elseif ($hasUsers === 'without') {
-            $qb->having('COUNT(u.id) = 0');
-        }
-
-        return $qb->orderBy('r.name', 'ASC')
-                  ->getQuery()
-                  ->getResult();
     }
 }

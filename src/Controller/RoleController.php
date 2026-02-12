@@ -7,53 +7,48 @@ use App\Form\RoleType;
 use App\Repository\RoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/role')]
+#[Route('/role')]
 class RoleController extends AbstractController
 {
     #[Route('/', name: 'app_role_index', methods: ['GET'])]
     public function index(Request $request, RoleRepository $roleRepository): Response
     {
-        $search = $request->query->get('q', '');
-        $hasUsers = $request->query->get('hasUsers', '');
+        $search = $request->query->get('search', '');
         
-        // Use filters
-        $roles = $roleRepository->findWithFilters(
-            $search ?: null,
-            $hasUsers ?: null
-        );
+        if ($search) {
+            $roles = $roleRepository->searchByNameOrDescription($search);
+        } else {
+            $roles = $roleRepository->findAll();
+        }
         
         return $this->render('role/index.html.twig', [
             'roles' => $roles,
-            'search' => $search,
-            'currentHasUsers' => $hasUsers,
         ]);
     }
 
     #[Route('/search', name: 'app_role_search', methods: ['GET'])]
-    public function search(Request $request, RoleRepository $roleRepository): JsonResponse
+    public function search(Request $request, RoleRepository $roleRepository): Response
     {
         $query = $request->query->get('q', '');
         
-        if (strlen($query) < 1) {
+        if (strlen($query) < 2) {
             return $this->json([]);
         }
         
-        $roles = $roleRepository->searchByName($query, 10);
+        $roles = $roleRepository->searchByNameOrDescription($query);
         
-        $results = [];
-        foreach ($roles as $role) {
-            $results[] = [
+        $results = array_map(function($role) {
+            return [
                 'id' => $role->getId(),
-                'text' => $role->getName(),
                 'name' => $role->getName(),
                 'description' => $role->getDescription(),
+                'usersCount' => $role->getUsers()->count(),
             ];
-        }
+        }, $roles);
         
         return $this->json($results);
     }
@@ -70,6 +65,7 @@ class RoleController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Role created successfully!');
+
             return $this->redirectToRoute('app_role_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -97,6 +93,7 @@ class RoleController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Role updated successfully!');
+
             return $this->redirectToRoute('app_role_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -106,20 +103,25 @@ class RoleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_role_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_role_delete', methods: ['POST'])]
     public function delete(Request $request, Role $role, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $role->getId(), $request->getPayload()->getString('_token'))) {
-            // Check if role is assigned to users
-            if ($role->getUsers()->count() > 0) {
-                $this->addFlash('error', 'Cannot delete role. It is assigned to ' . $role->getUsers()->count() . ' user(s).');
-                return $this->redirectToRoute('app_role_index', [], Response::HTTP_SEE_OTHER);
+        if ($this->isCsrfTokenValid('delete'.$role->getId(), $request->request->get('_token'))) {
+            try {
+                // Remove this role from all users first
+                foreach ($role->getUsers() as $user) {
+                    $user->removeRole($role);
+                }
+                
+                $entityManager->remove($role);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Role deleted successfully!');
+            } catch (\Exception $e) {
+                $this->addFlash('danger', 'Cannot delete this role: ' . $e->getMessage());
             }
-
-            $entityManager->remove($role);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Role deleted successfully!');
+        } else {
+            $this->addFlash('danger', 'Invalid CSRF token.');
         }
 
         return $this->redirectToRoute('app_role_index', [], Response::HTTP_SEE_OTHER);

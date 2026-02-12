@@ -18,19 +18,20 @@ class RoleType extends AbstractType
                 'label' => 'Role Name',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter role name (e.g., ROLE_ADMIN)',
+                    'placeholder' => 'e.g., ROLE_ADMIN, ROLE_LIBRARIAN, ROLE_MEMBER'
                 ],
-                'help' => 'Use uppercase with ROLE_ prefix (e.g., ROLE_ADMIN, ROLE_LIBRARIAN)',
+                'help' => 'Use uppercase with ROLE_ prefix (e.g., ROLE_ADMIN)'
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter role description',
                     'rows' => 3,
-                ],
-            ]);
+                    'placeholder' => 'Brief description of this role...'
+                ]
+            ])
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
