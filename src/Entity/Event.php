@@ -7,12 +7,16 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Enum\EventStatus;
+use App\Enum\EventTypes;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Enum\RegistrationStatus;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\Table(name: 'events')]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Event
 {
     #[ORM\Id]
@@ -76,13 +80,6 @@ class Event
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdDate = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\File(
-        maxSize: '2M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
-        mimeTypesMessage: 'Veuillez uploader une image valide (JPEG, PNG ou GIF)'
-    )]
-    private ?string $image = null;
 
     #[ORM\ManyToMany(
         targetEntity: Club::class, 
@@ -93,13 +90,33 @@ class Event
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: EventRegistration::class)]
     private Collection $registrations;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $image = null;
+
+    #[Vich\UploadableField(mapping: 'event_image', fileNameProperty: 'image')]
+    private ?File $imageFile = null;
+
     public function __construct()
     {
         $this->organizingClubs = new ArrayCollection();
         $this->createdDate = new \DateTime();
         $this->registrations = new ArrayCollection();
     }
+#[ORM\Column(type: 'string', length: 50, enumType: EventTypes::class)]
+    private EventTypes $type = EventTypes::CONFERENCE; // Default value
 
+
+    // ADD THESE GETTER/SETTER
+    public function getType(): EventTypes
+    {
+        return $this->type;
+    }
+
+    public function setType(EventTypes $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
     #[ORM\PrePersist]
     public function setCreatedDateValue(): void
     {
@@ -410,4 +427,20 @@ public function getWaitlistCount(): int
         fn(EventRegistration $reg) => $reg->isWaitlisted()
     )->count();
 }
+
+public function setImageFile(?File $imageFile = null): void
+{
+    $this->imageFile = $imageFile;
+    
+    // Force Doctrine to update even if only the file changes
+    if ($imageFile) {
+        // You can use any existing datetime field, or create a simple property
+        $this->createdDate = new \DateTime(); // Use your existing createdDate field
+    }
+}
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
 }

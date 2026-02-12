@@ -18,23 +18,5 @@ enum EventStatus: string
             self::CANCELLED => 'Annulé',
         };
     }
-
-    public function getColor(): string
-    {
-        return match($this) {
-            self::UPCOMING => 'primary',
-            self::ONGOING => 'success',
-            self::COMPLETED => 'secondary',
-            self::CANCELLED => 'danger',
-        };
-    }
-
-    public static function getChoices(): array
-    {
-        $choices = [];
-        foreach (self::cases() as $case) {
-            $choices[$case->getLabel()] = $case->value;
-        }
-        return $choices;
-    }
+    
 }

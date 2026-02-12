@@ -8,10 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\ClubRepository;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: ClubRepository::class)]
 #[ORM\Table(name: 'clubs')]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Club
 {
     #[ORM\Id]
@@ -74,13 +77,12 @@ class Club
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdDate = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\File(
-        maxSize: '2M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
-        mimeTypesMessage: 'Veuillez uploader une image valide (JPEG, PNG ou GIF)'
-    )]
+   #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image = null;
+
+    #[Vich\UploadableField(mapping: 'club_image', fileNameProperty: 'image')]
+    private ?File $imageFile = null;
+
 
     #[ORM\ManyToMany(
         targetEntity: Event::class, 
@@ -426,5 +428,20 @@ class Club
     public function __toString(): string
     {
         return $this->title ?? 'Club';
+    }
+    public function setImageFile(?File $imageFile = null): void
+{
+    $this->imageFile = $imageFile;
+    
+    // Force Doctrine to update even if only the file changes
+    if ($imageFile) {
+        // You can use any existing datetime field, or create a simple property
+        $this->createdDate = new \DateTime(); // Use your existing createdDate field
+    }
+}
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
     }
 }

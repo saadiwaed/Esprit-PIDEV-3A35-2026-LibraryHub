@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Event;
 use App\Form\EventType;
+use App\Enum\EventStatus;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,11 +15,31 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/event')]
 final class EventController extends AbstractController
 {
-    #[Route(name: 'app_event_index', methods: ['GET'])]
-    public function index(EventRepository $eventRepository): Response
+     #[Route('/', name: 'app_event_index', methods: ['GET'])]
+    public function index(Request $request, EventRepository $eventRepository): Response
     {
+        // Récupérer les paramètres de filtres
+        $search = $request->query->get('search', '');
+        $status = $request->query->get('status', '');
+        $sort = $request->query->get('sort', 'startDateTime');
+        $order = $request->query->get('order', 'asc');
+        
+        // Filtrer les événements
+        $events = $eventRepository->findByFilters($search, $status, $sort, $order);
+        
+        // Compter par statut pour les badges
+        $stats = $eventRepository->countByStatus();
+        
         return $this->render('event/index.html.twig', [
-            'events' => $eventRepository->findAll(),
+            'events' => $events,
+            'stats' => $stats,
+            'current_filters' => [
+                'search' => $search,
+                'status' => $status,
+                'sort' => $sort,
+                'order' => $order,
+            ],
+            'all_status' => EventStatus::cases(),
         ]);
     }
 

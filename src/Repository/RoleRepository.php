@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\ReadingChallenge;
+use App\Entity\Role;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<ReadingChallenge>
+ * @extends ServiceEntityRepository<Role>
  */
-class ReadingChallengeRepository extends ServiceEntityRepository
+class RoleRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, ReadingChallenge::class);
+        parent::__construct($registry, Role::class);
     }
 
     //    /**
-    //     * @return ReadingChallenge[] Returns an array of ReadingChallenge objects
+    //     * @return Role[] Returns an array of Role objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class ReadingChallengeRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?ReadingChallenge
+    //    public function findOneBySomeField($value): ?Role
     //    {
     //        return $this->createQueryBuilder('r')
     //            ->andWhere('r.exampleField = :val')

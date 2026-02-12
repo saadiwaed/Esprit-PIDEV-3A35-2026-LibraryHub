@@ -1,62 +1,359 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Club{% endblock %}
+{% block title %}{{ club.title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .club-show-page {
+            --club-primary: #D41142;
+            --club-bg: #FCF8F9;
+            --club-secondary: #9A4C5F;
+            --club-accent: #D4AF37;
+        }
+
+        .club-show-page .club-card {
+            background: var(--club-bg);
+            border: 1px solid rgba(154, 76, 95, 0.14);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .club-show-page .club-header {
+            background: var(--club-primary);
+            color: #fff;
+            border-bottom: 3px solid var(--club-accent);
+            padding: 1rem 1.25rem;
+        }
+
+        .club-show-page .club-title {
+            margin: 0;
+            font-size: 1.45rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .club-show-page .club-body {
+            background: var(--club-bg);
+            color: #3d2a2f;
+        }
+
+        .club-show-page .club-table th {
+            color: var(--club-secondary);
+            font-weight: 700;
+            width: 210px;
+        }
+
+        .club-show-page .club-table td,
+        .club-show-page .club-table th {
+            background: transparent;
+            border-color: rgba(154, 76, 95, 0.15);
+            padding-top: 0.85rem;
+            padding-bottom: 0.85rem;
+        }
+
+        .club-show-page .club-badge {
+            border-radius: 999px;
+            padding: 0.4rem 0.75rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.2px;
+        }
+
+        .club-show-page .club-badge-secondary {
+            background: var(--club-secondary);
+            color: #fff;
+        }
+
+        .club-show-page .club-badge-primary {
+            background: var(--club-primary);
+            color: #fff;
+        }
+
+        .club-show-page .club-badge-accent {
+            background: var(--club-accent);
+            color: #2f2610;
+        }
+
+        .club-show-page .club-admin-box {
+            border: 1px solid rgba(154, 76, 95, 0.2);
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .club-show-page .club-admin-title {
+            color: var(--club-primary);
+            margin-bottom: 0;
+        }
+
+        .club-show-page .club-accent {
+            color: var(--club-accent);
+        }
+
+        .club-show-page .club-founder {
+            color: var(--club-primary);
+        }
+
+        .club-show-page .club-divider {
+            border-top: 2px solid rgba(212, 175, 55, 0.5);
+        }
+
+        .club-show-page .club-btn-primary {
+            background: var(--club-primary);
+            border-color: var(--club-primary);
+            color: #fff;
+        }
+
+        .club-show-page .club-btn-primary:hover {
+            background: #b70f39;
+            border-color: #b70f39;
+            color: #fff;
+        }
+
+        .club-show-page .club-btn-secondary {
+            background: #fff;
+            border: 1px solid var(--club-primary);
+            color: var(--club-primary);
+        }
+
+        .club-show-page .club-btn-secondary:hover {
+            background: rgba(212, 17, 66, 0.08);
+            color: var(--club-primary);
+            border-color: var(--club-primary);
+        }
+
+        .club-show-page .club-btn-outline-accent {
+            background: #fff;
+            border: 1px solid var(--club-accent);
+            color: #7a6220;
+        }
+
+        .club-show-page .club-btn-outline-accent:hover {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--club-accent);
+            color: #5f4d19;
+        }
+
+        .club-show-page .admin-actions form {
+            display: inline-block;
+        }
+
+        .club-show-page .admin-actions form .btn {
+            background: #fff;
+            border: 1px solid var(--club-secondary);
+            color: var(--club-secondary);
+        }
+
+        .club-show-page .admin-actions form .btn:hover {
+            background: rgba(154, 76, 95, 0.08);
+        }
+
+        .club-show-page .club-image {
+            max-width: 330px;
+            border: 2px solid rgba(212, 175, 55, 0.45);
+            border-radius: 10px;
+        }
+
+        .club-show-page .club-modal-header {
+            background: var(--club-primary);
+            color: #fff;
+            border-bottom: 3px solid var(--club-accent);
+        }
+
+        .club-show-page .club-modal-body,
+        .club-show-page .club-modal-footer {
+            background: var(--club-bg);
+        }
+
+        .club-show-page .club-label {
+            color: var(--club-secondary);
+            font-weight: 600;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Club</h1>
+<div class="container mt-4 mb-4 club-show-page">
+    <div class="card border-0 shadow-sm club-card">
+        <div class="club-header">
+            <h1 class="club-title">
+                <i class="fas fa-users me-2"></i>{{ club.title }}
+            </h1>
+        </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ club.id }}</td>
-            </tr>
-            <tr>
-                <th>Title</th>
-                <td>{{ club.title }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ club.description }}</td>
-            </tr>
-            <tr>
-                <th>Category</th>
-                <td>{{ club.category }}</td>
-            </tr>
-            <tr>
-                <th>MeetingDate</th>
-                <td>{{ club.meetingDate ? club.meetingDate|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>MeetingLocation</th>
-                <td>{{ club.meetingLocation }}</td>
-            </tr>
-            <tr>
-                <th>Capacity</th>
-                <td>{{ club.capacity }}</td>
-            </tr>
-            <tr>
-                <th>IsPrivate</th>
-                <td>{{ club.isPrivate ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ club.status }}</td>
-            </tr>
-            <tr>
-                <th>CreatedDate</th>
-                <td>{{ club.createdDate ? club.createdDate|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Image</th>
-                <td>{{ club.image }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="card-body club-body">
+            <table class="table club-table mb-4">
+                <tbody>
+                    <tr>
+                        <th>Id</th>
+                        <td>{{ club.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Titre</th>
+                        <td><span class="fw-bold">{{ club.title }}</span></td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ club.description }}</td>
+                    </tr>
+                    <tr>
+                        <th>Categorie</th>
+                        <td>{{ club.category }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fondateur</th>
+                        <td>
+                            <span class="club-founder fw-medium">
+                                <i class="fas fa-crown club-accent"></i>
+                                {{ club.founder.email ?? 'Non defini' }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Membres</th>
+                        <td>
+                            <span class="club-badge club-badge-secondary">
+                                {{ club.members|length }}/{{ club.capacity }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de reunion</th>
+                        <td>{{ club.meetingDate ? club.meetingDate|date('d/m/Y H:i') : 'Non definie' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Lieu de reunion</th>
+                        <td>{{ club.meetingLocation }}</td>
+                    </tr>
+                    <tr>
+                        <th>Capacite</th>
+                        <td>{{ club.capacity }}</td>
+                    </tr>
+                    <tr>
+                        <th>Prive</th>
+                        <td>
+                            <span class="club-badge {{ club.isPrivate ? 'club-badge-accent' : 'club-badge-primary' }}">
+                                {{ club.isPrivate ? 'Prive' : 'Public' }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            <span class="club-badge
+                                {% if club.status.value == 'active' %}club-badge-primary
+                                {% elseif club.status.value == 'inactive' %}club-badge-secondary
+                                {% elseif club.status.value == 'paused' %}club-badge-accent
+                                {% else %}bg-dark text-white{% endif %}">
+                                {{ club.status.getLabel() }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de creation</th>
+                        <td>{{ club.createdDate ? club.createdDate|date('d/m/Y H:i') : '' }}</td>
+                    </tr>
+                    {% if club.image %}
+                    <tr>
+                        <th>Image</th>
+                        <td>
+                            <img src="{{ asset('uploads/clubs/' ~ club.image) }}"
+                                 alt="{{ club.title }}"
+                                 class="img-fluid club-image">
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
 
-    <a href="{{ path('app_club_index') }}">back to list</a>
+            <div class="club-admin-box my-4">
+                <h5 class="club-admin-title fw-semibold">
+                    <i class="fas fa-crown club-accent me-2"></i>Administration du club
+                </h5>
+                <div class="d-flex gap-3 flex-wrap mt-3 admin-actions">
+                    <a href="{{ path('app_club_event_create', {'id': club.id}) }}"
+                       class="btn club-btn-primary">
+                        <i class="fas fa-calendar-plus me-1"></i> Creer un evenement
+                    </a>
+                    <a href="{{ path('app_club_edit', {'id': club.id}) }}"
+                       class="btn club-btn-secondary">
+                        <i class="fas fa-edit me-1"></i> Modifier
+                    </a>
+                    {{ include('club/_delete_form.html.twig') }}
+                </div>
+            </div>
 
-    <a href="{{ path('app_club_edit', {'id': club.id}) }}">edit</a>
+            <div class="mb-4">
+                <button type="button"
+                        class="btn club-btn-outline-accent"
+                        data-bs-toggle="modal"
+                        data-bs-target="#changeFounderModal">
+                    <i class="fas fa-crown club-accent me-1"></i> Changer le fondateur (Admin)
+                </button>
+            </div>
 
-    {{ include('club/_delete_form.html.twig') }}
+            <div class="mt-4 pt-3 club-divider">
+                <a href="{{ path('app_club_index') }}"
+                   class="btn club-btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Retour a la liste
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade club-show-page" id="changeFounderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <form method="post" action="{{ path('app_club_change_founder', {'id': club.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('change-founder' ~ club.id) }}">
+
+                <div class="modal-header club-modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-crown club-accent me-2"></i>Changer le fondateur
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body club-modal-body">
+                    <p><span class="club-label">Club :</span> <strong>{{ club.title }}</strong></p>
+                    <p><span class="club-label">Fondateur actuel :</span>
+                        <span class="club-founder">{{ club.founder.email ?? 'Aucun' }}</span>
+                    </p>
+
+                    <div class="form-group mt-4">
+                        <label for="new_founder" class="form-label club-label">
+                            <i class="fas fa-user-plus club-accent me-1"></i>Nouveau fondateur
+                        </label>
+                        <select name="new_founder_id" id="new_founder" class="form-select rounded-3" required>
+                            <option value="">Selectionnez un membre...</option>
+                            {% for member in club.members %}
+                                <option value="{{ member.id }}">
+                                    {{ member.email }}
+                                    {% if member.firstName or member.lastName %}
+                                        - {{ member.firstName ?? '' }} {{ member.lastName ?? '' }}
+                                    {% endif %}
+                                    {% if member == club.founder %}(Actuel){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="fas fa-info-circle me-1"></i>Le nouveau fondateur doit etre membre du club.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="modal-footer club-modal-footer">
+                    <button type="button" class="btn club-btn-secondary" data-bs-dismiss="modal">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn club-btn-primary">
+                        <i class="fas fa-crown club-accent me-1"></i>Changer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
