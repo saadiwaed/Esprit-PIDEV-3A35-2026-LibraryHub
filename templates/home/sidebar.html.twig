@@ -118,7 +118,9 @@
         </a>
         <ul class="nav collapse flex-column" id="collapseGestionMembres" data-bs-parent="#navbar-sidebar">
             <li class="nav-item"> <a class="nav-link" href="{{ path('app_user_index') }}">Liste utilisateurs</a></li>
-            <li class="nav-item"> <a class="nav-link" href="{{ path('app_role_index') }}">Gérer les rôles</a></li>
+            {% if is_granted('ROLE_ADMIN') %}
+                <li class="nav-item"> <a class="nav-link" href="{{ path('app_role_index') }}">Gérer les rôles</a></li>
+            {% endif %}
             <li class="nav-item"> <a class="nav-link" href="{{ path('app_reading_profile_index') }}">Profils de lecture</a></li>
         </ul>
     </li>
@@ -174,7 +176,8 @@
     <!-- Title -->
     <li class="nav-item ms-2 my-2">Administration</li>
 
-    <!-- Administration système -->
+    <!-- Administration système (Admin only) -->
+    {% if is_granted('ROLE_ADMIN') %}
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="collapse" href="#collapseAdminSystem" role="button" aria-expanded="false" aria-controls="collapseAdminSystem">
             <i class="bi bi-gear fa-fw me-2"></i>Administration
@@ -187,6 +190,7 @@
             <li class="nav-item"> <a class="nav-link" href="#">Paramètres système</a></li>
         </ul>
     </li>
+    {% endif %}
 
     <!-- Rapports -->
     <li class="nav-item">
