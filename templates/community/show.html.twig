@@ -6,7 +6,7 @@
 <div class="container-fluid p-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
-            <h1 class="h3 mb-1">{{ community.name }}</h1>
+            <h1 class="h3 mb-1"><i class="{{ community.iconClass }} me-2 text-primary"></i>{{ community.name }}</h1>
             <p class="text-muted mb-0">Details de la communaute et liste de ses posts.</p>
         </div>
         <div class="d-flex gap-2">
@@ -37,6 +37,9 @@
 
                         <dt class="col-sm-5">Nom</dt>
                         <dd class="col-sm-7">{{ community.name }}</dd>
+
+                        <dt class="col-sm-5">Icone</dt>
+                        <dd class="col-sm-7"><i class="{{ community.iconClass }} me-2"></i><code>{{ community.iconClass }}</code></dd>
 
                         <dt class="col-sm-5">Description</dt>
                         <dd class="col-sm-7">{{ community.description }}</dd>

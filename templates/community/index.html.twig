@@ -41,7 +41,9 @@
                     {% for community in communities %}
                         <tr>
                             <td>#{{ community.id }}</td>
-                            <td class="fw-semibold">{{ community.name }}</td>
+                            <td class="fw-semibold">
+                                <i class="{{ community.iconClass }} me-2 text-primary"></i>{{ community.name }}
+                            </td>
                             <td>
                                 {{ community.description|length > 80 ? community.description|slice(0, 80) ~ '...' : community.description }}
                             </td>

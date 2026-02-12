@@ -20,7 +20,7 @@ class CommunityType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Nom de la communauté',
+                'label' => 'Nom de la communaute',
                 'attr' => [
                     'placeholder' => 'Ex: Club de Lecture Classique',
                     'class' => 'form-control',
@@ -29,7 +29,7 @@ class CommunityType extends AbstractType
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'attr' => [
-                    'placeholder' => 'Décrivez votre communauté...',
+                    'placeholder' => 'Decrivez votre communaute...',
                     'class' => 'form-control',
                     'rows' => 4,
                 ],
@@ -37,32 +37,36 @@ class CommunityType extends AbstractType
             ->add('purpose', TextType::class, [
                 'label' => 'Objectif',
                 'attr' => [
-                    'placeholder' => 'Ex: Partager notre passion pour la littérature',
+                    'placeholder' => 'Ex: Partager notre passion pour la litterature',
                     'class' => 'form-control',
                 ],
             ])
             ->add('rules', TextareaType::class, [
-                'label' => 'Règles',
+                'label' => 'Regles',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'Règles de la communauté (optionnel)',
+                    'placeholder' => 'Regles de la communaute (optionnel)',
                     'class' => 'form-control',
                     'rows' => 3,
                 ],
             ])
             ->add('icon', TextType::class, [
-                'label' => 'Icône (classe CSS)',
+                'label' => 'Icone',
                 'required' => false,
+                'help' => 'Saisissez un genre (ex: Science-fiction, Romance, Histoire).',
                 'attr' => [
-                    'placeholder' => 'Ex: fas fa-book',
+                    'placeholder' => 'Ex: Science-fiction',
                     'class' => 'form-control',
+                    'list' => 'community_icon_suggestions',
+                    'autocomplete' => 'off',
+                    'spellcheck' => 'false',
                 ],
             ])
             ->add('welcomeMessage', TextareaType::class, [
                 'label' => 'Message de bienvenue',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'Message affiché aux nouveaux membres',
+                    'placeholder' => 'Message affiche aux nouveaux membres',
                     'class' => 'form-control',
                     'rows' => 2,
                 ],
@@ -76,7 +80,7 @@ class CommunityType extends AbstractType
                 ],
             ])
             ->add('isPublic', CheckboxType::class, [
-                'label' => 'Communauté publique',
+                'label' => 'Communaute publique',
                 'required' => false,
                 'attr' => ['class' => 'form-check-input'],
             ])

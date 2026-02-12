@@ -14,6 +14,54 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 class Community
 {
+    private const ICON_PRESETS = [
+        'general' => 'fa-book',
+        'fantasy' => 'fa-hat-wizard',
+        'science-fiction' => 'fa-robot',
+        'sci-fi' => 'fa-robot',
+        'policier' => 'fa-user-secret',
+        'thriller' => 'fa-user-secret',
+        'romance' => 'fa-heart',
+        'histoire' => 'fa-landmark',
+        'science' => 'fa-flask',
+        'poesie' => 'fa-feather-alt',
+        'jeunesse' => 'fa-child',
+        'voyage' => 'fa-globe',
+        'developpement personnel' => 'fa-seedling',
+        'discussions' => 'fa-comments',
+        'academique' => 'fa-graduation-cap',
+        'aventure' => 'fa-map',
+        'horreur' => 'fa-ghost',
+        'mythologie' => 'fa-dragon',
+        'classiques' => 'fa-book-open',
+        'manga' => 'fa-book-open',
+        'bande dessinee' => 'fa-book-open',
+        'biographie' => 'fa-user',
+        'philosophie' => 'fa-brain',
+        'religion' => 'fa-praying-hands',
+        'politique' => 'fa-landmark',
+        'economie' => 'fa-chart-line',
+        'histoire antique' => 'fa-monument',
+        'informatique' => 'fa-laptop-code',
+        'programmation' => 'fa-code',
+        'cybersecurite' => 'fa-shield-alt',
+        'intelligence artificielle' => 'fa-microchip',
+        'mathematiques' => 'fa-square-root-alt',
+        'physique' => 'fa-atom',
+        'chimie' => 'fa-vial',
+        'astronomie' => 'fa-star',
+        'medecine' => 'fa-stethoscope',
+        'psychologie' => 'fa-brain',
+        'droit' => 'fa-gavel',
+        'art' => 'fa-palette',
+        'musique' => 'fa-music',
+        'cinema' => 'fa-film',
+        'theatre' => 'fa-theater-masks',
+        'photographie' => 'fa-camera',
+        'cuisine' => 'fa-utensils',
+        'nature' => 'fa-leaf',
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -163,8 +211,58 @@ class Community
 
     public function setIcon(?string $icon): self
     {
+        if ($icon !== null) {
+            $icon = trim($icon);
+        }
+
+        if ($icon === '') {
+            $icon = null;
+        }
+
+        if ($icon !== null) {
+            $icon = $this->normalizePresetLabel($icon);
+        }
+
+        if ($icon !== null && !str_contains($icon, ' ')) {
+            if (str_starts_with($icon, 'fa-')) {
+                $icon = 'fas ' . $icon;
+            } elseif (str_starts_with($icon, 'bi-')) {
+                $icon = 'bi ' . $icon;
+            }
+        }
+
         $this->icon = $icon;
         return $this;
+    }
+
+    public function getIconClass(): string
+    {
+        $icon = $this->icon ? trim($this->icon) : '';
+
+        if ($icon === '') {
+            return 'fas fa-users';
+        }
+
+        $icon = $this->normalizePresetLabel($icon);
+
+        if (!str_contains($icon, ' ')) {
+            if (str_starts_with($icon, 'fa-')) {
+                return 'fas ' . $icon;
+            }
+
+            if (str_starts_with($icon, 'bi-')) {
+                return 'bi ' . $icon;
+            }
+        }
+
+        return $icon;
+    }
+
+    private function normalizePresetLabel(string $value): string
+    {
+        $presetKey = strtolower(trim($value));
+
+        return self::ICON_PRESETS[$presetKey] ?? $value;
     }
 
     public function getWelcomeMessage(): ?string
