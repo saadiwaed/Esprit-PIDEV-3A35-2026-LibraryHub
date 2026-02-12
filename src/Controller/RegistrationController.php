@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Repository\RoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +18,8 @@ class RegistrationController extends AbstractController
     public function register(
         Request $request, 
         UserPasswordHasherInterface $passwordHasher, 
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        RoleRepository $roleRepository
     ): Response
     {
         // If user is already logged in, redirect based on role
@@ -36,6 +38,12 @@ class RegistrationController extends AbstractController
 
             // Set default status
             $user->setStatus('PENDING');
+
+            // Automatically assign ROLE_MEMBER to new users
+            $memberRole = $roleRepository->findOneBy(['name' => 'ROLE_MEMBER']);
+            if ($memberRole) {
+                $user->addRole($memberRole);
+            }
 
             $entityManager->persist($user);
             $entityManager->flush();
