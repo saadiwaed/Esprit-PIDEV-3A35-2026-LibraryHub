@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New ReadingChallenge{% endblock %}
+
+{% block body %}
+    <h1>Create new ReadingChallenge</h1>
+
+    {{ include('reading_challenge/_form.html.twig') }}
+
+    <a href="{{ path('app_reading_challenge_index') }}">back to list</a>
+{% endblock %}

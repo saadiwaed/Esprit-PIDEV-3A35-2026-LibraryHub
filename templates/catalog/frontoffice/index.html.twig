@@ -1,0 +1,53 @@
+{% extends 'frontoffice/base.html.twig' %}
+{% block title %}Catalogue – LibraryHub{% endblock %}
+{% block main_content %}
+<section class="py-5">
+    <div class="container">
+        <h1 class="mb-4">Catalogue</h1>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <a href="{{ path(area ~ '_category_index') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100 card-hover">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="bi bi-tags text-primary fs-2"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">Catégories</h5>
+                            <p class="text-muted small mb-0">{{ categories_count }} catégorie(s)</p>
+                        </div>
+                        <i class="bi bi-chevron-right ms-auto fs-4 text-muted"></i>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ path(area ~ '_author_index') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100 card-hover">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="bi bi-person-badge text-success fs-2"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">Auteurs</h5>
+                            <p class="text-muted small mb-0">{{ authors_count }} auteur(s)</p>
+                        </div>
+                        <i class="bi bi-chevron-right ms-auto fs-4 text-muted"></i>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ path(area ~ '_book_index') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100 card-hover">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="bg-info bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="bi bi-book text-info fs-2"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">Livres</h5>
+                            <p class="text-muted small mb-0">{{ books_count }} livre(s)</p>
+                        </div>
+                        <i class="bi bi-chevron-right ms-auto fs-4 text-muted"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
