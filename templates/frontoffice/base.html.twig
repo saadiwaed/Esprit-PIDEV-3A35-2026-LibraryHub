@@ -96,6 +96,8 @@
 
 <body>
 
+
+
 <!-- Header START -->
 <header class="navbar-light navbar-sticky">
 	<!-- Logo Nav START -->
@@ -135,29 +137,30 @@
 				<!-- Nav Search END -->
 
 				<!-- Nav Main menu START -->
-				<ul class="navbar-nav navbar-nav-scroll ms-auto">
-					<!-- Nav item 1 Demos -->
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Parcourir</a>
-						<ul class="dropdown-menu" aria-labelledby="demoMenu">
-							<li> <a class="dropdown-item" href="index.html">Home Default</a></li>
-							<li> <a class="dropdown-item" href="index-2.html"> Forum et discussions</a></li>
-							<li> <a class="dropdown-item" href="index-3.html">Catalogue et inventaire</a></li>
-							<li> <a class="dropdown-item" href="index-4.html">Emprunts et Retours </a></li>
-							<li> <a class="dropdown-item" href="index-5.html">Journal et Defi</a></li>
-							<li> <a class="dropdown-item" href="index-6.html">Événements et activités</a></li>
-							<li> <a class="dropdown-item" href="index-7.html">Forum et discussions</a></li>
-							
-						</ul>
-					</li>
-
-					<!-- Nav item 2 Course -->
-					<li class="nav-item dropdown"><a class="nav-link" href="course-grid.html">Livres</a></li>
-
-					<!-- Nav item 3 Components -->
-					<li class="nav-item"><a class="nav-link" href="docs/alerts.html">Composants</a></li>
-				</ul>
-				<!-- Nav Main menu END -->
+<ul class="navbar-nav navbar-nav-scroll ms-auto">
+    <!-- Nav item 1 - Navigation -->
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Parcourir</a>
+        <ul class="dropdown-menu" aria-labelledby="demoMenu">
+            <li><a class="dropdown-item" href="{{ path('app_home') }}">Accueil</a></li>
+            <li><a class="dropdown-item" href="{{ path('app_front_journal_index') }}">📖 Mon Journal</a></li>
+            <li><a class="dropdown-item" href="{{ path('app_front_defi_index') }}">🏆 Mes Défis</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ path('app_event_index') }}">📅 Événements</a></li>
+            <li><a class="dropdown-item" href="{{ path('app_club_index') }}">👥 Clubs</a></li>
+            <li><a class="dropdown-item" href="{{ path('app_reading_challenge_index') }}">📚 Challenges</a></li>
+        </ul>
+    </li>
+    <!-- Nav item 2 - Livres -->
+    <li class="nav-item">
+        <a class="nav-link" href="#">📚 Livres</a>
+    </li>
+    <!-- Nav item 3 - À propos -->
+    <li class="nav-item">
+        <a class="nav-link" href="#">À propos</a>
+    </li>
+</ul>
+<!-- Nav Main menu END -->
 			</div>
 			<!-- Main navbar END -->
 

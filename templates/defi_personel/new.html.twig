@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New DefiPersonel{% endblock %}
+
+{% block body %}
+    <h1>Create new DefiPersonel</h1>
+
+    {{ include('defi_personel/_form.html.twig') }}
+
+    <a href="{{ path('app_defi_personel_index') }}">back to list</a>
+{% endblock %}

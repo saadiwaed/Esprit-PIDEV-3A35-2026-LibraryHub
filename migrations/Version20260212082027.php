@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260208093411 extends AbstractMigration
+final class Version20260212082027 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -28,8 +28,10 @@ final class Version20260208093411 extends AbstractMigration
         $this->addSql('CREATE TABLE club_members (club_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_48E8777D61190A32 (club_id), INDEX IDX_48E8777DA76ED395 (user_id), PRIMARY KEY (club_id, user_id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE club_organizes_events (club_id INT NOT NULL, event_id INT NOT NULL, INDEX IDX_A6A93AD361190A32 (club_id), INDEX IDX_A6A93AD371F7E88B (event_id), PRIMARY KEY (club_id, event_id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE community (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE defi_personel (id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, created_at DATETIME NOT NULL, progression DOUBLE PRECISION DEFAULT NULL, titre VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, type_defi VARCHAR(255) NOT NULL, date_debut DATE NOT NULL, date_fin DATE NOT NULL, objectif INT NOT NULL, unite VARCHAR(255) NOT NULL, difficulte INT NOT NULL, recompense VARCHAR(255) DEFAULT NULL, statut VARCHAR(255) NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE event_registrations (id INT AUTO_INCREMENT NOT NULL, registered_at VARCHAR(255) NOT NULL, description VARCHAR(255) DEFAULT NULL, status VARCHAR(255) NOT NULL, attended_at VARCHAR(255) DEFAULT NULL, location VARCHAR(255) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, user_id INT NOT NULL, event_id INT NOT NULL, INDEX IDX_7787E14BA76ED395 (user_id), INDEX IDX_7787E14B71F7E88B (event_id), UNIQUE INDEX unique_registration (user_id, event_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE events (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, start_date_time DATETIME NOT NULL, end_date_time DATETIME NOT NULL, location VARCHAR(255) NOT NULL, capacity INT NOT NULL, registration_deadline DATETIME NOT NULL, status VARCHAR(20) NOT NULL, created_date DATETIME NOT NULL, image VARCHAR(255) DEFAULT NULL, created_by_id INT NOT NULL, INDEX IDX_5387574AB03A8386 (created_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE journal_lecture (id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, created_at DATETIME NOT NULL, titre VARCHAR(255) NOT NULL, livre_id INT NOT NULL, date_lecture DATE NOT NULL, duree_minutes INT NOT NULL, lieu VARCHAR(255) DEFAULT NULL, concentration INT NOT NULL, page_lues INT NOT NULL, resume VARCHAR(255) NOT NULL, reflexion VARCHAR(255) DEFAULT NULL, note_perso INT NOT NULL, defi_id INT DEFAULT NULL, INDEX IDX_11DC37AD73F00F27 (defi_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE loan (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE notification (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE penalty (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
@@ -50,6 +52,7 @@ final class Version20260208093411 extends AbstractMigration
         $this->addSql('ALTER TABLE event_registrations ADD CONSTRAINT FK_7787E14BA76ED395 FOREIGN KEY (user_id) REFERENCES users (id)');
         $this->addSql('ALTER TABLE event_registrations ADD CONSTRAINT FK_7787E14B71F7E88B FOREIGN KEY (event_id) REFERENCES events (id)');
         $this->addSql('ALTER TABLE events ADD CONSTRAINT FK_5387574AB03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id)');
+        $this->addSql('ALTER TABLE journal_lecture ADD CONSTRAINT FK_11DC37AD73F00F27 FOREIGN KEY (defi_id) REFERENCES defi_personel (id)');
         $this->addSql('ALTER TABLE reading_challenges ADD CONSTRAINT FK_F6AA72E661190A32 FOREIGN KEY (club_id) REFERENCES clubs (id)');
         $this->addSql('ALTER TABLE reading_challenges ADD CONSTRAINT FK_F6AA72E6B03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id)');
     }
@@ -68,6 +71,7 @@ final class Version20260208093411 extends AbstractMigration
         $this->addSql('ALTER TABLE event_registrations DROP FOREIGN KEY FK_7787E14BA76ED395');
         $this->addSql('ALTER TABLE event_registrations DROP FOREIGN KEY FK_7787E14B71F7E88B');
         $this->addSql('ALTER TABLE events DROP FOREIGN KEY FK_5387574AB03A8386');
+        $this->addSql('ALTER TABLE journal_lecture DROP FOREIGN KEY FK_11DC37AD73F00F27');
         $this->addSql('ALTER TABLE reading_challenges DROP FOREIGN KEY FK_F6AA72E661190A32');
         $this->addSql('ALTER TABLE reading_challenges DROP FOREIGN KEY FK_F6AA72E6B03A8386');
         $this->addSql('DROP TABLE author');
@@ -78,8 +82,10 @@ final class Version20260208093411 extends AbstractMigration
         $this->addSql('DROP TABLE club_members');
         $this->addSql('DROP TABLE club_organizes_events');
         $this->addSql('DROP TABLE community');
+        $this->addSql('DROP TABLE defi_personel');
         $this->addSql('DROP TABLE event_registrations');
         $this->addSql('DROP TABLE events');
+        $this->addSql('DROP TABLE journal_lecture');
         $this->addSql('DROP TABLE loan');
         $this->addSql('DROP TABLE notification');
         $this->addSql('DROP TABLE penalty');

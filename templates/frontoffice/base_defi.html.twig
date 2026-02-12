@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LibraryHub - Défis de Lecture{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
+    
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap">
+    
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/tiny-slider/tiny-slider.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/defi.css') }}">
+
+    
+    {# Bloc pour CSS supplémentaire #}
+    {% block stylesheets %}{% endblock %}
+
+
+    
+    
+    <style>
+        /* STYLES SPÉCIFIQUES AUX DÉFIS */
+        .defi-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 40px;
+        }
+        .defi-card {
+            transition: transform 0.3s;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .defi-card:hover {
+            transform: translateY(-5px);
+        }
+        .defi-progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+        .defi-badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+        .btn-defi {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+        }
+        .btn-defi:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER SPÉCIFIQUE AUX DÉFIS -->
+<header class="bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_frontoffice') }}">
+                <div class="d-flex align-items-center">
+                    <div class="bg-gradient-primary rounded p-1 me-2 shadow-sm">
+                        <i class="fas fa-trophy text-white fs-4"></i>
+                    </div>
+                    <div class="border-start border-white border-opacity-25 ps-2">
+                        <h5 class="text-white mb-0 fw-bold">LIBRARY<span class="text-warning">HUB</span></h5>
+                        <small class="text-white-50">Défis de lecture</small>
+                    </div>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefi">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarDefi">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_frontoffice') }}">
+                            <i class="fas fa-home me-1"></i>Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_front_journal_index') }}">
+                            <i class="fas fa-book-open me-1"></i>Journal
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ path('app_front_defi_index') }}">
+                            <i class="fas fa-trophy me-1"></i>Défis
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- CONTENU PRINCIPAL -->
+<main>
+    {% block body %}{% endblock %}
+</main>
+
+<!-- FOOTER SPÉCIFIQUE AUX DÉFIS -->
+<footer class="bg-dark text-white mt-5 py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-trophy text-warning fs-3 me-2"></i>
+                    <span class="h5 mb-0">LibraryHub - Défis de lecture</span>
+                </div>
+                <p class="mt-2 text-white-50">Relevez des défis et atteignez vos objectifs de lecture !</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">© 2026 LibraryHub -  Défis </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<!-- SCRIPTS -->
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/tiny-slider/tiny-slider.js') }}"></script>
+<script src="{{ asset('assets/vendor/glightbox/js/glightbox.js') }}"></script>
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+
+{# Bloc pour JavaScript supplémentaire #}
+{% block javascripts %}{% endblock %}
+
+</body>
+</html>

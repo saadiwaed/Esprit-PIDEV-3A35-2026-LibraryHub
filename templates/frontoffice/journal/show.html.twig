@@ -1,0 +1,164 @@
+{% extends 'frontoffice/base_journal.html.twig' %}
+
+{% block title %}{{ journal_lecture.titre }}{% endblock %}
+
+{% block body %}
+<!-- BANNER -->
+<section class="position-relative py-4" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ path('app_front_journal_index') }}" class="btn btn-light">
+                        <i class="fas fa-arrow-left me-2"></i>Retour au journal
+                    </a>
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('app_front_journal_edit', {'id': journal_lecture.id}) }}" 
+                           class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Modifier
+                        </a>
+                        <form method="post" action="{{ path('app_front_journal_delete', {'id': journal_lecture.id}) }}"
+                              class="d-inline"
+                              onsubmit="return confirm('🗑️ Supprimer cette lecture ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ journal_lecture.id) }}">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash-alt me-2"></i>Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTENU PRINCIPAL -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- CARD PRINCIPALE -->
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+                        
+                        <!-- EN-TÊTE -->
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div>
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3">
+                                    <i class="fas fa-calendar me-2"></i>{{ journal_lecture.dateLecture|date('l d F Y') }}
+                                </span>
+                                <h1 class="display-6 fw-bold mb-2">{{ journal_lecture.titre }}</h1>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-book me-2"></i>Livre #{{ journal_lecture.livreId }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STATISTIQUES EN CARDS -->
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-3">
+                                <div class="bg-primary bg-opacity-10 rounded-4 p-4 text-center">
+                                    <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+                                    <h3 class="h2 fw-bold mb-0">{{ journal_lecture.dureeMinutes }}</h3>
+                                    <span class="text-muted">minutes</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bg-success bg-opacity-10 rounded-4 p-4 text-center">
+                                    <i class="fas fa-file-alt fa-2x text-success mb-2"></i>
+                                    <h3 class="h2 fw-bold mb-0">{{ journal_lecture.pageLues }}</h3>
+                                    <span class="text-muted">pages</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bg-warning bg-opacity-10 rounded-4 p-4 text-center">
+                                    <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+                                    <h3 class="h2 fw-bold mb-0">{{ journal_lecture.concentration }}/10</h3>
+                                    <span class="text-muted">concentration</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bg-info bg-opacity-10 rounded-4 p-4 text-center">
+                                    <div class="mb-2">
+                                        {% for i in 1..5 %}
+                                            {% if i <= journal_lecture.notePerso %}
+                                                <i class="fas fa-star fa-lg text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star fa-lg text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <span class="text-muted">ma note</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LIEU -->
+                        {% if journal_lecture.lieu %}
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>Lieu de lecture
+                            </h5>
+                            <p class="lead mb-0">{{ journal_lecture.lieu }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- RÉSUMÉ -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-book-open text-primary me-2"></i>Résumé
+                            </h5>
+                            <div class="bg-light p-4 rounded-4">
+                                <p class="lead mb-0">{{ journal_lecture.resume }}</p>
+                            </div>
+                        </div>
+
+                        <!-- RÉFLEXIONS -->
+                        {% if journal_lecture.reflexion %}
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-pencil-alt text-primary me-2"></i>Mes réflexions
+                            </h5>
+                            <div class="bg-light p-4 rounded-4">
+                                <p class="fst-italic mb-0">{{ journal_lecture.reflexion }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- DÉFI ASSOCIÉ -->
+                        {% if journal_lecture.defi %}
+                        <div class="mt-5 p-4 bg-warning bg-opacity-10 rounded-4">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-trophy fa-3x text-warning"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h5 class="fw-bold mb-2">🏆 Ce journal est lié à un défi</h5>
+                                    <p class="mb-2">{{ journal_lecture.defi.titre }}</p>
+                                    <a href="{{ path('app_front_defi_show', {'id': journal_lecture.defi.id}) }}" 
+                                       class="btn btn-outline-warning">
+                                        Voir le défi <i class="fas fa-arrow-right ms-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- MÉTA-INFORMATIONS -->
+                        <div class="mt-5 pt-4 border-top">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i> Utilisateur #{{ journal_lecture.userId }}
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i> Créé le {{ journal_lecture.createdAt|date('d/m/Y H:i') }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

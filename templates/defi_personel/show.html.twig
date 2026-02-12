@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}DefiPersonel{% endblock %}
+
+{% block body %}
+    <h1>DefiPersonel</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ defi_personel.id }}</td>
+            </tr>
+            <tr>
+                <th>User_id</th>
+                <td>{{ defi_personel.userId }}</td>
+            </tr>
+            <tr>
+                <th>Created_at</th>
+                <td>{{ defi_personel.createdAt ? defi_personel.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Progression</th>
+                <td>{{ defi_personel.progression }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ defi_personel.titre }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ defi_personel.description }}</td>
+            </tr>
+            <tr>
+                <th>Type_defi</th>
+                <td>{{ defi_personel.typeDefi }}</td>
+            </tr>
+            <tr>
+                <th>Date_debut</th>
+                <td>{{ defi_personel.dateDebut ? defi_personel.dateDebut|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Date_fin</th>
+                <td>{{ defi_personel.dateFin ? defi_personel.dateFin|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Objectif</th>
+                <td>{{ defi_personel.objectif }}</td>
+            </tr>
+            <tr>
+                <th>Unite</th>
+                <td>{{ defi_personel.unite }}</td>
+            </tr>
+            <tr>
+                <th>Difficulte</th>
+                <td>{{ defi_personel.difficulte }}</td>
+            </tr>
+            <tr>
+                <th>Recompense</th>
+                <td>{{ defi_personel.recompense }}</td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>{{ defi_personel.statut }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_defi_personel_index') }}">back to list</a>
+
+    <a href="{{ path('app_defi_personel_edit', {'id': defi_personel.id}) }}">edit</a>
+
+    {{ include('defi_personel/_delete_form.html.twig') }}
+{% endblock %}

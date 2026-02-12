@@ -1,0 +1,370 @@
+{% extends 'frontoffice/base_defi.html.twig' %}
+
+
+
+{% block title %}🎯 {{ defi.titre }} - LibraryHub{% endblock %}
+
+
+{% block body %}
+<!-- HEADER DU DÉFI -->
+
+<section class="position-relative py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-white text-primary px-4 py-2 me-3">
+                                <i class="fas fa-trophy me-2"></i>{{ defi.typeDefi }}
+                            </span>
+                            <span class="badge {% if defi.statut == 'En cours' %}bg-warning{% else %}bg-success{% endif %} text-white px-4 py-2">
+                                {{ defi.statut }}
+                            </span>
+                        </div>
+                        <h1 class="display-4 fw-bold text-white mb-3">🎯 {{ defi.titre }}</h1>
+                        <div class="d-flex align-items-center text-white mb-2">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            <span>📅 Du {{ defi.dateDebut|date('d/m/Y') }} au {{ defi.dateFin|date('d/m/Y') }}</span>
+                        </div>
+                        <div class="d-flex align-items-center text-white">
+                            <i class="fas fa-bullseye me-2"></i>
+                            <span>🎯 Objectif : {{ defi.objectif }} {{ defi.unite }}</span>
+                            <span class="mx-3">|</span>
+                            <i class="fas fa-chart-line me-2"></i>
+                            <span>⚡ Difficulté : 
+                                {% for i in 1..5 %}
+                                    {% if i <= defi.difficulte %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-lg rounded-circle shadow" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_front_defi_edit', {'id': defi.id}) }}">
+                                    <i class="fas fa-edit text-warning me-2"></i>✏️ Modifier ce défi
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_front_journal_new', {'defi_id': defi.id}) }}">
+                                    <i class="fas fa-plus-circle text-success me-2"></i>➕ Ajouter une lecture
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <form method="post" action="{{ path('app_front_defi_delete', {'id': defi.id}) }}"
+                                      onsubmit="return confirm('❌ Êtes-vous sûr de vouloir abandonner ce défi ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ defi.id) }}">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-trash-alt me-2"></i>🗑️ Abandonner ce défi
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTENU PRINCIPAL -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- ======================================== -->
+            <!-- COLONNE GAUCHE - PROGRESSION & LECTURES -->
+            <!-- ======================================== -->
+            <div class="col-lg-8">
+                
+                <!-- DESCRIPTION -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-3">
+                            <i class="fas fa-align-left text-primary me-2"></i>Description
+                        </h4>
+                        <p class="lead mb-0">{{ defi.description }}</p>
+                    </div>
+                </div>
+
+                <!-- 🎯 PROGRESSION AMÉLIORÉE -->
+                <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-body p-4 text-white">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4 class="text-white fw-bold mb-3">
+                                    <i class="fas fa-chart-line me-2"></i>📊 PROGRESSION
+                                </h4>
+                                
+                                <div class="display-4 fw-bold text-white mb-2">
+                                    {{ progression|round }}/{{ defi.objectif }}
+                                    <small class="fs-6 text-white-50">{{ defi.unite }}</small>
+                                </div>
+                                
+                                <!-- BARRE DE PROGRESSION -->
+                                <div class="progress mb-3" style="height: 15px; background-color: rgba(255,255,255,0.2);">
+                                    <div class="progress-bar bg-white" 
+                                         role="progressbar" 
+                                         style="width: {{ pourcentage }}%;"
+                                         aria-valuenow="{{ pourcentage }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                                
+                                <!-- STATISTIQUES DÉTAILLÉES -->
+                                <div class="row">
+                                    <div class="col-4">
+                                        <small class="text-white-50">Lectures</small>
+                                        <div class="fw-bold">{{ total_lectures }}</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-white-50">Restant</small>
+                                        <div class="fw-bold">{{ reste }} {{ defi.unite }}</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-white-50">Objectif</small>
+                                        <div class="fw-bold">{{ defi.objectif }} {{ defi.unite }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- MESSAGE FÉLICITATIONS -->
+                            <div class="col-md-4 text-center">
+                                {% if defi.statut == 'Terminé' %}
+                                    <div class="bg-white bg-opacity-20 rounded-4 p-3">
+                                        <i class="fas fa-trophy fa-4x text-warning mb-2"></i>
+                                        <h5 class="text-white mb-0">🎉 DÉFI RÉUSSI !</h5>
+                                        <small class="text-white-50">Félicitations !</small>
+                                    </div>
+                                {% else %}
+                                    <div class="bg-white bg-opacity-20 rounded-4 p-3">
+                                        <i class="fas fa-book-open fa-3x text-white mb-2"></i>
+                                        <h5 class="text-white mb-0">{{ reste }} {{ defi.unite }} restants</h5>
+                                        <small class="text-white-50">Encore {{ jours_restants }} jours</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📖 LECTURES ASSOCIÉES -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="fw-bold mb-0">
+                                <i class="fas fa-book-open text-primary me-2"></i>📖 LECTURES ASSOCIÉES
+                            </h4>
+                            <a href="{{ path('app_front_journal_new', {'defi_id': defi.id}) }}" class="btn btn-success">
+                                <i class="fas fa-plus-circle me-2"></i>Ajouter une lecture
+                            </a>
+                        </div>
+
+                        {% if journaux|length > 0 %}
+                            <div class="list-group mb-4">
+                                {% for journal in journaux %}
+                                    <div class="list-group-item list-group-item-action border-0 mb-2 shadow-sm rounded-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="badge bg-primary bg-opacity-10 text-primary me-3">
+                                                        {{ journal.dateLecture|date('d/m') }}
+                                                    </span>
+                                                    <h5 class="mb-0 fw-bold">{{ journal.titre }}</h5>
+                                                </div>
+                                                <div class="d-flex align-items-center text-muted">
+                                                    <span class="me-3">
+                                                        <i class="fas fa-clock me-1"></i>{{ journal.dureeMinutes }}min
+                                                    </span>
+                                                    <span class="me-3">
+                                                        <i class="fas fa-file-alt me-1"></i>{{ journal.pageLues }}p
+                                                    </span>
+                                                    <span>
+                                                        {% for i in 1..5 %}
+                                                            {% if i <= journal.notePerso %}
+                                                                <i class="fas fa-star text-warning"></i>
+                                                            {% else %}
+                                                                <i class="far fa-star text-warning"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </span>
+                                                </div>
+                                                <p class="mt-2 mb-0 text-muted">"{{ journal.reflexion|slice(0, 80) }}..."</p>
+                                            </div>
+                                            <a href="{{ path('app_front_journal_show', {'id': journal.id}) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                Voir <i class="fas fa-arrow-right ms-1"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- 📊 RÉCAPITULATIF DES LECTURES -->
+                            <div class="mt-4 p-3 bg-light rounded-3">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <span class="text-muted d-block">Temps total</span>
+                                        <span class="fw-bold">{{ journaux|reduce((carry, j) => carry + j.dureeMinutes, 0) }} min</span>
+                                    </div>
+                                    <div class="col-4">
+                                        <span class="text-muted d-block">Pages totales</span>
+                                        <span class="fw-bold">{{ journaux|reduce((carry, j) => carry + j.pageLues, 0) }} pages</span>
+                                    </div>
+                                    <div class="col-4">
+                                        <span class="text-muted d-block">Note moyenne</span>
+                                        <span class="fw-bold">{{ (journaux|reduce((carry, j) => carry + j.notePerso, 0) / journaux|length)|round(1) }}/5</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- AUCUNE LECTURE -->
+                            <div class="text-center py-5">
+                                <div class="bg-light rounded-circle d-inline-flex p-4 mb-4">
+                                    <i class="fas fa-book-open fa-3x text-muted"></i>
+                                </div>
+                                <h5>Aucune lecture associée</h5>
+                                <p class="text-muted mb-4">Commencez par ajouter une lecture à ce défi !</p>
+                                <a href="{{ path('app_front_journal_new', {'defi_id': defi.id}) }}" class="btn btn-primary">
+                                    <i class="fas fa-plus-circle me-2"></i>Ajouter une lecture
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div> <!-- FIN COLONNE GAUCHE -->
+
+            <!-- ======================================== -->
+            <!-- COLONNE DROITE - CONSEILS & STATISTIQUES -->
+            <!-- ======================================== -->
+            <div class="col-lg-4">
+                
+                <!-- RÉCOMPENSE -->
+                {% if defi.recompense %}
+                    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+                        <div class="card-body p-4 text-white">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-white bg-opacity-20 rounded-3 p-3 me-3">
+                                    <i class="fas fa-gift fa-2x text-white"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-white mb-1">🎁 RÉCOMPENSE</h5>
+                                    <span class="fw-bold">{{ defi.recompense }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- 💡 CONSEIL INTELLIGENT -->
+                <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-body p-4 text-white">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-white bg-opacity-20 rounded-3 p-3 me-3">
+                                <i class="fas fa-lightbulb fa-2x text-warning"></i>
+                            </div>
+                            <h5 class="text-white mb-0">💡 CONSEIL INTELLIGENT</h5>
+                        </div>
+                        
+                        {% set jours_restants = jours_restants|default(0) %}
+                        {% set progression_journaliere = jours_restants > 0 ? reste / jours_restants : 0 %}
+                        
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3 mb-3">
+                            <p class="mb-2">
+                                {% if defi.statut == 'Terminé' %}
+                                    🎉 Félicitations ! Tu as réussi ce défi !
+                                {% elseif pourcentage >= 75 %}
+                                    🌟 Super ! Tu es presque au bout ! Continue comme ça !
+                                {% elseif pourcentage >= 50 %}
+                                    📚 Bon rythme ! Tu es à la moitié du chemin.
+                                {% elseif pourcentage >= 25 %}
+                                    💪 Bon début ! Continue sur cette lancée.
+                                {% else %}
+                                    🚀 C'est parti ! Chaque lecture te rapproche de ton objectif.
+                                {% endif %}
+                            </p>
+                            <p class="mb-0 fw-bold">
+                                {% if jours_restants > 0 and defi.statut != 'Terminé' %}
+                                    ⏳ Il te reste {{ jours_restants }} jours.
+                                    {% if progression_journaliere <= 1 %}
+                                        ✅ Rythme parfait ! Continue comme ça.
+                                    {% else %}
+                                        🔥 Il te faudrait {{ progression_journaliere|round(1) }} {{ defi.unite }} par jour.
+                                    {% endif %}
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <i class="fas fa-quote-left opacity-50 me-1"></i>
+                            "Chaque page tournée est un pas de plus vers ta réussite"
+                            <i class="fas fa-quote-right opacity-50 ms-1"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📊 STATISTIQUES RAPIDES -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-chart-pie text-primary me-2"></i>STATISTIQUES
+                        </h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Temps total</span>
+                            <span class="fw-bold">{{ journaux|reduce((carry, journal) => carry + journal.dureeMinutes, 0) }} min</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Pages lues</span>
+                            <span class="fw-bold">{{ journaux|reduce((carry, journal) => carry + journal.pageLues, 0) }} pages</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Moyenne/jour</span>
+                            <span class="fw-bold">
+                                {% if jours_restants > 0 %}
+                                    {{ (progression / max(1, jours_restants))|round(1) }} {{ defi.unite }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- FIN COLONNE DROITE -->
+        </div> <!-- FIN ROW -->
+    </div> <!-- FIN CONTAINER -->
+</section>
+
+<!-- ℹ️ MÉTA-INFORMATIONS -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-light border-0">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i> Utilisateur #{{ defi.userId }}
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i> Créé le {{ defi.createdAt|date('d/m/Y H:i') }}
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-sync me-1"></i> Mis à jour: {{ defi.updatedAt|default(defi.createdAt)|date('d/m/Y H:i') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
