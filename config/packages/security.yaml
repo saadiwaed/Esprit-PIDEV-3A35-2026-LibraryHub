@@ -2,19 +2,41 @@ security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+    
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+    
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        
         main:
             lazy: true
-            provider: users_in_memory
-
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
+            provider: app_user_provider
+            
+            # Form login configuration
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                success_handler: App\Security\LoginSuccessHandler
+            
+            # Logout configuration
+            logout:
+                path: app_logout
+                target: app_login
+            
+            # Remember me feature
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path: /
+                always_remember_me: false
 
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
@@ -22,8 +44,20 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # Public routes
+        - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        
+        # Admin and Librarian routes (dashboard, user management, etc.)
+        - { path: ^/user, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
+        - { path: ^/role, roles: ROLE_ADMIN }
+        - { path: ^/reading-profile, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
+        - { path: ^/club, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
+        - { path: ^/event, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
+        - { path: ^/reading-challenge, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
+        - { path: ^/dashboard, roles: ROLE_USER }
+        - { path: ^/, roles: ROLE_USER }
 
 when@test:
     security:
