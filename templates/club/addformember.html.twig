@@ -1,0 +1,203 @@
+{% extends 'frontoffice/navbar.html.twig' %}
+
+{% block title %}Créer un club - LibraryHub{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <div class="bg-soft-primary d-inline-block p-3 rounded-circle mb-2">
+                    <i class="bi bi-people-fill fs-3 text-primary"></i>
+                </div>
+                <h2 class="fw-bold mb-2">Créer votre club de lecture</h2>
+                <p class="text-muted">Rassemblez des passionnés et partagez vos lectures</p>
+            </div>
+
+            <!-- Formulaire avec form_row() -->
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <!-- ✅ form_row() affiche automatiquement :
+                         - Label
+                         - Widget
+                         - Erreurs
+                         - Contraintes (min, max, etc.)
+                    -->
+                    
+                    <!-- Titre - Avec contraintes de l'entité -->
+                    {{ form_row(form.title, {
+                        'label': 'Nom du club',
+                        'attr': {
+                            'class': 'form-control' ~ (form.title.vars.valid ? '' : ' is-invalid'),
+                            'placeholder': 'ex: Esprit & Lettres, Les Mordus de Romans...'
+                        },
+                        'label_attr': {'class': 'form-label fw-semibold'}
+                    }) }}
+                    <small class="text-muted mb-3 d-block">
+                        <i class="bi bi-info-circle"></i> 
+                        3 à 255 caractères
+                    </small>
+
+                    <!-- Description - Avec contraintes de l'entité -->
+                    {{ form_row(form.description, {
+                        'label': 'Description',
+                        'attr': {
+                            'class': 'form-control' ~ (form.description.vars.valid ? '' : ' is-invalid'),
+                            'rows': 4,
+                            'placeholder': 'Décrivez votre club, ses objectifs, les genres littéraires...'
+                        },
+                        'label_attr': {'class': 'form-label fw-semibold'}
+                    }) }}
+                    <small class="text-muted mb-3 d-block">
+                        <i class="bi bi-info-circle"></i> 
+                        Minimum 10 caractères
+                    </small>
+
+                    <div class="row g-3">
+                        <!-- Catégorie - Champ obligatoire -->
+                        <div class="col-md-6">
+                            {{ form_row(form.category, {
+                                'label': 'Catégorie',
+                                'attr': {
+                                    'class': 'form-select' ~ (form.category.vars.valid ? '' : ' is-invalid')
+                                },
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Capacité - Avec contraintes : positif, max 500 -->
+                        <div class="col-md-3">
+                            {{ form_row(form.capacity, {
+                                'label': 'Capacité max',
+                                'attr': {
+                                    'class': 'form-control' ~ (form.capacity.vars.valid ? '' : ' is-invalid'),
+                                    'min': 1,
+                                    'max': 500,
+                                    'placeholder': '20'
+                                },
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                            <small class="text-muted">Maximum 500 membres</small>
+                        </div>
+
+                        <!-- Club privé -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">&nbsp;</label>
+                            <div class="form-check form-switch mt-2">
+                                {{ form_widget(form.isPrivate, {
+                                    'attr': {
+                                        'class': 'form-check-input' ~ (form.isPrivate.vars.valid ? '' : ' is-invalid'),
+                                        'role': 'switch'
+                                    }
+                                }) }}
+                                {{ form_label(form.isPrivate, 'Club privé', {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                            <small class="text-muted d-block mt-1">Sur invitation uniquement</small>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <!-- Date de réunion - Doit être future -->
+                        <div class="col-md-6">
+                            {{ form_row(form.meetingDate, {
+                                'label': 'Date de la prochaine réunion',
+                                'attr': {
+                                    'class': 'form-control' ~ (form.meetingDate.vars.valid ? '' : ' is-invalid')
+                                },
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                            <small class="text-muted">
+                                <i class="bi bi-calendar-check"></i> 
+                                Doit être une date future
+                            </small>
+                        </div>
+
+                        <!-- Lieu de réunion - Obligatoire -->
+                        <div class="col-md-6">
+                            {{ form_row(form.meetingLocation, {
+                                'label': 'Lieu de réunion',
+                                'attr': {
+                                    'class': 'form-control' ~ (form.meetingLocation.vars.valid ? '' : ' is-invalid'),
+                                    'placeholder': 'Ex: Bibliothèque, Zoom, Discord...'
+                                },
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                    </div>
+
+                    <!-- Image (optionnel) -->
+                    <div class="mt-4">
+                        {{ form_row(form.imageFile, {
+                            'label': 'Image du club (optionnel)',
+                            'attr': {
+                                'class': 'form-control' ~ (form.imageFile.vars.valid ? '' : ' is-invalid'),
+                                'accept': 'image/*'
+                            },
+                            'label_attr': {'class': 'form-label fw-semibold'}
+                        }) }}
+                        <div id="imagePreviewContainer" class="mt-2 text-center d-none">
+                            <img src="#" alt="Aperçu" class="img-fluid rounded" style="max-height: 100px;" id="imagePreview">
+                        </div>
+                        <small class="text-muted">Formats: JPG, PNG, GIF (Max 2Mo)</small>
+                    </div>
+
+                   
+
+                    <!-- Boutons -->
+                    <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+                        <a href="{{ path('app_club_discover') }}" class="btn btn-light px-4">
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-1"></i>
+                            {{ button_label|default('Créer le club') }}
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            
+        </div>
+    </div>
+</div>
+
+<!-- Script pour l'aperçu de l'image -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('#{{ form.imageFile.vars.id }}');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.classList.remove('d-none');
+                }
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                previewContainer.classList.add('d-none');
+                imagePreview.src = '#';
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.bg-soft-primary {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,251 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reading Profiles{% endblock %}
+
+{% block body %}
+<div class="page-content">
+    <div class="page-content-wrapper border">
+        <!-- Title -->
+        <div class="row mb-3">
+            <div class="col-12 d-sm-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-2 mb-sm-0">Reading Profiles</h1>
+                <a href="{{ path('app_reading_profile_new') }}" class="btn btn-sm btn-primary mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <!-- Search Bar -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card bg-transparent border">
+                    <div class="card-body">
+                        <form method="get" action="{{ path('app_reading_profile_index') }}" class="row g-3 align-items-center">
+                            <div class="col-md-10">
+                                <div class="position-relative">
+                                    <input type="text" 
+                                           name="search" 
+                                           id="profileSearch" 
+                                           class="form-control" 
+                                           placeholder="Search by user name or email..." 
+                                           value="{{ app.request.get('search') }}"
+                                           autocomplete="off">
+                                    <div id="searchSuggestions" class="position-absolute w-100 bg-white border rounded shadow-sm" style="display: none; z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-search me-2"></i>Search
+                                </button>
+                                {% if app.request.get('search') %}
+                                    <a href="{{ path('app_reading_profile_index') }}" class="btn btn-secondary w-100 mt-2">
+                                        <i class="bi bi-x-circle me-2"></i>Clear
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card START -->
+        <div class="card bg-transparent border">
+            <!-- Card body START -->
+            <div class="card-body">
+                <!-- Table START -->
+                <div class="table-responsive border-0">
+                    <table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="border-0 rounded-start">ID</th>
+                                <th scope="col" class="border-0">User</th>
+                                <th scope="col" class="border-0">Books Read</th>
+                                <th scope="col" class="border-0">Goal/Month</th>
+                                <th scope="col" class="border-0">Avg Rating</th>
+                                <th scope="col" class="border-0">Favorite Genres</th>
+                                <th scope="col" class="border-0 rounded-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for reading_profile in reading_profiles %}
+                            <tr>
+                                <td>{{ reading_profile.id }}</td>
+                                <td>
+                                    <h6 class="mb-0">{{ reading_profile.user.fullName }}</h6>
+                                    <small class="text-muted">{{ reading_profile.user.email }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">
+                                        {{ reading_profile.totalBooksRead }} books
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if reading_profile.readingGoalPerMonth %}
+                                        <span class="badge bg-success bg-opacity-10 text-success">
+                                            {{ reading_profile.readingGoalPerMonth }}/month
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">Not set</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if reading_profile.averageRating %}
+                                        <span class="badge bg-warning bg-opacity-10 text-warning">
+                                            {{ reading_profile.averageRating|number_format(1) }} ⭐
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if reading_profile.favoriteGenres %}
+                                        {{ reading_profile.favoriteGenres|slice(0, 2)|join(', ') }}
+                                        {% if reading_profile.favoriteGenres|length > 2 %}
+                                            <small class="text-muted">+{{ reading_profile.favoriteGenres|length - 2 }} more</small>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">None</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ path('app_reading_profile_show', {'id': reading_profile.id}) }}" class="btn btn-sm btn-info-soft me-1 mb-1 mb-md-0" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_reading_profile_edit', {'id': reading_profile.id}) }}" class="btn btn-sm btn-success-soft me-1 mb-1 mb-md-0" title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger-soft mb-0" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal{{ reading_profile.id }}"
+                                            title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <div class="py-5">
+                                        <i class="bi bi-book display-4 text-muted"></i>
+                                        <p class="mt-3 text-muted">No reading profiles found</p>
+                                        <a href="{{ path('app_reading_profile_new') }}" class="btn btn-primary">Create First Profile</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Table END -->
+            </div>
+            <!-- Card body END -->
+        </div>
+        <!-- Card END -->
+
+        <!-- Delete Modals -->
+        {% for reading_profile in reading_profiles %}
+            <div class="modal fade" id="deleteModal{{ reading_profile.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ reading_profile.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel{{ reading_profile.id }}">Confirm Delete</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete the reading profile for <strong>{{ reading_profile.user.fullName }}</strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="post" action="{{ path('app_reading_profile_delete', {'id': reading_profile.id}) }}" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reading_profile.id) }}">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('profileSearch');
+            const suggestionsDiv = document.getElementById('searchSuggestions');
+            let timeoutId;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(timeoutId);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    suggestionsDiv.style.display = 'none';
+                    return;
+                }
+
+                timeoutId = setTimeout(function() {
+                    fetch('{{ path('app_reading_profile_search') }}?q=' + encodeURIComponent(query))
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length === 0) {
+                                suggestionsDiv.innerHTML = '<div class="p-2 text-muted">No results found</div>';
+                                suggestionsDiv.style.display = 'block';
+                            } else {
+                                suggestionsDiv.innerHTML = data.map(profile => `
+                                    <div class="suggestion-item p-2 border-bottom" style="cursor: pointer;" data-name="${profile.userName}">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="fw-bold">${profile.userName}</div>
+                                                <small class="text-muted">${profile.userEmail} - ${profile.booksRead} books read</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('');
+                                suggestionsDiv.style.display = 'block';
+
+                                document.querySelectorAll('.suggestion-item').forEach(item => {
+                                    item.addEventListener('click', function() {
+                                        searchInput.value = this.dataset.name;
+                                        suggestionsDiv.style.display = 'none';
+                                        searchInput.form.submit();
+                                    });
+                                    
+                                    item.addEventListener('mouseenter', function() {
+                                        this.style.backgroundColor = '#f8f9fa';
+                                    });
+                                    
+                                    item.addEventListener('mouseleave', function() {
+                                        this.style.backgroundColor = '';
+                                    });
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Search error:', error);
+                            suggestionsDiv.style.display = 'none';
+                        });
+                }, 300);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.style.display = 'none';
+                }
+            });
+        });
+    </script>
+{% endblock %}

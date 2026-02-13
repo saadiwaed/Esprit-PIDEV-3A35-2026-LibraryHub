@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create New Role{% endblock %}
+
+{% block body %}
+<div class="page-content">
+    <div class="page-content-wrapper border">
+        <!-- Title -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <h1 class="h3 mb-2 mb-sm-0">Create New Role</h1>
+            </div>
+        </div>
+
+        <!-- Card START -->
+        <div class="card bg-transparent border">
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    <div class="row g-4">
+                        <div class="col-12">
+                            {{ form_row(form.name) }}
+                        </div>
+
+                        <div class="col-12">
+                            {{ form_row(form.description) }}
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Create Role
+                            </button>
+                            <a href="{{ path('app_role_index') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+        <!-- Card END -->
+    </div>
+</div>
+{% endblock %}

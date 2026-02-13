@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reading Profile Details{% endblock %}
+
+{% block body %}
+<div class="page-content">
+    <div class="page-content-wrapper border">
+        <!-- Title -->
+        <div class="row mb-3">
+            <div class="col-12 d-sm-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-2 mb-sm-0">Reading Profile Details</h1>
+                <div>
+                    <a href="{{ path('app_reading_profile_edit', {'id': reading_profile.id}) }}" class="btn btn-sm btn-success mb-0 me-2">
+                        <i class="bi bi-pencil-square me-2"></i>Edit
+                    </a>
+                    <a href="{{ path('app_reading_profile_index') }}" class="btn btn-sm btn-secondary mb-0">
+                        <i class="bi bi-arrow-left me-2"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card START -->
+        <div class="card bg-transparent border">
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- User Info -->
+                    <div class="col-12">
+                        <h5 class="mb-3">User Information</h5>
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="avatar avatar-lg me-3">
+                                {% if reading_profile.user.avatar %}
+                                    <img class="avatar-img rounded-circle" src="{{ asset('uploads/avatars/' ~ reading_profile.user.avatar) }}" alt="{{ reading_profile.user.fullName }}">
+                                {% else %}
+                                    <div class="avatar-img rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fs-3">
+                                        {{ reading_profile.user.firstName|first }}{{ reading_profile.user.lastName|first }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h4 class="mb-1">{{ reading_profile.user.fullName }}</h4>
+                                <p class="mb-0 text-muted">{{ reading_profile.user.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reading Statistics -->
+                    <div class="col-12">
+                        <h5 class="mb-3">Reading Statistics</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="card bg-primary bg-opacity-10 border-0">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-book-fill fs-1 text-primary mb-2"></i>
+                                        <h3 class="mb-1 text-primary">{{ reading_profile.totalBooksRead }}</h3>
+                                        <p class="mb-0 text-muted">Books Read</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-success bg-opacity-10 border-0">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-trophy-fill fs-1 text-success mb-2"></i>
+                                        <h3 class="mb-1 text-success">
+                                            {{ reading_profile.readingGoalPerMonth ?: 'Not Set' }}
+                                        </h3>
+                                        <p class="mb-0 text-muted">Monthly Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-warning bg-opacity-10 border-0">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-star-fill fs-1 text-warning mb-2"></i>
+                                        <h3 class="mb-1 text-warning">
+                                            {{ reading_profile.averageRating ? (reading_profile.averageRating|number_format(1)) : 'N/A' }}
+                                        </h3>
+                                        <p class="mb-0 text-muted">Average Rating</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Favorite Genres -->
+                    <div class="col-12">
+                        <h5 class="mb-3 mt-3">Favorite Genres</h5>
+                        {% if reading_profile.favoriteGenres %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for genre in reading_profile.favoriteGenres %}
+                                    <span class="badge bg-info bg-opacity-10 text-info fs-6 px-3 py-2">
+                                        <i class="bi bi-bookmark-fill me-1"></i>{{ genre }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No favorite genres selected</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Preferred Languages -->
+                    <div class="col-12">
+                        <h5 class="mb-3 mt-3">Preferred Languages</h5>
+                        {% if reading_profile.preferredLanguages %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for language in reading_profile.preferredLanguages %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary fs-6 px-3 py-2">
+                                        <i class="bi bi-globe me-1"></i>{{ language }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No preferred languages selected</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="col-12">
+                        <div class="mt-4 d-flex gap-2">
+                            <a href="{{ path('app_user_show', {'id': reading_profile.user.id}) }}" class="btn btn-info">
+                                <i class="bi bi-person me-2"></i>View User Profile
+                            </a>
+                            <a href="{{ path('app_reading_profile_edit', {'id': reading_profile.id}) }}" class="btn btn-success">
+                                <i class="bi bi-pencil-square me-2"></i>Edit Reading Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Card END -->
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,258 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Événements{% endblock %}
+
+{% block body %}
+<!-- =======================
+Page Banner START -->
+<section class="py-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="bg-light p-4 text-center rounded-3">
+                    <h2 class="mb-0">Événements ({{ events|length }})</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- =======================
+Page content START -->
+<section class="pt-5">
+    <div class="container">
+        <!-- Header avec actions -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                
+                <p class="mb-0">Gérez vos événements de lecture</p>
+                
+                <!-- Badges de statistiques -->
+                <div class="d-flex gap-2 mt-2">
+                    <a href="{{ path('app_event_index', app.request.query.all|merge({status: ''})) }}" 
+                       class="badge {% if current_filters.status == '' %}bg-primary{% else %}bg-secondary{% endif %} text-decoration-none">
+                        Tous ({{ events|length }})
+                    </a>
+                    {% for status in all_status %}
+                    {% set count = stats[status.value] ?? 0 %}
+                    {% if count > 0 %}
+                    <a href="{{ path('app_event_index', app.request.query.all|merge({status: status.value})) }}" 
+                       class="badge {% if current_filters.status == status.value %}bg-primary{% else %}bg-light text-dark border{% endif %} text-decoration-none">
+                        {{ status.getLabel() }} ({{ count }})
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6 d-md-flex justify-content-md-end">
+                <div class="btn-group" role="group">
+                    <a href="{{ path('app_event_new') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Nouvel événement
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barre de recherche et filtres -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="get" action="{{ path('app_event_index') }}" class="row g-3">
+                    <!-- Recherche -->
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" 
+                                   name="search" 
+                                   class="form-control" 
+                                   placeholder="Rechercher par titre, description, lieu..." 
+                                   value="{{ current_filters.search }}">
+                        </div>
+                    </div>
+                    
+                    <!-- Filtre par statut -->
+                    <div class="col-md-3">
+                        <select name="status" class="form-select">
+                            <option value="">Tous les statuts</option>
+                            {% for status in all_status %}
+                            <option value="{{ status.value }}" 
+                                    {% if current_filters.status == status.value %}selected{% endif %}>
+                                {{ status.getLabel() }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Tri -->
+                    <div class="col-md-2">
+                        <select name="sort" class="form-select">
+                            <option value="startDateTime" {% if current_filters.sort == 'startDateTime' %}selected{% endif %}>
+                                Date de début
+                            </option>
+                            <option value="title" {% if current_filters.sort == 'title' %}selected{% endif %}>
+                                Titre
+                            </option>
+                            <option value="createdDate" {% if current_filters.sort == 'createdDate' %}selected{% endif %}>
+                                Date création
+                            </option>
+                            <option value="capacity" {% if current_filters.sort == 'capacity' %}selected{% endif %}>
+                                Capacité
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <!-- Ordre -->
+                    <div class="col-md-2">
+                        <select name="order" class="form-select">
+                            <option value="asc" {% if current_filters.order == 'asc' %}selected{% endif %}>
+                                Croissant
+                            </option>
+                            <option value="desc" {% if current_filters.order == 'desc' %}selected{% endif %}>
+                                Décroissant
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <!-- Boutons -->
+                    <div class="col-md-12">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-1"></i>Filtrer
+                            </button>
+                            <a href="{{ path('app_event_index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Réinitialiser
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Liste de cartes -->
+        <div class="card shadow">
+            <div class="card-body p-0">
+                {% if events|length > 0 %}
+                {% for event in events %}
+                <!-- Item START -->
+                <div class="border-bottom p-4 {% if loop.last %}border-bottom-0{% endif %}">
+                    <div class="row g-3 align-items-center">
+                        <!-- Image -->
+                        <div class="col-md-2">
+                            <div class="ratio ratio-1x1 rounded-3 overflow-hidden">
+                                {% if event.image %}
+                                    <img src="{{ asset('uploads/events/' ~ event.image) }}" 
+                                         class="img-fluid" 
+                                         alt="{{ event.title }}"
+                                         style="object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center h-100">
+                                        <i class="fas fa-calendar-alt fa-2x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Détails -->
+                        <div class="col-md-6">
+                            <h5 class="mb-1">
+                                <a href="{{ path('app_event_show', {'id': event.id}) }}" class="text-reset">
+                                    {{ event.title }}
+                                </a>
+                            </h5>
+                            <p class="text-truncate-2 mb-2">{{ event.description|slice(0, 150) }}...</p>
+                            
+                            <!-- Infos -->
+                            <div class="d-flex flex-wrap gap-3">
+                                <span class="badge bg-primary bg-opacity-10 text-primary">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                                </span>
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    <i class="fas fa-calendar-day me-1"></i>
+                                    {{ event.startDateTime|date('d/m/Y H:i') }}
+                                </span>
+                                <span class="badge bg-info bg-opacity-10 text-info">
+                                    <i class="fas fa-user-friends me-1"></i>{{ event.capacity }} places
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Statut et actions -->
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="badge 
+                                        {% if event.status.value == 'upcoming' %}bg-primary
+                                        {% elseif event.status.value == 'ongoing' %}bg-success
+                                        {% elseif event.status.value == 'completed' %}bg-secondary
+                                        {% else %}bg-danger{% endif %} mb-2">
+                                        {{ event.status.getLabel() }}
+                                    </span>
+                                    
+                                    <p class="small text-muted mb-0">
+                                        Créé le {{ event.createdDate|date('d/m/Y') }}
+                                    </p>
+                                </div>
+                                
+                                <!-- Menu d'actions -->
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light rounded-circle" 
+                                            type="button" 
+                                            data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" 
+                                               href="{{ path('app_event_show', {'id': event.id}) }}">
+                                                <i class="fas fa-eye me-2"></i>Voir
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" 
+                                               href="{{ path('app_event_edit', {'id': event.id}) }}">
+                                                <i class="fas fa-edit me-2"></i>Modifier
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form method="post" 
+                                                  action="{{ path('app_event_delete', {'id': event.id}) }}" 
+                                                  onsubmit="return confirm('Supprimer cet événement ?')"
+                                                  class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="fas fa-trash me-2"></i>Supprimer
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Item END -->
+                {% endfor %}
+                {% else %}
+                <!-- Aucun événement -->
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucun événement trouvé</h4>
+                    <p class="text-muted mb-4">
+                        {% if current_filters.search or current_filters.status %}
+                            Aucun résultat pour vos critères de recherche.
+                            <a href="{{ path('app_event_index') }}" class="text-decoration-none">Afficher tous les événements</a>
+                        {% else %}
+                            Commencez par créer votre premier événement !
+                        {% endif %}
+                    </p>
+                    <a href="{{ path('app_event_new') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Créer un événement
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+<!-- =======================
+Page content END -->
+{% endblock %}
