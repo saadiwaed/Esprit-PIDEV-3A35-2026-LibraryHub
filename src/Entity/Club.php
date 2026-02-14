@@ -293,30 +293,25 @@ class Club
         return $this;
     }
 
-
     public function getAvailableSpots(): int
     {
         return $this->capacity - $this->members->count();
     }
-
 
     public function isFull(): bool
     {
         return $this->members->count() >= $this->capacity;
     }
 
-
     public function isMember(User $user): bool
     {
         return $this->members->contains($user);
     }
 
-
     public function canJoin(): bool
     {
         return !$this->isFull() && $this->status === ClubStatus::ACTIVE;
     }
-
 
     public function activate(): self
     {
@@ -324,13 +319,11 @@ class Club
         return $this;
     }
 
-
     public function deactivate(): self
     {
         $this->status = ClubStatus::INACTIVE;
         return $this;
     }
-
 
     public function pause(): self
     {
@@ -338,13 +331,11 @@ class Club
         return $this;
     }
 
-
     public function archive(): self
     {
         $this->status = ClubStatus::ARCHIVED;
         return $this;
     }
-
 
     public function getUpcomingEvents(): Collection
     {
@@ -353,14 +344,12 @@ class Club
         );
     }
 
-
     public function getPastEvents(): Collection
     {
         return $this->organizedEvents->filter(
             fn(Event $event) => $event->getEndDateTime() < new \DateTime()
         );
     }
-
 
     public function getOngoingEvents(): Collection
     {
@@ -369,18 +358,15 @@ class Club
         );
     }
 
-
     public function isOrganizingEvent(Event $event): bool
     {
         return $this->organizedEvents->contains($event);
     }
 
-
     public function getEventCount(): int
     {
         return $this->organizedEvents->count();
     }
-
 
     public function getNextEvent(): ?Event
     {

@@ -275,7 +275,6 @@ class Event
         return $this;
     }
 
-
     public function isUpcoming(): bool
     {
         return $this->startDateTime > new \DateTime();
@@ -307,12 +306,10 @@ class Event
         return $this->organizingClubs->contains($club);
     }
 
-
     public function isCollaborative(): bool
     {
         return $this->organizingClubs->count() > 1;
     }
-
 
     public function getOrganizerCount(): int
     {
@@ -341,7 +338,6 @@ class Event
         return $difference > 0 && $difference <= 86400; // 24h en secondes
     }
 
-
     public function getAllOrganizersMembers(): Collection
     {
         $allMembers = new ArrayCollection();
@@ -356,7 +352,6 @@ class Event
         
         return $allMembers;
     }
-
 
     public function isUserInOrganizingClub(User $user): bool
     {
