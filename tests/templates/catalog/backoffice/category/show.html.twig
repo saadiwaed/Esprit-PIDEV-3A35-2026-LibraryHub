@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ category.name }} – Catégorie{% endblock %}
+{% block body %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{{ path(area ~ '_category_index') }}">Catégories</a></li>
+                    <li class="breadcrumb-item active">{{ category.name }}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">
+                {% if category.icon %}
+                {% if 'uploads/' in category.icon or '.' in category.icon %}
+                    <img src="{{ asset(category.icon) }}" alt="" class="me-2" style="height:2rem;width:auto;">
+                {% else %}
+                    <i class="{{ category.icon }} me-2 text-primary"></i>
+                {% endif %}
+            {% endif %}
+                {{ category.name }}
+            </h1>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path(area ~ '_category_edit', { id: category.id }) }}" class="btn btn-primary">Modifier</a>
+            {{ include('catalog/backoffice/category/_delete_form.html.twig') }}
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3 text-muted">Description</dt>
+                <dd class="col-sm-9">{{ category.descriptionCat|default('—')|nl2br }}</dd>
+                <dt class="col-sm-3 text-muted">Icône</dt>
+                <dd class="col-sm-9">
+                    {% if category.icon %}
+                        {% if 'uploads/' in category.icon or '.' in category.icon %}
+                            <img src="{{ asset(category.icon) }}" alt="" style="height:2rem;width:auto;">
+                        {% else %}
+                            <i class="{{ category.icon }} text-primary"></i> <span class="text-muted small">{{ category.icon }}</span>
+                        {% endif %}
+                    {% else %}
+                        —
+                    {% endif %}
+                </dd>
+                <dt class="col-sm-3 text-muted">Livres dans cette catégorie</dt>
+                <dd class="col-sm-9">{{ category.books|length }}</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

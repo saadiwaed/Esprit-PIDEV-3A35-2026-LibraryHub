@@ -9,7 +9,7 @@ use App\Entity\User;
 use App\Enum\RegistrationStatus;
 use App\Entity\Event;
 /**
- * @extends ServiceEntityRepository<EventRegistrationPhp>
+ * @extends ServiceEntityRepository<EventRegistration>
  */
 class EventRegistrationRepository extends ServiceEntityRepository
 {

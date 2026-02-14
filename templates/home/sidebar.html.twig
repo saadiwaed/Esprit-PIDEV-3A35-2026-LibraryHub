@@ -73,16 +73,40 @@
 
     <!-- Gestion livres -->
     <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="collapse" href="#collapseGestionLivres" role="button" aria-expanded="false" aria-controls="collapseGestionLivres">
-            <i class="bi bi-book fa-fw me-2"></i>Gestion livres
-        </a>
-        <ul class="nav collapse flex-column" id="collapseGestionLivres" data-bs-parent="#navbar-sidebar">
-            <li class="nav-item"> <a class="nav-link" href="#">Inventaire</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Ajouter un livre</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Modifier livre</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Statistiques</a></li>
-        </ul>
-    </li>
+    <a class="nav-link" data-bs-toggle="collapse" href="#collapseCatalogueAdmin" role="button" aria-expanded="false" aria-controls="collapseCatalogueAdmin">
+        <i class="bi bi-book-half fa-fw me-2"></i>Catalogue
+    </a>
+    <ul class="nav collapse flex-column" id="collapseCatalogueAdmin" data-bs-parent="#navbar-sidebar">
+        
+        {# Dashboard #}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('biblio_catalog_index') }}">
+                <i class="bi bi-grid-3x3-gap-fill me-2"></i> Tableau de bord
+            </a>
+        </li>
+        
+        {# Livres #}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('biblio_book_index') }}">
+                <i class="bi bi-book me-2"></i> Livres
+            </a>
+        </li>
+        
+        {# Catégories #}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('biblio_category_index') }}">
+                <i class="bi bi-tags me-2"></i> Catégories
+            </a>
+        </li>
+        
+        {# Auteurs #}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('biblio_author_index') }}">
+                <i class="bi bi-people me-2"></i> Auteurs
+            </a>
+        </li>
+    </ul>
+</li>
 
     <!-- Gestion membres -->
     <li class="nav-item">

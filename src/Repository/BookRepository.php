@@ -16,6 +16,73 @@ class BookRepository extends ServiceEntityRepository
         parent::__construct($registry, Book::class);
     }
 
+
+
+    public function search(array $filters)
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->leftJoin('b.category', 'c')
+            ->leftJoin('b.author', 'a')
+            ->addSelect('c','a');
+
+        if (!empty($filters['q'])) {
+            $qb->andWhere('b.title LIKE :q OR a.firstname LIKE :q OR a.lastname LIKE :q')
+               ->setParameter('q', '%'.$filters['q'].'%');
+        }
+
+        if (!empty($filters['category'])) {
+            $qb->andWhere('c.id = :cat')
+               ->setParameter('cat', $filters['category']);
+        }
+
+        if (!empty($filters['sort'])) {
+            match ($filters['sort']) {
+                'title' => $qb->orderBy('b.title','ASC'),
+                'date'  => $qb->orderBy('b.createdAt','DESC'),
+                default => $qb->orderBy('b.createdAt','DESC'),
+            };
+        }
+
+        return $qb;
+    }
+
+    public function createFilteredQuery($q,$category,$author,$order)
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->leftJoin('b.author','a')
+            ->leftJoin('b.category','c')
+            ->addSelect('a','c');
+    
+        if($q){
+            $qb->andWhere('b.title LIKE :q OR a.firstname LIKE :q
+        OR a.lastname LIKE :q ')
+               ->setParameter('q','%'.$q.'%');
+        }
+    
+        if($category){
+            $qb->andWhere('c.id = :cat')
+               ->setParameter('cat',$category);
+        }
+    
+        if($author){
+            $qb->andWhere('a.id = :aut')
+               ->setParameter('aut',$author);
+        }
+    
+        // ORDERING (ONLY HERE, NOT KNP)
+        switch($order){
+            case 'title':
+                $qb->orderBy('b.title','ASC');
+                break;
+    
+            default:
+                $qb->orderBy('b.id','DESC');
+        }
+    
+        return $qb->getQuery();
+    }
+    
+
     //    /**
     //     * @return Book[] Returns an array of Book objects
     //     */

@@ -175,7 +175,65 @@
     </ul>
 </li>
 
+<!-- Menu Catalogue pour les membres -->
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+        <i class="bi bi-book-half me-1"></i>Catalogue
+    </a>
+    <ul class="dropdown-menu">
+        <li>
+            <a class="dropdown-item" href="{{ path('membre_catalog_index') }}">
+                <i class="bi bi-grid-3x3-gap-fill me-2"></i> Tableau de bord
+            </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item" href="{{ path('membre_book_index') }}">
+                <i class="bi bi-book me-2"></i> Tous les livres
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{{ path('membre_category_index') }}">
+                <i class="bi bi-tags me-2"></i> Catégories
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{{ path('membre_author_index') }}">
+                <i class="bi bi-people me-2"></i> Auteurs
+            </a>
+        </li>
+    </ul>
+</li>
 
+<!-- Menu Catalogue pour les visiteurs -->
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+        <i class="bi bi-book-half me-1"></i>Catalogue
+    </a>
+    <ul class="dropdown-menu">
+        <li>
+            <a class="dropdown-item" href="{{ path('visiteur_catalog_index') }}">
+                <i class="bi bi-grid-3x3-gap-fill me-2"></i> Tableau de bord
+            </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item" href="{{ path('visiteur_book_index') }}">
+                <i class="bi bi-book me-2"></i> Tous les livres
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{{ path('visiteur_category_index') }}">
+                <i class="bi bi-tags me-2"></i> Catégories
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{{ path('visiteur_author_index') }}">
+                <i class="bi bi-people me-2"></i> Auteurs
+            </a>
+        </li>
+    </ul>
+</li>
                     
                     <!-- Show login/register buttons for guests -->
                     {% if not app.user %}
