@@ -17,4 +17,9 @@ class BookCopy
     {
         return $this->id;
     }
+
+    public function __toString(): string
+    {
+        return sprintf('Book Copy #%d', $this->id ?? 0);
+    }
 }

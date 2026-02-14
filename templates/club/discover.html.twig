@@ -6,22 +6,22 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="display-6 mb-1">
-                <i class="bi bi-calendar-event text-primary me-2"></i>
-                Événements littéraires
+                <i class="bi bi-people-fill text-primary me-2"></i>
+                Clubs de lecture
             </h1>
-            <p class="text-muted mb-0">Découvrez des événements passionnants et participez à des moments de partage</p>
+            <p class="text-muted mb-0">Découvrez des clubs passionnants et rejoignez une communauté de lecteurs</p>
         </div>
         <div>
             {% if app.user %}
-                <a href="{{ path('app_event_my_events') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-calendar-check"></i> Mes événements
+                <a href="{{ path('app_my_clubs') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-bookmark-check"></i> Mes clubs
                 </a>
-                <a href="{{ path('app_event_addformember') }}" class="btn btn-primary ms-2">
-                    <i class="bi bi-plus-circle"></i> Créer un événement
+                <a href="{{ path('app_club_addformember') }}" class="btn btn-primary ms-2">
+                    <i class="bi bi-plus-circle"></i> Créer un club
                 </a>
             {% else %}
                 <a href="{{ path('app_login') }}" class="btn btn-primary">
-                    <i class="bi bi-box-arrow-in-right"></i> Se connecter pour participer
+                    <i class="bi bi-box-arrow-in-right"></i> Se connecter pour rejoindre
                 </a>
             {% endif %}
         </div>
@@ -47,26 +47,26 @@
                             <i class="bi bi-search"></i>
                         </span>
                         <input type="text" name="search" class="form-control border-start-0 ps-0" 
-                               placeholder="Rechercher un événement par titre, description..." 
+                               placeholder="Rechercher un club par nom, description..." 
                                value="{{ current_filters.search }}">
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <select name="type" class="form-select">
-                        <option value="">Tous les types</option>
-                        {% for type in enum('App\\Enum\\EventTypes').cases() %}
-                            <option value="{{ type.value }}" {{ current_filters.type == type.value ? 'selected' : '' }}>
-                                {{ type.getLabel() }}
+                    <select name="category" class="form-select">
+                        <option value="">Toutes les catégories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat }}" {{ current_filters.category == cat ? 'selected' : '' }}>
+                                {{ cat }}
                             </option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select name="sort" class="form-select">
-                        <option value="startDateTime" {{ current_filters.sort == 'startDateTime' ? 'selected' : '' }}>Date (proche)</option>
                         <option value="createdDate" {{ current_filters.sort == 'createdDate' ? 'selected' : '' }}>Plus récents</option>
+                        <option value="members" {{ current_filters.sort == 'members' ? 'selected' : '' }}>Plus de membres</option>
                         <option value="title" {{ current_filters.sort == 'title' ? 'selected' : '' }}>Nom A-Z</option>
-                        <option value="capacity" {{ current_filters.sort == 'capacity' ? 'selected' : '' }}>Capacité</option>
+                        <option value="meetingDate" {{ current_filters.sort == 'meetingDate' ? 'selected' : '' }}>Prochaine réunion</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -77,30 +77,26 @@
             </form>
             
             <!-- Active filters -->
-            {% if current_filters.search or current_filters.type %}
+            {% if current_filters.search or current_filters.category %}
                 <div class="mt-3">
                     <span class="text-muted me-2">Filtres actifs:</span>
                     {% if current_filters.search %}
                         <span class="badge bg-light text-dark p-2 me-2">
                             <i class="bi bi-search me-1"></i> "{{ current_filters.search }}"
-                            <a href="{{ path('app_event_discover', current_filters|merge({'search': ''})) }}" class="text-decoration-none ms-2">
+                            <a href="{{ path('app_club_discover', current_filters|merge({'search': ''})) }}" class="text-decoration-none ms-2">
                                 <i class="bi bi-x-circle"></i>
                             </a>
                         </span>
                     {% endif %}
-                    {% if current_filters.type %}
-                        {% for type in enum('App\\Enum\\EventTypes').cases() %}
-                            {% if type.value == current_filters.type %}
-                                <span class="badge bg-light text-dark p-2 me-2">
-                                    <i class="fas fa-{{ type.getIcon() }} me-1"></i> {{ type.getLabel() }}
-                                    <a href="{{ path('app_event_discover', current_filters|merge({'type': ''})) }}" class="text-decoration-none ms-2">
-                                        <i class="bi bi-x-circle"></i>
-                                    </a>
-                                </span>
-                            {% endif %}
-                        {% endfor %}
+                    {% if current_filters.category %}
+                        <span class="badge bg-light text-dark p-2 me-2">
+                            <i class="bi bi-tag me-1"></i> {{ current_filters.category }}
+                            <a href="{{ path('app_club_discover', current_filters|merge({'category': ''})) }}" class="text-decoration-none ms-2">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        </span>
                     {% endif %}
-                    <a href="{{ path('app_event_discover') }}" class="btn btn-sm btn-link">
+                    <a href="{{ path('app_club_discover') }}" class="btn btn-sm btn-link">
                         Effacer tout
                     </a>
                 </div>
@@ -112,62 +108,62 @@
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="bg-light rounded-3 p-3 text-center">
-                <h3 class="h2 mb-0 text-primary">{{ events|length }}</h3>
-                <small class="text-muted">Événements disponibles</small>
+                <h3 class="h2 mb-0 text-primary">{{ clubs|length }}</h3>
+                <small class="text-muted">Clubs disponibles</small>
             </div>
         </div>
         <div class="col-md-4">
             <div class="bg-light rounded-3 p-3 text-center">
-                <h3 class="h2 mb-0 text-success">{{ eventTypes|default(6) }}</h3>
-                <small class="text-muted">Types d'événements</small>
+                <h3 class="h2 mb-0 text-success">{{ categories|length }}</h3>
+                <small class="text-muted">Catégories</small>
             </div>
         </div>
         <div class="col-md-4">
             <div class="bg-light rounded-3 p-3 text-center">
-                <h3 class="h2 mb-0 text-warning">{{ events|reduce((carry, event) => carry + event.participantCount|default(0), 0) }}</h3>
-                <small class="text-muted">Participants</small>
+                <h3 class="h2 mb-0 text-warning">{{ clubs|reduce((carry, club) => carry + club.members|length, 0) }}</h3>
+                <small class="text-muted">Lecteurs actifs</small>
             </div>
         </div>
     </div>
 
-    <!-- Events Grid -->
+    <!-- Clubs Grid -->
     <div class="row g-4">
-        {% for event in events %}
+        {% for club in clubs %}
             <div class="col-lg-4 col-md-6">
                 <div class="card h-100 border-0 shadow-sm hover-lift">
-                    <!-- Event Image -->
+                    <!-- Club Image -->
                     <div class="position-relative">
-                        {% if event.image %}
-                            <img src="{{ asset('uploads/events/' ~ event.image) }}" 
-                                 class="card-img-top" alt="{{ event.title }}" 
+                        {% if club.image %}
+                            <img src="{{ asset('uploads/clubs/' ~ club.image) }}" 
+                                 class="card-img-top" alt="{{ club.title }}" 
                                  style="height: 200px; object-fit: cover;">
                         {% else %}
                             <div class="bg-gradient-primary d-flex align-items-center justify-content-center" 
                                  style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                <i class="bi bi-calendar-event display-1 text-white opacity-50"></i>
+                                <i class="bi bi-people-fill display-1 text-white opacity-50"></i>
                             </div>
                         {% endif %}
                         
                         <!-- Badges -->
                         <div class="position-absolute top-0 start-0 m-3">
-                            <span class="badge bg-{{ event.status.color ?? 'secondary' }} bg-opacity-90 px-3 py-2">
+                            <span class="badge bg-{{ club.status.value == 'active' ? 'success' : 'warning' }} bg-opacity-90 px-3 py-2">
                                 <i class="bi bi-circle-fill me-1 small"></i>
-                                {{ event.status.label }}
+                                {{ club.status.value|capitalize }}
                             </span>
                         </div>
                         
-                        {% if event.id in registeredEventIds %}
+                        {% if club.id in userClubs %}
                             <div class="position-absolute top-0 end-0 m-3">
                                 <span class="badge bg-info px-3 py-2">
-                                    <i class="bi bi-check-circle me-1"></i> Inscrit
+                                    <i class="bi bi-check-circle me-1"></i> Membre
                                 </span>
                             </div>
                         {% endif %}
                         
-                        <!-- Type Badge -->
+                        <!-- Category Badge -->
                         <div class="position-absolute bottom-0 start-0 m-3">
                             <span class="badge bg-dark bg-opacity-75 px-3 py-2">
-                                <i class="fas fa-{{ event.type.getIcon() }} me-1"></i> {{ event.type.getLabel() }}
+                                <i class="bi bi-tag me-1"></i> {{ club.category }}
                             </span>
                         </div>
                     </div>
@@ -176,38 +172,38 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title mb-0">
-                                <a href="{{ path('app_event_show', {'id': event.id}) }}" class="text-decoration-none">
-                                    {{ event.title }}
+                                <a href="{{ path('app_showformember', {'id': club.id}) }}" class="text-decoration-none">
+                                    {{ club.title }}
                                 </a>
                             </h5>
                             <small class="text-muted">
                                 <i class="bi bi-calendar3 me-1"></i>
-                                {{ event.startDateTime|date('d/m/Y') }}
+                                {{ club.createdDate|date('d/m/Y') }}
                             </small>
                         </div>
                         
                         <p class="card-text text-muted small mb-3">
-                            {{ event.description|slice(0, 120) }}...
+                            {{ club.description|slice(0, 120) }}...
                         </p>
                         
-                        <!-- Event Stats -->
+                        <!-- Club Stats -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex align-items-center">
                                 <div class="avatar-group">
-                                    {% if event.createdBy %}
+                                    {% if club.founder %}
                                         <div class="avatar avatar-xs">
-                                            {% if event.createdBy.avatar %}
-                                                <img src="{{ asset('uploads/avatars/' ~ event.createdBy.avatar) }}" 
+                                            {% if club.founder.avatar %}
+                                                <img src="{{ asset('uploads/avatars/' ~ club.founder.avatar) }}" 
                                                      class="avatar-img rounded-circle" 
-                                                     alt="{{ event.createdBy.fullName }}"
+                                                     alt="{{ club.founder.fullName }}"
                                                      data-bs-toggle="tooltip" 
-                                                     title="Organisateur: {{ event.createdBy.fullName }}">
+                                                     title="Fondateur: {{ club.founder.fullName }}">
                                             {% else %}
                                                 <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
                                                      style="width: 24px; height: 24px; font-size: 10px;"
                                                      data-bs-toggle="tooltip" 
-                                                     title="Organisateur: {{ event.createdBy.fullName }}">
-                                                    {{ event.createdBy.firstName|slice(0, 1)|upper }}{{ event.createdBy.lastName|slice(0, 1)|upper }}
+                                                     title="Fondateur: {{ club.founder.fullName }}">
+                                                    {{ club.founder.firstName|slice(0, 1)|upper }}{{ club.founder.lastName|slice(0, 1)|upper }}
                                                 </div>
                                             {% endif %}
                                         </div>
@@ -215,59 +211,52 @@
                                 </div>
                                 <span class="ms-2 small text-muted">
                                     <i class="bi bi-people me-1"></i>
-                                    {{ event.availableSpots ?? event.capacity }} / {{ event.capacity }} places
+                                    {{ club.members|length }}/{{ club.capacity }} membres
                                 </span>
                             </div>
                             <span class="small text-muted">
-                                <i class="bi bi-clock me-1"></i>
-                                {{ event.startDateTime|date('H:i') }}
+                                <i class="bi bi-book me-1"></i>
+                                {{ club.organizedEvents|length }} événements
                             </span>
                         </div>
                         
-                        <!-- Location Info -->
+                        <!-- Meeting Info -->
                         <div class="bg-light rounded-2 p-2">
                             <div class="d-flex align-items-center">
-                                <i class="bi bi-geo-alt text-primary me-2"></i>
+                                <i class="bi bi-calendar-check text-primary me-2"></i>
                                 <div class="small">
-                                    <strong>Lieu:</strong>
-                                    <span> {{ event.location|slice(0, 30) }}</span>
+                                    <strong>Prochaine réunion:</strong><br>
+                                    <span>{{ club.meetingDate|date('d M Y H:i') }}</span><br>
+                                    <small class="text-muted">
+                                        <i class="bi bi-geo-alt me-1"></i> {{ club.meetingLocation|slice(0, 30) }}
+                                    </small>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Clubs organisateurs -->
-                        {% if event.organizingClubs|length > 0 %}
-                            <div class="mt-2 small text-muted">
-                                <i class="bi bi-people-fill me-1"></i>
-                                {% for club in event.organizingClubs %}
-                                    {{ club.title }}{% if not loop.last %}, {% endif %}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
                     </div>
                     
                     <!-- Card Footer -->
                     <div class="card-footer bg-transparent border-0 pt-0 pb-3">
                         {% if app.user %}
-                            {% if event.id in registeredEventIds %}
-                                <a href="{{ path('app_event_show', {'id': event.id}) }}" class="btn btn-outline-primary w-100">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i> Voir l'événement
+                            {% if club.id in userClubs %}
+                                <a href="{{ path('app_showformember', {'id': club.id}) }}" class="btn btn-outline-primary w-100">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Voir le club
                                 </a>
-                            {% elseif event.isRegistrationOpen ?? true %}
-                                <form method="post" action="{{ path('app_event_join', {'id': event.id}) }}" class="d-inline w-100">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('join' ~ event.id) }}">
+                            {% elseif club.canJoin() %}
+                                <form method="post" action="{{ path('app_club_join', {'id': club.id}) }}" class="d-inline w-100">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('join' ~ club.id) }}">
                                     <button type="submit" class="btn btn-success w-100">
-                                        <i class="bi bi-plus-circle me-1"></i> Participer
+                                        <i class="bi bi-plus-circle me-1"></i> Rejoindre le club
                                     </button>
                                 </form>
                             {% else %}
                                 <button class="btn btn-secondary w-100" disabled>
-                                    <i class="bi bi-lock me-1"></i> Complet
+                                    <i class="bi bi-lock me-1"></i> Club complet
                                 </button>
                             {% endif %}
                         {% else %}
                             <a href="{{ path('app_login') }}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-box-arrow-in-right me-1"></i> Connectez-vous pour participer
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Connectez-vous pour rejoindre
                             </a>
                         {% endif %}
                     </div>
@@ -277,13 +266,13 @@
             <div class="col-12">
                 <div class="alert alert-info text-center py-5 border-0">
                     <div class="display-1 text-muted mb-4">
-                        <i class="bi bi-calendar-x"></i>
+                        <i class="bi bi-people"></i>
                     </div>
-                    <h3 class="mb-3">Aucun événement disponible</h3>
-                    <p class="text-muted mb-4">Il n'y a pas encore d'événements. Soyez le premier à en créer un !</p>
+                    <h3 class="mb-3">Aucun club disponible</h3>
+                    <p class="text-muted mb-4">Il n'y a pas encore de clubs de lecture. Soyez le premier à en créer un !</p>
                     {% if app.user %}
-                        <a href="{{ path('app_event_addformember') }}" class="btn btn-primary btn-lg">
-                            <i class="bi bi-plus-circle me-2"></i> Créer un événement
+                        <a href="{{ path('app_club_addformember') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle me-2"></i> Créer un club
                         </a>
                     {% else %}
                         <a href="{{ path('app_login') }}" class="btn btn-primary btn-lg">

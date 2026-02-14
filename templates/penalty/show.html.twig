@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Penalty #{{ penalty.id }}{% endblock %}
+
+{% block body %}
+    <div class="container-fluid p-4">
+        <!-- Page Header START -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2><i class="bi bi-exclamation-triangle"></i> Penalty #{{ penalty.id }}</h2>
+                    <div class="btn-group">
+                        <a href="{{ path('penalty_edit', {'id': penalty.id}) }}" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a href="{{ path('penalty_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-list"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Page Header END -->
+
+        <!-- Penalty Details START -->
+        <div class="row">
+            <!-- Main Details Card -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">Penalty Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Amount</strong></label>
+                                <p class="text-primary fs-5">
+                                    <span class="badge bg-info">${{ penalty.amount|number_format(2, '.', ',') }}</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Issue Date</strong></label>
+                                <p>{{ penalty.issueDate ? penalty.issueDate|date('d/m/Y') : '—' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Reason</strong></label>
+                            <p>{{ penalty.reasonLabel }}</p>
+                        </div>
+
+                        {% if penalty.isLatePenaltyReason %}
+                            <div class="alert alert-warning mb-3">
+                                <p class="mb-1">
+                                    <strong>Jours de retard accumules :</strong>
+                                    {{ penalty.lateDays }}
+                                </p>
+                                <p class="mb-1">
+                                    <strong>Taux journalier :</strong>
+                                    {{ penalty.dailyRate|number_format(2, ',', ' ') }} TND
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Montant total penalite retard :</strong>
+                                    {{ penalty.amount|number_format(2, ',', ' ') }} TND
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Waived</strong></label>
+                                <p>
+                                    {% if penalty.waived %}
+                                        <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Yes</span>
+                                    {% else %}
+                                        <span class="badge bg-danger"><i class="bi bi-x-circle-fill"></i> No</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Payment Status</strong></label>
+                                <p>
+                                    {% if penalty.status.value == 'unpaid' %}
+                                        <span class="badge bg-danger">Unpaid</span>
+                                    {% elseif penalty.status.value == 'paid' %}
+                                        <span class="badge bg-success">Paid</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Partial</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if penalty.notes %}
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Notes</strong></label>
+                                <div class="bg-light p-3 rounded">
+                                    {{ penalty.notes|nl2br }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Associated Loan Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">Associated Loan</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            <a href="{{ path('loan_show', {'id': penalty.loan.id}) }}" class="btn btn-sm btn-outline-primary">
+                                View Loan #{{ penalty.loan.id }}
+                            </a>
+                        </p>
+                        <small class="text-muted">
+                            Member: {{ penalty.loan.member.firstName }} {{ penalty.loan.member.lastName }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Penalty Details END -->
+
+        <!-- Delete Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                {% include 'penalty/_delete_form.html.twig' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

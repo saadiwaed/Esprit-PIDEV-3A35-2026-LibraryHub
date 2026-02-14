@@ -1,0 +1,46 @@
+/* Form validation visibility improvements */
+.form-control.is-invalid,
+.form-select.is-invalid,
+.form-check-input.is-invalid,
+textarea.form-control.is-invalid {
+    border-width: 2px;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.12);
+    animation: invalid-field-shake 0.22s ease-in-out;
+}
+
+.invalid-feedback {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+label.has-error-label {
+    color: #b02a37;
+    font-weight: 700;
+}
+
+.form-error-summary {
+    border-left: 4px solid #dc3545;
+}
+
+.form-error-summary ul {
+    margin-bottom: 0;
+}
+
+@keyframes invalid-field-shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .form-control.is-invalid,
+    .form-select.is-invalid,
+    .form-check-input.is-invalid,
+    textarea.form-control.is-invalid {
+        animation: none;
+    }
+}

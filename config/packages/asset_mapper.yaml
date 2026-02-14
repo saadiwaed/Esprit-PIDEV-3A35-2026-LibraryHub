@@ -3,7 +3,10 @@ framework:
     # The paths to make available to the asset mapper.
     paths:
       - assets/
+      - public/assets/
     missing_import_mode: strict
+   
+
 
 when@prod:
   framework:

@@ -5,6 +5,11 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     attachments_directory: '%kernel.project_dir%/public/uploads/attachments'
+    app.loan.default_loan_days: 21
+    app.loan.renewal_days: 14
+    app.loan.max_renewals: 3
+    app.loan.daily_penalty_rate: 0.50
+    app.loan.daily_late_fee_rate: 0.50
 
 services:
     # default configuration for services in *this* file
@@ -31,3 +36,18 @@ services:
     App\Service\FileUploadService:
         arguments:
             $attachmentsDirectory: '%attachments_directory%'
+    App\Service\LoanService:
+        arguments:
+            $defaultLoanDays: '%app.loan.default_loan_days%'
+            $renewalDays: '%app.loan.renewal_days%'
+            $maxRenewals: '%app.loan.max_renewals%'
+            $dailyPenaltyRate: '%app.loan.daily_penalty_rate%'
+
+    App\Service\RenewalService:
+        arguments:
+            $renewalDays: '%app.loan.renewal_days%'
+            $maxRenewals: '%app.loan.max_renewals%'
+
+    App\Command\AccrueDailyLateFeesCommand:
+        arguments:
+            $dailyLateFeeRate: '%app.loan.daily_late_fee_rate%'

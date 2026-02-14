@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260214125548 extends AbstractMigration
+final class Version20260214150116 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -30,12 +30,12 @@ final class Version20260214125548 extends AbstractMigration
         $this->addSql('CREATE TABLE community (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(100) NOT NULL, description LONGTEXT NOT NULL, purpose VARCHAR(255) NOT NULL, rules LONGTEXT DEFAULT NULL, icon VARCHAR(50) DEFAULT NULL, welcome_message LONGTEXT DEFAULT NULL, contact_email VARCHAR(180) DEFAULT NULL, is_public TINYINT DEFAULT 1 NOT NULL, status VARCHAR(20) NOT NULL, member_count INT DEFAULT 0 NOT NULL, post_count INT DEFAULT 0 NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE event_registrations (id INT AUTO_INCREMENT NOT NULL, registered_at DATETIME NOT NULL, description VARCHAR(255) DEFAULT NULL, status VARCHAR(255) NOT NULL, attended_at DATETIME DEFAULT NULL, location VARCHAR(255) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, user_id INT NOT NULL, event_id INT NOT NULL, INDEX IDX_7787E14BA76ED395 (user_id), INDEX IDX_7787E14B71F7E88B (event_id), UNIQUE INDEX unique_registration (user_id, event_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE events (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, start_date_time DATETIME NOT NULL, end_date_time DATETIME NOT NULL, location VARCHAR(255) NOT NULL, capacity INT NOT NULL, registration_deadline DATETIME NOT NULL, status VARCHAR(20) NOT NULL, created_date DATETIME NOT NULL, image VARCHAR(255) DEFAULT NULL, type VARCHAR(50) NOT NULL, created_by_id INT NOT NULL, INDEX IDX_5387574AB03A8386 (created_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE loan (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE loan (id INT AUTO_INCREMENT NOT NULL, checkout_time DATETIME NOT NULL, due_date DATE NOT NULL, return_date DATETIME DEFAULT NULL, status VARCHAR(255) NOT NULL, renewal_count INT NOT NULL, notes LONGTEXT DEFAULT NULL, book_copy_id INT NOT NULL, member_id INT NOT NULL, INDEX IDX_C5D30D033B550FE4 (book_copy_id), INDEX IDX_C5D30D037597D3FE (member_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE notification (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE penalty (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE penalty (id INT AUTO_INCREMENT NOT NULL, amount DOUBLE PRECISION NOT NULL, daily_rate NUMERIC(10, 2) DEFAULT \'0.50\' NOT NULL, late_days INT DEFAULT 0 NOT NULL, reason VARCHAR(255) NOT NULL, issue_date DATE NOT NULL, notes LONGTEXT DEFAULT NULL, waived TINYINT NOT NULL, status VARCHAR(255) NOT NULL, loan_id INT NOT NULL, INDEX IDX_AFE28FD8CE73868F (loan_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE post (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, status VARCHAR(20) NOT NULL, spoiler_warning TINYINT DEFAULT 0 NOT NULL, is_pinned TINYINT DEFAULT 0 NOT NULL, allow_comments TINYINT DEFAULT 1 NOT NULL, external_url VARCHAR(500) DEFAULT NULL, comment_count INT DEFAULT 0 NOT NULL, created_at DATETIME NOT NULL, community_id INT NOT NULL, INDEX IDX_5A8A6C8DFDA7B0BF (community_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE reading_profile (id INT AUTO_INCREMENT NOT NULL, favorite_genres JSON DEFAULT NULL, preferred_languages JSON DEFAULT NULL, reading_goal_per_month INT DEFAULT NULL, total_books_read INT DEFAULT 0 NOT NULL, average_rating DOUBLE PRECISION DEFAULT NULL, user_id INT NOT NULL, UNIQUE INDEX UNIQ_C5CE393AA76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE renewal (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE renewal (id INT AUTO_INCREMENT NOT NULL, previous_due_date DATE NOT NULL, new_due_date DATE NOT NULL, renewed_at DATETIME NOT NULL, renewal_number INT NOT NULL, loan_id INT NOT NULL, INDEX IDX_FD0447C8CE73868F (loan_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE review (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE reward (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE role (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(50) NOT NULL, description VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_57698A6A5E237E06 (name), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
@@ -52,8 +52,12 @@ final class Version20260214125548 extends AbstractMigration
         $this->addSql('ALTER TABLE event_registrations ADD CONSTRAINT FK_7787E14BA76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id)');
         $this->addSql('ALTER TABLE event_registrations ADD CONSTRAINT FK_7787E14B71F7E88B FOREIGN KEY (event_id) REFERENCES events (id)');
         $this->addSql('ALTER TABLE events ADD CONSTRAINT FK_5387574AB03A8386 FOREIGN KEY (created_by_id) REFERENCES `user` (id)');
+        $this->addSql('ALTER TABLE loan ADD CONSTRAINT FK_C5D30D033B550FE4 FOREIGN KEY (book_copy_id) REFERENCES book_copy (id)');
+        $this->addSql('ALTER TABLE loan ADD CONSTRAINT FK_C5D30D037597D3FE FOREIGN KEY (member_id) REFERENCES `user` (id)');
+        $this->addSql('ALTER TABLE penalty ADD CONSTRAINT FK_AFE28FD8CE73868F FOREIGN KEY (loan_id) REFERENCES loan (id)');
         $this->addSql('ALTER TABLE post ADD CONSTRAINT FK_5A8A6C8DFDA7B0BF FOREIGN KEY (community_id) REFERENCES community (id)');
         $this->addSql('ALTER TABLE reading_profile ADD CONSTRAINT FK_C5CE393AA76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id)');
+        $this->addSql('ALTER TABLE renewal ADD CONSTRAINT FK_FD0447C8CE73868F FOREIGN KEY (loan_id) REFERENCES loan (id)');
         $this->addSql('ALTER TABLE user_role ADD CONSTRAINT FK_2DE8C6A3A76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE user_role ADD CONSTRAINT FK_2DE8C6A3D60322AC FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE');
     }
@@ -71,8 +75,12 @@ final class Version20260214125548 extends AbstractMigration
         $this->addSql('ALTER TABLE event_registrations DROP FOREIGN KEY FK_7787E14BA76ED395');
         $this->addSql('ALTER TABLE event_registrations DROP FOREIGN KEY FK_7787E14B71F7E88B');
         $this->addSql('ALTER TABLE events DROP FOREIGN KEY FK_5387574AB03A8386');
+        $this->addSql('ALTER TABLE loan DROP FOREIGN KEY FK_C5D30D033B550FE4');
+        $this->addSql('ALTER TABLE loan DROP FOREIGN KEY FK_C5D30D037597D3FE');
+        $this->addSql('ALTER TABLE penalty DROP FOREIGN KEY FK_AFE28FD8CE73868F');
         $this->addSql('ALTER TABLE post DROP FOREIGN KEY FK_5A8A6C8DFDA7B0BF');
         $this->addSql('ALTER TABLE reading_profile DROP FOREIGN KEY FK_C5CE393AA76ED395');
+        $this->addSql('ALTER TABLE renewal DROP FOREIGN KEY FK_FD0447C8CE73868F');
         $this->addSql('ALTER TABLE user_role DROP FOREIGN KEY FK_2DE8C6A3A76ED395');
         $this->addSql('ALTER TABLE user_role DROP FOREIGN KEY FK_2DE8C6A3D60322AC');
         $this->addSql('DROP TABLE attachment');
