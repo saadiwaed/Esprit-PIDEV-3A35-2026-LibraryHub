@@ -12,9 +12,9 @@ enum ParticipationStatus: string
     {
         return match($this) {
             self::ACTIVE => 'Actif',
-            self::COMPLETED => 'Terminé',
-            self::WITHDRAWN => 'Retiré',
-            self::DISQUALIFIED => 'Disqualifié',
+            self::COMPLETED => 'Termine',
+            self::WITHDRAWN => 'Retire',
+            self::DISQUALIFIED => 'Disqualifie',
         };
     }
 }

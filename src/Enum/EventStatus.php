@@ -12,10 +12,10 @@ enum EventStatus: string
     public function getLabel(): string
     {
         return match($this) {
-            self::UPCOMING => 'À venir',
+            self::UPCOMING => 'Ã€ venir',
             self::ONGOING => 'En cours',
-            self::COMPLETED => 'Terminé',
-            self::CANCELLED => 'Annulé',
+            self::COMPLETED => 'Termine',
+            self::CANCELLED => 'Annule',
         };
     }
 

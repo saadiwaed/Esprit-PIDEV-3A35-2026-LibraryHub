@@ -1,129 +1,131 @@
 {% extends 'base.html.twig' %}
-{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+{% block body %}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
-<table class="table table-bordered">
-    <tr>
-        <td>{{ form_label(form.title, "Titre") }}</td>
-        <td>{{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.title) }}</td>
-    </tr>
+    <table class="table table-bordered">
+        <tr>
+            <td>{{ form_label(form.title, "Titre") }}</td>
+            <td>{{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.title) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.description, "Description") }}</td>
-        <td>{{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}</td>
-        <td>{{ form_errors(form.description) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.description, "Description") }}</td>
+            <td>{{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}</td>
+            <td>{{ form_errors(form.description) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.category, "Catégorie") }}</td>
-        <td>{{ form_widget(form.category, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.category) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.category, "Categorie") }}</td>
+            <td>{{ form_widget(form.category, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.category) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.meetingDate, "Date de réunion") }}</td>
-        <td>{{ form_widget(form.meetingDate, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.meetingDate) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.meetingDate, "Date de reunion") }}</td>
+            <td>{{ form_widget(form.meetingDate, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.meetingDate) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.meetingLocation, "Lieu de réunion") }}</td>
-        <td>{{ form_widget(form.meetingLocation, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.meetingLocation) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.meetingLocation, "Lieu de reunion") }}</td>
+            <td>{{ form_widget(form.meetingLocation, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.meetingLocation) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.capacity, "Capacité") }}</td>
-        <td>{{ form_widget(form.capacity, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.capacity) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.capacity, "Capacite") }}</td>
+            <td>{{ form_widget(form.capacity, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.capacity) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.isPrivate, "Privé") }}</td>
-        <td>{{ form_widget(form.isPrivate, {'attr': {'class': 'form-check-input'}}) }}</td>
-        <td>{{ form_errors(form.isPrivate) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.isPrivate, "Prive") }}</td>
+            <td>{{ form_widget(form.isPrivate, {'attr': {'class': 'form-check-input'}}) }}</td>
+            <td>{{ form_errors(form.isPrivate) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.status, "Statut") }}</td>
-        <td>{{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.status) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.status, "Statut") }}</td>
+            <td>{{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.status) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.createdDate, "Date de création") }}</td>
-        <td>{{ form_widget(form.createdDate, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.createdDate) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.createdDate, "Date de creation") }}</td>
+            <td>{{ form_widget(form.createdDate, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.createdDate) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.image, "Image") }}</td>
-        <td>{{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.image) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.image, "Image") }}</td>
+            <td>{{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.image) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.founder, "Fondateur") }}</td>
-        <td>{{ form_widget(form.founder, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.founder) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.founder, "Fondateur") }}</td>
+            <td>{{ form_widget(form.founder, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.founder) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.members, "Membres") }}</td>
-        <td>{{ form_widget(form.members, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.members) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.members, "Membres") }}</td>
+            <td>{{ form_widget(form.members, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.members) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.createdBy, "Créé par") }}</td>
-        <td>{{ form_widget(form.createdBy, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.createdBy) }}</td>
-    </tr>
+        <tr>
+            <td>{{ form_label(form.createdBy, "Cree par") }}</td>
+            <td>{{ form_widget(form.createdBy, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.createdBy) }}</td>
+        </tr>
 
-    <tr>
-        <td>{{ form_label(form.organizedEvents, "Événements organisés") }}</td>
-        <td>{{ form_widget(form.organizedEvents, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.organizedEvents) }}</td>
-    </tr>
-</table>
+        <tr>
+            <td>{{ form_label(form.organizedEvents, "Evenements organises") }}</td>
+            <td>{{ form_widget(form.organizedEvents, {'attr': {'class': 'form-control'}}) }}</td>
+            <td>{{ form_errors(form.organizedEvents) }}</td>
+        </tr>
+    </table>
 
-<div class="mt-3">
-    {{ form_widget(form.save, {'label': 'Enregistrer', 'attr': {'class': 'btn btn-primary'}}) }}
-    <a href="{{ path('app_club_index') }}" class="btn btn-secondary">Annuler</a>
-</div>
+    <div class="mt-3">
+        {{ form_widget(form.save, {'label': 'Enregistrer', 'attr': {'class': 'btn btn-primary'}}) }}
+        <a href="{{ path('app_club_index') }}" class="btn btn-secondary">Annuler</a>
+    </div>
 
-{{ form_end(form) }}
+    {{ form_end(form) }}
 
-<style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    td {
-        padding: 10px;
-        border: 1px solid #ddd;
-        vertical-align: top;
-    }
-    td:first-child {
-        width: 200px;
-        font-weight: bold;
-        background-color: #f8f9fa;
-    }
-    .form-control {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-    }
-    .form-check-input {
-        margin-top: 5px;
-    }
-    .alert-danger {
-        color: #721c24;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        padding: 5px;
-        margin-top: 5px;
-        font-size: 0.9em;
-    }
-</style>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        td:first-child {
+            width: 200px;
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .form-check-input {
+            margin-top: 5px;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 5px;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+    </style>
+{% endblock %}

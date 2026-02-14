@@ -5,14 +5,14 @@
 <div class="d-flex align-items-center">
     <a class="navbar-brand" href="{{ path('app_home') }}">
         <div class="d-flex align-items-center">
-            <!-- Icône livre plus petite -->
+            <!-- IcÃ´ne livre plus petite -->
             <div class="bg-gradient-primary rounded p-1 me-2 shadow-sm">
                 <i class="fas fa-book-open text-white fs-4"></i>
             </div>
             <!-- Texte plus compact -->
             <div class="border-start border-white border-opacity-25 ps-2">
                 <h5 class="text-white mb-0 fw-bold">LIBRARY<span class="text-warning">HUB</span></h5>
-                <small class="text-white-50" style="font-size: 0.7rem;">Bibliothèque</small>
+                <small class="text-white-50" style="font-size: 0.7rem;">Bibliotheque</small>
             </div>
         </div>
     </a>
@@ -46,7 +46,8 @@
 
 
     <!-- Accueil -->
-    <li class="nav-item"> <a class="nav-link" href="{{ path('app_frontoffice') }}"><i class="bi bi-house fa-fw me-2"></i>Accueil</a></li>
+    <li class="nav-item"> <a class="nav-link" href="{{ path('member_home') }}"><i class="bi bi-house fa-fw me-2"></i>Accueil</a></li>
+
 
 
     <!-- Mon profil -->
@@ -65,18 +66,20 @@
     <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-bell fa-fw me-2"></i>Notifications</a></li>
 
 
-    <!-- Title -->
-    <li class="nav-item ms-2 my-2">Gestion Bibliothèque</li>
 
-    <!-- Gestion prêts -->
+    <!-- Title -->
+    <li class="nav-item ms-2 my-2">Gestion Bibliotheque</li>
+
+    <!-- Gestion prets -->
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="collapse" href="#collapseGestionPrets" role="button" aria-expanded="false" aria-controls="collapseGestionPrets">
-            <i class="bi bi-arrow-left-right fa-fw me-2"></i>Gestion prêts
+            <i class="bi bi-arrow-left-right fa-fw me-2"></i>Gestion prets
         </a>
         <ul class="nav collapse flex-column" id="collapseGestionPrets" data-bs-parent="#navbar-sidebar">
-            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_index') }}">Tous les prêts</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_index') }}">Tous les prets</a></li>
             <li class="nav-item"> <a class="nav-link" href="{{ path('loan_renewal_index') }}">Renouvellements</a></li>
-            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_new') }}">Nouveau prêt</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_new') }}">Nouveau pret</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('admin_loan_request_pending') }}">Demandes d'emprunt</a></li>
             <li class="nav-item"> <a class="nav-link" href="{{ path('penalty_index') }}">Amendes</a></li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ path('app_stats_index') }}">
@@ -107,21 +110,21 @@
         <ul class="nav collapse flex-column" id="collapseGestionMembres" data-bs-parent="#navbar-sidebar">
             <li class="nav-item"> <a class="nav-link" href="#">Liste membres</a></li>
             <li class="nav-item"> <a class="nav-link" href="#">Ajouter membre</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Détail membre</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Detail membre</a></li>
         </ul>
     </li>
     <!-- Administration section -->
 <li class="nav-item ms-2 my-2">Administration</li>
 
-<!-- Gestion Événements -->
+<!-- Gestion Evenements -->
 <li class="nav-item">
     <a class="nav-link" data-bs-toggle="collapse" href="#collapseEvenementsAdmin" role="button" aria-expanded="false" aria-controls="collapseEvenementsAdmin">
-        <i class="bi bi-calendar-event fa-fw me-2"></i>Gestion Événements
+        <i class="bi bi-calendar-event fa-fw me-2"></i>Gestion Evenements
     </a>
     <ul class="nav collapse flex-column" id="collapseEvenementsAdmin" data-bs-parent="#navbar-sidebar">
-        <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_index') }}">Liste des événements</a></li>
-        <li class="nav-item"> <a class="nav-link" href="#">Créer un événement</a></li>
-        <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_new') }}">Créer un événement</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_index') }}">Liste des evenements</a></li>
+        <li class="nav-item"> <a class="nav-link" href="#">Creer un evenement</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_new') }}">Creer un evenement</a></li>
     </ul>
 </li>
 
@@ -132,7 +135,7 @@
     </a>
     <ul class="nav collapse flex-column" id="collapseClubsAdmin" data-bs-parent="#navbar-sidebar">
         <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_index') }}">Liste des clubs</a></li>
-        <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_new') }}">Créer un club</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_new') }}">Creer un club</a></li>
     </ul>
 </li>
 
@@ -143,9 +146,10 @@
     </a>
     <ul class="nav collapse flex-column" id="collapseChallengesAdmin" data-bs-parent="#navbar-sidebar">
         <li class="nav-item"> <a class="nav-link" href="{{ path('app_reading_challenge_index') }}">Liste des challenges</a></li>
-        <li class="nav-item"> <a class="nav-link" href="{{ path('app_reading_challenge_new') }}">Créer un challenge</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_reading_challenge_new') }}">Creer un challenge</a></li>
     </ul>
 </li>
+
 
     <!-- Demandes d'achat -->
     <li class="nav-item">
@@ -162,16 +166,16 @@
     <!-- Title -->
     <li class="nav-item ms-2 my-2">Administration</li>
 
-    <!-- Administration système -->
+    <!-- Administration systeme -->
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="collapse" href="#collapseAdminSystem" role="button" aria-expanded="false" aria-controls="collapseAdminSystem">
             <i class="bi bi-gear fa-fw me-2"></i>Administration
         </a>
         <ul class="nav collapse flex-column" id="collapseAdminSystem" data-bs-parent="#navbar-sidebar">
             <li class="nav-item"> <a class="nav-link" href="#">Utilisateurs</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Journaux système</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Journaux systeme</a></li>
             <li class="nav-item"> <a class="nav-link" href="#">Sauvegardes</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Paramètres système</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Parametres systeme</a></li>
         </ul>
     </li>
 
@@ -214,10 +218,10 @@
         <a class="h5 mb-0 text-body" href="index.html" data-bs-toggle="tooltip" data-bs-placement="top" title="Home">
             <i class="bi bi-globe"></i>
         </a>
-        <a class="h5 mb-0 text-body" href="sign-in.html" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
-            <i class="bi bi-power"></i>
-        </a>
+        {# Authentification desactivee #}
     </div>
 </div>
 </nav>
 <!-- Sidebar footer END -->
+
+

@@ -33,7 +33,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    // Méthodes personnalisées
+    // Methodes personnalisees
     public function findByRole(string $role): array
     {
         return $this->createQueryBuilder('u')

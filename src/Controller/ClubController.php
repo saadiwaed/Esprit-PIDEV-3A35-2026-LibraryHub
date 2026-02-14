@@ -19,7 +19,7 @@ public function index(ClubRepository $clubRepository): Response
 {
     $clubs = $clubRepository->findAll();
     
-    // Debug: voir ce qui est récupéré
+    // Debug: voir ce qui est recupere
     dump($clubs);
     dump(count($clubs));
     
@@ -85,3 +85,4 @@ public function index(ClubRepository $clubRepository): Response
         return $this->redirectToRoute('app_club_index', [], Response::HTTP_SEE_OTHER);
     }
 }
+

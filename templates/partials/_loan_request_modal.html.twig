@@ -1,0 +1,27 @@
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+<div class="modal fade" id="loanRequestModal" tabindex="-1" aria-labelledby="loanRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loanRequestModalLabel">Nouvelle demande d'emprunt</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                {{ form_start(form) }}
+                    {{ form_row(form.bookId) }}
+                    {{ form_row(form.desiredLoanDate) }}
+                    {{ form_row(form.desiredReturnDate) }}
+                    {{ form_row(form.notes) }}
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-2"></i>Envoyer la demande
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>

@@ -14,7 +14,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
 #[ORM\HasLifecycleCallbacks]
-#[UniqueEntity(fields: ['email'], message: 'Un compte avec cet email existe déjà.')]
+#[UniqueEntity(fields: ['email'], message: 'Un compte avec cet email existe dejÃ .')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -25,7 +25,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     #[Assert\NotBlank(message: 'L\'email est obligatoire.')]
     #[Assert\Email(message: 'L\'email {{ value }} n\'est pas valide.')]
-    #[Assert\Length(max: 180, maxMessage: 'L\'email ne peut pas dépasser {{ limit }} caractères.')]
+    #[Assert\Length(max: 180, maxMessage: 'L\'email ne peut pas depasser {{ limit }} caracteres.')]
     private ?string $email = null;
 
     #[ORM\Column(type: 'json')]
@@ -38,12 +38,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(type: 'string', length: 100)]
-    #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
+    #[Assert\NotBlank(message: 'Le prenom est obligatoire.')]
     #[Assert\Length(
         min: 2,
         max: 100,
-        minMessage: 'Le prénom doit contenir au moins {{ limit }} caractères.',
-        maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères.'
+        minMessage: 'Le prenom doit contenir au moins {{ limit }} caracteres.',
+        maxMessage: 'Le prenom ne peut pas depasser {{ limit }} caracteres.'
     )]
     private ?string $firstName = null;
 
@@ -52,8 +52,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(
         min: 2,
         max: 100,
-        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
-        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caracteres.',
+        maxMessage: 'Le nom ne peut pas depasser {{ limit }} caracteres.'
     )]
     private ?string $lastName = null;
 
@@ -118,27 +118,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     // =============== RELATIONS ===============
 
-    // Un utilisateur peut être membre de plusieurs clubs
+    // Un utilisateur peut Ãªtre membre de plusieurs clubs
     #[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
     private Collection $clubs;
 
-    // Un utilisateur peut être fondateur de plusieurs clubs
+    // Un utilisateur peut Ãªtre fondateur de plusieurs clubs
     #[ORM\OneToMany(targetEntity: Club::class, mappedBy: 'founder')]
     private Collection $foundedClubs;
 
-    // Un utilisateur peut créer plusieurs événements
+    // Un utilisateur peut creer plusieurs evenements
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'createdBy')]
     private Collection $createdEvents;
 
-    // Un utilisateur peut s'inscrire à plusieurs événements
+    // Un utilisateur peut s'inscrire Ã  plusieurs evenements
     #[ORM\OneToMany(targetEntity: EventRegistration::class, mappedBy: 'user')]
     private Collection $eventRegistrations;
 
-    // Un utilisateur peut participer à plusieurs challenges
+    // Un utilisateur peut participer Ã  plusieurs challenges
     #[ORM\OneToMany(targetEntity: ChallengeParticipant::class, mappedBy: 'participant')]
     private Collection $challengeParticipants;
 
-    // Un utilisateur peut créer plusieurs challenges
+    // Un utilisateur peut creer plusieurs challenges
     #[ORM\OneToMany(targetEntity: ReadingChallenge::class, mappedBy: 'createdBy')]
     private Collection $createdChallenges;
 
@@ -146,7 +146,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'user')]
     private Collection $reviews;
 
-    // Un utilisateur peut avoir plusieurs prêts (loans)
+    // Un utilisateur peut avoir plusieurs prÃªts (loans)
     #[ORM\OneToMany(targetEntity: Loan::class, mappedBy: 'member')]
     private Collection $loans;
 

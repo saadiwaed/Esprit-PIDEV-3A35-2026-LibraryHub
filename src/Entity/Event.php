@@ -25,26 +25,26 @@ class Event
     #[Assert\Length(
         min: 3,
         max: 255,
-        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères',
-        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères'
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caracteres',
+        maxMessage: 'Le titre ne peut pas depasser {{ limit }} caracteres'
     )]
     private ?string $title = null;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'La description est obligatoire')]
-    #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caractères')]
+    #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caracteres')]
     private ?string $description = null;
 
     #[ORM\Column(type: 'datetime')]
-    #[Assert\NotBlank(message: 'La date de début est obligatoire')]
-    #[Assert\GreaterThan('today', message: 'La date de début doit être future')]
+    #[Assert\NotBlank(message: 'La date de debut est obligatoire')]
+    #[Assert\GreaterThan('today', message: 'La date de debut doit Ãªtre future')]
     private ?\DateTimeInterface $startDateTime = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'La date de fin est obligatoire')]
     #[Assert\GreaterThan(
         propertyPath: 'startDateTime',
-        message: 'La date de fin doit être après la date de début'
+        message: 'La date de fin doit Ãªtre apres la date de debut'
     )]
     private ?\DateTimeInterface $endDateTime = null;
 
@@ -53,16 +53,16 @@ class Event
     private ?string $location = null;
 
     #[ORM\Column(type: 'integer')]
-    #[Assert\NotBlank(message: 'La capacité est obligatoire')]
-    #[Assert\Positive(message: 'La capacité doit être un nombre positif')]
-    #[Assert\LessThanOrEqual(value: 1000, message: 'La capacité ne peut pas dépasser 1000 personnes')]
+    #[Assert\NotBlank(message: 'La capacite est obligatoire')]
+    #[Assert\Positive(message: 'La capacite doit Ãªtre un nombre positif')]
+    #[Assert\LessThanOrEqual(value: 1000, message: 'La capacite ne peut pas depasser 1000 personnes')]
     private ?int $capacity = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'La date limite d\'inscription est obligatoire')]
     #[Assert\LessThan(
         propertyPath: 'startDateTime',
-        message: 'La date limite d\'inscription doit être avant la date de début'
+        message: 'La date limite d\'inscription doit Ãªtre avant la date de debut'
     )]
     private ?\DateTimeInterface $registrationDeadline = null;
 
@@ -260,7 +260,7 @@ class Event
     }
 
     /**
-     * Vérifie si l'événement est à venir
+     * Verifie si l'evenement est Ã  venir
      */
     public function isUpcoming(): bool
     {
@@ -268,7 +268,7 @@ class Event
     }
 
     /**
-     * Vérifie si l'événement est en cours
+     * Verifie si l'evenement est en cours
      */
     public function isOngoing(): bool
     {
@@ -277,7 +277,7 @@ class Event
     }
 
     /**
-     * Vérifie si l'événement est passé
+     * Verifie si l'evenement est passe
      */
     public function isPast(): bool
     {
@@ -294,7 +294,7 @@ class Event
     }
 
     /**
-     * Vérifie si un club spécifique organise cet événement
+     * Verifie si un club specifique organise cet evenement
      */
     public function isOrganizedByClub(Club $club): bool
     {
@@ -302,7 +302,7 @@ class Event
     }
 
     /**
-     * Vérifie si l'événement est organisé par plusieurs clubs
+     * Verifie si l'evenement est organise par plusieurs clubs
      */
     public function isCollaborative(): bool
     {
@@ -318,7 +318,7 @@ class Event
     }
 
     /**
-     * Retourne la durée de l'événement en heures
+     * Retourne la duree de l'evenement en heures
      */
     public function getDurationInHours(): float
     {
@@ -334,7 +334,7 @@ class Event
     }
 
     /**
-     * Vérifie si l'événement commence bientôt (dans moins de 24h)
+     * Verifie si l'evenement commence bientÃ´t (dans moins de 24h)
      */
     public function isStartingSoon(): bool
     {
@@ -363,7 +363,7 @@ class Event
     }
 
     /**
-     * Vérifie si un utilisateur est membre d'un club organisateur
+     * Verifie si un utilisateur est membre d'un club organisateur
      */
     public function isUserInOrganizingClub(User $user): bool
     {
@@ -376,17 +376,17 @@ class Event
     }
 
     /**
-     * Vérifie si l'événement est complet
+     * Verifie si l'evenement est complet
      */
     public function isFull(): bool
     {
-        // À implémenter si vous avez des inscriptions à l'événement
+        // Ã€ implementer si vous avez des inscriptions Ã  l'evenement
         return false;
     }
 
     public function __toString(): string
     {
-        return $this->title ?? 'Événement';
+        return $this->title ?? 'Evenement';
     }
     public function getAvailableSpots(): int
 {
