@@ -1,0 +1,106 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Detail post{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1">{{ post.title }}</h1>
+            <p class="text-muted mb-0">Detail complet du post.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="btn btn-outline-warning">Modifier</a>
+            <a href="{{ path('app_post_index') }}" class="btn btn-light">Retour</a>
+        </div>
+    </div>
+
+    {% if post.spoilerWarning %}
+        <div class="alert alert-warning">Ce post contient un spoiler.</div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h2 class="h6 mb-0">Contenu</h2>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ post.content|nl2br }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h2 class="h6 mb-0">Meta donnees</h2>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">ID</dt>
+                        <dd class="col-sm-7">#{{ post.id }}</dd>
+
+                        <dt class="col-sm-5">Communaute</dt>
+                        <dd class="col-sm-7">
+                            {% if post.community %}
+                                <a href="{{ path('app_community_show', {'id': post.community.id}) }}">{{ post.community.name }}</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-5">Statut</dt>
+                        <dd class="col-sm-7"><span class="badge {{ post.status.getBadgeClass() }}">{{ post.status.getLabel() }}</span></dd>
+
+                        <dt class="col-sm-5">Pinned</dt>
+                        <dd class="col-sm-7">{{ post.isPinned ? 'Oui' : 'Non' }}</dd>
+
+                        <dt class="col-sm-5">Commentaires</dt>
+                        <dd class="col-sm-7">{{ post.commentCount }}</dd>
+
+                        <dt class="col-sm-5">Creation</dt>
+                        <dd class="col-sm-7">{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</dd>
+
+                        <dt class="col-sm-5">URL externe</dt>
+                        <dd class="col-sm-7">
+                            {% if post.externalUrl %}
+                                <a href="{{ post.externalUrl }}" target="_blank" rel="noreferrer">Ouvrir</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="h6 mb-0">Pieces jointes</h2>
+            <span class="badge bg-secondary">{{ post.getAttachmentCount() }}</span>
+        </div>
+        <div class="card-body">
+            {% if post.hasAttachments() %}
+                <div class="row g-3">
+                    {% for attachment in post.attachments %}
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-semibold mb-2">{{ attachment.getDisplayName() }}</div>
+                                <a href="{{ asset('uploads/attachments/' ~ attachment.filePath) }}" target="_blank" rel="noreferrer" class="btn btn-sm btn-outline-primary">Ouvrir</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">Aucune piece jointe.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mt-4 text-end">
+        {{ include('post/_delete_form.html.twig') }}
+    </div>
+</div>
+{% endblock %}

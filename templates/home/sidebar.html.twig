@@ -5,14 +5,14 @@
 <div class="d-flex align-items-center">
     <a class="navbar-brand" href="{{ path('app_home') }}">
         <div class="d-flex align-items-center">
-            <!-- Icône livre plus petite -->
+            <!-- Icone livre plus petite -->
             <div class="bg-gradient-primary rounded p-1 me-2 shadow-sm">
                 <i class="fas fa-book-open text-white fs-4"></i>
             </div>
             <!-- Texte plus compact -->
             <div class="border-start border-white border-opacity-25 ps-2">
                 <h5 class="text-white mb-0 fw-bold">LIBRARY<span class="text-warning">HUB</span></h5>
-                <small class="text-white-50" style="font-size: 0.7rem;">Bibliothèque</small>
+                <small class="text-white-50" style="font-size: 0.7rem;">Bibliotheque</small>
             </div>
         </div>
     </a>
@@ -39,9 +39,9 @@
         </a>
         <ul class="nav collapse flex-column" id="collapseCatalogue" data-bs-parent="#navbar-sidebar">
             <li class="nav-item"> <a class="nav-link" href="#">Tous les livres</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Catégories</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Recherche avancée</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Nouveautés</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Categories</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Recherche avancee</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Nouveautes</a></li>
         </ul>
     </li>
 
@@ -57,8 +57,8 @@
         </ul>
     </li>
 
-    <!-- Mes réservations -->
-    <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-bookmark fa-fw me-2"></i>Mes réservations</a></li>
+    <!-- Mes reservations -->
+    <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-bookmark fa-fw me-2"></i>Mes reservations</a></li>
 
     <!-- Mes avis -->
     <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-star fa-fw me-2"></i>Mes avis</a></li>
@@ -70,7 +70,7 @@
         </a>
         <ul class="nav collapse flex-column" id="collapseProfil" data-bs-parent="#navbar-sidebar">
             <li class="nav-item"> <a class="nav-link" href="#">Informations</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Paramètres</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Parametres</a></li>
             <li class="nav-item"> <a class="nav-link" href="#">Mon abonnement</a></li>
         </ul>
     </li>
@@ -83,17 +83,17 @@
 
 
     <!-- Title -->
-    <li class="nav-item ms-2 my-2">Gestion Bibliothèque</li>
+    <li class="nav-item ms-2 my-2">Gestion Bibliotheque</li>
 
-    <!-- Gestion prêts -->
+    <!-- Gestion prets -->
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="collapse" href="#collapseGestionPrets" role="button" aria-expanded="false" aria-controls="collapseGestionPrets">
-            <i class="bi bi-arrow-left-right fa-fw me-2"></i>Gestion prêts
+            <i class="bi bi-arrow-left-right fa-fw me-2"></i>Gestion prets
         </a>
         <ul class="nav collapse flex-column" id="collapseGestionPrets" data-bs-parent="#navbar-sidebar">
-            <li class="nav-item"> <a class="nav-link" href="#">Prêts en cours</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Prets en cours</a></li>
             <li class="nav-item"> <a class="nav-link" href="#">Retours aujourd'hui</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Nouveau prêt</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Nouveau pret</a></li>
             <li class="nav-item"> <a class="nav-link" href="#">Retards</a></li>
         </ul>
     </li>
@@ -122,19 +122,21 @@
                 <li class="nav-item"> <a class="nav-link" href="{{ path('app_role_index') }}">Gérer les rôles</a></li>
             {% endif %}
             <li class="nav-item"> <a class="nav-link" href="{{ path('app_reading_profile_index') }}">Profils de lecture</a></li>
+
         </ul>
     </li>
     <!-- Administration section -->
 <li class="nav-item ms-2 my-2">Administration</li>
 
-<!-- Gestion Événements -->
+<!-- Gestion Evenements -->
 <li class="nav-item">
     <a class="nav-link" data-bs-toggle="collapse" href="#collapseEvenementsAdmin" role="button" aria-expanded="false" aria-controls="collapseEvenementsAdmin">
-        <i class="bi bi-calendar-event fa-fw me-2"></i>Gestion Événements
+        <i class="bi bi-calendar-event fa-fw me-2"></i>Gestion Evenements
     </a>
     <ul class="nav collapse flex-column" id="collapseEvenementsAdmin" data-bs-parent="#navbar-sidebar">
         <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_index') }}">Liste des événements</a></li>
         <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_new') }}">Créer un événement</a></li>
+
     </ul>
 </li>
 
@@ -145,12 +147,22 @@
     </a>
     <ul class="nav collapse flex-column" id="collapseClubsAdmin" data-bs-parent="#navbar-sidebar">
         <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_index') }}">Liste des clubs</a></li>
-        <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_new') }}">Créer un club</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_new') }}">Creer un club</a></li>
     </ul>
 </li>
 
 
 
+<!-- Gestion Forum -->
+<li class="nav-item">
+    <a class="nav-link" data-bs-toggle="collapse" href="#collapseForumAdmin" role="button" aria-expanded="false" aria-controls="collapseForumAdmin">
+        <i class="bi bi-chat-dots fa-fw me-2"></i>Gestion Forum
+    </a>
+    <ul class="nav collapse flex-column" id="collapseForumAdmin" data-bs-parent="#navbar-sidebar">
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_community_index') }}">Communautes</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_post_index') }}">Posts</a></li>
+    </ul>
+</li>
     <!-- Demandes d'achat -->
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="collapse" href="#collapseDemandesAchat" role="button" aria-expanded="false" aria-controls="collapseDemandesAchat">
@@ -177,7 +189,7 @@
             <li class="nav-item"> <a class="nav-link" href="{{ path('app_role_index') }}">Rôles</a></li>
             <li class="nav-item"> <a class="nav-link" href="#">Journaux système</a></li>
             <li class="nav-item"> <a class="nav-link" href="#">Sauvegardes</a></li>
-            <li class="nav-item"> <a class="nav-link" href="#">Paramètres système</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Parametres systeme</a></li>
         </ul>
     </li>
     {% endif %}

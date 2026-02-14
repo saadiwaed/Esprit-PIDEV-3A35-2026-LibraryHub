@@ -1,0 +1,101 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DoctrineMigrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Auto-generated Migration: Please modify to your needs!
+ */
+final class Version20260214125548 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return '';
+    }
+
+    public function up(Schema $schema): void
+    {
+        // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE TABLE attachment (id INT AUTO_INCREMENT NOT NULL, file_path VARCHAR(255) NOT NULL, post_id INT NOT NULL, INDEX IDX_795FD9BB4B89032C (post_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE author (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE book (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE book_copy (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE clubs (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, category VARCHAR(100) NOT NULL, meeting_date DATETIME NOT NULL, meeting_location VARCHAR(255) NOT NULL, capacity INT NOT NULL, is_private TINYINT DEFAULT 0 NOT NULL, status VARCHAR(20) NOT NULL, created_date DATETIME NOT NULL, image VARCHAR(255) DEFAULT NULL, founder_id INT NOT NULL, created_by_id INT DEFAULT NULL, INDEX IDX_A5BD312319113B3C (founder_id), INDEX IDX_A5BD3123B03A8386 (created_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE club_members (club_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_48E8777D61190A32 (club_id), INDEX IDX_48E8777DA76ED395 (user_id), PRIMARY KEY (club_id, user_id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE club_organizes_events (club_id INT NOT NULL, event_id INT NOT NULL, INDEX IDX_A6A93AD361190A32 (club_id), INDEX IDX_A6A93AD371F7E88B (event_id), PRIMARY KEY (club_id, event_id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE community (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(100) NOT NULL, description LONGTEXT NOT NULL, purpose VARCHAR(255) NOT NULL, rules LONGTEXT DEFAULT NULL, icon VARCHAR(50) DEFAULT NULL, welcome_message LONGTEXT DEFAULT NULL, contact_email VARCHAR(180) DEFAULT NULL, is_public TINYINT DEFAULT 1 NOT NULL, status VARCHAR(20) NOT NULL, member_count INT DEFAULT 0 NOT NULL, post_count INT DEFAULT 0 NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE event_registrations (id INT AUTO_INCREMENT NOT NULL, registered_at DATETIME NOT NULL, description VARCHAR(255) DEFAULT NULL, status VARCHAR(255) NOT NULL, attended_at DATETIME DEFAULT NULL, location VARCHAR(255) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, user_id INT NOT NULL, event_id INT NOT NULL, INDEX IDX_7787E14BA76ED395 (user_id), INDEX IDX_7787E14B71F7E88B (event_id), UNIQUE INDEX unique_registration (user_id, event_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE events (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, start_date_time DATETIME NOT NULL, end_date_time DATETIME NOT NULL, location VARCHAR(255) NOT NULL, capacity INT NOT NULL, registration_deadline DATETIME NOT NULL, status VARCHAR(20) NOT NULL, created_date DATETIME NOT NULL, image VARCHAR(255) DEFAULT NULL, type VARCHAR(50) NOT NULL, created_by_id INT NOT NULL, INDEX IDX_5387574AB03A8386 (created_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE loan (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE notification (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE penalty (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE post (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, status VARCHAR(20) NOT NULL, spoiler_warning TINYINT DEFAULT 0 NOT NULL, is_pinned TINYINT DEFAULT 0 NOT NULL, allow_comments TINYINT DEFAULT 1 NOT NULL, external_url VARCHAR(500) DEFAULT NULL, comment_count INT DEFAULT 0 NOT NULL, created_at DATETIME NOT NULL, community_id INT NOT NULL, INDEX IDX_5A8A6C8DFDA7B0BF (community_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE reading_profile (id INT AUTO_INCREMENT NOT NULL, favorite_genres JSON DEFAULT NULL, preferred_languages JSON DEFAULT NULL, reading_goal_per_month INT DEFAULT NULL, total_books_read INT DEFAULT 0 NOT NULL, average_rating DOUBLE PRECISION DEFAULT NULL, user_id INT NOT NULL, UNIQUE INDEX UNIQ_C5CE393AA76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE renewal (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE review (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE reward (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE role (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(50) NOT NULL, description VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_57698A6A5E237E06 (name), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE `user` (id INT AUTO_INCREMENT NOT NULL, email VARCHAR(180) NOT NULL, password VARCHAR(255) NOT NULL, first_name VARCHAR(100) NOT NULL, last_name VARCHAR(100) NOT NULL, phone VARCHAR(20) DEFAULT NULL, address VARCHAR(500) DEFAULT NULL, avatar VARCHAR(255) DEFAULT NULL, status VARCHAR(20) NOT NULL, created_at DATETIME NOT NULL, last_login_at DATETIME DEFAULT NULL, email_verified_at DATETIME DEFAULT NULL, UNIQUE INDEX UNIQ_8D93D649E7927C74 (email), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE user_role (user_id INT NOT NULL, role_id INT NOT NULL, INDEX IDX_2DE8C6A3A76ED395 (user_id), INDEX IDX_2DE8C6A3D60322AC (role_id), PRIMARY KEY (user_id, role_id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE messenger_messages (id BIGINT AUTO_INCREMENT NOT NULL, body LONGTEXT NOT NULL, headers LONGTEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at DATETIME NOT NULL, available_at DATETIME NOT NULL, delivered_at DATETIME DEFAULT NULL, INDEX IDX_75EA56E0FB7336F0E3BD61CE16BA31DBBF396750 (queue_name, available_at, delivered_at, id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('ALTER TABLE attachment ADD CONSTRAINT FK_795FD9BB4B89032C FOREIGN KEY (post_id) REFERENCES post (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE clubs ADD CONSTRAINT FK_A5BD312319113B3C FOREIGN KEY (founder_id) REFERENCES `user` (id)');
+        $this->addSql('ALTER TABLE clubs ADD CONSTRAINT FK_A5BD3123B03A8386 FOREIGN KEY (created_by_id) REFERENCES `user` (id)');
+        $this->addSql('ALTER TABLE club_members ADD CONSTRAINT FK_48E8777D61190A32 FOREIGN KEY (club_id) REFERENCES clubs (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE club_members ADD CONSTRAINT FK_48E8777DA76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE club_organizes_events ADD CONSTRAINT FK_A6A93AD361190A32 FOREIGN KEY (club_id) REFERENCES clubs (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE club_organizes_events ADD CONSTRAINT FK_A6A93AD371F7E88B FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE event_registrations ADD CONSTRAINT FK_7787E14BA76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id)');
+        $this->addSql('ALTER TABLE event_registrations ADD CONSTRAINT FK_7787E14B71F7E88B FOREIGN KEY (event_id) REFERENCES events (id)');
+        $this->addSql('ALTER TABLE events ADD CONSTRAINT FK_5387574AB03A8386 FOREIGN KEY (created_by_id) REFERENCES `user` (id)');
+        $this->addSql('ALTER TABLE post ADD CONSTRAINT FK_5A8A6C8DFDA7B0BF FOREIGN KEY (community_id) REFERENCES community (id)');
+        $this->addSql('ALTER TABLE reading_profile ADD CONSTRAINT FK_C5CE393AA76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id)');
+        $this->addSql('ALTER TABLE user_role ADD CONSTRAINT FK_2DE8C6A3A76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE user_role ADD CONSTRAINT FK_2DE8C6A3D60322AC FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE');
+    }
+
+    public function down(Schema $schema): void
+    {
+        // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE attachment DROP FOREIGN KEY FK_795FD9BB4B89032C');
+        $this->addSql('ALTER TABLE clubs DROP FOREIGN KEY FK_A5BD312319113B3C');
+        $this->addSql('ALTER TABLE clubs DROP FOREIGN KEY FK_A5BD3123B03A8386');
+        $this->addSql('ALTER TABLE club_members DROP FOREIGN KEY FK_48E8777D61190A32');
+        $this->addSql('ALTER TABLE club_members DROP FOREIGN KEY FK_48E8777DA76ED395');
+        $this->addSql('ALTER TABLE club_organizes_events DROP FOREIGN KEY FK_A6A93AD361190A32');
+        $this->addSql('ALTER TABLE club_organizes_events DROP FOREIGN KEY FK_A6A93AD371F7E88B');
+        $this->addSql('ALTER TABLE event_registrations DROP FOREIGN KEY FK_7787E14BA76ED395');
+        $this->addSql('ALTER TABLE event_registrations DROP FOREIGN KEY FK_7787E14B71F7E88B');
+        $this->addSql('ALTER TABLE events DROP FOREIGN KEY FK_5387574AB03A8386');
+        $this->addSql('ALTER TABLE post DROP FOREIGN KEY FK_5A8A6C8DFDA7B0BF');
+        $this->addSql('ALTER TABLE reading_profile DROP FOREIGN KEY FK_C5CE393AA76ED395');
+        $this->addSql('ALTER TABLE user_role DROP FOREIGN KEY FK_2DE8C6A3A76ED395');
+        $this->addSql('ALTER TABLE user_role DROP FOREIGN KEY FK_2DE8C6A3D60322AC');
+        $this->addSql('DROP TABLE attachment');
+        $this->addSql('DROP TABLE author');
+        $this->addSql('DROP TABLE book');
+        $this->addSql('DROP TABLE book_copy');
+        $this->addSql('DROP TABLE clubs');
+        $this->addSql('DROP TABLE club_members');
+        $this->addSql('DROP TABLE club_organizes_events');
+        $this->addSql('DROP TABLE community');
+        $this->addSql('DROP TABLE event_registrations');
+        $this->addSql('DROP TABLE events');
+        $this->addSql('DROP TABLE loan');
+        $this->addSql('DROP TABLE notification');
+        $this->addSql('DROP TABLE penalty');
+        $this->addSql('DROP TABLE post');
+        $this->addSql('DROP TABLE reading_profile');
+        $this->addSql('DROP TABLE renewal');
+        $this->addSql('DROP TABLE review');
+        $this->addSql('DROP TABLE reward');
+        $this->addSql('DROP TABLE role');
+        $this->addSql('DROP TABLE `user`');
+        $this->addSql('DROP TABLE user_role');
+        $this->addSql('DROP TABLE messenger_messages');
+    }
+}

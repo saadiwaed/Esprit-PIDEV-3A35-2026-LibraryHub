@@ -1,0 +1,80 @@
+﻿{% extends 'forum_front/layout.html.twig' %}
+
+{% block title %}Forum - Communautes{% endblock %}
+
+{% block body %}
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="h2 mb-1">Forum et discussions</h1>
+                <p class="text-muted mb-0">Choisissez une communaute et explorez ses posts.</p>
+            </div>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <form method="get" action="{{ path('app_front_community_index') }}" class="card border shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-lg-7">
+                        <label for="front-community-search" class="form-label mb-1">Rechercher une communaute</label>
+                        <input
+                            id="front-community-search"
+                            name="q"
+                            type="search"
+                            class="form-control"
+                            placeholder="Nom, description ou objectif"
+                            value="{{ filters.q }}"
+                        >
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <label for="front-community-sort" class="form-label mb-1">Trier par</label>
+                        <select id="front-community-sort" name="sort" class="form-select">
+                            <option value="newest" {{ filters.sort == 'newest' ? 'selected' : '' }}>Plus recentes</option>
+                            <option value="oldest" {{ filters.sort == 'oldest' ? 'selected' : '' }}>Plus anciennes</option>
+                            <option value="name_asc" {{ filters.sort == 'name_asc' ? 'selected' : '' }}>Nom A-Z</option>
+                            <option value="name_desc" {{ filters.sort == 'name_desc' ? 'selected' : '' }}>Nom Z-A</option>
+                            <option value="most_posts" {{ filters.sort == 'most_posts' ? 'selected' : '' }}>Plus de posts</option>
+                            <option value="most_members" {{ filters.sort == 'most_members' ? 'selected' : '' }}>Plus de membres</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2 d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Appliquer</button>
+                        {% if filters.q or filters.sort != 'newest' %}
+                            <a href="{{ path('app_front_community_index') }}" class="btn btn-outline-secondary">Reinitialiser</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="row g-4">
+            {% for community in communities %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="card border h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <h2 class="h5 card-title mb-2"><i class="{{ community.iconClass }} me-2 text-primary"></i>{{ community.name }}</h2>
+                            <p class="text-muted mb-3">{{ community.description|length > 130 ? community.description|slice(0, 130) ~ '...' : community.description }}</p>
+                            <div class="d-flex justify-content-between small text-muted mb-3">
+                                <span>{{ community.memberCount }} membres</span>
+                                <span>{{ community.postCount }} posts</span>
+                            </div>
+                            <a href="{{ path('app_front_community_show', {'id': community.id}) }}" class="btn btn-primary mt-auto">Voir la communaute</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info mb-0">Aucune communaute publique n'est disponible pour le moment.</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

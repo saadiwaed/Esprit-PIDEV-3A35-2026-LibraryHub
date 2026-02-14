@@ -146,11 +146,34 @@
                     </li>
 
                     <!-- Nav item 5 -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-people me-1"></i>Communauté
-                        </a>
-                    </li>
+                     <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+        <i class="bi bi-chat-dots me-1"></i>Forum
+    </a>
+    <ul class="dropdown-menu">
+        <li>
+            <a class="dropdown-item" href="{{ path('app_front_community_index') }}">
+                <i class="bi bi-people me-2"></i> Toutes les communautés
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{{ path('app_community_new') }}">
+                <i class="bi bi-plus-circle me-2"></i> Créer une communauté
+            </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="bi bi-bookmark me-2"></i> Mes communautés
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="bi bi-file-text me-2"></i> Mes posts
+            </a>
+        </li>
+    </ul>
+</li>
                     
                     <!-- Show login/register buttons for guests -->
                     {% if not app.user %}

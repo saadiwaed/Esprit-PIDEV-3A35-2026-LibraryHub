@@ -1,0 +1,110 @@
+﻿{% extends 'forum_front/layout.html.twig' %}
+
+{% block title %}Forum - {{ community.name }}{% endblock %}
+
+{% block body %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+            <div>
+                <a href="{{ path('app_front_community_index') }}" class="text-decoration-none small">&larr; Retour aux communautes</a>
+                <h1 class="h2 mt-2 mb-1"><i class="{{ community.iconClass }} me-2 text-primary"></i>{{ community.name }}</h1>
+                <p class="text-muted mb-0">{{ community.description }}</p>
+            </div>
+            <a href="{{ path('app_front_post_new', {'id': community.id}) }}" class="btn btn-primary">
+                <i class="fas fa-pen me-1"></i> Ajouter un post
+            </a>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card border shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h6">Objectif</h2>
+                        <p class="mb-0">{{ community.purpose }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h6">Regles</h2>
+                        <p class="mb-0">{{ community.rules ?: 'Aucune regle specifique.' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h6">Statistiques</h2>
+                        <p class="mb-1"><strong>{{ community.memberCount }}</strong> membres</p>
+                        <p class="mb-0"><strong>{{ posts|length }}</strong> posts visibles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Posts de la communaute</h2>
+                <span class="badge bg-secondary">{{ posts|length }}</span>
+            </div>
+            <div class="card-body">
+                <form method="get" action="{{ path('app_front_community_show', {'id': community.id}) }}" class="border rounded p-3 mb-3">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-12 col-lg-7">
+                            <label for="front-post-search" class="form-label mb-1">Rechercher un post</label>
+                            <input
+                                id="front-post-search"
+                                name="q"
+                                type="search"
+                                class="form-control"
+                                placeholder="Titre ou contenu du post"
+                                value="{{ postFilters.q }}"
+                            >
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <label for="front-post-sort" class="form-label mb-1">Trier par</label>
+                            <select id="front-post-sort" name="sort" class="form-select">
+                                <option value="newest" {{ postFilters.sort == 'newest' ? 'selected' : '' }}>Plus recents</option>
+                                <option value="oldest" {{ postFilters.sort == 'oldest' ? 'selected' : '' }}>Plus anciens</option>
+                                <option value="most_commented" {{ postFilters.sort == 'most_commented' ? 'selected' : '' }}>Plus commentes</option>
+                                <option value="title_asc" {{ postFilters.sort == 'title_asc' ? 'selected' : '' }}>Titre A-Z</option>
+                                <option value="title_desc" {{ postFilters.sort == 'title_desc' ? 'selected' : '' }}>Titre Z-A</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-2 d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Appliquer</button>
+                            {% if postFilters.q or postFilters.sort != 'newest' %}
+                                <a href="{{ path('app_front_community_show', {'id': community.id}) }}" class="btn btn-outline-secondary">Reinitialiser</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+
+                {% for post in posts %}
+                    <article class="border rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="h6 mb-0">
+                                <a class="text-decoration-none" href="{{ path('app_front_post_show', {'id': post.id}) }}">{{ post.title }}</a>
+                            </h3>
+                            {% if post.isPinned %}
+                                <span class="badge bg-warning text-dark">Pinned</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-muted mb-2">
+                            {{ post.content|striptags|length > 180 ? post.content|striptags|slice(0, 180) ~ '...' : post.content|striptags }}
+                        </p>
+                        <div class="small text-muted d-flex gap-3">
+                            <span>{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</span>
+                            <span>{{ post.commentCount }} commentaire(s)</span>
+                        </div>
+                    </article>
+                {% else %}
+                    <div class="alert alert-light border mb-0">Aucun post publie dans cette communaute. Soyez le premier a publier.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

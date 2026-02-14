@@ -382,6 +382,7 @@ final class ClubController extends AbstractController
         $userClubs = [];
         $user = $this->getUser();
         if ($user) {
+            /** @var \App\Entity\User $user */
             $userClubs = $user->getClubs()->map(function($club) {
                 return $club->getId();
             })->toArray();

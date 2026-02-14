@@ -41,7 +41,7 @@ class Club
     #[Assert\NotBlank(message: 'La catégorie est obligatoire')]
     private ?string $category = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'foundedClubs')]
     #[ORM\JoinColumn(name: 'founder_id', referencedColumnName: 'id', nullable: false)]
     private ?User $founder = null;
 
@@ -93,6 +93,8 @@ class Club
     #[ORM\JoinColumn(name: 'club_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'event_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private Collection $organizedEvents;
+
+
 
     public function __construct()
     {

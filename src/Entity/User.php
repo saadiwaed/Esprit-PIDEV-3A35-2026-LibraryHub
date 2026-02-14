@@ -99,12 +99,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?ReadingProfile $readingProfile = null;
 
     #[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
+
 private Collection $clubs;
 
     public function __construct()
     {
         $this->roles = new ArrayCollection();
         $this->clubs = new ArrayCollection(); // Add this line
+
         $this->createdAt = new \DateTime();
         $this->status = 'PENDING';
     }
