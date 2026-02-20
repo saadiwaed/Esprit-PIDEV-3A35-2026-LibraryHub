@@ -15,8 +15,9 @@ class JournalLecture
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $user_id = null;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
+    private ?User $user = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -113,15 +114,24 @@ class JournalLecture
         return $this->id;
     }
 
-    public function getUserId(): ?int
+   
+    // ✅ NOUVEAU GETTER : getUser() retourne l'objet User
+    public function getUser(): ?User
     {
-        return $this->user_id;
+        return $this->user;
     }
 
-    public function setUserId(int $user_id): static
+    // ✅ NOUVEAU SETTER : setUser() prend un objet User
+    public function setUser(?User $user): static
     {
-        $this->user_id = $user_id;
+        $this->user = $user;
         return $this;
+    }
+
+    // ✅ GARDER getUserId() pour la compatibilité (optionnel)
+    public function getUserId(): ?int
+    {
+        return $this->user?->getId();
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable

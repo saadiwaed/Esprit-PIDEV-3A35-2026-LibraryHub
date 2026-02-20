@@ -148,7 +148,7 @@
                         <div class="mt-5 pt-4 border-top">
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-muted">
-                                    <i class="fas fa-user me-1"></i> Utilisateur #{{ journal_lecture.userId }}
+                                    <i class="fas fa-user me-1"></i> Utilisateur #{{ journal_lecture.user.id }}
                                 </small>
                                 <small class="text-muted">
                                     <i class="fas fa-clock me-1"></i> Créé le {{ journal_lecture.createdAt|date('d/m/Y H:i') }}
