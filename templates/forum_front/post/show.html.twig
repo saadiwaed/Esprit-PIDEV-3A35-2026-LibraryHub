@@ -1,10 +1,50 @@
-﻿{% extends 'forum_front/layout.html.twig' %}
+{% extends 'forum_front/layout.html.twig' %}
 
 {% block title %}{{ post.title }} - Forum{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .forum-post-v2 .post-body {
+            line-height: 1.75;
+            font-size: 1.02rem;
+        }
+
+        .forum-post-v2 .reaction-row form,
+        .forum-post-v2 .comment-reaction-row form {
+            margin: 0;
+        }
+
+        .forum-post-v2 .reaction-btn {
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .forum-post-v2 .report-box textarea {
+            min-height: 110px;
+        }
+
+        .forum-post-v2 .attachments-list .list-group-item {
+            border-color: #e1ebf6;
+            padding: 0.75rem 0;
+        }
+
+        .forum-post-v2 .comment-card .comment-content {
+            color: #27394d;
+            line-height: 1.65;
+        }
+
+        @media (max-width: 767.98px) {
+            .forum-post-v2 .post-header {
+                gap: 0.65rem;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-<section class="py-5">
-    <div class="container">
+<section class="forum-ui-page forum-post-v2">
+    <div class="container forum-ui-section">
         {% for label in ['success', 'warning', 'error'] %}
             {% for message in app.flashes(label) %}
                 <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
@@ -15,113 +55,138 @@
         {% endfor %}
 
         <div class="row justify-content-center">
-            <div class="col-lg-9 col-xl-8">
-                <a href="{{ path('app_front_community_show', {'id': post.community.id}) }}" class="text-decoration-none small">&larr; Retour a {{ post.community.name }}</a>
+            <div class="col-xl-9">
+                <a href="{{ path('app_front_community_show', {'id': post.community.id}) }}" class="forum-ui-back-link mb-3"><i class="bi bi-arrow-left"></i> Retour a {{ post.community.name }}</a>
 
-                <article class="card border shadow-sm mt-3">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                            <h1 class="h3 mb-0">{{ post.title }}</h1>
+                <article class="forum-ui-surface p-4">
+                    <div class="post-header d-flex flex-wrap justify-content-between align-items-start mb-3">
+                        <h1 class="forum-ui-title h3 mb-0">{{ post.title }}</h1>
+                        <div class="d-flex flex-wrap gap-2">
                             {% if post.spoilerWarning %}
-                                <span class="badge bg-warning text-dark">Spoiler</span>
+                                <span class="forum-ui-chip"><i class="bi bi-exclamation-triangle"></i>Spoiler</span>
                             {% endif %}
+                            <span class="forum-ui-chip"><i class="bi bi-bar-chart-line"></i>Score {{ post.score }}</span>
                         </div>
+                    </div>
 
-                        <div class="small text-muted mb-3">
-                            Publie le {{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}
-                            par {{ post.createdBy ? post.createdBy.fullName : 'Utilisateur inconnu' }}
-                        </div>
+                    <div class="forum-ui-chip-row mb-3">
+                        <span class="forum-ui-chip"><i class="bi bi-calendar-event"></i>{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</span>
+                        <span class="forum-ui-chip"><i class="bi bi-person"></i>{{ post.createdBy ? post.createdBy.fullName : 'Utilisateur inconnu' }}</span>
+                        <span class="forum-ui-chip"><i class="bi bi-chat-square-text"></i>{{ post.commentCount }} commentaire(s)</span>
+                    </div>
 
-                        <div class="mb-4">{{ post.content|nl2br }}</div>
+                    <div class="post-body mb-4">{{ post.content|nl2br }}</div>
 
-                        {% if post.externalUrl %}
-                            <p class="mb-4">
-                                <a href="{{ post.externalUrl }}" target="_blank" rel="noreferrer">Lien complementaire</a>
-                            </p>
-                        {% endif %}
+                    {% if post.externalUrl %}
+                        <p class="mb-4">
+                            <a href="{{ post.externalUrl }}" target="_blank" rel="noreferrer" class="btn btn-light forum-ui-btn">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>Lien complementaire
+                            </a>
+                        </p>
+                    {% endif %}
 
-                        <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+                    <div class="forum-ui-filter mb-4">
+                        <div class="d-flex flex-wrap align-items-center gap-2 reaction-row">
                             <form method="post" action="{{ path('app_front_post_react', {'id': post.id, 'type': 'like'}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('react_post_' ~ post.id) }}">
-                                <button type="submit" class="btn btn-sm {{ currentPostReaction and currentPostReaction.value == 'like' ? 'btn-primary' : 'btn-outline-primary' }}" {{ isMember ? '' : 'disabled' }}>
+                                <button type="submit" class="btn btn-sm reaction-btn {{ currentPostReaction and currentPostReaction.value == 'like' ? 'btn-primary' : 'btn-outline-primary' }}" {{ isMember ? '' : 'disabled' }}>
                                     <i class="bi bi-hand-thumbs-up me-1"></i>Like ({{ post.likeCount }})
                                 </button>
                             </form>
                             <form method="post" action="{{ path('app_front_post_react', {'id': post.id, 'type': 'dislike'}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('react_post_' ~ post.id) }}">
-                                <button type="submit" class="btn btn-sm {{ currentPostReaction and currentPostReaction.value == 'dislike' ? 'btn-danger' : 'btn-outline-danger' }}" {{ isMember ? '' : 'disabled' }}>
+                                <button type="submit" class="btn btn-sm reaction-btn {{ currentPostReaction and currentPostReaction.value == 'dislike' ? 'btn-danger' : 'btn-outline-danger' }}" {{ isMember ? '' : 'disabled' }}>
                                     <i class="bi bi-hand-thumbs-down me-1"></i>Dislike ({{ post.dislikeCount }})
                                 </button>
                             </form>
-                            <span class="badge bg-light text-dark border">Score: {{ post.score }}</span>
+                            <span class="forum-ui-chip"><i class="bi bi-activity"></i>Score: {{ post.score }}</span>
                         </div>
-
-                        <h2 class="h6">Pieces jointes</h2>
-                        {% if post.hasAttachments() %}
-                            <ul class="list-group list-group-flush">
-                                {% for attachment in post.attachments %}
-                                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-                                        <span>{{ attachment.getDisplayName() }}</span>
-                                        <a href="{{ asset('uploads/attachments/' ~ attachment.filePath) }}" target="_blank" rel="noreferrer" class="btn btn-sm btn-outline-primary">Ouvrir</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p class="text-muted mb-0">Aucune piece jointe.</p>
-                        {% endif %}
                     </div>
+
+                    {% if app.user and isMember %}
+                        {% if hasReportedPost %}
+                            <div class="alert alert-info py-2 small mb-4">
+                                Vous avez deja signale ce post. Merci, la moderation va le traiter.
+                            </div>
+                        {% else %}
+                            <form method="post" action="{{ path('app_front_post_report', {'id': post.id}) }}" class="forum-ui-filter report-box mb-4">
+                                <input type="hidden" name="_token" value="{{ csrf_token('report_post_' ~ post.id) }}">
+                                <label for="post-report-reason" class="form-label mb-1 fw-semibold">Signaler ce post</label>
+                                <textarea id="post-report-reason" name="reason" class="form-control mb-2" rows="3" minlength="10" maxlength="1500" required placeholder="Expliquez le probleme (spam, contenu inapproprie, etc.)."></textarea>
+                                <button type="submit" class="btn btn-sm btn-outline-danger forum-ui-btn">
+                                    <i class="bi bi-flag me-1"></i>Envoyer le signalement
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+
+                    <h2 class="h5 forum-ui-title mb-2">Pieces jointes</h2>
+                    {% if post.hasAttachments() %}
+                        <ul class="list-group list-group-flush attachments-list">
+                            {% for attachment in post.attachments %}
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-2">
+                                    <span>{{ attachment.getDisplayName() }}</span>
+                                    <a href="{{ asset('uploads/attachments/' ~ attachment.filePath) }}" target="_blank" rel="noreferrer" class="btn btn-sm btn-outline-primary forum-ui-btn">Ouvrir</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="forum-ui-empty">Aucune piece jointe.</p>
+                    {% endif %}
                 </article>
 
-                <section class="card border shadow-sm mt-4">
-                    <div class="card-header bg-white">
-                        <h2 class="h5 mb-0">Commentaires ({{ post.commentCount }})</h2>
+                <section class="forum-ui-surface mt-4 p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h2 class="h4 forum-ui-title mb-0">Commentaires</h2>
+                        <span class="forum-ui-chip"><i class="bi bi-chat-left-text"></i>{{ post.commentCount }}</span>
                     </div>
-                    <div class="card-body">
-                        {% if isMember and post.allowComments %}
+
+                    {% if isMember and post.allowComments %}
+                        <div class="forum-ui-filter mb-3">
                             {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate'}}) }}
                                 <div class="mb-3">
                                     {{ form_row(commentForm.content) }}
                                 </div>
-                                {{ form_widget(commentForm.save, {'attr': {'class': 'btn btn-primary'}}) }}
+                                {{ form_widget(commentForm.save, {'attr': {'class': 'btn btn-primary forum-ui-btn'}}) }}
                             {{ form_end(commentForm) }}
-                        {% elseif app.user and not isMember %}
-                            <div class="alert alert-warning mb-3">Rejoignez la communaute pour commenter ou reagir.</div>
-                        {% elseif app.user and isMember and not post.allowComments %}
-                            <div class="alert alert-secondary mb-3">Les commentaires sont desactives pour ce post.</div>
-                        {% else %}
-                            <div class="alert alert-info mb-3">Connectez-vous et rejoignez la communaute pour commenter.</div>
-                        {% endif %}
+                        </div>
+                    {% elseif app.user and not isMember %}
+                        <div class="alert alert-warning mb-3">Rejoignez la communaute pour commenter ou reagir.</div>
+                    {% elseif app.user and isMember and not post.allowComments %}
+                        <div class="alert alert-secondary mb-3">Les commentaires sont desactives pour ce post.</div>
+                    {% else %}
+                        <div class="alert alert-info mb-3">Connectez-vous et rejoignez la communaute pour commenter.</div>
+                    {% endif %}
 
-                        {% for comment in comments %}
-                            <article class="border rounded p-3 mt-3">
-                                <div class="d-flex justify-content-between align-items-start gap-3">
-                                    <div>
-                                        <div class="fw-semibold">{{ comment.createdBy ? comment.createdBy.fullName : 'Utilisateur inconnu' }}</div>
-                                        <div class="small text-muted">{{ comment.createdAt ? comment.createdAt|date('d/m/Y H:i') : '-' }}</div>
-                                    </div>
-                                    <span class="badge bg-light text-dark border">Score: {{ comment.score }}</span>
+                    {% for comment in comments %}
+                        <article class="forum-ui-card comment-card p-3 mt-3">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="fw-semibold">{{ comment.createdBy ? comment.createdBy.fullName : 'Utilisateur inconnu' }}</div>
+                                    <div class="small text-muted">{{ comment.createdAt ? comment.createdAt|date('d/m/Y H:i') : '-' }}</div>
                                 </div>
-                                <p class="mb-2 mt-2">{{ comment.content|nl2br }}</p>
-                                {% set commentReaction = commentReactionMap[comment.id] ?? null %}
-                                <div class="d-flex flex-wrap align-items-center gap-2">
-                                    <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'like'}) }}">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
-                                        <button type="submit" class="btn btn-sm {{ commentReaction and commentReaction.value == 'like' ? 'btn-primary' : 'btn-outline-primary' }}" {{ isMember ? '' : 'disabled' }}>
-                                            <i class="bi bi-hand-thumbs-up me-1"></i>Like ({{ comment.likeCount }})
-                                        </button>
-                                    </form>
-                                    <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'dislike'}) }}">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
-                                        <button type="submit" class="btn btn-sm {{ commentReaction and commentReaction.value == 'dislike' ? 'btn-danger' : 'btn-outline-danger' }}" {{ isMember ? '' : 'disabled' }}>
-                                            <i class="bi bi-hand-thumbs-down me-1"></i>Dislike ({{ comment.dislikeCount }})
-                                        </button>
-                                    </form>
-                                </div>
-                            </article>
-                        {% else %}
-                            <p class="text-muted mt-3 mb-0">Aucun commentaire pour le moment.</p>
-                        {% endfor %}
-                    </div>
+                                <span class="forum-ui-chip"><i class="bi bi-activity"></i>Score: {{ comment.score }}</span>
+                            </div>
+                            <p class="comment-content mb-2 mt-2">{{ comment.content|nl2br }}</p>
+                            {% set commentReaction = commentReactionMap[comment.id] ?? null %}
+                            <div class="d-flex flex-wrap align-items-center gap-2 comment-reaction-row">
+                                <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'like'}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
+                                    <button type="submit" class="btn btn-sm reaction-btn {{ commentReaction and commentReaction.value == 'like' ? 'btn-primary' : 'btn-outline-primary' }}" {{ isMember ? '' : 'disabled' }}>
+                                        <i class="bi bi-hand-thumbs-up me-1"></i>Like ({{ comment.likeCount }})
+                                    </button>
+                                </form>
+                                <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'dislike'}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
+                                    <button type="submit" class="btn btn-sm reaction-btn {{ commentReaction and commentReaction.value == 'dislike' ? 'btn-danger' : 'btn-outline-danger' }}" {{ isMember ? '' : 'disabled' }}>
+                                        <i class="bi bi-hand-thumbs-down me-1"></i>Dislike ({{ comment.dislikeCount }})
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    {% else %}
+                        <p class="forum-ui-empty mt-3">Aucun commentaire pour le moment.</p>
+                    {% endfor %}
                 </section>
             </div>
         </div>

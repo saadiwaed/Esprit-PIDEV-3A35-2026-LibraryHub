@@ -56,6 +56,7 @@ security:
         - { path: ^/forum/posts/\d+/comments/new$, roles: ROLE_MEMBER }
         - { path: ^/forum/posts/\d+/react/(like|dislike)$, roles: ROLE_MEMBER }
         - { path: ^/forum/posts/\d+/comments/\d+/react/(like|dislike)$, roles: ROLE_MEMBER }
+        - { path: ^/forum/posts/\d+/report$, roles: ROLE_MEMBER }
 
         # User CRUD operations - Admin ONLY
         - { path: ^/user/new, roles: ROLE_ADMIN }

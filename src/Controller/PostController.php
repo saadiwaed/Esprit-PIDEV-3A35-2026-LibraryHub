@@ -7,9 +7,11 @@ use App\Entity\Comment;
 use App\Entity\CommentReaction;
 use App\Entity\Community;
 use App\Entity\Post;
+use App\Entity\PostReport;
 use App\Entity\PostReaction;
 use App\Entity\User;
 use App\Enum\CommunityStatus;
+use App\Enum\PostModerationDecision;
 use App\Enum\PostStatus;
 use App\Enum\ReactionType;
 use App\Form\CommentType;
@@ -18,9 +20,12 @@ use App\Form\PostType;
 use App\Repository\CommentReactionRepository;
 use App\Repository\CommentRepository;
 use App\Repository\CommunityRepository;
+use App\Repository\PostReportRepository;
 use App\Repository\PostReactionRepository;
 use App\Repository\PostRepository;
 use App\Service\FileUploadService;
+use App\Service\PostModerationService;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -180,6 +185,68 @@ final class PostController extends AbstractController
         return $this->redirectToRoute('app_post_edit', ['id' => $postId], Response::HTTP_SEE_OTHER);
     }
 
+    #[Route('/post/moderation/queue', name: 'app_post_moderation_queue', methods: ['GET'])]
+    public function moderationQueue(PostReportRepository $postReportRepository): Response
+    {
+        $this->denyUnlessModerator();
+
+        return $this->render('post/moderation_queue.html.twig', [
+            'queue' => $this->groupPendingReportsByPost($postReportRepository->findPendingForModerationQueue()),
+        ]);
+    }
+
+    #[Route('/post/{id}/moderate', name: 'app_post_moderate', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function moderatePost(
+        Post $post,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        PostModerationService $postModerationService
+    ): Response {
+        $this->denyUnlessModerator();
+
+        $moderator = $this->getUser();
+        if (!$moderator instanceof User) {
+            throw $this->createAccessDeniedException('Utilisateur non authentifie.');
+        }
+
+        if (!$this->isCsrfTokenValid('moderate_post_' . $post->getId(), $request->request->getString('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+
+            return $this->redirectToRoute('app_post_moderation_queue', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $decision = PostModerationDecision::tryFrom(trim($request->request->getString('decision')));
+        if ($decision === null || $decision === PostModerationDecision::APPROVE) {
+            $this->addFlash('error', 'Decision de moderation invalide.');
+
+            return $this->redirectToRoute('app_post_moderation_queue', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $affectedReports = $postModerationService->moderate(
+            $post,
+            $moderator,
+            $decision,
+            $request->request->getString('decision_reason')
+        );
+
+        if ($affectedReports === 0) {
+            $this->addFlash('warning', 'Aucun signalement en attente pour ce post.');
+
+            return $this->redirectToRoute('app_post_moderation_queue', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', sprintf(
+            'Moderation appliquee (%d signalement%s traite%s).',
+            $affectedReports,
+            $affectedReports > 1 ? 's' : '',
+            $affectedReports > 1 ? 's' : ''
+        ));
+
+        return $this->redirectToRoute('app_post_moderation_queue', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/forum/communities/{id}/posts/new', name: 'app_front_post_new', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function frontNew(
         Community $community,
@@ -238,7 +305,8 @@ final class PostController extends AbstractController
         Post $post,
         CommentRepository $commentRepository,
         PostReactionRepository $postReactionRepository,
-        CommentReactionRepository $commentReactionRepository
+        CommentReactionRepository $commentReactionRepository,
+        PostReportRepository $postReportRepository
     ): Response {
         $community = $this->assertFrontPostIsVisible($post);
         $comments = $commentRepository->findByPostForFront($post);
@@ -253,9 +321,11 @@ final class PostController extends AbstractController
         $isMember = $user instanceof User && $community->hasMember($user);
         $currentPostReaction = null;
         $commentReactionMap = [];
+        $hasReportedPost = false;
 
         if ($user instanceof User) {
             $currentPostReaction = $postReactionRepository->findOneByPostAndUser($post, $user)?->getType();
+            $hasReportedPost = $postReportRepository->findPendingOneByPostAndReporter($post, $user) !== null;
 
             foreach ($commentReactionRepository->findByPostAndUser($post, $user) as $reaction) {
                 $commentId = $reaction->getComment()?->getId();
@@ -272,6 +342,7 @@ final class PostController extends AbstractController
             'isMember' => $isMember,
             'currentPostReaction' => $currentPostReaction,
             'commentReactionMap' => $commentReactionMap,
+            'hasReportedPost' => $hasReportedPost,
         ]);
     }
 
@@ -314,6 +385,65 @@ final class PostController extends AbstractController
         } else {
             $this->addFlash('error', 'Impossible de publier ce commentaire.');
         }
+
+        return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/forum/posts/{id}/report', name: 'app_front_post_report', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function reportPost(
+        Post $post,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        PostReportRepository $postReportRepository
+    ): Response {
+        $this->denyAccessUnlessGranted('ROLE_MEMBER');
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('Utilisateur non authentifie.');
+        }
+
+        $community = $this->assertFrontPostIsVisible($post);
+        if (!$community->hasMember($user)) {
+            $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de signaler un post.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        if (!$this->isCsrfTokenValid('report_post_' . $post->getId(), $request->request->getString('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($postReportRepository->findPendingOneByPostAndReporter($post, $user) !== null) {
+            $this->addFlash('warning', 'Vous avez deja signale ce post.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $reason = trim($request->request->getString('reason'));
+        if (mb_strlen(preg_replace('/\s+/', '', $reason) ?? '') < 10) {
+            $this->addFlash('error', 'Le motif du signalement doit contenir au moins 10 caracteres utiles.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $report = new PostReport();
+        $report->setPost($post);
+        $report->setReporter($user);
+        $report->setReason($reason);
+
+        $entityManager->persist($report);
+        try {
+            $entityManager->flush();
+        } catch (UniqueConstraintViolationException) {
+            $this->addFlash('error', 'Contrainte de base non synchronisee. Appliquez la derniere migration puis reessayez.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $this->addFlash('success', 'Votre signalement a ete envoye a l equipe de moderation.');
 
         return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
     }
@@ -480,6 +610,43 @@ final class PostController extends AbstractController
         return $community;
     }
 
+    /**
+     * @param array<int, PostReport> $reports
+     * @return array<int, array{post: Post, reports: array<int, PostReport>, pendingCount: int}>
+     */
+    private function groupPendingReportsByPost(array $reports): array
+    {
+        $queue = [];
+
+        foreach ($reports as $report) {
+            $post = $report->getPost();
+            if (!$post instanceof Post || $post->getId() === null) {
+                continue;
+            }
+
+            $postId = $post->getId();
+            if (!isset($queue[$postId])) {
+                $queue[$postId] = [
+                    'post' => $post,
+                    'reports' => [],
+                    'pendingCount' => 0,
+                ];
+            }
+
+            $queue[$postId]['reports'][] = $report;
+            ++$queue[$postId]['pendingCount'];
+        }
+
+        return $queue;
+    }
+
+    private function denyUnlessModerator(): void
+    {
+        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_LIBRARIAN')) {
+            throw $this->createAccessDeniedException('Acces refuse.');
+        }
+    }
+
     private function normalizeSearch(?string $search): ?string
     {
         $search = trim((string) $search);
@@ -490,7 +657,7 @@ final class PostController extends AbstractController
     private function normalizePostSort(?string $sort): string
     {
         $sort = strtolower(trim((string) $sort));
-        $allowed = ['newest', 'oldest', 'most_commented', 'title_asc', 'title_desc'];
+        $allowed = ['newest', 'oldest', 'most_commented', 'most_liked', 'best_score', 'title_asc', 'title_desc'];
 
         return in_array($sort, $allowed, true) ? $sort : 'newest';
     }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <title>{% block title %}LibraryHub - Forum{% endblock %}</title>
@@ -14,6 +14,204 @@
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+        <style>
+            .forum-ui-page {
+                --forum-primary: #0d6efd;
+                --forum-secondary: #0ea5a1;
+                --forum-text: #1b2736;
+                --forum-muted: #6e7f93;
+                --forum-border: #dfe8f3;
+                --forum-surface: #ffffff;
+                color: var(--forum-text);
+                background:
+                    radial-gradient(1200px 360px at 8% -8%, #e4f1ff 0%, transparent 62%),
+                    radial-gradient(900px 300px at 96% 0%, #e9fbf6 0%, transparent 57%);
+            }
+
+            .forum-ui-page .forum-ui-section {
+                padding-top: 3rem;
+                padding-bottom: 3.5rem;
+            }
+
+            .forum-ui-page .forum-ui-title {
+                font-family: "Heebo", sans-serif;
+                font-weight: 700;
+                letter-spacing: -0.01em;
+                margin-bottom: 0.4rem;
+            }
+
+            .forum-ui-page .forum-ui-subtitle {
+                color: var(--forum-muted);
+                margin-bottom: 0;
+            }
+
+            .forum-ui-page .forum-ui-back-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.42rem;
+                color: #4f6982;
+                text-decoration: none;
+                font-size: 0.88rem;
+                font-weight: 500;
+            }
+
+            .forum-ui-page .forum-ui-back-link:hover {
+                color: var(--forum-primary);
+            }
+
+            .forum-ui-page .forum-ui-hero {
+                background: linear-gradient(130deg, #0d6efd 0%, #0ea5a1 100%);
+                border-radius: 22px;
+                color: #fff;
+                padding: 1.6rem;
+                box-shadow: 0 20px 42px -30px rgba(13, 110, 253, 0.9);
+            }
+
+            .forum-ui-page .forum-ui-hero .forum-ui-title,
+            .forum-ui-page .forum-ui-hero .forum-ui-subtitle,
+            .forum-ui-page .forum-ui-hero .forum-ui-back-link {
+                color: #fff;
+            }
+
+            .forum-ui-page .forum-ui-hero .forum-ui-subtitle {
+                color: rgba(255, 255, 255, 0.86);
+                max-width: 70ch;
+            }
+
+            .forum-ui-page .forum-ui-chip-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .forum-ui-page .forum-ui-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.35rem;
+                border-radius: 999px;
+                padding: 0.34rem 0.7rem;
+                font-size: 0.8rem;
+                border: 1px solid #dce8f5;
+                background: #f5f9fe;
+                color: #49627a;
+            }
+
+            .forum-ui-page .forum-ui-hero .forum-ui-chip {
+                border-color: rgba(255, 255, 255, 0.24);
+                background: rgba(255, 255, 255, 0.15);
+                color: #fff;
+            }
+
+            .forum-ui-page .forum-ui-surface {
+                background: var(--forum-surface);
+                border: 1px solid var(--forum-border);
+                border-radius: 18px;
+                box-shadow: 0 22px 36px -34px rgba(8, 22, 38, 0.85);
+            }
+
+            .forum-ui-page .forum-ui-card {
+                background: #fff;
+                border: 1px solid #dbe7f4;
+                border-radius: 14px;
+                box-shadow: 0 12px 28px -30px rgba(8, 21, 36, 0.95);
+                transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .forum-ui-page .forum-ui-card:hover {
+                transform: translateY(-2px);
+                border-color: #bfd4eb;
+                box-shadow: 0 16px 34px -28px rgba(8, 21, 36, 1);
+            }
+
+            .forum-ui-page .forum-ui-filter {
+                background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
+                border: 1px solid var(--forum-border);
+                border-radius: 14px;
+                padding: 1rem;
+            }
+
+            .forum-ui-page .forum-ui-filter .form-label {
+                color: #344b61;
+                font-size: 0.86rem;
+                font-weight: 600;
+            }
+
+            .forum-ui-page .forum-ui-filter .form-control,
+            .forum-ui-page .forum-ui-filter .form-select,
+            .forum-ui-page .forum-ui-form-shell .form-control,
+            .forum-ui-page .forum-ui-form-shell .form-select {
+                border-radius: 10px;
+                border-color: #d5e2ef;
+            }
+
+            .forum-ui-page .forum-ui-form-shell {
+                padding: 1.1rem;
+            }
+
+            .forum-ui-page .forum-ui-form-shell > .card {
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+                background: transparent;
+            }
+
+            .forum-ui-page .forum-ui-form-shell > .card .card-body {
+                padding: 0;
+            }
+
+            .forum-ui-page .forum-ui-form-shell > .card .card-footer {
+                background: transparent;
+                border-top: 1px solid var(--forum-border);
+                margin-top: 1rem;
+                padding: 1rem 0 0;
+            }
+
+            .forum-ui-page .forum-ui-btn {
+                border-radius: 10px;
+                font-weight: 600;
+            }
+
+            .forum-ui-page .forum-ui-btn.btn-light {
+                color: #304f71;
+                border: 1px solid #d6e3f0;
+                background: #f8fbff;
+            }
+
+            .forum-ui-page .forum-ui-empty {
+                border: 1px dashed #c8d8e9;
+                border-radius: 12px;
+                background: #f8fbff;
+                color: #536b84;
+                padding: 1rem 1.1rem;
+                margin: 0;
+            }
+
+            .forum-navbar {
+                border-bottom: 1px solid #e4edf7;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(6px);
+            }
+
+            .forum-navbar .nav-link {
+                font-weight: 500;
+            }
+
+            .forum-footer {
+                border-top: 1px solid #e2ebf5;
+                background: linear-gradient(180deg, #fafcff 0%, #f3f8fd 100%);
+            }
+
+            @media (max-width: 991.98px) {
+                .forum-ui-page .forum-ui-section {
+                    padding-top: 2rem;
+                    padding-bottom: 2.5rem;
+                }
+
+                .forum-ui-page .forum-ui-hero {
+                    padding: 1.2rem;
+                }
+            }
+        </style>
     {% endblock %}
 </head>
 <body>

@@ -99,6 +99,8 @@
                                         <option value="newest" {{ postFilters.sort == 'newest' ? 'selected' : '' }}>Plus recents</option>
                                         <option value="oldest" {{ postFilters.sort == 'oldest' ? 'selected' : '' }}>Plus anciens</option>
                                         <option value="most_commented" {{ postFilters.sort == 'most_commented' ? 'selected' : '' }}>Plus commentes</option>
+                                        <option value="most_liked" {{ postFilters.sort == 'most_liked' ? 'selected' : '' }}>Plus de likes</option>
+                                        <option value="best_score" {{ postFilters.sort == 'best_score' ? 'selected' : '' }}>Meilleur score (likes - dislikes)</option>
                                         <option value="title_asc" {{ postFilters.sort == 'title_asc' ? 'selected' : '' }}>Titre A-Z</option>
                                         <option value="title_desc" {{ postFilters.sort == 'title_desc' ? 'selected' : '' }}>Titre Z-A</option>
                                     </select>
@@ -128,7 +130,7 @@
                                     <td>
                                         <div class="fw-semibold">{{ post.title }}</div>
                                         <small class="text-muted">
-                                            {{ post.commentCount }} commentaire(s) - {{ post.createdBy ? post.createdBy.fullName : 'Auteur inconnu' }}
+                                            {{ post.commentCount }} commentaire(s) - {{ post.likeCount }} like(s) - {{ post.dislikeCount }} dislike(s) - {{ post.createdBy ? post.createdBy.fullName : 'Auteur inconnu' }}
                                         </small>
                                     </td>
                                     <td><span class="badge {{ post.status.getBadgeClass() }}">{{ post.status.getLabel() }}</span></td>

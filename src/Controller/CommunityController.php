@@ -278,7 +278,7 @@ final class CommunityController extends AbstractController
     private function normalizePostSort(?string $sort): string
     {
         $sort = strtolower(trim((string) $sort));
-        $allowed = ['newest', 'oldest', 'most_commented', 'title_asc', 'title_desc'];
+        $allowed = ['newest', 'oldest', 'most_commented', 'most_liked', 'best_score', 'title_asc', 'title_desc'];
 
         return in_array($sort, $allowed, true) ? $sort : 'newest';
     }

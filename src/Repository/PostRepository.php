@@ -109,6 +109,21 @@ class PostRepository extends ServiceEntityRepository
                     ->addOrderBy('p.createdAt', 'DESC');
                 break;
 
+            case 'most_liked':
+                $qb->orderBy('p.isPinned', 'DESC')
+                    ->addOrderBy('p.likeCount', 'DESC')
+                    ->addOrderBy('p.dislikeCount', 'ASC')
+                    ->addOrderBy('p.createdAt', 'DESC');
+                break;
+
+            case 'best_score':
+                $qb->addSelect('(p.likeCount - p.dislikeCount) AS HIDDEN postScore')
+                    ->orderBy('p.isPinned', 'DESC')
+                    ->addOrderBy('postScore', 'DESC')
+                    ->addOrderBy('p.likeCount', 'DESC')
+                    ->addOrderBy('p.createdAt', 'DESC');
+                break;
+
             case 'title_asc':
                 $qb->orderBy('p.isPinned', 'DESC')
                     ->addOrderBy('p.title', 'ASC')

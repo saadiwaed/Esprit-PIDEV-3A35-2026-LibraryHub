@@ -88,6 +88,10 @@ class Post
     #[ORM\OneToMany(targetEntity: PostReaction::class, mappedBy: 'post', cascade: ['remove'], orphanRemoval: true)]
     private Collection $reactions;
 
+    /** @var Collection<int, PostReport> */
+    #[ORM\OneToMany(targetEntity: PostReport::class, mappedBy: 'post', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $reports;
+
     /** @var Collection<int, Attachment> */
     #[ORM\OneToMany(targetEntity: Attachment::class, mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $attachments;
@@ -97,6 +101,7 @@ class Post
         $this->createdAt = new \DateTime();
         $this->comments = new ArrayCollection();
         $this->reactions = new ArrayCollection();
+        $this->reports = new ArrayCollection();
         $this->attachments = new ArrayCollection();
     }
 
@@ -310,6 +315,33 @@ class Post
         if ($this->reactions->removeElement($reaction)) {
             if ($reaction->getPost() === $this) {
                 $reaction->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /** @return Collection<int, PostReport> */
+    public function getReports(): Collection
+    {
+        return $this->reports;
+    }
+
+    public function addReport(PostReport $report): self
+    {
+        if (!$this->reports->contains($report)) {
+            $this->reports->add($report);
+            $report->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReport(PostReport $report): self
+    {
+        if ($this->reports->removeElement($report)) {
+            if ($report->getPost() === $this) {
+                $report->setPost(null);
             }
         }
 
