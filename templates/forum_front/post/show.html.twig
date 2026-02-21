@@ -20,6 +20,7 @@
 
                         <div class="small text-muted mb-3">
                             Publie le {{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}
+                            par {{ post.createdBy ? post.createdBy.fullName : 'Utilisateur inconnu' }}
                         </div>
 
                         <div class="mb-4">{{ post.content|nl2br }}</div>

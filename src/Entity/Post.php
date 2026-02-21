@@ -63,6 +63,10 @@ class Post
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdPosts')]
+    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?User $createdBy = null;
+
     #[ORM\ManyToOne(targetEntity: Community::class, inversedBy: 'posts')]
     #[ORM\JoinColumn(name: 'community_id', referencedColumnName: 'id', nullable: false)]
     #[Assert\NotNull(message: 'La communauté est obligatoire')]
@@ -189,6 +193,17 @@ class Post
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): self
+    {
+        $this->createdBy = $createdBy;
         return $this;
     }
 

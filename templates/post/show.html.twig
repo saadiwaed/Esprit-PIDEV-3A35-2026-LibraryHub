@@ -50,6 +50,9 @@
                             {% endif %}
                         </dd>
 
+                        <dt class="col-sm-5">Auteur</dt>
+                        <dd class="col-sm-7">{{ post.createdBy ? post.createdBy.fullName : '-' }}</dd>
+
                         <dt class="col-sm-5">Statut</dt>
                         <dd class="col-sm-7"><span class="badge {{ post.status.getBadgeClass() }}">{{ post.status.getLabel() }}</span></dd>
 

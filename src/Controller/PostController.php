@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Attachment;
 use App\Entity\Community;
 use App\Entity\Post;
+use App\Entity\User;
 use App\Enum\CommunityStatus;
 use App\Enum\PostStatus;
 use App\Form\FrontPostType;
@@ -43,6 +44,10 @@ final class PostController extends AbstractController
         CommunityRepository $communityRepository
     ): Response {
         $post = new Post();
+        $author = $this->getUser();
+        if ($author instanceof User) {
+            $post->setCreatedBy($author);
+        }
 
         $communityId = $request->query->getInt('community');
         if ($communityId > 0) {
@@ -61,6 +66,10 @@ final class PostController extends AbstractController
             $community = $post->getCommunity();
             if ($community !== null) {
                 $community->incrementPostCount();
+            }
+
+            if ($post->getCreatedBy() === null && $author instanceof User) {
+                $post->setCreatedBy($author);
             }
 
             $entityManager->persist($post);
@@ -163,26 +172,41 @@ final class PostController extends AbstractController
         return $this->redirectToRoute('app_post_edit', ['id' => $postId], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/forum/communities/{id}/posts/new', name: 'app_front_post_new', methods: ['GET', 'POST'])]
+    #[Route('/forum/communities/{id}/posts/new', name: 'app_front_post_new', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function frontNew(
         Community $community,
         Request $request,
         EntityManagerInterface $entityManager,
         FileUploadService $fileUploadService
     ): Response {
+        $this->denyAccessUnlessGranted('ROLE_MEMBER');
+
+        $author = $this->getUser();
+        if (!$author instanceof User) {
+            throw $this->createAccessDeniedException('Utilisateur non authentifie.');
+        }
+
         if (!$community->isPublic() || $community->getStatus() !== CommunityStatus::APPROVED) {
             throw $this->createNotFoundException('Communaute introuvable.');
+        }
+
+        if (!$community->hasMember($author)) {
+            $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de publier un post.');
+
+            return $this->redirectToRoute('app_front_community_show', ['id' => $community->getId()], Response::HTTP_SEE_OTHER);
         }
 
         $post = new Post();
         $post->setCommunity($community);
         $post->setStatus(PostStatus::PUBLISHED);
+        $post->setCreatedBy($author);
 
         $form = $this->createForm(FrontPostType::class, $post);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->handleAttachments($form->get('attachmentFiles')->getData(), $post, $fileUploadService);
+            $post->setCreatedBy($author);
 
             $community->incrementPostCount();
 
@@ -201,7 +225,7 @@ final class PostController extends AbstractController
         ]);
     }
 
-    #[Route('/forum/posts/{id}', name: 'app_front_post_show', methods: ['GET'])]
+    #[Route('/forum/posts/{id}', name: 'app_front_post_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function frontShow(Post $post): Response
     {
         $community = $post->getCommunity();

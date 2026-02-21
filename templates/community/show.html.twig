@@ -38,6 +38,9 @@
                         <dt class="col-sm-5">Nom</dt>
                         <dd class="col-sm-7">{{ community.name }}</dd>
 
+                        <dt class="col-sm-5">Createur</dt>
+                        <dd class="col-sm-7">{{ community.createdBy ? community.createdBy.fullName : '-' }}</dd>
+
                         <dt class="col-sm-5">Icone</dt>
                         <dd class="col-sm-7"><i class="{{ community.iconClass }} me-2"></i><code>{{ community.iconClass }}</code></dd>
 
@@ -124,7 +127,9 @@
                                 <tr>
                                     <td>
                                         <div class="fw-semibold">{{ post.title }}</div>
-                                        <small class="text-muted">{{ post.commentCount }} commentaire(s)</small>
+                                        <small class="text-muted">
+                                            {{ post.commentCount }} commentaire(s) - {{ post.createdBy ? post.createdBy.fullName : 'Auteur inconnu' }}
+                                        </small>
                                     </td>
                                     <td><span class="badge {{ post.status.getBadgeClass() }}">{{ post.status.getLabel() }}</span></td>
                                     <td>{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</td>

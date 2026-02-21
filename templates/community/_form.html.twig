@@ -1,4 +1,5 @@
 ﻿{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+{% set cancelPath = cancel_path|default(path('app_community_index')) %}
 <div class="card shadow-sm">
     <div class="card-body">
         <div class="row g-3">
@@ -81,14 +82,16 @@
                     Apercu: <i id="{{ iconPreviewId }}" class="{{ currentIcon }} me-1"></i><code id="{{ iconCodeId }}">{{ currentIcon }}</code>
                 </small>
             </div>
-            <div class="col-md-6">{{ form_row(form.status) }}</div>
+            {% if form.status is defined %}
+                <div class="col-md-6">{{ form_row(form.status) }}</div>
+            {% endif %}
             <div class="col-12">{{ form_row(form.rules) }}</div>
             <div class="col-12">{{ form_row(form.welcomeMessage) }}</div>
             <div class="col-12">{{ form_row(form.isPublic) }}</div>
         </div>
     </div>
     <div class="card-footer d-flex justify-content-between">
-        <a href="{{ path('app_community_index') }}" class="btn btn-light">Annuler</a>
+        <a href="{{ cancelPath }}" class="btn btn-light">Annuler</a>
         {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
     </div>
 </div>

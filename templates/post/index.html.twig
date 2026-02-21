@@ -63,6 +63,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Titre</th>
+                            <th>Auteur</th>
                             <th>Communaute</th>
                             <th>Statut</th>
                             <th>Pinned</th>
@@ -82,6 +83,7 @@
                                     <small class="text-warning">Spoiler</small>
                                 {% endif %}
                             </td>
+                            <td>{{ post.createdBy ? post.createdBy.fullName : '-' }}</td>
                             <td>
                                 {% if post.community %}
                                     <a href="{{ path('app_community_show', {'id': post.community.id}) }}">{{ post.community.name }}</a>
@@ -101,7 +103,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">Aucun post trouve.</td>
+                            <td colspan="10" class="text-center text-muted py-4">Aucun post trouve.</td>
                         </tr>
                     {% endfor %}
                     </tbody>

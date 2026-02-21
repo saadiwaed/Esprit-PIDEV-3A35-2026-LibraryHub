@@ -99,13 +99,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?ReadingProfile $readingProfile = null;
 
     #[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
+    private Collection $clubs;
 
-private Collection $clubs;
+    /** @var Collection<int, Community> */
+    #[ORM\ManyToMany(targetEntity: Community::class, mappedBy: 'members')]
+    private Collection $communities;
+
+    /** @var Collection<int, Community> */
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Community::class)]
+    private Collection $createdCommunities;
+
+    /** @var Collection<int, Post> */
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Post::class)]
+    private Collection $createdPosts;
 
     public function __construct()
     {
         $this->roles = new ArrayCollection();
-        $this->clubs = new ArrayCollection(); // Add this line
+        $this->clubs = new ArrayCollection();
+        $this->communities = new ArrayCollection();
+        $this->createdCommunities = new ArrayCollection();
+        $this->createdPosts = new ArrayCollection();
 
         $this->createdAt = new \DateTime();
         $this->status = 'PENDING';
@@ -343,25 +357,66 @@ private Collection $clubs;
     {
         return $this->getFullName();
     }
+
+    /** @return Collection<int, Club> */
     public function getClubs(): Collection
-{
-    return $this->clubs;
-}
-
-public function addClub(Club $club): static
-{
-    if (!$this->clubs->contains($club)) {
-        $this->clubs->add($club);
-        $club->addMember($this);
+    {
+        return $this->clubs;
     }
-    return $this;
-}
 
-public function removeClub(Club $club): static
-{
-    if ($this->clubs->removeElement($club)) {
-        $club->removeMember($this);
+    public function addClub(Club $club): static
+    {
+        if (!$this->clubs->contains($club)) {
+            $this->clubs->add($club);
+            $club->addMember($this);
+        }
+
+        return $this;
     }
-    return $this;
-}
+
+    public function removeClub(Club $club): static
+    {
+        if ($this->clubs->removeElement($club)) {
+            $club->removeMember($this);
+        }
+
+        return $this;
+    }
+
+    /** @return Collection<int, Community> */
+    public function getCommunities(): Collection
+    {
+        return $this->communities;
+    }
+
+    public function addCommunity(Community $community): static
+    {
+        if (!$this->communities->contains($community)) {
+            $this->communities->add($community);
+            $community->addMember($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommunity(Community $community): static
+    {
+        if ($this->communities->removeElement($community)) {
+            $community->removeMember($this);
+        }
+
+        return $this;
+    }
+
+    /** @return Collection<int, Community> */
+    public function getCreatedCommunities(): Collection
+    {
+        return $this->createdCommunities;
+    }
+
+    /** @return Collection<int, Post> */
+    public function getCreatedPosts(): Collection
+    {
+        return $this->createdPosts;
+    }
 }

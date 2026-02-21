@@ -48,7 +48,12 @@ security:
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
-        
+
+        # Forum member actions
+        - { path: ^/forum/communities/new, roles: ROLE_MEMBER }
+        - { path: ^/forum/communities/\d+/posts/new, roles: ROLE_MEMBER }
+        - { path: ^/forum/communities/\d+/(join|leave)$, roles: ROLE_MEMBER }
+
         # User CRUD operations - Admin ONLY
         - { path: ^/user/new, roles: ROLE_ADMIN }
         - { path: ^/user/\d+/edit, roles: ROLE_ADMIN }
@@ -59,6 +64,10 @@ security:
         
         # Role management - Admin ONLY
         - { path: ^/role, roles: ROLE_ADMIN }
+
+        # Community/Post management - Admin and Librarian only
+        - { path: ^/community, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
+        - { path: ^/post, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
         
         # Admin and Librarian routes (other management features)
         - { path: ^/reading-profile, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }

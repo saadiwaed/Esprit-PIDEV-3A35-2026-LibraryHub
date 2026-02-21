@@ -65,6 +65,7 @@
                             <th>ID</th>
                             <th>Nom</th>
                             <th>Description</th>
+                            <th>Createur</th>
                             <th>Statut</th>
                             <th>Publique</th>
                             <th>Posts</th>
@@ -82,6 +83,7 @@
                             <td>
                                 {{ community.description|length > 80 ? community.description|slice(0, 80) ~ '...' : community.description }}
                             </td>
+                            <td>{{ community.createdBy ? community.createdBy.fullName : '-' }}</td>
                             <td>
                                 <span class="badge {{ community.status.getBadgeClass() }}">{{ community.status.getLabel() }}</span>
                             </td>
@@ -95,7 +97,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">Aucune communaute trouvee.</td>
+                            <td colspan="9" class="text-center text-muted py-4">Aucune communaute trouvee.</td>
                         </tr>
                     {% endfor %}
                     </tbody>

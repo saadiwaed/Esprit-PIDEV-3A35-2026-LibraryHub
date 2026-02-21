@@ -6,17 +6,30 @@
 <section class="py-5">
     <div class="container">
         <div class="row mb-4">
-            <div class="col-12">
+            <div class="col-12 d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
                 <h1 class="h2 mb-1">Forum et discussions</h1>
                 <p class="text-muted mb-0">Choisissez une communaute et explorez ses posts.</p>
+                </div>
+                {% if is_granted('ROLE_MEMBER') %}
+                    <a href="{{ path('app_front_community_new') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-1"></i> Creer une communaute
+                    </a>
+                {% elseif not app.user %}
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-sign-in-alt me-1"></i> Se connecter pour creer
+                    </a>
+                {% endif %}
             </div>
         </div>
 
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        {% for label in ['success', 'warning', 'error'] %}
+            {% for message in app.flashes(label) %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
         {% endfor %}
 
         <form method="get" action="{{ path('app_front_community_index') }}" class="card border shadow-sm mb-4">
