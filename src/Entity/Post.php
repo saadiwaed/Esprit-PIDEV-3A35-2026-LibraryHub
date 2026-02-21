@@ -60,6 +60,14 @@ class Post
     #[Assert\PositiveOrZero(message: 'Le nombre de commentaires ne peut pas être négatif')]
     private int $commentCount = 0;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    #[Assert\PositiveOrZero(message: 'Le nombre de likes ne peut pas etre negatif')]
+    private int $likeCount = 0;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    #[Assert\PositiveOrZero(message: 'Le nombre de dislikes ne peut pas etre negatif')]
+    private int $dislikeCount = 0;
+
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -72,6 +80,14 @@ class Post
     #[Assert\NotNull(message: 'La communauté est obligatoire')]
     private ?Community $community = null;
 
+    /** @var Collection<int, Comment> */
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $comments;
+
+    /** @var Collection<int, PostReaction> */
+    #[ORM\OneToMany(targetEntity: PostReaction::class, mappedBy: 'post', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $reactions;
+
     /** @var Collection<int, Attachment> */
     #[ORM\OneToMany(targetEntity: Attachment::class, mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $attachments;
@@ -79,6 +95,8 @@ class Post
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->comments = new ArrayCollection();
+        $this->reactions = new ArrayCollection();
         $this->attachments = new ArrayCollection();
     }
 
@@ -185,6 +203,30 @@ class Post
         return $this;
     }
 
+    public function getLikeCount(): int
+    {
+        return $this->likeCount;
+    }
+
+    public function setLikeCount(int $likeCount): self
+    {
+        $this->likeCount = max(0, $likeCount);
+
+        return $this;
+    }
+
+    public function getDislikeCount(): int
+    {
+        return $this->dislikeCount;
+    }
+
+    public function setDislikeCount(int $dislikeCount): self
+    {
+        $this->dislikeCount = max(0, $dislikeCount);
+
+        return $this;
+    }
+
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
@@ -219,6 +261,60 @@ class Post
     }
 
     // ─── Attachments ─────────────────────────────────────
+
+    /** @return Collection<int, Comment> */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            if ($comment->getPost() === $this) {
+                $comment->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /** @return Collection<int, PostReaction> */
+    public function getReactions(): Collection
+    {
+        return $this->reactions;
+    }
+
+    public function addReaction(PostReaction $reaction): self
+    {
+        if (!$this->reactions->contains($reaction)) {
+            $this->reactions->add($reaction);
+            $reaction->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReaction(PostReaction $reaction): self
+    {
+        if ($this->reactions->removeElement($reaction)) {
+            if ($reaction->getPost() === $this) {
+                $reaction->setPost(null);
+            }
+        }
+
+        return $this;
+    }
 
     /** @return Collection<int, Attachment> */
     public function getAttachments(): Collection
@@ -281,6 +377,59 @@ class Post
     public function canBeCommented(): bool
     {
         return $this->allowComments && $this->isVisible();
+    }
+
+    public function incrementCommentCount(): self
+    {
+        ++$this->commentCount;
+
+        return $this;
+    }
+
+    public function decrementCommentCount(): self
+    {
+        if ($this->commentCount > 0) {
+            --$this->commentCount;
+        }
+
+        return $this;
+    }
+
+    public function incrementLikeCount(): self
+    {
+        ++$this->likeCount;
+
+        return $this;
+    }
+
+    public function decrementLikeCount(): self
+    {
+        if ($this->likeCount > 0) {
+            --$this->likeCount;
+        }
+
+        return $this;
+    }
+
+    public function incrementDislikeCount(): self
+    {
+        ++$this->dislikeCount;
+
+        return $this;
+    }
+
+    public function decrementDislikeCount(): self
+    {
+        if ($this->dislikeCount > 0) {
+            --$this->dislikeCount;
+        }
+
+        return $this;
+    }
+
+    public function getScore(): int
+    {
+        return $this->likeCount - $this->dislikeCount;
     }
 
     /**

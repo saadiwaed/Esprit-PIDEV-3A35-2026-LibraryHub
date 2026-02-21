@@ -3,14 +3,22 @@
 namespace App\Controller;
 
 use App\Entity\Attachment;
+use App\Entity\Comment;
+use App\Entity\CommentReaction;
 use App\Entity\Community;
 use App\Entity\Post;
+use App\Entity\PostReaction;
 use App\Entity\User;
 use App\Enum\CommunityStatus;
 use App\Enum\PostStatus;
+use App\Enum\ReactionType;
+use App\Form\CommentType;
 use App\Form\FrontPostType;
 use App\Form\PostType;
+use App\Repository\CommentReactionRepository;
+use App\Repository\CommentRepository;
 use App\Repository\CommunityRepository;
+use App\Repository\PostReactionRepository;
 use App\Repository\PostRepository;
 use App\Service\FileUploadService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -226,7 +234,237 @@ final class PostController extends AbstractController
     }
 
     #[Route('/forum/posts/{id}', name: 'app_front_post_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function frontShow(Post $post): Response
+    public function frontShow(
+        Post $post,
+        CommentRepository $commentRepository,
+        PostReactionRepository $postReactionRepository,
+        CommentReactionRepository $commentReactionRepository
+    ): Response {
+        $community = $this->assertFrontPostIsVisible($post);
+        $comments = $commentRepository->findByPostForFront($post);
+
+        $comment = new Comment();
+        $commentForm = $this->createForm(CommentType::class, $comment, [
+            'action' => $this->generateUrl('app_front_post_comment_new', ['id' => $post->getId()]),
+            'method' => 'POST',
+        ]);
+
+        $user = $this->getUser();
+        $isMember = $user instanceof User && $community->hasMember($user);
+        $currentPostReaction = null;
+        $commentReactionMap = [];
+
+        if ($user instanceof User) {
+            $currentPostReaction = $postReactionRepository->findOneByPostAndUser($post, $user)?->getType();
+
+            foreach ($commentReactionRepository->findByPostAndUser($post, $user) as $reaction) {
+                $commentId = $reaction->getComment()?->getId();
+                if ($commentId !== null) {
+                    $commentReactionMap[$commentId] = $reaction->getType();
+                }
+            }
+        }
+
+        return $this->render('forum_front/post/show.html.twig', [
+            'post' => $post,
+            'comments' => $comments,
+            'commentForm' => $commentForm->createView(),
+            'isMember' => $isMember,
+            'currentPostReaction' => $currentPostReaction,
+            'commentReactionMap' => $commentReactionMap,
+        ]);
+    }
+
+    #[Route('/forum/posts/{id}/comments/new', name: 'app_front_post_comment_new', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function addComment(Post $post, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_MEMBER');
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('Utilisateur non authentifie.');
+        }
+
+        $community = $this->assertFrontPostIsVisible($post);
+        if (!$community->hasMember($user)) {
+            $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de commenter.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        if (!$post->isAllowComments()) {
+            $this->addFlash('warning', 'Les commentaires sont desactives pour ce post.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $comment = new Comment();
+        $comment->setPost($post);
+        $comment->setCreatedBy($user);
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $post->incrementCommentCount();
+
+            $entityManager->persist($comment);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Commentaire publie.');
+        } else {
+            $this->addFlash('error', 'Impossible de publier ce commentaire.');
+        }
+
+        return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/forum/posts/{id}/react/{type}', name: 'app_front_post_react', methods: ['POST'], requirements: ['id' => '\d+', 'type' => 'like|dislike'])]
+    public function reactPost(
+        Post $post,
+        string $type,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        PostReactionRepository $postReactionRepository
+    ): Response {
+        $this->denyAccessUnlessGranted('ROLE_MEMBER');
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('Utilisateur non authentifie.');
+        }
+
+        $community = $this->assertFrontPostIsVisible($post);
+        if (!$community->hasMember($user)) {
+            $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de reagir.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        if (!$this->isCsrfTokenValid('react_post_' . $post->getId(), $request->request->getString('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $requestedType = $type === ReactionType::DISLIKE->value ? ReactionType::DISLIKE : ReactionType::LIKE;
+        $existingReaction = $postReactionRepository->findOneByPostAndUser($post, $user);
+
+        if ($existingReaction === null) {
+            $reaction = new PostReaction();
+            $reaction->setPost($post);
+            $reaction->setUser($user);
+            $reaction->setType($requestedType);
+            $entityManager->persist($reaction);
+
+            if ($requestedType === ReactionType::LIKE) {
+                $post->incrementLikeCount();
+            } else {
+                $post->incrementDislikeCount();
+            }
+        } elseif ($existingReaction->getType() === $requestedType) {
+            if ($existingReaction->getType() === ReactionType::LIKE) {
+                $post->decrementLikeCount();
+            } else {
+                $post->decrementDislikeCount();
+            }
+
+            $entityManager->remove($existingReaction);
+        } else {
+            if ($existingReaction->getType() === ReactionType::LIKE) {
+                $post->decrementLikeCount();
+                $post->incrementDislikeCount();
+            } else {
+                $post->decrementDislikeCount();
+                $post->incrementLikeCount();
+            }
+
+            $existingReaction->setType($requestedType);
+        }
+
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/forum/posts/{postId}/comments/{commentId}/react/{type}', name: 'app_front_comment_react', methods: ['POST'], requirements: ['postId' => '\d+', 'commentId' => '\d+', 'type' => 'like|dislike'])]
+    public function reactComment(
+        int $postId,
+        int $commentId,
+        string $type,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        PostRepository $postRepository,
+        CommentRepository $commentRepository,
+        CommentReactionRepository $commentReactionRepository
+    ): Response {
+        $this->denyAccessUnlessGranted('ROLE_MEMBER');
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('Utilisateur non authentifie.');
+        }
+
+        $post = $postRepository->find($postId);
+        $comment = $commentRepository->find($commentId);
+
+        if (!$post instanceof Post || !$comment instanceof Comment || $comment->getPost()?->getId() !== $post->getId()) {
+            throw $this->createNotFoundException('Commentaire introuvable.');
+        }
+
+        $community = $this->assertFrontPostIsVisible($post);
+        if (!$community->hasMember($user)) {
+            $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de reagir.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        if (!$this->isCsrfTokenValid('react_comment_' . $comment->getId(), $request->request->getString('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $requestedType = $type === ReactionType::DISLIKE->value ? ReactionType::DISLIKE : ReactionType::LIKE;
+        $existingReaction = $commentReactionRepository->findOneByCommentAndUser($comment, $user);
+
+        if ($existingReaction === null) {
+            $reaction = new CommentReaction();
+            $reaction->setComment($comment);
+            $reaction->setUser($user);
+            $reaction->setType($requestedType);
+            $entityManager->persist($reaction);
+
+            if ($requestedType === ReactionType::LIKE) {
+                $comment->incrementLikeCount();
+            } else {
+                $comment->incrementDislikeCount();
+            }
+        } elseif ($existingReaction->getType() === $requestedType) {
+            if ($existingReaction->getType() === ReactionType::LIKE) {
+                $comment->decrementLikeCount();
+            } else {
+                $comment->decrementDislikeCount();
+            }
+
+            $entityManager->remove($existingReaction);
+        } else {
+            if ($existingReaction->getType() === ReactionType::LIKE) {
+                $comment->decrementLikeCount();
+                $comment->incrementDislikeCount();
+            } else {
+                $comment->decrementDislikeCount();
+                $comment->incrementLikeCount();
+            }
+
+            $existingReaction->setType($requestedType);
+        }
+
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    private function assertFrontPostIsVisible(Post $post): Community
     {
         $community = $post->getCommunity();
 
@@ -239,9 +477,7 @@ final class PostController extends AbstractController
             throw $this->createNotFoundException('Post introuvable.');
         }
 
-        return $this->render('forum_front/post/show.html.twig', [
-            'post' => $post,
-        ]);
+        return $community;
     }
 
     private function normalizeSearch(?string $search): ?string
