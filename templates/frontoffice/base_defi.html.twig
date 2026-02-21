@@ -21,93 +21,248 @@
     
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/defi.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/defi.css') }}">
 
-    
-    {# Bloc pour CSS supplémentaire #}
     {% block stylesheets %}{% endblock %}
-
-
-    
-    
-    <style>
-        /* STYLES SPÉCIFIQUES AUX DÉFIS */
-        .defi-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 0;
-            margin-bottom: 40px;
-        }
-        .defi-card {
-            transition: transform 0.3s;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .defi-card:hover {
-            transform: translateY(-5px);
-        }
-        .defi-progress {
-            height: 8px;
-            border-radius: 4px;
-        }
-        .defi-badge {
-            padding: 8px 12px;
-            border-radius: 20px;
-        }
-        .btn-defi {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 25px;
-        }
-        .btn-defi:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            color: white;
-        }
-    </style>
 </head>
 <body>
 
-<!-- HEADER SPÉCIFIQUE AUX DÉFIS -->
-<header class="bg-dark">
-    <nav class="navbar navbar-expand-lg navbar-dark">
+<!-- HEADER (identique à base.html.twig) -->
+<header class="navbar-light navbar-sticky">
+    <nav class="navbar navbar-expand-xl">
         <div class="container">
+            <!-- Logo START -->
             <a class="navbar-brand" href="{{ path('app_frontoffice') }}">
-                <div class="d-flex align-items-center">
-                    <div class="bg-gradient-primary rounded p-1 me-2 shadow-sm">
-                        <i class="fas fa-trophy text-white fs-4"></i>
-                    </div>
-                    <div class="border-start border-white border-opacity-25 ps-2">
-                        <h5 class="text-white mb-0 fw-bold">LIBRARY<span class="text-warning">HUB</span></h5>
-                        <small class="text-white-50">Défis de lecture</small>
-                    </div>
-                </div>
+                <h3 class="mb-0 text-primary">
+                    <i class="fas fa-trophy me-2"></i>
+                    <span class="text-dark">LIBRARY</span><span class="text-warning">HUB</span>
+                </h3>
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefi">
-                <span class="navbar-toggler-icon"></span>
+            <!-- Logo END -->
+
+            <!-- Responsive navbar toggler -->
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-animation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
             </button>
-            
-            <div class="collapse navbar-collapse" id="navbarDefi">
-                <ul class="navbar-nav ms-auto">
+
+            <!-- Main navbar START -->
+            <div class="navbar-collapse collapse" id="navbarCollapse">
+                <ul class="navbar-nav navbar-nav-scroll ms-auto align-items-center">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_frontoffice') }}">
-                            <i class="fas fa-home me-1"></i>Accueil
+                            <i class="bi bi-house-door me-1"></i>Accueil
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_front_journal_index') }}">
-                            <i class="fas fa-book-open me-1"></i>Journal
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-book me-1"></i>Livres
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ path('app_front_defi_index') }}">
-                            <i class="fas fa-trophy me-1"></i>Défis
+                        <a class="nav-link" href="{{ path('app_event_my_events') }}">
+                            <i class="bi bi-calendar-event me-1"></i>Mes Événements
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_my_clubs') }}">
+                            <i class="bi bi-people-fill me-1"></i>Club de Lecture
+                        </a>
+                    </li>
+
+                    <!-- Journal et Défi dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-journal-bookmark-fill me-1"></i>Journal et Defi
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_front_journal_index') }}">
+                                    <i class="bi bi-journal me-2"></i>Journal
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_front_defi_index') }}">
+                                    <i class="bi bi-trophy me-2"></i>Défi
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Forum dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-chat-dots me-1"></i>Forum
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_front_community_index') }}">
+                                    <i class="bi bi-people me-2"></i> Toutes les communautés
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_community_new') }}">
+                                    <i class="bi bi-plus-circle me-2"></i> Créer une communauté
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-bookmark me-2"></i> Mes communautés
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-file-text me-2"></i> Mes posts
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Show login/register buttons for guests -->
+                    {% if not app.user %}
+                        <li class="nav-item ms-3">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ path('app_login') }}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Connexion
+                            </a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-sm btn-primary" href="{{ path('app_register') }}">
+                                <i class="bi bi-person-plus me-1"></i>S'inscrire
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
+            <!-- Main navbar END -->
+
+            <!-- Profile and notification START (only for logged-in users) -->
+            {% if app.user %}
+            <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
+                <!-- Notification dropdown START -->
+                <li class="nav-item ms-0 ms-md-3 dropdown">
+                    <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                        <i class="bi bi-bell fa-fw"></i>
+                    </a>
+                    <span class="notif-badge animation-blink"></span>
+
+                    <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
+                        <div class="card bg-transparent">
+                            <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
+                                <a class="small" href="#">Supprimer Tous</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="list-group list-unstyled list-group-flush">
+                                    <!-- Notif item -->
+                                    <li>
+                                        <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
+                                            <div class="me-3">
+                                                <div class="avatar avatar-md">
+                                                    <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/08.jpg') }}" alt="avatar">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="text-body small m-0">Congratulate <b>Joan Wallace</b> for graduating from <b>Microverse university</b></p>
+                                                <u class="small">Féliciter</u>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <!-- Autres notifications... -->
+                                </ul>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
+                                <a href="#" class="stretched-link">Voir toute l’activité entrante</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Profile dropdown START -->
+                <li class="nav-item ms-3 dropdown">
+                    <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% if app.user %}
+                            {% if app.user.avatar %}
+                                <img class="avatar-img rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+                            {% else %}
+                                <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    {{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/zaiminhobaltinhocotinho.jfif') }}" alt="avatar">
+                        {% endif %}
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
+                        <li class="px-3 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-3">
+                                    {% if app.user %}
+                                        {% if app.user.avatar %}
+                                            <img class="avatar-img rounded-circle shadow" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+                                        {% else %}
+                                            <div class="avatar-img rounded-circle shadow bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                {{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/zaiminhobaltinhocotinho.jfif') }}" alt="avatar">
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    {% if app.user %}
+                                        <a class="h6" href="#">{{ app.user.fullName }}</a>
+                                        <p class="small m-0">{{ app.user.email }}</p>
+                                    {% else %}
+                                        <a class="h6" href="#">Invité</a>
+                                        <p class="small m-0">Non connecté</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Modifier Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Parametres Compte</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Aider</a></li>
+                        {% if app.user %}
+                            <li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Se déconnecter</a></li>
+                        {% else %}
+                            <li><a class="dropdown-item" href="{{ path('app_login') }}"><i class="bi bi-box-arrow-in-right fa-fw me-2"></i>Se connecter</a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <!-- Dark mode options -->
+                        <li>
+                            <div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center p-1 rounded mt-2">
+                                <button type="button" class="btn btn-sm mb-0" data-bs-theme-value="light">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sun fa-fw mode-switch" viewBox="0 0 16 16">
+                                        <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                                        <use href="#"></use>
+                                    </svg> Light
+                                </button>
+                                <button type="button" class="btn btn-sm mb-0" data-bs-theme-value="dark">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon-stars fa-fw mode-switch" viewBox="0 0 16 16">
+                                        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
+                                        <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+                                        <use href="#"></use>
+                                    </svg> Dark
+                                </button>
+                                <button type="button" class="btn btn-sm mb-0 active" data-bs-theme-value="auto">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-half fa-fw mode-switch" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+                                        <use href="#"></use>
+                                    </svg> Auto
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            {% endif %}
         </div>
     </nav>
 </header>
@@ -117,19 +272,65 @@
     {% block body %}{% endblock %}
 </main>
 
-<!-- FOOTER SPÉCIFIQUE AUX DÉFIS -->
-<footer class="bg-dark text-white mt-5 py-4">
+<!-- FOOTER (identique à base.html.twig) -->
+<footer class="pt-5">
     <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-trophy text-warning fs-3 me-2"></i>
-                    <span class="h5 mb-0">LibraryHub - Défis de lecture</span>
-                </div>
-                <p class="mt-2 text-white-50">Relevez des défis et atteignez vos objectifs de lecture !</p>
+        <div class="row g-4 justify-content-between">
+            <div class="col-md-5 col-lg-4">
+                <a class="me-0" href="{{ path('app_frontoffice') }}">
+                    <h3 class="mb-0 text-primary">
+                        <i class="fas fa-trophy me-2"></i>
+                        <span class="text-dark">LIBRARY</span><span class="text-warning">HUB</span>
+                    </h3>
+                </a>
+                <p class="my-3">LibraryHub, votre bibliothèque en ligne intelligente, conçue pour les passionnés de lecture et les apprenants, dédiée à la découverte et au partage de connaissances.</p>
             </div>
-            <div class="col-md-6 text-md-end">
-                <p class="mb-0">© 2026 LibraryHub -  Défis </p>
+            <div class="col-md-7 col-lg-6">
+                <div class="row g-4 g-lg-5">
+                    <div class="col-6 col-sm-4">
+                        <h5 class="mb-2 mb-md-3">À propos de nous</h5>
+                        <ul class="nav flex-column">
+                            <li class="nav-item"><a class="nav-link" href="#">À propos de nous</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">contactez-nous</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Actualités et blogs</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Bibliothèque</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Carrières</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6 col-sm-4">
+                        <h5 class="mb-2 mb-md-3">Lecture</h5>
+                        <ul class="nav flex-column">
+                            <li class="nav-item"><a class="nav-link pt-0" href="#">Devenir auteur</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Télécharger</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Tarifs</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Services</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6 col-sm-4">
+                        <h5 class="mb-2 mb-md-3">Suivez-nous</h5>
+                        <ul class="nav flex-column">
+                            <li class="nav-item"><a class="nav-link pt-0" href="#"><i class="fab fa-whatsapp fa-fw me-1"></i>WhatsApp</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#"><i class="fab fa-youtube fa-fw me-1"></i>YouTube</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#"><i class="far fa-envelope fa-fw me-1"></i>Newsletters</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-instagram fa-fw me-1"></i>Instagram</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-12">
+                <div class="d-md-flex justify-content-between align-items-center pt-2 pb-4 text-center">
+                    <div class="text-primary-hover"> Copyrights ©2026 LibraryHub. Build by <a href="https://www.webestica.com/" target="_blank" class="text-reset">Esprit</a>.</div>
+                    <div class="nav justify-content-center mt-3 mt-md-0">
+                        <ul class="list-inline mb-0">
+                            <li class="list-inline-item"><a class="nav-link" href="#">Conditions d’utilisation</a></li>
+                            <li class="list-inline-item"><a class="nav-link" href="#">Politique de confidentialité</a></li>
+                            <li class="list-inline-item pe-0"><a class="nav-link" href="#">Cookies</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -138,14 +339,15 @@
 <!-- Back to top -->
 <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 
-<!-- SCRIPTS -->
+{% block javascripts %}
+<!-- Bootstrap JS -->
 <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<!-- Vendors -->
 <script src="{{ asset('assets/vendor/tiny-slider/tiny-slider.js') }}"></script>
 <script src="{{ asset('assets/vendor/glightbox/js/glightbox.js') }}"></script>
+<!-- Template Functions -->
 <script src="{{ asset('assets/js/functions.js') }}"></script>
-
-{# Bloc pour JavaScript supplémentaire #}
-{% block javascripts %}{% endblock %}
+{% endblock %}
 
 </body>
 </html>

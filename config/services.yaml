@@ -4,6 +4,12 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    attachments_directory: '%kernel.project_dir%/public/uploads/attachments'
+    app.loan.default_loan_days: 21
+    app.loan.renewal_days: 14
+    app.loan.max_renewals: 3
+    app.loan.daily_penalty_rate: 0.50
+    app.loan.daily_late_fee_rate: 0.50
 
 services:
     # default configuration for services in *this* file
@@ -22,3 +28,26 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\GoogleBooksService:
+        arguments:
+            $googleBooksApiKey: '%env(GOOGLE_BOOKS_API_KEY)%'
+    # --- File Upload Service Configuration ---
+    App\Service\FileUploadService:
+        arguments:
+            $attachmentsDirectory: '%attachments_directory%'
+    App\Service\LoanService:
+        arguments:
+            $defaultLoanDays: '%app.loan.default_loan_days%'
+            $renewalDays: '%app.loan.renewal_days%'
+            $maxRenewals: '%app.loan.max_renewals%'
+            $dailyPenaltyRate: '%app.loan.daily_penalty_rate%'
+
+    App\Service\RenewalService:
+        arguments:
+            $renewalDays: '%app.loan.renewal_days%'
+            $maxRenewals: '%app.loan.max_renewals%'
+
+    App\Command\AccrueDailyLateFeesCommand:
+        arguments:
+            $dailyLateFeeRate: '%app.loan.daily_late_fee_rate%'

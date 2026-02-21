@@ -1,4 +1,108 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-transparent border-0 pb-0">
+        <h4 class="mb-0">
+            <i class="bi bi-calendar-event text-primary me-2"></i>
+            {{ button_label|default('Créer un événement') }}
+        </h4>
+        <p class="text-muted mt-2 mb-0">Remplissez les informations ci-dessous pour créer votre événement</p>
+    </div>
+    
+    <div class="card-body">
+        <div class="row g-4">
+            <!-- Titre -->
+            <div class="col-12">
+                {{ form_row(form.title, {
+                    'label_attr': {'class': 'form-label fw-semibold'},
+                    'attr': {'class': 'form-control' ~ (form.title.vars.valid ? '' : ' is-invalid')}
+                }) }}
+            </div>
+
+            <!-- Description -->
+            <div class="col-12">
+                {{ form_row(form.description, {
+                    'label_attr': {'class': 'form-label fw-semibold'},
+                    'attr': {'class': 'form-control' ~ (form.description.vars.valid ? '' : ' is-invalid'), 'rows': 5}
+                }) }}
+            </div>
+
+            <!-- Dates -->
+            <div class="col-md-6">
+                {{ form_row(form.startDateTime, {
+                    'label_attr': {'class': 'form-label fw-semibold'},
+                    'attr': {'class': 'form-control' ~ (form.startDateTime.vars.valid ? '' : ' is-invalid')}
+                }) }}
+            </div>
+
+            <div class="col-md-6">
+                {{ form_row(form.endDateTime, {
+                    'label_attr': {'class': 'form-label fw-semibold'},
+                    'attr': {'class': 'form-control' ~ (form.endDateTime.vars.valid ? '' : ' is-invalid')}
+                }) }}
+            </div>
+
+            <!-- Lieu -->
+            <div class="col-md-6">
+                {{ form_row(form.location, {
+                    'label_attr': {'class': 'form-label fw-semibold'},
+                    'attr': {'class': 'form-control' ~ (form.location.vars.valid ? '' : ' is-invalid')}
+                }) }}
+            </div>
+
+            <!-- Capacité -->
+            <div class="col-md-3">
+                {{ form_row(form.capacity, {
+                    'label_attr': {'class': 'form-label fw-semibold'},
+                    'attr': {'class': 'form-control' ~ (form.capacity.vars.valid ? '' : ' is-invalid')}
+                }) }}
+            </div>
+
+            <!-- Date limite -->
+            <div class="col-md-3">
+                {{ form_row(form.registrationDeadline, {
+                    'label_attr': {'class': 'form-label fw-semibold'},
+                    'attr': {'class': 'form-control' ~ (form.registrationDeadline.vars.valid ? '' : ' is-invalid')}
+                }) }}
+            </div>
+
+            <!-- Type d'événement -->
+            <div class="col-md-6">
+                {{ form_row(form.type, {
+                    'label_attr': {'class': 'form-label fw-semibold'},
+                    'attr': {'class': 'form-select' ~ (form.type.vars.valid ? '' : ' is-invalid')}
+                }) }}
+                <small class="text-muted">
+                    {% for type in enum('App\\Enum\\EventTypes').cases() %}
+                        <span class="badge bg-light text-dark me-1 mt-1">
+                            <i class="fas fa-{{ type.getIcon() }}"></i> {{ type.getLabel() }}
+                        </span>
+                    {% endfor %}
+                </small>
+            </div>
+
+            <!-- Image -->
+            <div class="col-md-6">
+                {{ form_row(form.imageFile, {
+                    'label_attr': {'class': 'form-label fw-semibold'},
+                    'attr': {'class': 'form-control' ~ (form.imageFile.vars.valid ? '' : ' is-invalid')}
+                }) }}
+                <small class="text-muted">Formats: JPG, PNG, GIF (Max 2Mo)</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer bg-transparent border-0 pt-0 pb-4">
+        <div class="d-flex gap-3 justify-content-end">
+            <a href="{{ path('app_event_my_events') }}" class="btn btn-light px-4">
+                <i class="bi bi-x-circle me-2"></i>Annuler
+            </a>
+            <button type="submit" class="btn btn-primary px-5">
+                <i class="bi bi-check-circle me-2"></i>
+                {{ button_label|default('Créer l\'événement') }}
+            </button>
+        </div>
+    </div>
+</div>
+
 {{ form_end(form) }}

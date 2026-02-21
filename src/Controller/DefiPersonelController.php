@@ -3,63 +3,60 @@
 namespace App\Controller;
 
 use App\Entity\DefiPersonel;
-use App\Entity\User; // ✅ IMPORT AJOUTÉ
+use App\Entity\User;
 use App\Form\DefiPersonelType;
 use App\Repository\DefiPersonelRepository;
 use App\Repository\JournalLectureRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ManagerRegistry; // ✅ IMPORT AJOUTÉ
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\CitationService;
-use Knp\Component\Pager\PaginatorInterface; // ✅ SI TU UTILISES LA PAGINATION
+use Knp\Component\Pager\PaginatorInterface;
 
 #[Route('/defis')]
 final class DefiPersonelController extends AbstractController
 {
-    private $doctrine; // ✅ PROPRIÉTÉ AJOUTÉE
+    private $doctrine;
 
-    // ✅ CONSTRUCTEUR AJOUTÉ
     public function __construct(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;
     }
 
     // ===========================================
-    // FRONT OFFICE - Liste des défis avec RECHERCHE, TRI, FILTRES
+    // FRONT OFFICE - Liste des défis
     // ===========================================
     #[Route('/', name: 'app_front_defi_index', methods: ['GET'])]
     public function frontIndex(
         Request $request,
         DefiPersonelRepository $defiPersonelRepository,
         JournalLectureRepository $journalLectureRepository,
-        CitationService $citationService
+        CitationService $citationService,
+        PaginatorInterface $paginator
     ): Response {
-        // ✅ RÉCUPÉRER L'UTILISATEUR ID=1
-        $user = $this->doctrine->getRepository(User::class)->find(1);
+        // ✅ UTILISATEUR CONNECTÉ
+        $user = $this->getUser();
         
         if (!$user) {
-            throw $this->createNotFoundException('Utilisateur ID=1 non trouvé. Créez-le d\'abord.');
+            return $this->redirectToRoute('app_login');
         }
         
         $userId = $user->getId();
         
-        // 🔍 RÉCUPÉRER LES PARAMÈTRES DE RECHERCHE ET TRI
+        // 🔍 PARAMÈTRES DE RECHERCHE
         $search = $request->query->get('search', '');
         $sortBy = $request->query->get('sort', 'date_fin_asc');
         $filterType = $request->query->get('type', '');
         $filterStatus = $request->query->get('statut', '');
         $filterDifficulte = $request->query->get('difficulte', '');
         
-        // ===========================================
-        // 🚨 1. D'ABORD : METTRE À JOUR TOUS LES STATUTS
-        // ===========================================
+        // 📊 METTRE À JOUR LES STATUTS
         $tousLesDefis = $defiPersonelRepository->findBy(['user_id' => $userId]);
         
         foreach ($tousLesDefis as $defi) {
-            // 📊 CALCULER LA PROGRESSION RÉELLE
             $lecturesAssociees = $journalLectureRepository->findBy(['defi' => $defi]);
             
             $progression = 0;
@@ -83,91 +80,61 @@ final class DefiPersonelController extends AbstractController
             
             $defi->setProgression($progression);
             
-            // 🏆 METTRE À JOUR LE STATUT
             if ($progression >= $defi->getObjectif()) {
                 $defi->setStatut('Terminé');
-            } elseif ($defi->getStatut() === 'Abandonné') {
-                // Garder le statut 'Abandonné'
-            } else {
+            } elseif ($defi->getStatut() !== 'Abandonné') {
                 $defi->setStatut('En cours');
             }
         }
         
-        // 💾 SAUVEGARDER LES STATUTS MIS À JOUR
         $defiPersonelRepository->getEntityManager()->flush();
         
-        // ===========================================
-        // 🚨 2. ENSUITE : APPLIQUER LES FILTRES
-        // ===========================================
+        // 📚 CONSTRUIRE LA REQUÊTE
         $queryBuilder = $defiPersonelRepository->createQueryBuilder('d')
             ->where('d.user_id = :userId')
             ->setParameter('userId', $userId);
         
-        // 🔍 RECHERCHE PAR TITRE OU DESCRIPTION
         if (!empty($search)) {
             $queryBuilder->andWhere('d.titre LIKE :search OR d.description LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
         }
         
-        // 🎯 FILTRE PAR TYPE
         if (!empty($filterType)) {
             $queryBuilder->andWhere('d.type_defi = :type')
                 ->setParameter('type', $filterType);
         }
         
-        // 📊 FILTRE PAR STATUT
         if (!empty($filterStatus)) {
             $queryBuilder->andWhere('d.statut = :statut')
                 ->setParameter('statut', $filterStatus);
         }
         
-        // ⚡ FILTRE PAR DIFFICULTÉ
         if (!empty($filterDifficulte)) {
             $queryBuilder->andWhere('d.difficulte = :difficulte')
                 ->setParameter('difficulte', $filterDifficulte);
         }
         
-        // 📊 TRI
         switch ($sortBy) {
-            case 'titre_asc':
-                $queryBuilder->orderBy('d.titre', 'ASC');
-                break;
-            case 'titre_desc':
-                $queryBuilder->orderBy('d.titre', 'DESC');
-                break;
-            case 'date_fin_asc':
-                $queryBuilder->orderBy('d.date_fin', 'ASC');
-                break;
-            case 'date_fin_desc':
-                $queryBuilder->orderBy('d.date_fin', 'DESC');
-                break;
-            case 'objectif_asc':
-                $queryBuilder->orderBy('d.objectif', 'ASC');
-                break;
-            case 'objectif_desc':
-                $queryBuilder->orderBy('d.objectif', 'DESC');
-                break;
-            case 'difficulte_asc':
-                $queryBuilder->orderBy('d.difficulte', 'ASC');
-                break;
-            case 'difficulte_desc':
-                $queryBuilder->orderBy('d.difficulte', 'DESC');
-                break;
-            case 'progression_asc':
-                $queryBuilder->orderBy('d.progression', 'ASC');
-                break;
-            case 'progression_desc':
-                $queryBuilder->orderBy('d.progression', 'DESC');
-                break;
-            default:
-                $queryBuilder->orderBy('d.date_fin', 'ASC');
+            case 'titre_asc': $queryBuilder->orderBy('d.titre', 'ASC'); break;
+            case 'titre_desc': $queryBuilder->orderBy('d.titre', 'DESC'); break;
+            case 'date_fin_asc': $queryBuilder->orderBy('d.date_fin', 'ASC'); break;
+            case 'date_fin_desc': $queryBuilder->orderBy('d.date_fin', 'DESC'); break;
+            case 'difficulte_desc': $queryBuilder->orderBy('d.difficulte', 'DESC'); break;
+            case 'difficulte_asc': $queryBuilder->orderBy('d.difficulte', 'ASC'); break;
+            case 'progression_desc': $queryBuilder->orderBy('d.progression', 'DESC'); break;
+            case 'progression_asc': $queryBuilder->orderBy('d.progression', 'ASC'); break;
+            default: $queryBuilder->orderBy('d.date_fin', 'ASC');
         }
         
-        $defisFiltres = $queryBuilder->getQuery()->getResult();
+        // ✅ PAGINATION
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            6
+        );
         
-        // ===========================================
-        // 🚨 3. ENFIN : SÉPARER ACTIFS ET TERMINÉS
-        // ===========================================
+        $defisFiltres = $pagination->getItems();
+        
         $defisActifs = [];
         $defisTermines = [];
         
@@ -179,9 +146,7 @@ final class DefiPersonelController extends AbstractController
             }
         }
         
-        // ===========================================
         // 📊 STATISTIQUES GLOBALES
-        // ===========================================
         $totalDefis = count($tousLesDefis);
         $totalActifs = 0;
         $totalTermines = 0;
@@ -194,27 +159,23 @@ final class DefiPersonelController extends AbstractController
             }
         }
         
-        // 📊 STATISTIQUES SUPPLÉMENTAIRES
-        // 📊 STATISTIQUES SUPPLÉMENTAIRES - VERSION CORRIGÉE
-$totalObjectifs = 0;
-$totalProgression = 0;
-
-foreach ($tousLesDefis as $defi) {
-    $totalObjectifs += $defi->getObjectif();
-    $totalProgression += $defi->getProgression() ?? 0;
-}
+        $totalObjectifs = 0;
+        $totalProgression = 0;
         
-        // 📊 LISTES POUR LES FILTRES
+        foreach ($tousLesDefis as $defi) {
+            $totalObjectifs += $defi->getObjectif();
+            $totalProgression += $defi->getProgression() ?? 0;
+        }
+        
         $types = ['Quantitatif', 'Thématique', 'Découverte'];
         $statuts = ['En cours', 'Terminé', 'Abandonné'];
         $difficultes = [1, 2, 3, 4, 5];
         
-        // ✅ RÉCUPÉRER LES CITATIONS
         $citation = $citationService->getCitationAleatoire();
         $citationMotivation = $citationService->getCitationMotivation();
 
         return $this->render('frontoffice/defi/index.html.twig', [
-            'defis' => $defisFiltres,
+            'defis' => $pagination,
             'defis_actifs' => $defisActifs,
             'defis_termines' => $defisTermines,
             'total_defis' => $totalDefis,
@@ -241,11 +202,10 @@ foreach ($tousLesDefis as $defi) {
     #[Route('/new', name: 'app_front_defi_new', methods: ['GET', 'POST'])]
     public function frontNew(Request $request, EntityManagerInterface $entityManager): Response
     {
-        // ✅ RÉCUPÉRER L'UTILISATEUR ID=1
-        $user = $this->doctrine->getRepository(User::class)->find(1);
+        $user = $this->getUser();
         
         if (!$user) {
-            throw $this->createNotFoundException('Utilisateur ID=1 non trouvé.');
+            return $this->redirectToRoute('app_login');
         }
 
         $defiPersonel = new DefiPersonel();
@@ -253,7 +213,7 @@ foreach ($tousLesDefis as $defi) {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $defiPersonel->setUserId($user->getId()); // ✅ UTILISER LE VRAI USER ID
+            $defiPersonel->setUserId($user->getId());
             $defiPersonel->setCreatedAt(new \DateTimeImmutable());
             $defiPersonel->setProgression(0);
             $defiPersonel->setStatut('En cours');
@@ -280,21 +240,17 @@ foreach ($tousLesDefis as $defi) {
         JournalLectureRepository $journalLectureRepository,
         CitationService $citationService
     ): Response {
-        // ✅ RÉCUPÉRER L'UTILISATEUR ID=1
-        $user = $this->doctrine->getRepository(User::class)->find(1);
+        $user = $this->getUser();
         
-        // Vérification sécurité
-        if ($defiPersonel->getUserId() != $user->getId()) {
+        if (!$user || $defiPersonel->getUserId() != $user->getId()) {
             throw $this->createAccessDeniedException('❌ Vous n\'avez pas accès à ce défi.');
         }
 
-        // 📚 RÉCUPÉRER TOUTES LES LECTURES ASSOCIÉES
         $journaux = $journalLectureRepository->findBy(
             ['defi' => $defiPersonel],
             ['date_lecture' => 'DESC']
         );
         
-        // 🎯 CALCULER LA PROGRESSION
         $progression = 0;
         
         if ($defiPersonel->getUnite() === 'Livres') {
@@ -305,7 +261,6 @@ foreach ($tousLesDefis as $defi) {
             $progression = array_sum(array_column($journaux, 'duree_minutes')) / 60;
         }
         
-        // 📊 CALCULS POUR LES CONSEILS INTELLIGENTS
         $objectif = $defiPersonel->getObjectif();
         $reste = max(0, $objectif - $progression);
         $pourcentage = $objectif > 0 ? min(100, round(($progression / $objectif) * 100)) : 0;
@@ -315,7 +270,6 @@ foreach ($tousLesDefis as $defi) {
         $joursRestants = $aujourdhui->diff($dateFin)->days;
         $rythmeRecommande = $joursRestants > 0 ? round($reste / $joursRestants, 1) : 0;
 
-        // ✅ CITATION PERSONNALISÉE
         if ($defiPersonel->getStatut() === 'Terminé') {
             $citation = $citationService->getCitationMotivation();
         } else {
@@ -344,14 +298,12 @@ foreach ($tousLesDefis as $defi) {
         DefiPersonel $defiPersonel,
         EntityManagerInterface $entityManager
     ): Response {
-        // ✅ RÉCUPÉRER L'UTILISATEUR ID=1
-        $user = $this->doctrine->getRepository(User::class)->find(1);
+        $user = $this->getUser();
         
-        if ($defiPersonel->getUserId() != $user->getId()) {
+        if (!$user || $defiPersonel->getUserId() != $user->getId()) {
             throw $this->createAccessDeniedException('❌ Vous n\'avez pas accès à ce défi.');
         }
 
-        // ✅ EMPÊCHER LA MODIFICATION DES CHAMPS SYSTÈME
         $originalUserId = $defiPersonel->getUserId();
         $originalCreatedAt = $defiPersonel->getCreatedAt();
 
@@ -359,7 +311,6 @@ foreach ($tousLesDefis as $defi) {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // ✅ RESTAURER LES VALEURS SYSTÈME (non modifiables)
             $defiPersonel->setUserId($originalUserId);
             $defiPersonel->setCreatedAt($originalCreatedAt);
             
@@ -383,10 +334,9 @@ foreach ($tousLesDefis as $defi) {
         DefiPersonel $defiPersonel,
         EntityManagerInterface $entityManager
     ): Response {
-        // ✅ RÉCUPÉRER L'UTILISATEUR ID=1
-        $user = $this->doctrine->getRepository(User::class)->find(1);
+        $user = $this->getUser();
         
-        if ($defiPersonel->getUserId() != $user->getId()) {
+        if (!$user || $defiPersonel->getUserId() != $user->getId()) {
             throw $this->createAccessDeniedException('❌ Vous n\'avez pas accès à ce défi.');
         }
 

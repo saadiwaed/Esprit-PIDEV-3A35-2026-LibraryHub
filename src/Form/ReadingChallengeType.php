@@ -15,22 +15,24 @@ class ReadingChallengeType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('goal')
-            ->add('type')
-            ->add('status')
-            ->add('reward')
-            ->add('rules')
-            ->add('difficulty')
-            ->add('startDate')
-            ->add('endDate')
-            ->add('createdDate')
+            ->add('goal', null, ['required' => false])
+            ->add('type', null, ['required' => false])
+            ->add('status', null, ['required' => false])
+            ->add('reward', null, ['required' => false])
+            ->add('rules', null, ['required' => false])
+            ->add('difficulty', null, ['required' => false])
+            ->add('startDate', null, ['required' => false])
+            ->add('endDate', null, ['required' => false])
+            ->add('createdDate', null, ['required' => false])
             ->add('club', EntityType::class, [
                 'class' => Club::class,
                 'choice_label' => 'id',
+                'required' => false,
             ])
             ->add('createdBy', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'id',
+                'required' => false,
             ])
         ;
     }

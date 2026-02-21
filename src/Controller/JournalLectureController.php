@@ -3,24 +3,24 @@
 namespace App\Controller;
 
 use App\Entity\JournalLecture;
-use App\Entity\User; // ✅ IMPORT AJOUTÉ
+use App\Entity\User;
 use App\Form\JournalLectureType;
 use App\Repository\JournalLectureRepository;
 use App\Repository\DefiPersonelRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ManagerRegistry; // ✅ IMPORT AJOUTÉ
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\CitationService;
+use Knp\Component\Pager\PaginatorInterface;
 
 #[Route('/journal')]
 final class JournalLectureController extends AbstractController
 {
-    private $doctrine; // ✅ PROPRIÉTÉ AJOUTÉE
+    private $doctrine;
 
-    // ✅ CONSTRUCTEUR AJOUTÉ
     public function __construct(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;
@@ -33,13 +33,14 @@ final class JournalLectureController extends AbstractController
     public function frontIndex(
         Request $request,
         JournalLectureRepository $journalLectureRepository,
-        CitationService $citationService
+        CitationService $citationService,
+        PaginatorInterface $paginator
     ): Response {
-        // ✅ CORRECTION : Utilisation de $this->doctrine au lieu de $this->getDoctrine()
-        $user = $this->doctrine->getRepository(User::class)->find(1);
-
+        // ✅ UTILISATEUR CONNECTÉ
+        $user = $this->getUser();
+        
         if (!$user) {
-            throw $this->createNotFoundException('Utilisateur ID=1 non trouvé. Créez-le d\'abord.');
+            return $this->redirectToRoute('app_login');
         }
         
         // 🔍 RÉCUPÉRER LES PARAMÈTRES DE RECHERCHE ET TRI
@@ -101,13 +102,20 @@ final class JournalLectureController extends AbstractController
                 $queryBuilder->orderBy('j.date_lecture', 'DESC');
         }
         
-        $journalLectures = $queryBuilder->getQuery()->getResult();
+        // ✅ PAGINATION
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            9
+        );
         
         // 📊 STATISTIQUES POUR TOUTES LES LECTURES
         $allLectures = $journalLectureRepository->findBy(['user' => $user]);
         $totalLectures = count($allLectures);
-        $totalPages = array_sum(array_column($allLectures, 'page_lues'));
-        $totalMinutes = array_sum(array_column($allLectures, 'duree_minutes'));
+$totalPages = 0;
+foreach ($allLectures as $lecture) {
+    $totalPages += $lecture->getPageLues() ?? 0;
+}        $totalMinutes = array_sum(array_column($allLectures, 'duree_minutes'));
         
         // 📍 LISTE DES LIEUX UNIQUES POUR LE FILTRE
         $lieux = $journalLectureRepository->createQueryBuilder('j')
@@ -124,7 +132,7 @@ final class JournalLectureController extends AbstractController
         $citation = $citationService->getCitationLecture();
 
         return $this->render('frontoffice/journal/index.html.twig', [
-            'journal_lectures' => $journalLectures,
+            'journal_lectures' => $pagination,
             'total_lectures' => $totalLectures,
             'total_pages' => $totalPages,
             'total_minutes' => $totalMinutes,
@@ -147,11 +155,11 @@ final class JournalLectureController extends AbstractController
         EntityManagerInterface $entityManager,
         DefiPersonelRepository $defiRepository
     ): Response {
-        // ✅ CORRECTION
-        $user = $this->doctrine->getRepository(User::class)->find(1);
-
+        // ✅ UTILISATEUR CONNECTÉ
+        $user = $this->getUser();
+        
         if (!$user) {
-            throw $this->createNotFoundException('Utilisateur ID=1 non trouvé.');
+            return $this->redirectToRoute('app_login');
         }
 
         $journalLecture = new JournalLecture();
@@ -161,7 +169,6 @@ final class JournalLectureController extends AbstractController
         $defiId = $request->query->get('defi');
         if ($defiId) {
             $defi = $defiRepository->find($defiId);
-            // ✅ Vérification avec getUserId() pour compatibilité
             if ($defi && $defi->getUserId() == $user->getId()) {
                 $journalLecture->setDefi($defi);
             }
@@ -204,7 +211,7 @@ final class JournalLectureController extends AbstractController
             return $this->redirectToRoute('app_front_journal_index');
         }
 
-        // RÉCUPÉRER LES DÉFIS EN COURS
+        // RÉCUPÉRER LES DÉFIS EN COURS DE L'UTILISATEUR CONNECTÉ
         $defisEnCours = $defiRepository->findBy(
             ['user_id' => $user->getId(), 'statut' => 'En cours'],
             ['date_fin' => 'ASC']
@@ -223,10 +230,9 @@ final class JournalLectureController extends AbstractController
     #[Route('/{id}', name: 'app_front_journal_show', methods: ['GET'])]
     public function frontShow(JournalLecture $journalLecture): Response
     {
-        // ✅ CORRECTION
-        $user = $this->doctrine->getRepository(User::class)->find(1);
-
-        if ($journalLecture->getUser()->getId() !== $user->getId()) {
+        $user = $this->getUser();
+        
+        if (!$user || $journalLecture->getUser()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('❌ Vous n\'avez pas accès à cette entrée.');
         }
 
@@ -244,10 +250,9 @@ final class JournalLectureController extends AbstractController
         JournalLecture $journalLecture,
         EntityManagerInterface $entityManager
     ): Response {
-        // ✅ CORRECTION
-        $user = $this->doctrine->getRepository(User::class)->find(1);
-
-        if ($journalLecture->getUser()->getId() !== $user->getId()) {
+        $user = $this->getUser();
+        
+        if (!$user || $journalLecture->getUser()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('❌ Vous n\'avez pas accès à cette entrée.');
         }
 
@@ -281,10 +286,9 @@ final class JournalLectureController extends AbstractController
         JournalLecture $journalLecture,
         EntityManagerInterface $entityManager
     ): Response {
-        // ✅ CORRECTION
-        $user = $this->doctrine->getRepository(User::class)->find(1);
-
-        if ($journalLecture->getUser()->getId() !== $user->getId()) {
+        $user = $this->getUser();
+        
+        if (!$user || $journalLecture->getUser()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('❌ Vous n\'avez pas accès à cette entrée.');
         }
 

@@ -1,0 +1,23 @@
+<div class="card card-danger">
+    <div class="card-header bg-danger">
+        <h3 class="card-title text-white">
+            <i class="bi bi-exclamation-triangle"></i> Danger Zone
+        </h3>
+    </div>
+
+    <form method="post" action="{{ path('penalty_delete', {'id': penalty.id}) }}" onsubmit="return confirm('Are you absolutely sure you want to delete this penalty?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ penalty.id) }}">
+
+        <div class="card-body">
+            <p class="text-muted">
+                Deleting this penalty will remove it permanently from the system.
+            </p>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Delete Penalty
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,94 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    {% include 'partials/_form_errors.html.twig' with {
+        form: form,
+        title: 'Erreur dans le formulaire d\'emprunt :'
+    } only %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_row(form.checkoutTime, {
+                    label_attr: {class: form.checkoutTime.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.dueDate, {
+                    label_attr: {class: form.dueDate.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+
+            <div class="mb-3">
+                {% if loan.returnDate is not null %}
+                    <label class="form-label fw-semibold text-muted">Date de retour</label>
+                    <div class="form-control-plaintext">
+                        {{ loan.returnDate|date('d/m/Y H:i') }}
+                        <span class="badge bg-success ms-2">Retour enregistré</span>
+                    </div>
+                    <small class="text-muted">La date de retour est gérée par l'action de retour.</small>
+                {% else %}
+                    {{ form_row(form.returnDate, {
+                        label_attr: {class: form.returnDate.vars.errors|length > 0 ? 'has-error-label' : ''}
+                    }) }}
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.status, {
+                    label_attr: {class: form.status.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_row(form.bookCopy, {
+                    label_attr: {class: form.bookCopy.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.member, {
+                    label_attr: {class: form.member.vars.errors|length > 0 ? 'has-error-label' : ''}
+                }) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        {{ form_row(form.notes, {
+            attr: {'rows': 5},
+            label_attr: {class: form.notes.vars.errors|length > 0 ? 'has-error-label' : ''}
+        }) }}
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-check-circle"></i> {{ button_label|default('Enregistrer') }}
+        </button>
+        <button type="reset" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+        </button>
+    </div>
+
+{{ form_end(form) }}
+
+{% if form.vars.submitted and not form.vars.valid %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const summary = document.getElementById('form-error-summary');
+            if (summary) {
+                summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                summary.focus();
+            }
+
+            const firstInvalid = document.querySelector('form .is-invalid, form .form-check-input.is-invalid');
+            if (firstInvalid) {
+                window.setTimeout(function () {
+                    firstInvalid.focus();
+                }, 120);
+            }
+        });
+    </script>
+{% endif %}

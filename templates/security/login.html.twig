@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Sign In - LibraryHub</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+    
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+    
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+</head>
+
+<body>
+<main>
+    <section class="p-0 d-flex align-items-center position-relative overflow-hidden">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Left: Image -->
+                <div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
+                    <div class="p-3 p-lg-5">
+                        <!-- Title -->
+                        <div class="text-center">
+                            <h2 class="fw-bold">Welcome Back!</h2>
+                            <p class="mb-0 h6 fw-light">Sign in to access your library account</p>
+                        </div>
+                        <!-- SVG Image -->
+                        <img src="{{ asset('assets/images/element/02.svg') }}" class="mt-5" alt="">
+                        <!-- Info -->
+                        <div class="d-sm-flex mt-5 align-items-center justify-content-center">
+                            <ul class="avatar-group mb-2 mb-sm-0">
+                                <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar"></li>
+                                <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/02.jpg') }}" alt="avatar"></li>
+                                <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar"></li>
+                                <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/04.jpg') }}" alt="avatar"></li>
+                            </ul>
+                            <p class="mb-0 h6 fw-light ms-0 ms-sm-3">4k+ active members</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Login Form -->
+                <div class="col-12 col-lg-6 m-auto">
+                    <div class="row my-5">
+                        <div class="col-sm-10 col-xl-8 m-auto">
+                            <!-- Logo -->
+                            <div class="text-center mb-4">
+                                <a href="{{ path('app_frontoffice') }}" class="text-decoration-none">
+                                    <h1 class="fs-2">
+                                        <i class="fas fa-book-open text-primary me-2"></i>
+                                        LIBRARY<span class="text-warning">HUB</span>
+                                    </h1>
+                                </a>
+                            </div>
+
+                            <!-- Flash messages -->
+                            {% for label, messages in app.flashes %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+
+                            <!-- Error message -->
+                            {% if error %}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endif %}
+
+                            <!-- Title -->
+                            <h2 class="mb-2">Sign In</h2>
+                            <p class="mb-0">Don't have an account? <a href="{{ path('app_register') }}">Register here</a></p>
+                            
+                            <!-- Back to home button -->
+                            <div class="mt-2">
+                                <a href="{{ path('app_frontoffice') }}" class="text-muted small">
+                                    <i class="bi bi-arrow-left me-1"></i>Retour à l'accueil
+                                </a>
+                            </div>
+
+                            <!-- Form START -->
+                            <form method="post" class="mt-4">
+                                <!-- Email -->
+                                <div class="mb-3">
+                                    <label for="inputEmail" class="form-label">Email Address</label>
+                                    <input type="email" 
+                                           name="_username" 
+                                           id="inputEmail" 
+                                           class="form-control" 
+                                           value="{{ last_username }}" 
+                                           required 
+                                           placeholder="your.email@example.com">
+                                </div>
+
+                                <!-- Password -->
+                                <div class="mb-3 position-relative">
+                                    <label for="inputPassword" class="form-label">Password</label>
+                                    <input type="password" 
+                                           name="_password" 
+                                           id="inputPassword" 
+                                           class="form-control" 
+                                           required 
+                                           placeholder="Enter your password">
+                                </div>
+
+                                <!-- Remember me -->
+                                <div class="mb-3 d-sm-flex justify-content-between">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="rememberMe" name="_remember_me">
+                                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                                    </div>
+                                    <a href="#">Forgot password?</a>
+                                </div>
+
+                                <!-- CSRF Token -->
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                                <!-- Button -->
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                                    </button>
+                                </div>
+
+                                <!-- Divider -->
+                                <div class="position-relative my-4">
+                                    <hr>
+                                    <p class="small bg-body position-absolute top-50 start-50 translate-middle px-2">Or</p>
+                                </div>
+
+                                <!-- Register link -->
+                                <div class="text-center">
+                                    <p class="mb-0">Don't have an account? <a href="{{ path('app_register') }}" class="text-primary-hover">Register</a></p>
+                                </div>
+                            </form>
+                            <!-- Form END -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Bootstrap JS -->
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+</body>
+</html>

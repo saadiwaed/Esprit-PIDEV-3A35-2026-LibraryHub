@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Loan;
 use App\Entity\Renewal;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,6 +15,16 @@ class RenewalRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Renewal::class);
+    }
+
+    public function countForLoan(Loan $loan): int
+    {
+        return (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->andWhere('r.loan = :loan')
+            ->setParameter('loan', $loan)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     //    /**

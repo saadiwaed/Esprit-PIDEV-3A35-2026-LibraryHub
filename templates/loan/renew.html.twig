@@ -1,0 +1,198 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Renew Loan - Library Hub{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Warning!</strong> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-4">
+                <i class="fas fa-sync-alt"></i> Renew Loan #{{ loan.id }}
+            </h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ path('loan_show', {'id': loan.id}) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Loan
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Loan Information Card -->
+        <div class="col-md-8">
+            <div class="card border-primary mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Loan Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Book Copy:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-info p-2">Copy #{{ loan.bookCopy.id }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Member:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {% if loan.member %}
+                                {{ loan.member.firstName }} {{ loan.member.lastName }}
+                                <br>
+                                <small class="text-muted">{{ loan.member.email }}</small>
+                            {% else %}
+                                <span class="text-muted">No member assigned</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Current Status:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {% if loan.status.value == 'active' %}
+                                <span class="badge bg-success">ACTIVE</span>
+                            {% elseif loan.status.value == 'overdue' %}
+                                <span class="badge bg-danger">OVERDUE</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ loan.status.name }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Checkout Date:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ loan.checkoutTime|date('M d, Y') }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Current Due Date:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-info">{{ loan.dueDate|date('M d, Y') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <strong>Total Renewals:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ loan.renewalCount }} renewal(s)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Renewal Form Card -->
+        <div class="col-md-8">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Renewal Details</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+
+                    {{ form_row(form.previousDueDate, {'attr': {'class': 'form-control'}}) }}
+
+                    {{ form_row(form.newDueDate, {'attr': {'class': 'form-control'}}) }}
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ path('loan_show', {'id': loan.id}) }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        {{ form_widget(form.submit) }}
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Help Text -->
+            <div class="alert alert-info mt-3" role="alert">
+                <h6 class="alert-heading">
+                    <i class="fas fa-info-circle"></i> Renewal Information
+                </h6>
+                <ul class="mb-0">
+                    <li>By renewing this loan, you extend the due date of the book.</li>
+                    <li>The new due date must be after the current due date.</li>
+                    <li>Each renewal is tracked separately and displayed in the loan history.</li>
+                    <li>Your renewal will be recorded with a timestamp.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .badge {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .alert {
+        border-left: 4px solid transparent;
+    }
+
+    .alert-success {
+        border-left-color: #198754;
+    }
+
+    .alert-danger {
+        border-left-color: #dc3545;
+    }
+
+    .alert-warning {
+        border-left-color: #ffc107;
+    }
+
+    .alert-info {
+        border-left-color: #0dcaf0;
+    }
+</style>
+{% endblock %}

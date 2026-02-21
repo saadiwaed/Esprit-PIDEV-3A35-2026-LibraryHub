@@ -1,11 +1,46 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Event{% endblock %}
+{% block title %}Nouvel Événement{% endblock %}
 
 {% block body %}
-    <h1>Create new Event</h1>
+    
 
     {{ include('event/_form.html.twig') }}
+{% endblock %}
 
-    <a href="{{ path('app_event_index') }}">back to list</a>
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        td:first-child {
+            width: 200px;
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .form-check-input {
+            margin-top: 5px;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 5px;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+    </style>
 {% endblock %}

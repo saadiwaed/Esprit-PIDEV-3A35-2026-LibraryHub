@@ -11,6 +11,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Club;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -99,6 +100,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
      #[ORM\OneToMany(targetEntity: JournalLecture::class, mappedBy: 'user')]
     private Collection $journalLectures;
+    #[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
+
+private Collection $clubs;
 
     public function __construct()
     {
@@ -107,6 +111,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->status = 'PENDING';
         $this->journalLectures = new ArrayCollection(); // ✅ AJOUTER CETTE LIGNE
 
+    
+
+        $this->clubs = new ArrayCollection(); // Add this line
+
+        $this->createdAt = new \DateTime();
+        $this->status = 'PENDING';
     }
 
     public function getId(): ?int
@@ -366,4 +376,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
         return $this;
     }
+
+    public function getClubs(): Collection
+{
+    return $this->clubs;
+}
+
+public function addClub(Club $club): static
+{
+    if (!$this->clubs->contains($club)) {
+        $this->clubs->add($club);
+        $club->addMember($this);
+    }
+    return $this;
+}
+
+public function removeClub(Club $club): static
+{
+    if ($this->clubs->removeElement($club)) {
+        $club->removeMember($this);
+    }
+    return $this;
+}
 }
