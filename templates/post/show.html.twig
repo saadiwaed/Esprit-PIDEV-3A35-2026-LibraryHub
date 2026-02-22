@@ -26,7 +26,16 @@
                     <h2 class="h6 mb-0">Contenu</h2>
                 </div>
                 <div class="card-body">
-                    <p class="mb-0">{{ post.content|nl2br }}</p>
+                    {% set adminPostViewerId = 'adminPostContentViewer' ~ post.id %}
+                    <div id="{{ adminPostViewerId }}" class="mb-0"></div>
+                    {{ toast_ui_editor_widget_viewer(adminPostViewerId, post.content ?? '', {
+                        jquery: { enable: false },
+                        viewer: { options: { height: 'auto', widget_rules: [] } },
+                        extensions: { codeSyntaxHighlight: {}, tableMergedCell: {} }
+                    }) }}
+                    <noscript>
+                        <p class="mb-0">{{ post.content|nl2br }}</p>
+                    </noscript>
                 </div>
             </div>
         </div>

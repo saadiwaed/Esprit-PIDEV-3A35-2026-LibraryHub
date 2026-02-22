@@ -1,0 +1,23 @@
+diff.empty: "a l'instant"
+
+diff.ago.second: "il y a 1 sec|il y a %count% sec"
+diff.ago.minute: "il y a 1 min|il y a %count% min"
+diff.ago.hour: "il y a 1 h|il y a %count% h"
+diff.ago.day: "il y a 1 jour|il y a %count% jours"
+diff.ago.month: "il y a 1 mois|il y a %count% mois"
+diff.ago.year: "il y a 1 an|il y a %count% ans"
+
+diff.in.second: "dans 1 sec|dans %count% sec"
+diff.in.minute: "dans 1 min|dans %count% min"
+diff.in.hour: "dans 1 h|dans %count% h"
+diff.in.day: "dans 1 jour|dans %count% jours"
+diff.in.month: "dans 1 mois|dans %count% mois"
+diff.in.year: "dans 1 an|dans %count% ans"
+
+duration.none: "< 1 sec"
+duration.second: "1 sec|%count% sec"
+duration.minute: "1 min|%count% min"
+duration.hour: "1 h|%count% h"
+duration.day: "1 jour|%count% jours"
+
+age: "1 an|%count% ans"

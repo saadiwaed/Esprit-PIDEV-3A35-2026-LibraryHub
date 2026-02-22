@@ -123,6 +123,20 @@
 
     <!-- Template Functions -->
     <script src="{{ asset('assets/js/functions.js') }}"></script>
+    <script>
+        // Force WYSIWYG-only UI by hiding Toast UI mode switch if present.
+        (function () {
+            const hideModeSwitch = () => {
+                document.querySelectorAll('.toastui-editor-mode-switch').forEach((el) => {
+                    el.style.setProperty('display', 'none', 'important');
+                });
+            };
+            document.addEventListener('DOMContentLoaded', hideModeSwitch);
+            window.addEventListener('load', hideModeSwitch);
+            setTimeout(hideModeSwitch, 200);
+            setTimeout(hideModeSwitch, 800);
+        })();
+    </script>
 {% endblock %}
 
 </body>

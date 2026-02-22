@@ -47,6 +47,9 @@
             "ref": "c81bdcf4a9d4e7b1959071457f9608631865d381"
         }
     },
+    "knplabs/knp-time-bundle": {
+        "version": "2.5.0"
+    },
     "phpunit/phpunit": {
         "version": "11.5",
         "recipe": {
@@ -316,5 +319,8 @@
         "files": [
             "./config/packages/vich_uploader.yaml"
         ]
+    },
+    "yippy/toast-ui-editor-bundle": {
+        "version": "v1.0.3"
     }
 }

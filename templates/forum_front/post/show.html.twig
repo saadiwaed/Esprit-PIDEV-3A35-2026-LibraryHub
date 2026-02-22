@@ -10,6 +10,27 @@
             font-size: 1.02rem;
         }
 
+        .forum-post-v2 .post-body .toastui-editor-contents {
+            font-family: "Roboto", sans-serif;
+            color: #223447;
+            line-height: 1.75;
+        }
+
+        .forum-post-v2 .post-body .toastui-editor-contents h1,
+        .forum-post-v2 .post-body .toastui-editor-contents h2,
+        .forum-post-v2 .post-body .toastui-editor-contents h3,
+        .forum-post-v2 .post-body .toastui-editor-contents h4 {
+            font-family: "Heebo", sans-serif;
+            color: #162738;
+            margin-top: 1rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .forum-post-v2 .post-body .toastui-editor-contents pre {
+            border-radius: 10px;
+            border: 1px solid #dde8f4;
+        }
+
         .forum-post-v2 .reaction-row form,
         .forum-post-v2 .comment-reaction-row form {
             margin: 0;
@@ -70,12 +91,27 @@
                     </div>
 
                     <div class="forum-ui-chip-row mb-3">
-                        <span class="forum-ui-chip"><i class="bi bi-calendar-event"></i>{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</span>
+                        <span class="forum-ui-chip">
+                            <i class="bi bi-calendar-event"></i>
+                            {% if post.createdAt %}
+                                <time datetime="{{ post.createdAt|date('c') }}" title="{{ post.createdAt|date('d/m/Y H:i') }}">
+                                    {{ post.createdAt|ago(null, 'fr') }}
+                                </time>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
                         <span class="forum-ui-chip"><i class="bi bi-person"></i>{{ post.createdBy ? post.createdBy.fullName : 'Utilisateur inconnu' }}</span>
                         <span class="forum-ui-chip"><i class="bi bi-chat-square-text"></i>{{ post.commentCount }} commentaire(s)</span>
                     </div>
 
-                    <div class="post-body mb-4">{{ post.content|nl2br }}</div>
+                    {% set postViewerId = 'postContentViewer' ~ post.id %}
+                    <div id="{{ postViewerId }}" class="post-body mb-4"></div>
+                    {{ toast_ui_editor_widget_viewer(postViewerId, post.content ?? '', {
+                        jquery: { enable: false },
+                        viewer: { options: { height: 'auto', widget_rules: [] } },
+                        extensions: { codeSyntaxHighlight: {}, tableMergedCell: {} }
+                    }) }}
 
                     {% if post.externalUrl %}
                         <p class="mb-4">
@@ -163,7 +199,15 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
                                 <div>
                                     <div class="fw-semibold">{{ comment.createdBy ? comment.createdBy.fullName : 'Utilisateur inconnu' }}</div>
-                                    <div class="small text-muted">{{ comment.createdAt ? comment.createdAt|date('d/m/Y H:i') : '-' }}</div>
+                                    <div class="small text-muted">
+                                        {% if comment.createdAt %}
+                                            <time datetime="{{ comment.createdAt|date('c') }}" title="{{ comment.createdAt|date('d/m/Y H:i') }}">
+                                                {{ comment.createdAt|ago(null, 'fr') }}
+                                            </time>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <span class="forum-ui-chip"><i class="bi bi-activity"></i>Score: {{ comment.score }}</span>
                             </div>

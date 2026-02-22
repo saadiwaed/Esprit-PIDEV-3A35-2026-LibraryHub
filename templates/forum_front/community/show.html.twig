@@ -403,7 +403,16 @@
                             {{ post.content|striptags|length > 180 ? post.content|striptags|slice(0, 180) ~ '...' : post.content|striptags }}
                         </p>
                         <div class="meta-row">
-                            <span class="meta-pill"><i class="bi bi-calendar-event"></i>{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</span>
+                            <span class="meta-pill">
+                                <i class="bi bi-calendar-event"></i>
+                                {% if post.createdAt %}
+                                    <time datetime="{{ post.createdAt|date('c') }}" title="{{ post.createdAt|date('d/m/Y H:i') }}">
+                                        {{ post.createdAt|ago(null, 'fr') }}
+                                    </time>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
                             <span class="meta-pill"><i class="bi bi-person"></i>{{ post.createdBy ? post.createdBy.fullName : 'Utilisateur inconnu' }}</span>
                             <span class="meta-pill"><i class="bi bi-chat-left-text"></i>{{ post.commentCount }} commentaire(s)</span>
                             <span class="meta-pill"><i class="bi bi-hand-thumbs-up"></i>{{ post.likeCount }} like(s)</span>

@@ -144,6 +144,30 @@
                 border-color: #d5e2ef;
             }
 
+            .forum-ui-page .toastui-editor-defaultUI {
+                border: 1px solid #d5e2ef;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            }
+
+            .forum-ui-page .toastui-editor-defaultUI-toolbar {
+                border-bottom: 1px solid #d5e2ef;
+                background: linear-gradient(180deg, #f9fcff 0%, #eff5fc 100%);
+            }
+
+            .forum-ui-page .toastui-editor-defaultUI .toastui-editor-main {
+                background: #fff;
+            }
+
+            .forum-ui-page .toastui-editor-defaultUI .toastui-editor-main-container {
+                font-family: "Roboto", sans-serif;
+            }
+
+            .forum-ui-page .toastui-editor-mode-switch {
+                display: none !important;
+            }
+
             .forum-ui-page .forum-ui-form-shell {
                 padding: 1.1rem;
             }
@@ -228,6 +252,20 @@
     {% block javascripts %}
         <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('assets/js/functions.js') }}"></script>
+        <script>
+            // Force WYSIWYG-only UI by hiding Toast UI mode switch if present.
+            (function () {
+                const hideModeSwitch = () => {
+                    document.querySelectorAll('.toastui-editor-mode-switch').forEach((el) => {
+                        el.style.setProperty('display', 'none', 'important');
+                    });
+                };
+                document.addEventListener('DOMContentLoaded', hideModeSwitch);
+                window.addEventListener('load', hideModeSwitch);
+                setTimeout(hideModeSwitch, 200);
+                setTimeout(hideModeSwitch, 800);
+            })();
+        </script>
     {% endblock %}
 </body>
 </html>

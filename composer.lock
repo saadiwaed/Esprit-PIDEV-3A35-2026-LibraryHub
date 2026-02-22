@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a987fe0fe7727ec83009b3871b022596",
+    "content-hash": "b5869c6551bf3c2d1b3ddd1ecfea642a",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1796,6 +1796,81 @@
                 "source": "https://github.com/KnpLabs/KnpSnappyBundle/tree/v1.10.6"
             },
             "time": "2026-01-07T08:05:32+00:00"
+        },
+        {
+            "name": "knplabs/knp-time-bundle",
+            "version": "2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/KnpLabs/KnpTimeBundle.git",
+                "reference": "09106f13cb19bb8975d05c02c732b3b1ada6f2ce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/KnpLabs/KnpTimeBundle/zipball/09106f13cb19bb8975d05c02c732b3b1ada6f2ce",
+                "reference": "09106f13cb19bb8975d05c02c732b3b1ada6f2ce",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/config": "^5.4|^6.0|^7.0|^8.0",
+                "symfony/dependency-injection": "^5.4|^6.0|^7.0|^8.0",
+                "symfony/translation": "^5.4|^6.0|^7.0|^8.0"
+            },
+            "conflict": {
+                "phpunit/phpunit": "<8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.11",
+                "phpunit/phpunit": "^9.6",
+                "symfony/framework-bundle": "^5.4|^6.0|^7.0|^8.0",
+                "symfony/phpunit-bridge": "^5.4|^6.0|^7.0|^8.0",
+                "symfony/twig-bundle": "^5.4|^6.0|^7.0|^8.0"
+            },
+            "suggest": {
+                "symfony/twig-bundle": "to use the Twig `time_diff()` function and `|time_diff`/`|duration` filter"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Knp\\Bundle\\TimeBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "KnpLabs Team",
+                    "homepage": "https://knplabs.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://github.com/KnpLabs/KnpTimeBundle/contributors"
+                }
+            ],
+            "description": "Making your dates and durations look sensible and descriptive",
+            "homepage": "https://github.com/KnpLabs/KnpTimeBundle",
+            "keywords": [
+                "bundle",
+                "date",
+                "descriptive time",
+                "duration",
+                "knp",
+                "knplabs",
+                "time"
+            ],
+            "support": {
+                "issues": "https://github.com/KnpLabs/KnpTimeBundle/issues",
+                "source": "https://github.com/KnpLabs/KnpTimeBundle/tree/2.5.0"
+            },
+            "time": "2025-12-08T15:41:46+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -8401,6 +8476,70 @@
                 "source": "https://github.com/webmozarts/assert/tree/1.12.1"
             },
             "time": "2025-10-29T15:56:20+00:00"
+        },
+        {
+            "name": "yippy/toast-ui-editor-bundle",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Yippy/toast-ui-editor-bundle.git",
+                "reference": "6db8a2c1101270a3e4cba5e0632775a52ae9c7e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Yippy/toast-ui-editor-bundle/zipball/6db8a2c1101270a3e4cba5e0632775a52ae9c7e2",
+                "reference": "6db8a2c1101270a3e4cba5e0632775a52ae9c7e2",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0",
+                "symfony/asset": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/config": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/dependency-injection": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/expression-language": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/form": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/framework-bundle": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/http-foundation": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/http-kernel": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/options-resolver": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/property-access": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/routing": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/twig-bundle": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "twig/twig": "^2.12 || ^3.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Yippy\\ToastUiEditorBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yippy",
+                    "email": "yippym@gmail.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Quan Weiwei",
+                    "email": "crazypro@live.cn"
+                }
+            ],
+            "description": "This bundle integration TOAST UI Editor (TUI Editor) for your Symfony project.",
+            "keywords": [
+                "markdown",
+                "symfony",
+                "toast.ui.editor",
+                "tui.editor"
+            ],
+            "support": {
+                "issues": "https://github.com/Yippy/toast-ui-editor-bundle/issues",
+                "source": "https://github.com/Yippy/toast-ui-editor-bundle/tree/v1.0.3"
+            },
+            "time": "2026-02-11T15:09:17+00:00"
         }
     ],
     "packages-dev": [
@@ -10729,7 +10868,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -10737,6 +10876,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }
