@@ -24,10 +24,12 @@ use App\Repository\PostReportRepository;
 use App\Repository\PostReactionRepository;
 use App\Repository\PostRepository;
 use App\Service\FileUploadService;
+use App\Service\Forum\ForumContentModerationService;
 use App\Service\PostModerationService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -54,7 +56,8 @@ final class PostController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         FileUploadService $fileUploadService,
-        CommunityRepository $communityRepository
+        CommunityRepository $communityRepository,
+        ForumContentModerationService $forumContentModerationService
     ): Response {
         $post = new Post();
         $author = $this->getUser();
@@ -74,23 +77,32 @@ final class PostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->handleAttachments($form->get('attachmentFiles')->getData(), $post, $fileUploadService);
+            $moderationResult = $forumContentModerationService->moderate((string) $post->getContent(), 'post');
+            if ($moderationResult->isBlocked()) {
+                $form->get('content')->addError(new FormError($moderationResult->getMessage()));
+            } else {
+                $this->handleAttachments($form->get('attachmentFiles')->getData(), $post, $fileUploadService);
 
-            $community = $post->getCommunity();
-            if ($community !== null) {
-                $community->incrementPostCount();
+                $community = $post->getCommunity();
+                if ($community !== null) {
+                    $community->incrementPostCount();
+                }
+
+                if ($post->getCreatedBy() === null && $author instanceof User) {
+                    $post->setCreatedBy($author);
+                }
+
+                $entityManager->persist($post);
+                $entityManager->flush();
+
+                $message = sprintf('Le post "%s" a ete cree avec succes.', $post->getTitle());
+                if ($moderationResult->isApiAvailable() && $moderationResult->getToxicityScore() !== null) {
+                    $message .= sprintf(' (Score de toxicite API: %.2f)', $moderationResult->getToxicityScore());
+                }
+                $this->addFlash('success', $message);
+
+                return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
             }
-
-            if ($post->getCreatedBy() === null && $author instanceof User) {
-                $post->setCreatedBy($author);
-            }
-
-            $entityManager->persist($post);
-            $entityManager->flush();
-
-            $this->addFlash('success', sprintf('Le post "%s" a ete cree avec succes.', $post->getTitle()));
-
-            return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('post/new.html.twig', [
@@ -112,19 +124,29 @@ final class PostController extends AbstractController
         Request $request,
         Post $post,
         EntityManagerInterface $entityManager,
-        FileUploadService $fileUploadService
+        FileUploadService $fileUploadService,
+        ForumContentModerationService $forumContentModerationService
     ): Response {
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->handleAttachments($form->get('attachmentFiles')->getData(), $post, $fileUploadService);
+            $moderationResult = $forumContentModerationService->moderate((string) $post->getContent(), 'post');
+            if ($moderationResult->isBlocked()) {
+                $form->get('content')->addError(new FormError($moderationResult->getMessage()));
+            } else {
+                $this->handleAttachments($form->get('attachmentFiles')->getData(), $post, $fileUploadService);
 
-            $entityManager->flush();
+                $entityManager->flush();
 
-            $this->addFlash('success', 'Le post a ete modifie avec succes.');
+                $message = 'Le post a ete modifie avec succes.';
+                if ($moderationResult->isApiAvailable() && $moderationResult->getToxicityScore() !== null) {
+                    $message .= sprintf(' (Score de toxicite API: %.2f)', $moderationResult->getToxicityScore());
+                }
+                $this->addFlash('success', $message);
 
-            return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+            }
         }
 
         return $this->render('post/edit.html.twig', [
@@ -252,7 +274,8 @@ final class PostController extends AbstractController
         Community $community,
         Request $request,
         EntityManagerInterface $entityManager,
-        FileUploadService $fileUploadService
+        FileUploadService $fileUploadService,
+        ForumContentModerationService $forumContentModerationService
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_MEMBER');
 
@@ -280,17 +303,26 @@ final class PostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->handleAttachments($form->get('attachmentFiles')->getData(), $post, $fileUploadService);
-            $post->setCreatedBy($author);
+            $moderationResult = $forumContentModerationService->moderate((string) $post->getContent(), 'post');
+            if ($moderationResult->isBlocked()) {
+                $form->get('content')->addError(new FormError($moderationResult->getMessage()));
+            } else {
+                $this->handleAttachments($form->get('attachmentFiles')->getData(), $post, $fileUploadService);
+                $post->setCreatedBy($author);
 
-            $community->incrementPostCount();
+                $community->incrementPostCount();
 
-            $entityManager->persist($post);
-            $entityManager->flush();
+                $entityManager->persist($post);
+                $entityManager->flush();
 
-            $this->addFlash('success', 'Votre post a ete publie.');
+                $message = 'Votre post a ete publie.';
+                if ($moderationResult->isApiAvailable() && $moderationResult->getToxicityScore() !== null) {
+                    $message .= sprintf(' (Score de toxicite API: %.2f)', $moderationResult->getToxicityScore());
+                }
+                $this->addFlash('success', $message);
 
-            return $this->redirectToRoute('app_front_community_show', ['id' => $community->getId()]);
+                return $this->redirectToRoute('app_front_community_show', ['id' => $community->getId()]);
+            }
         }
 
         return $this->render('forum_front/post/new.html.twig', [
@@ -347,7 +379,12 @@ final class PostController extends AbstractController
     }
 
     #[Route('/forum/posts/{id}/comments/new', name: 'app_front_post_comment_new', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function addComment(Post $post, Request $request, EntityManagerInterface $entityManager): Response
+    public function addComment(
+        Post $post,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ForumContentModerationService $forumContentModerationService
+    ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_MEMBER');
 
@@ -376,14 +413,25 @@ final class PostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $moderationResult = $forumContentModerationService->moderate((string) $comment->getContent(), 'commentaire');
+            if ($moderationResult->isBlocked()) {
+                $this->addFlash('comment_error', $moderationResult->getMessage());
+
+                return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+            }
+
             $post->incrementCommentCount();
 
             $entityManager->persist($comment);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Commentaire publie.');
+            $message = 'Commentaire publie.';
+            if ($moderationResult->isApiAvailable() && $moderationResult->getToxicityScore() !== null) {
+                $message .= sprintf(' (Score de toxicite API: %.2f)', $moderationResult->getToxicityScore());
+            }
+            $this->addFlash('success', $message);
         } else {
-            $this->addFlash('error', 'Impossible de publier ce commentaire.');
+            $this->addFlash('comment_error', 'Impossible de publier ce commentaire.');
         }
 
         return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);

@@ -1,6 +1,10 @@
 ﻿{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
 <div class="card shadow-sm">
     <div class="card-body">
+        <div class="alert alert-info py-2 mb-3">
+            <i class="bi bi-shield-check me-1"></i>
+            Moderation API active: les contenus toxiques peuvent etre bloques automatiquement.
+        </div>
         <div class="row g-3">
             <div class="col-lg-8">{{ form_row(form.title) }}</div>
             {% if form.community is defined %}

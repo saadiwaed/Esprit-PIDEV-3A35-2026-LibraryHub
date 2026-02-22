@@ -10,6 +10,8 @@ parameters:
     app.loan.max_renewals: 3
     app.loan.daily_penalty_rate: 0.50
     app.loan.daily_late_fee_rate: 0.50
+    app.forum.api.timeout_seconds: '%env(float:FORUM_MODERATION_API_TIMEOUT)%'
+    app.forum.api.toxicity_threshold: '%env(float:FORUM_MODERATION_TOXICITY_THRESHOLD)%'
 
 services:
     # default configuration for services in *this* file
@@ -51,3 +53,13 @@ services:
     App\Command\AccrueDailyLateFeesCommand:
         arguments:
             $dailyLateFeeRate: '%app.loan.daily_late_fee_rate%'
+
+    App\Service\Forum\PerspectiveApiClient:
+        arguments:
+            $endpoint: '%env(string:PERSPECTIVE_API_ENDPOINT)%'
+            $apiKey: '%env(string:PERSPECTIVE_API_KEY)%'
+            $timeoutSeconds: '%app.forum.api.timeout_seconds%'
+
+    App\Service\Forum\ForumContentModerationService:
+        arguments:
+            $toxicityThreshold: '%app.forum.api.toxicity_threshold%'

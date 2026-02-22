@@ -179,6 +179,11 @@
 
                     {% if isMember and post.allowComments %}
                         <div class="forum-ui-filter mb-3">
+                            {% for message in app.flashes('comment_error') %}
+                                <div class="alert alert-danger mb-3" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
                             {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate'}}) }}
                                 <div class="mb-3">
                                     {{ form_row(commentForm.content) }}
