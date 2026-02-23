@@ -171,6 +171,21 @@
                     {% endif %}
                 </article>
 
+                {% if app.user %}
+                    <section class="forum-ui-surface mt-4 p-4" data-forum-ai-summary data-endpoint="{{ path('app_forum_ai_post_summary', {'id': post.id}) }}">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <h2 class="h5 forum-ui-title mb-0">Synthese IA de la discussion</h2>
+                            <button type="button" class="btn btn-sm btn-outline-primary forum-ui-btn" data-ai-action="summary-generate">
+                                Generer la synthese
+                            </button>
+                        </div>
+                        <div class="small text-muted mb-2" data-ai-status></div>
+                        <div class="forum-ui-filter" data-ai-summary-output>
+                            <p class="mb-0 text-muted">Cliquez sur "Generer la synthese" pour obtenir un resume du fil.</p>
+                        </div>
+                    </section>
+                {% endif %}
+
                 <section class="forum-ui-surface mt-4 p-4">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <h2 class="h4 forum-ui-title mb-0">Commentaires</h2>
@@ -178,7 +193,12 @@
                     </div>
 
                     {% if isMember and post.allowComments %}
-                        <div class="forum-ui-filter mb-3">
+                        <div
+                            class="forum-ui-filter mb-3"
+                            data-forum-ai-comment
+                            data-endpoint="{{ path('app_forum_ai_post_comment_suggest', {'id': post.id}) }}"
+                            data-content-id="{{ commentForm.content.vars.id }}"
+                        >
                             {% for message in app.flashes('comment_error') %}
                                 <div class="alert alert-danger mb-3" role="alert">
                                     {{ message }}
@@ -188,7 +208,13 @@
                                 <div class="mb-3">
                                     {{ form_row(commentForm.content) }}
                                 </div>
-                                {{ form_widget(commentForm.save, {'attr': {'class': 'btn btn-primary forum-ui-btn'}}) }}
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    <button type="button" class="btn btn-outline-primary forum-ui-btn" data-ai-action="comment-generate">
+                                        Suggestion IA
+                                    </button>
+                                    {{ form_widget(commentForm.save, {'attr': {'class': 'btn btn-primary forum-ui-btn'}}) }}
+                                </div>
+                                <div class="small mt-2 text-muted" data-ai-status></div>
                             {{ form_end(commentForm) }}
                         </div>
                     {% elseif app.user and not isMember %}
@@ -241,4 +267,9 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/forum-ai-assistant.js') }}?v=20260223-5"></script>
 {% endblock %}

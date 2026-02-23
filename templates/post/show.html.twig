@@ -88,6 +88,19 @@
         </div>
     </div>
 
+    <div class="card shadow-sm mt-4" data-forum-ai-summary data-endpoint="{{ path('app_forum_ai_post_summary', {'id': post.id}) }}">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h2 class="h6 mb-0">Synthese IA du fil</h2>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-ai-action="summary-generate">Generer</button>
+        </div>
+        <div class="card-body">
+            <div class="small text-muted mb-2" data-ai-status></div>
+            <div data-ai-summary-output>
+                <p class="text-muted mb-0">Cliquez sur "Generer" pour produire une synthese des echanges.</p>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow-sm mt-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h2 class="h6 mb-0">Pieces jointes</h2>
@@ -115,4 +128,9 @@
         {{ include('post/_delete_form.html.twig') }}
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/forum-ai-assistant.js') }}?v=20260223-5"></script>
 {% endblock %}

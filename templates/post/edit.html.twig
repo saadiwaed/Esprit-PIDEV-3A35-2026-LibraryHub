@@ -42,3 +42,8 @@
     </div>
 </div>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/forum-ai-assistant.js') }}?v=20260223-5"></script>
+{% endblock %}

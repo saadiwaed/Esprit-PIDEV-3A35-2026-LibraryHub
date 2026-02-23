@@ -12,6 +12,17 @@ parameters:
     app.loan.daily_late_fee_rate: 0.50
     app.forum.api.timeout_seconds: '%env(float:FORUM_MODERATION_API_TIMEOUT)%'
     app.forum.api.toxicity_threshold: '%env(float:FORUM_MODERATION_TOXICITY_THRESHOLD)%'
+    app.forum.ai.enabled: '%env(bool:FORUM_AI_ENABLED)%'
+    app.forum.ai.provider: '%env(string:FORUM_AI_PROVIDER)%'
+    app.forum.ai.endpoint: '%env(string:FORUM_AI_ENDPOINT)%'
+    app.forum.ai.api_key: '%env(string:FORUM_AI_API_KEY)%'
+    app.forum.ai.model: '%env(string:FORUM_AI_MODEL)%'
+    app.forum.ai.timeout_seconds: '%env(float:FORUM_AI_TIMEOUT_SECONDS)%'
+    app.forum.ai.temperature: '%env(float:FORUM_AI_TEMPERATURE)%'
+    app.forum.ai.max_tokens: '%env(int:FORUM_AI_MAX_TOKENS)%'
+    app.forum.ai.min_input_chars: '%env(int:FORUM_AI_MIN_INPUT_CHARS)%'
+    app.forum.ai.confidence_threshold: '%env(float:FORUM_AI_CONFIDENCE_THRESHOLD)%'
+    app.forum.ai.max_context_comments: '%env(int:FORUM_AI_MAX_CONTEXT_COMMENTS)%'
 
 services:
     # default configuration for services in *this* file
@@ -53,6 +64,23 @@ services:
     App\Command\AccrueDailyLateFeesCommand:
         arguments:
             $dailyLateFeeRate: '%app.loan.daily_late_fee_rate%'
+
+    App\Service\Forum\LlmAiClient:
+        arguments:
+            $enabled: '%app.forum.ai.enabled%'
+            $provider: '%app.forum.ai.provider%'
+            $endpoint: '%app.forum.ai.endpoint%'
+            $apiKey: '%app.forum.ai.api_key%'
+            $model: '%app.forum.ai.model%'
+            $timeoutSeconds: '%app.forum.ai.timeout_seconds%'
+            $temperature: '%app.forum.ai.temperature%'
+            $maxTokens: '%app.forum.ai.max_tokens%'
+
+    App\Service\Forum\ForumAiAssistantService:
+        arguments:
+            $minInputChars: '%app.forum.ai.min_input_chars%'
+            $confidenceThreshold: '%app.forum.ai.confidence_threshold%'
+            $maxContextComments: '%app.forum.ai.max_context_comments%'
 
     App\Service\Forum\PerspectiveApiClient:
         arguments:

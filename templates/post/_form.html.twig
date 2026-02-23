@@ -1,9 +1,21 @@
 ﻿{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
 <div class="card shadow-sm">
     <div class="card-body">
-        <div class="alert alert-info py-2 mb-3">
-            <i class="bi bi-shield-check me-1"></i>
-            Moderation API active: les contenus toxiques peuvent etre bloques automatiquement.
+        <div
+            class="alert alert-info py-2 mb-3"
+            data-forum-ai-post
+            data-endpoint="{{ path('app_forum_ai_post_draft') }}"
+            data-title-id="{{ form.title.vars.id }}"
+            data-content-id="{{ form.content.vars.id }}"
+            data-community-id="{{ form.community is defined ? form.community.vars.id : '' }}"
+        >
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span><i class="bi bi-stars me-1"></i>Assistant IA: ameliorer le titre et structurer le contenu du post.</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-ai-action="post-generate">
+                    Ameliorer avec IA
+                </button>
+            </div>
+            <div class="small mt-2 text-muted" data-ai-status></div>
         </div>
         <div class="row g-3">
             <div class="col-lg-8">{{ form_row(form.title) }}</div>

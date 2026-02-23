@@ -21,6 +21,22 @@
                     <div class="col-lg-8">
                         {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
                         <div class="forum-ui-surface forum-ui-form-shell">
+                            <div
+                                class="alert alert-info py-2 mb-3"
+                                data-forum-ai-post
+                                data-endpoint="{{ path('app_forum_ai_post_draft') }}"
+                                data-title-id="{{ form.title.vars.id }}"
+                                data-content-id="{{ form.content.vars.id }}"
+                                data-community-id=""
+                            >
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <span><i class="bi bi-stars me-1"></i>Assistant IA: reformulation et structuration de votre brouillon.</span>
+                                    <button type="button" class="btn btn-sm btn-outline-primary forum-ui-btn" data-ai-action="post-generate">
+                                        Ameliorer avec IA
+                                    </button>
+                                </div>
+                                <div class="small mt-2 text-muted" data-ai-status></div>
+                            </div>
                             <div class="row g-3">
                                 <div class="col-12">{{ form_row(form.title) }}</div>
                                 <div class="col-12">{{ form_row(form.content) }}</div>
@@ -43,7 +59,7 @@
                                 <li class="mb-2"><i class="bi bi-lightbulb text-primary me-1"></i>Donnez un titre precis.</li>
                                 <li class="mb-2"><i class="bi bi-lightbulb text-primary me-1"></i>Structurez le contenu en paragraphes courts.</li>
                                 <li class="mb-2"><i class="bi bi-lightbulb text-primary me-1"></i>Utilisez la barre d'outils pour mettre en forme le contenu.</li>
-                                <li class="mb-2"><i class="bi bi-shield-check text-primary me-1"></i>Une moderation API verifie automatiquement les contenus inappropries.</li>
+                                <li class="mb-2"><i class="bi bi-stars text-primary me-1"></i>Utilisez l assistant IA pour reformuler et structurer votre brouillon.</li>
                                 <li class="mb-2"><i class="bi bi-lightbulb text-primary me-1"></i>Ajoutez un lien externe seulement si utile.</li>
                                 <li class="mb-0"><i class="bi bi-lightbulb text-primary me-1"></i>Activez ou non les commentaires selon le type de post.</li>
                             </ul>
@@ -54,4 +70,9 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/forum-ai-assistant.js') }}?v=20260223-5"></script>
 {% endblock %}
