@@ -139,23 +139,6 @@
                         </div>
                     </div>
 
-                    {% if app.user and isMember %}
-                        {% if hasReportedPost %}
-                            <div class="alert alert-info py-2 small mb-4">
-                                Vous avez deja signale ce post. Merci, la moderation va le traiter.
-                            </div>
-                        {% else %}
-                            <form method="post" action="{{ path('app_front_post_report', {'id': post.id}) }}" class="forum-ui-filter report-box mb-4">
-                                <input type="hidden" name="_token" value="{{ csrf_token('report_post_' ~ post.id) }}">
-                                <label for="post-report-reason" class="form-label mb-1 fw-semibold">Signaler ce post</label>
-                                <textarea id="post-report-reason" name="reason" class="form-control mb-2" rows="3" minlength="10" maxlength="1500" required placeholder="Expliquez le probleme (spam, contenu inapproprie, etc.)."></textarea>
-                                <button type="submit" class="btn btn-sm btn-outline-danger forum-ui-btn">
-                                    <i class="bi bi-flag me-1"></i>Envoyer le signalement
-                                </button>
-                            </form>
-                        {% endif %}
-                    {% endif %}
-
                     <h2 class="h5 forum-ui-title mb-2">Pieces jointes</h2>
                     {% if post.hasAttachments() %}
                         <ul class="list-group list-group-flush attachments-list">
@@ -168,6 +151,38 @@
                         </ul>
                     {% else %}
                         <p class="forum-ui-empty">Aucune piece jointe.</p>
+                    {% endif %}
+
+                    {% if app.user and isMember %}
+                        {% if hasReportedPost %}
+                            <div class="alert alert-info py-2 small mt-4 mb-0">
+                                Vous avez deja signale ce post. Merci, la moderation va le traiter.
+                            </div>
+                        {% else %}
+                            {% set reportFormId = 'post-report-form-' ~ post.id %}
+                            <div class="mt-4">
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger forum-ui-btn mb-2"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#{{ reportFormId }}"
+                                    aria-expanded="false"
+                                    aria-controls="{{ reportFormId }}"
+                                >
+                                    <i class="bi bi-flag me-1"></i>Signaler ce post
+                                </button>
+                                <div class="collapse" id="{{ reportFormId }}">
+                                    <form method="post" action="{{ path('app_front_post_report', {'id': post.id}) }}" class="forum-ui-filter report-box">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('report_post_' ~ post.id) }}">
+                                        <label for="post-report-reason" class="form-label mb-1 fw-semibold">Signaler ce post</label>
+                                        <textarea id="post-report-reason" name="reason" class="form-control mb-2" rows="3" minlength="10" maxlength="1500" required placeholder="Expliquez le probleme (spam, contenu inapproprie, etc.)."></textarea>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger forum-ui-btn">
+                                            <i class="bi bi-flag me-1"></i>Envoyer le signalement
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
                     {% endif %}
                 </article>
 
