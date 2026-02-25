@@ -5,6 +5,10 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     attachments_directory: '%kernel.project_dir%/public/uploads/attachments'
+    stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
+    stripe_publishable_key: '%env(STRIPE_PUBLISHABLE_KEY)%'
+    stripe_price_monthly: '%env(STRIPE_PRICE_MONTHLY)%'
+    stripe_price_annual: '%env(STRIPE_PRICE_ANNUAL)%'
     app.loan.default_loan_days: 21
     app.loan.renewal_days: 14
     app.loan.max_renewals: 3
@@ -91,3 +95,14 @@ services:
     App\Service\Forum\ForumContentModerationService:
         arguments:
             $toxicityThreshold: '%app.forum.api.toxicity_threshold%'
+
+    App\Service\StripeConfigService:
+        arguments:
+            $stripeSecretKey: '%stripe_secret_key%'
+            $stripePriceMonthly: '%stripe_price_monthly%'
+            $stripePriceAnnual: '%stripe_price_annual%'
+            $projectDir: '%kernel.project_dir%'
+
+    App\Controller\MembershipController:
+        arguments:
+            $stripeConfig: '@App\Service\StripeConfigService'

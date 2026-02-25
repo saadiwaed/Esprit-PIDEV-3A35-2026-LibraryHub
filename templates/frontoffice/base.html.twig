@@ -181,6 +181,13 @@
         </li>
     </ul>
 </li>
+
+					<!-- Nav item Abonnement / Membership -->
+					<li class="nav-item">
+						<a class="nav-link" href="{{ path('app_membership_index') }}">
+							<i class="bi bi-credit-card me-1"></i>Abonnement
+						</a>
+					</li>
 					
 					<!-- Show login/register buttons for guests -->
 					{% if not app.user %}
@@ -393,6 +400,7 @@
 
 <!-- **************** MAIN CONTENT START **************** -->
 <main>
+{% block body %}
 <!-- =======================
 Main Banner START -->
 <section class="overflow-hidden pt-6 pt-xxl-0">
@@ -1109,6 +1117,7 @@ Ces services sont conçus pour rendre votre expérience de bibliothèque en lign
 <!-- =======================
 Faq END -->
 
+{% endblock %}
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
 

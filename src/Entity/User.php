@@ -83,6 +83,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeInterface $emailVerifiedAt = null;
 
     /**
+     * Abonnement premium (Stripe) : accès complet après paiement réussi.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $isPremium = false;
+
+    /**
      * RELATION ManyToMany: A User can have many Roles, and a Role can belong to many Users.
      * Example: User "Ali" can be both MEMBER and LIBRARIAN.
      */
@@ -113,6 +119,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Post::class)]
     private Collection $createdPosts;
 
+    /** @var Collection<int, EventRegistration> */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: EventRegistration::class)]
+    private Collection $eventRegistrations;
+
+    /** @var Collection<int, Event> */
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Event::class)]
+    private Collection $createdEvents;
+
+    /** @var Collection<int, Club> */
+    #[ORM\OneToMany(mappedBy: 'founder', targetEntity: Club::class)]
+    private Collection $foundedClubs;
+
     public function __construct()
     {
         $this->roles = new ArrayCollection();
@@ -120,6 +138,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->communities = new ArrayCollection();
         $this->createdCommunities = new ArrayCollection();
         $this->createdPosts = new ArrayCollection();
+        $this->eventRegistrations = new ArrayCollection();
+        $this->createdEvents = new ArrayCollection();
+        $this->foundedClubs = new ArrayCollection();
 
         $this->createdAt = new \DateTime();
         $this->status = 'PENDING';
@@ -265,6 +286,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmailVerifiedAt(?\DateTimeInterface $emailVerifiedAt): static
     {
         $this->emailVerifiedAt = $emailVerifiedAt;
+        return $this;
+    }
+
+    public function isPremium(): bool
+    {
+        return $this->isPremium;
+    }
+
+    public function setIsPremium(bool $isPremium): static
+    {
+        $this->isPremium = $isPremium;
         return $this;
     }
 
@@ -418,5 +450,74 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getCreatedPosts(): Collection
     {
         return $this->createdPosts;
+    }
+
+    /** @return Collection<int, EventRegistration> */
+    public function getEventRegistrations(): Collection
+    {
+        return $this->eventRegistrations;
+    }
+
+    public function addEventRegistration(EventRegistration $eventRegistration): static
+    {
+        if (!$this->eventRegistrations->contains($eventRegistration)) {
+            $this->eventRegistrations->add($eventRegistration);
+            $eventRegistration->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeEventRegistration(EventRegistration $eventRegistration): static
+    {
+        if ($this->eventRegistrations->removeElement($eventRegistration) && $eventRegistration->getUser() === $this) {
+            $eventRegistration->setUser(null);
+        }
+        return $this;
+    }
+
+    /** @return Collection<int, Event> */
+    public function getCreatedEvents(): Collection
+    {
+        return $this->createdEvents;
+    }
+
+    public function addCreatedEvent(Event $event): static
+    {
+        if (!$this->createdEvents->contains($event)) {
+            $this->createdEvents->add($event);
+            $event->setCreatedBy($this);
+        }
+        return $this;
+    }
+
+    public function removeCreatedEvent(Event $event): static
+    {
+        if ($this->createdEvents->removeElement($event) && $event->getCreatedBy() === $this) {
+            $event->setCreatedBy(null);
+        }
+        return $this;
+    }
+
+    /** @return Collection<int, Club> */
+    public function getFoundedClubs(): Collection
+    {
+        return $this->foundedClubs;
+    }
+
+    public function addFoundedClub(Club $club): static
+    {
+        if (!$this->foundedClubs->contains($club)) {
+            $this->foundedClubs->add($club);
+            $club->setFounder($this);
+        }
+        return $this;
+    }
+
+    public function removeFoundedClub(Club $club): static
+    {
+        if ($this->foundedClubs->removeElement($club) && $club->getFounder() === $this) {
+            $club->setFounder(null);
+        }
+        return $this;
     }
 }
