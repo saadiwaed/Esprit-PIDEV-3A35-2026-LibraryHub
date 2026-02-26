@@ -37,7 +37,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'First name is required.')]
     #[Assert\Length(
-        min: 2,
+        min: 3,
         max: 100,
         minMessage: 'First name must be at least {{ limit }} characters.',
         maxMessage: 'First name cannot exceed {{ limit }} characters.'
@@ -47,7 +47,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'Last name is required.')]
     #[Assert\Length(
-        min: 2,
+        min: 3,
         max: 100,
         minMessage: 'Last name must be at least {{ limit }} characters.',
         maxMessage: 'Last name cannot exceed {{ limit }} characters.'

@@ -48,7 +48,7 @@ class BookRepository extends ServiceEntityRepository
 
     public function createFilteredQuery($q,$category,$author,$order)
     {
-        $qb = $this->createQueryBuilder('b')
+        $qb = $this->createQueryBuilder('b')  // FROM book b
             ->leftJoin('b.author','a')
             ->leftJoin('b.category','c')
             ->addSelect('a','c');
@@ -82,6 +82,40 @@ class BookRepository extends ServiceEntityRepository
         return $qb->getQuery();
     }
     
+// ===================== STATS =====================
+
+// 1) Books per category (BAR CHART)
+public function countBooksByCategory()
+{
+    return $this->createQueryBuilder('b')
+        ->select('c.name as category, COUNT(b.id) as total')
+        ->join('b.category', 'c')
+        ->groupBy('c.id')
+        ->orderBy('total', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+
+// 2) Books by status (PIE CHART)
+public function countBooksByStatus()
+{
+    return $this->createQueryBuilder('b')
+        ->select('b.status as status, COUNT(b.id) as total')
+        ->groupBy('b.status')
+        ->getQuery()
+        ->getResult();
+}
+
+// 3) Books added per month (LINE CHART)
+ // 3) Books added per month (LINE CHART)
+public function findAllBooksForStats()
+{
+    return $this->createQueryBuilder('b')
+        ->select('b.createdAt')
+        ->getQuery()
+        ->getResult();
+}
+
 
     //    /**
     //     * @return Book[] Returns an array of Book objects
