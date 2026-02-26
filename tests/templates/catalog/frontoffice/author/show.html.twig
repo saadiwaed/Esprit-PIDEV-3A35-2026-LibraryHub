@@ -1,0 +1,80 @@
+{% extends 'frontoffice/base.html.twig' %}
+{% block title %}{{ author.fullName }} – Auteur{% endblock %}
+{% block main_content %}
+<section class="py-5">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path(area ~ '_catalog_index') }}">Catalogue</a></li>
+                <li class="breadcrumb-item"><a href="{{ path(area ~ '_author_index') }}">Auteurs</a></li>
+                <li class="breadcrumb-item active">{{ author.fullName }}</li>
+            </ol>
+        </nav>
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm overflow-hidden">
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="min-height: 320px;">
+                        {% if author.photo %}
+                            <img src="{{ asset(author.photo) }}" alt="{{ author.fullName }}" class="w-100 h-100 object-fit-cover">
+                        {% else %}
+                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center text-primary" style="width: 180px; height: 180px;">
+                                <i class="bi bi-person-fill display-1"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 class="h4 mb-1">{{ author.fullName }}</h1>
+                        {% if author.nationality %}
+                            <p class="text-muted small mb-0"><i class="bi bi-globe me-1"></i>{{ author.nationality }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                {% if author.biography %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent border-0 py-3">
+                        <h2 class="h5 mb-0">Biographie</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="prose">{{ author.biography|nl2br }}</div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 py-3">
+                        <h2 class="h5 mb-0">Livres ({{ author.books|length }})</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if author.books|length > 0 %}
+                        <div class="row g-3">
+                            {% for book in author.books %}
+                            <div class="col-sm-6 col-md-4">
+                                <a href="{{ path(area ~ '_book_show', { id: book.id }) }}" class="card border-0 bg-light h-100 text-decoration-none text-dark card-hover">
+                                    <div class="card-body d-flex align-items-center">
+                                        <div class="bg-white rounded overflow-hidden me-3 flex-shrink-0" style="width: 50px; height: 70px;">
+                                            {% if book.coverImage %}
+                                                <img src="{{ asset(book.coverImage) }}" alt="" class="w-100 h-100 object-fit-cover">
+                                            {% else %}
+                                                <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted small"><i class="bi bi-book"></i></div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <h6 class="mb-0 text-truncate">{{ book.title }}</h6>
+                                            <small class="text-muted">{{ book.category.name }}</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0">Aucun livre pour cet auteur.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

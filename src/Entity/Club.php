@@ -75,10 +75,9 @@ class Club
     private ?\DateTimeInterface $createdDate = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\File(
-        maxSize: '2M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
-        mimeTypesMessage: 'Veuillez uploader une image valide (JPEG, PNG ou GIF)'
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le chemin de l\'image ne peut pas dépasser {{ limit }} caractères.'
     )]
     private ?string $image = null;
 

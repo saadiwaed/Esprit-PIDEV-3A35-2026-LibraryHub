@@ -1,0 +1,62 @@
+{% extends 'frontoffice/base.html.twig' %}
+{% block title %}{{ category.name }} – Catégorie{% endblock %}
+{% block main_content %}
+<section class="py-5">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path(area ~ '_catalog_index') }}">Catalogue</a></li>
+                <li class="breadcrumb-item"><a href="{{ path(area ~ '_category_index') }}">Catégories</a></li>
+                <li class="breadcrumb-item active">{{ category.name }}</li>
+            </ol>
+        </nav>
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        {% if category.icon %}
+                            {% if 'uploads/' in category.icon or '.' in category.icon %}
+                                <img src="{{ asset(category.icon) }}" alt="" class="mb-3" style="max-height:4rem;width:auto;">
+                            {% else %}
+                                <i class="{{ category.icon }} display-4 text-primary mb-3"></i>
+                            {% endif %}
+                        {% endif %}
+                        <h1 class="h3">{{ category.name }}</h1>
+                        {% if category.descriptionCat %}
+                            <p class="text-muted">{{ category.descriptionCat|nl2br }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <h2 class="h5 mb-3">Livres dans cette catégorie ({{ category.books|length }})</h2>
+                {% if category.books|length > 0 %}
+                <div class="row g-3">
+                    {% for book in category.books %}
+                    <div class="col-sm-6 col-md-4">
+                        <a href="{{ path(area ~ '_book_show', { id: book.id }) }}" class="card border-0 shadow-sm h-100 text-decoration-none text-dark card-hover">
+                            <div class="card-img-top bg-light overflow-hidden" style="height: 180px;">
+                                {% if book.coverImage %}
+                                    <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="w-100 h-100 object-fit-cover">
+                                {% else %}
+                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                        <i class="bi bi-journal-bookmark display-4"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">{{ (book.title)|length > 35 ? (book.title)|slice(0, 35) ~ '…' : book.title }}</h6>
+                                <p class="small text-muted mb-0">{{ book.author.fullName }}</p>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">Aucun livre dans cette catégorie.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

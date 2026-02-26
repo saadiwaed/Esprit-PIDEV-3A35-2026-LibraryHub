@@ -1,0 +1,216 @@
+{% extends 'base.html.twig' %}
+{% block title %}Catégories – Catalogue{% endblock %}
+
+{% block body %}
+<style>
+/* ===== CATEGORY GRID ===== */
+
+.category-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:20px;
+}
+
+/* CARD */
+.category-card{
+    background:#fff;
+    border-radius:18px;
+    padding:18px;
+    transition:.25s ease;
+    border:1px solid #edf1f5;
+    position:relative;
+}
+
+.category-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 18px 40px rgba(0,0,0,.08);
+}
+
+/* ICON */
+.category-icon{
+    width:58px;
+    height:58px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#eef4ff,#f5f9ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.6rem;
+    color:#0d6efd;
+    margin-bottom:12px;
+}
+
+/* NAME */
+.category-name{
+    font-weight:700;
+    font-size:1.1rem;
+}
+
+/* DESCRIPTION */
+.category-desc{
+    color:#6c757d;
+    font-size:.9rem;
+    min-height:40px;
+}
+
+/* ACTIONS MENU */
+.card-actions{
+    position:absolute;
+    top:12px;
+    right:12px;
+}
+
+/* BUTTONS */
+.card-btn{
+    border-radius:10px;
+    font-size:.85rem;
+    padding:.35rem .6rem;
+}
+
+/* EMPTY STATE */
+.empty-state{
+    text-align:center;
+    padding:80px 20px;
+}
+
+.empty-state i{
+    font-size:70px;
+    color:#ced4da;
+}
+</style>
+<div class="main-content">
+
+    <div class="content-panel">
+
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+                <h2 class="fw-bold mb-1">
+                    <i class="bi bi-tags me-2 text-primary"></i>
+                    Catégories
+                </h2>
+                <div class="text-muted small">
+                    Organisation des livres par thèmes
+                </div>
+            </div>
+
+            <a href="{{ path(area ~ '_category_new') }}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i>
+                Nouvelle catégorie
+            </a>
+
+        </div>
+
+        <!-- SEARCH -->
+        <div class="mb-4" style="max-width:350px;">
+            <div class="input-group">
+                <span class="input-group-text bg-white">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" id="searchInput" class="form-control" placeholder="Rechercher une catégorie">
+            </div>
+        </div>
+
+        {% if categories|length > 0 %}
+
+        <!-- GRID -->
+        <div class="category-grid" id="categoryGrid">
+
+            {% for c in categories %}
+
+            <div class="category-card">
+
+                <!-- ACTIONS -->
+                <div class="dropdown card-actions">
+                    <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li>
+                            <a class="dropdown-item" href="{{ path(area ~ '_category_show', { id: c.id }) }}">
+                                <i class="bi bi-eye me-2 text-info"></i> Voir
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ path(area ~ '_category_edit', { id: c.id }) }}">
+                                <i class="bi bi-pencil me-2 text-primary"></i> Modifier
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="px-3">
+                            {{ include('catalog/backoffice/category/_delete_form.html.twig', { category: c }) }}
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- ICON -->
+                <div class="category-icon">
+                    {% if c.icon %}
+                        {% if 'uploads/' in c.icon or '.' in c.icon %}
+                            <img src="{{ asset(c.icon) }}" style="width:30px">
+                        {% else %}
+                            <i class="{{ c.icon }}"></i>
+                        {% endif %}
+                    {% else %}
+                        <i class="bi bi-tag"></i>
+                    {% endif %}
+                </div>
+
+                <!-- NAME -->
+                <div class="category-name mb-1">
+                    {{ c.name }}
+                </div>
+
+                <!-- DESC -->
+                <div class="category-desc">
+                    {{ c.descriptionCat|default('Aucune description disponible') }}
+                </div>
+
+                <!-- FOOTER -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+ 
+                    <a href="{{ path(area ~ '_category_show', { id: c.id }) }}"
+                       class="btn btn-outline-primary card-btn">
+                        Ouvrir
+                    </a>
+                </div>
+
+            </div>
+
+            {% endfor %}
+        </div>
+
+        {% else %}
+
+        <!-- EMPTY STATE -->
+        <div class="empty-state">
+            <i class="bi bi-tags"></i>
+            <h4 class="mt-3">Aucune catégorie</h4>
+            <p class="text-muted">Crée ta première catégorie pour commencer le catalogue.</p>
+
+            <a href="{{ path(area ~ '_category_new') }}" class="btn btn-primary mt-2">
+                <i class="bi bi-plus-lg me-1"></i>Créer une catégorie
+            </a>
+        </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- SEARCH FILTER -->
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function(){
+    const value = this.value.toLowerCase();
+    const cards = document.querySelectorAll('#categoryGrid .category-card');
+
+    cards.forEach(card => {
+        card.style.display =
+            card.innerText.toLowerCase().includes(value) ? '' : 'none';
+    });
+});
+</script>
+
+{% endblock %}

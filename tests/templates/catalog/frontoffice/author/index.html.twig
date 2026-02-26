@@ -1,0 +1,43 @@
+{% extends 'frontoffice/base.html.twig' %}
+{% block title %}Auteurs – Catalogue{% endblock %}
+{% block main_content %}
+<section class="py-5">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path(area ~ '_catalog_index') }}">Catalogue</a></li>
+                <li class="breadcrumb-item active">Auteurs</li>
+            </ol>
+        </nav>
+        <h1 class="mb-4">Auteurs</h1>
+        {% if authors|length > 0 %}
+        <div class="row g-4">
+            {% for author in authors %}
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <a href="{{ path(area ~ '_author_show', { id: author.id }) }}" class="card border-0 shadow-sm h-100 text-decoration-none text-dark card-hover overflow-hidden">
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center overflow-hidden" style="height: 220px;">
+                        {% if author.photo %}
+                            <img src="{{ asset(author.photo) }}" alt="{{ author.fullName }}" class="w-100 h-100 object-fit-cover">
+                        {% else %}
+                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center text-primary" style="width: 120px; height: 120px;">
+                                <i class="bi bi-person-fill display-3"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mb-1">{{ author.fullName }}</h5>
+                        {% if author.nationality %}
+                            <p class="text-muted small mb-2"><i class="bi bi-globe me-1"></i>{{ author.nationality }}</p>
+                        {% endif %}
+                        <p class="card-text small text-muted mb-0">{{ (author.biography|default(''))|length > 90 ? (author.biography|default(''))|slice(0, 90) ~ '…' : (author.biography|default('')) }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">Aucun auteur pour le moment.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

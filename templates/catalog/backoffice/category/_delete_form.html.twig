@@ -1,0 +1,4 @@
+<form method="post" action="{{ path(area ~ '_category_delete', { id: category.id }) }}" class="d-inline" onsubmit="return confirm('Voulez-vous vraiment supprimer cette catégorie ? Sa suppression supprimera les livres qui y sont associés.');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+    <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+</form>

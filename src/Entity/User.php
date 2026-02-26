@@ -40,7 +40,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 100)]
     #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
     #[Assert\Length(
-        min: 2,
+        min: 3,
         max: 100,
         minMessage: 'Le prénom doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères.'
@@ -50,7 +50,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 100)]
     #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
     #[Assert\Length(
-        min: 2,
+        min: 3,
         max: 100,
         minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
@@ -58,39 +58,74 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastName = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[Assert\Length(
+        max: 20,
+        maxMessage: 'Le téléphone ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $phone = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'L\'adresse ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $address = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\Length(
+        max: 100,
+        maxMessage: 'La ville ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $city = null;
 
     #[ORM\Column(type: 'string', length: 10, nullable: true)]
+    #[Assert\Length(
+        max: 10,
+        maxMessage: 'Le code postal ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $zipCode = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\Length(
+        max: 100,
+        maxMessage: 'Le pays ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $country = null;
 
     #[ORM\Column(type: 'date', nullable: true)]
+    #[Assert\LessThanOrEqual(
+        'today',
+        message: 'La date de naissance ne peut pas être dans le futur.'
+    )]
     private ?\DateTimeInterface $birthDate = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\File(
-        maxSize: '2M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
-        mimeTypesMessage: 'Veuillez uploader une image valide (JPEG, PNG ou GIF)'
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le chemin de l\'image ne peut pas dépasser {{ limit }} caractères.'
     )]
     private ?string $profileImage = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\Length(
+        max: 2000,
+        maxMessage: 'La biographie ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $bio = null;
 
     #[ORM\Column(type: 'string', length: 50)]
-    private string $status = 'active'; // 'active', 'inactive', 'suspended', 'banned'
+    #[Assert\Choice(
+        choices: ['active', 'inactive', 'suspended', 'banned'],
+        message: 'Le statut doit être : active, inactive, suspended ou banned.'
+    )]
+    private string $status = 'active';
 
     #[ORM\Column(type: 'string', length: 50)]
-    private string $membershipType = 'basic'; // 'basic', 'premium', 'student', 'senior'
+    #[Assert\Choice(
+        choices: ['basic', 'premium', 'student', 'senior'],
+        message: 'Le type d\'adhésion doit être : basic, premium, student ou senior.'
+    )]
+    private string $membershipType = 'basic';
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;

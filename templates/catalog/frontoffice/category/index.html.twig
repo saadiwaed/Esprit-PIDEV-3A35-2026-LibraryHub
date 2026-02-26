@@ -1,0 +1,39 @@
+{% extends 'frontoffice/base.html.twig' %}
+{% block title %}Catégories – Catalogue{% endblock %}
+{% block main_content %}
+<section class="py-5">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path(area ~ '_catalog_index') }}">Catalogue</a></li>
+                <li class="breadcrumb-item active">Catégories</li>
+            </ol>
+        </nav>
+        <h1 class="mb-4">Catégories</h1>
+        {% if categories|length > 0 %}
+        <div class="row g-4">
+            {% for c in categories %}
+            <div class="col-sm-6 col-lg-4">
+                <a href="{{ path(area ~ '_category_show', { id: c.id }) }}" class="card border-0 shadow-sm h-100 text-decoration-none text-dark card-hover">
+                    <div class="card-body">
+                        {% if c.icon %}
+                            {% if 'uploads/' in c.icon or '.' in c.icon %}
+                                <img src="{{ asset(c.icon) }}" alt="" class="mb-2" style="height:3rem;width:auto;">
+                            {% else %}
+                                <i class="{{ c.icon }} fs-1 text-primary mb-2 d-block"></i>
+                            {% endif %}
+                        {% endif %}
+                        <h5 class="card-title">{{ c.name }}</h5>
+                        <p class="text-muted small mb-0">{{ (c.descriptionCat|default(''))|length > 100 ? (c.descriptionCat|default(''))|slice(0, 100) ~ '…' : (c.descriptionCat|default('')) }}</p>
+                        <span class="badge bg-light text-dark mt-2">{{ c.books|length }} livre(s)</span>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">Aucune catégorie pour le moment.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -8,32 +8,61 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Enum\ChallengeType;
 use App\Enum\ParticipationStatus;
+use Symfony\Component\Validator\Constraints as Assert;
+
 #[ORM\Entity(repositoryClass: ReadingChallengeRepository::class)]
 #[ORM\Table(name: 'reading_challenges')]
 class ReadingChallenge
 {
-        #[ORM\Id]
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'L\'objectif du défi est obligatoire.')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'L\'objectif doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'L\'objectif ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $goal = null;
 
     #[ORM\Column(enumType: ChallengeType::class)]
+    #[Assert\NotNull(message: 'Le type de défi est obligatoire.')]
     private ChallengeType $type = ChallengeType::READING;
 
     #[ORM\Column(length: 20)]
-    private string $status = 'upcoming'; // 'upcoming', 'ongoing', 'completed', 'cancelled'
+    #[Assert\NotBlank(message: 'Le statut est obligatoire.')]
+    #[Assert\Choice(
+        choices: ['upcoming', 'ongoing', 'completed', 'cancelled'],
+        message: 'Le statut doit être : upcoming, ongoing, completed ou cancelled.'
+    )]
+    private string $status = 'upcoming';
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'La récompense ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $reward = null;
 
     #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank(message: 'Les règles du défi sont obligatoires.')]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'Les règles doivent contenir au moins {{ limit }} caractères.'
+    )]
     private ?string $rules = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $difficulty = null; // 'easy', 'medium', 'hard'
+    #[Assert\NotBlank(message: 'La difficulté est obligatoire.')]
+    #[Assert\Choice(
+        choices: ['easy', 'medium', 'hard'],
+        message: 'La difficulté doit être : easy, medium ou hard.'
+    )]
+    private ?string $difficulty = null;
 
     #[ORM\ManyToOne(targetEntity: Club::class, inversedBy: 'challenges')]
     private ?Club $club = null;
@@ -42,16 +71,24 @@ class ReadingChallenge
     private Collection $participants;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'La date de début est obligatoire.')]
     private ?\DateTimeInterface $startDate = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'La date de fin est obligatoire.')]
+    #[Assert\GreaterThan(
+        propertyPath: 'startDate',
+        message: 'La date de fin doit être après la date de début.'
+    )]
     private ?\DateTimeInterface $endDate = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Le créateur est obligatoire.')]
     private ?User $createdBy = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'La date de création est obligatoire.')]
     private ?\DateTimeInterface $createdDate = null;
 
     public function __construct()
