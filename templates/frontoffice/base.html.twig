@@ -3,13 +3,14 @@
 
 <!-- Mirrored from eduport.webestica.com/index-11.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 07 Nov 2023 13:13:10 GMT -->
 <head>
-	<title>Eduport - LMS, Education and Course Theme</title>
+	<title>LibraryHub</title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="author" content="Webestica.com">
 	<meta name="description" content="Eduport- LMS, Education and Course Theme">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 	<!-- Dark mode -->
 	<script>
@@ -103,8 +104,8 @@
 		<div class="container">
 			<!-- Logo START -->
 			<a class="navbar-brand" href="index.html">
-				<img class="light-mode-item navbar-brand-item" src="assets/images/image.svg" alt="logo" style="width: 100px; height:auto; border-radius: 50%;">
-				<img class="dark-mode-item navbar-brand-item" src="assets/images/image.svg" alt="logo">
+				<img class="light-mode-item navbar-brand-item" src="{{asset('assets/images/image.svg')}}" alt="logo" style="width: 100px; height:auto; border-radius: 50%;">
+				<img class="dark-mode-item navbar-brand-item" src="{{asset('assets/images/image.svg')}}" alt="logo"style="width: 100px; height:auto; border-radius: 50%;">
 			</a>
 			<!-- Logo END -->
 	
@@ -138,27 +139,26 @@
 				<ul class="navbar-nav navbar-nav-scroll ms-auto">
 					<!-- Nav item 1 Demos -->
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Demos</a>
+						<a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Parcourir</a>
 						<ul class="dropdown-menu" aria-labelledby="demoMenu">
 							<li> <a class="dropdown-item" href="index.html">Home Default</a></li>
-							<li> <a class="dropdown-item" href="index-2.html">Home Education</a></li>
-							<li> <a class="dropdown-item" href="index-3.html">Home Academy</a></li>
-							<li> <a class="dropdown-item" href="index-4.html">Home Course</a></li>
-							<li> <a class="dropdown-item" href="index-5.html">Home University</a></li>
-							<li> <a class="dropdown-item" href="index-6.html">Home Kindergarten</a></li>
-							<li> <a class="dropdown-item" href="index-7.html">Home Landing</a></li>
-							<li> <a class="dropdown-item" href="index-8.html">Home Tutor</a></li>
-							<li> <a class="dropdown-item" href="index-9.html">Home School</a><li>
-							<li> <a class="dropdown-item" href="index-10.html">Home Abroad</a></li>
-							<li> <a class="dropdown-item active" href="index-11.html">Home Workshop</a></li>
+							<li> <a class="dropdown-item" href="index-2.html"> Forum et discussions</a></li>
+							<li> <a class="dropdown-item" href="index-3.html">Catalogue et inventaire</a></li>
+							<li> <a class="dropdown-item" href="index-4.html">Emprunts et Retours </a></li>
+							<li> <a class="dropdown-item" href="index-5.html">Journal et Defi</a></li>
+							<li> <a class="dropdown-item" href="index-6.html">Événements et activités</a></li>
+							<li> <a class="dropdown-item" href="index-7.html">Forum et discussions</a></li>
+							
 						</ul>
 					</li>
 
 					<!-- Nav item 2 Course -->
-					<li class="nav-item dropdown"><a class="nav-link" href="course-grid.html">Courses</a></li>
+					<li class="nav-item dropdown"><a class="nav-link" href="{{path('biblio_catalog_index_client')}}">Livres</a></li>
+					<li class="nav-item dropdown"><a class="nav-link" href="{{path('biblio_catalog_index_client')}}">Auteurs</a></li>
+					<li class="nav-item dropdown"><a class="nav-link" href="{{path('app_stats')}}"> stats</a></li>
 
 					<!-- Nav item 3 Components -->
-					<li class="nav-item"><a class="nav-link" href="docs/alerts.html">Components</a></li>
+					<li class="nav-item"><a class="nav-link" href="docs/alerts.html">Composants</a></li>
 				</ul>
 				<!-- Nav Main menu END -->
 			</div>
@@ -180,7 +180,7 @@
 						<div class="card bg-transparent">
 							<div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
 								<h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
-								<a class="small" href="#">Clear all</a>
+								<a class="small" href="#">Supprimer Tous</a>
 							</div>
 							<div class="card-body p-0">
 								<ul class="list-group list-unstyled list-group-flush">
@@ -194,7 +194,7 @@
 											</div>
 											<div>
 												<p class="text-body small m-0">Congratulate <b>Joan Wallace</b> for graduating from <b>Microverse university</b></p>
-												<u class="small">Say congrats</u>
+												<u class="small">Féliciter</u>
 											</div>
 										</a>
 									</li>
@@ -210,7 +210,7 @@
 											<div>
 												<h6 class="mb-1">Larry Lawson Added a new course</h6>
 												<p class="small text-body m-0">What's new! Find out about new features</p>
-												<u class="small">View detail</u>
+												<u class="small">Voir Detaille</u>
 											</div>
 										</a>
 									</li>
@@ -225,7 +225,7 @@
 											</div>
 											<div>
 												<h6 class="mb-1">New request to apply for Instructor</h6>
-												<u class="small">View detail</u>
+												<u class="small">Voir Detaille</u>
 											</div>
 										</a>
 									</li>
@@ -241,7 +241,7 @@
 											<div>
 												<h6 class="mb-1">Update v2.3 completed successfully</h6>
 												<p class="small text-body m-0">What's new! Find out about new features</p>
-												<small class="text-body">5 min ago</small>
+												<small class="text-body">il y a 5 minutes</small>
 											</div>
 										</a>
 									</li>
@@ -249,7 +249,7 @@
 							</div>
 							<!-- Button -->
 							<div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
-								<a href="#" class="stretched-link">See all incoming activity</a>
+								<a href="#" class="stretched-link">Voir toute l’activité entrante</a>
 							</div>
 						</div>
 					</div>
@@ -261,7 +261,7 @@
 				<li class="nav-item ms-3 dropdown">
 					<!-- Avatar -->
 					<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
-						<img class="avatar-img rounded-circle" src="assets/images/avatar/01.jpg" alt="avatar">
+						<img class="avatar-img rounded-circle" src="assets/images/avatar/zaiminhobaltinhocotinho.jfif" alt="avatar">
 					</a>
 
 					<!-- Profile dropdown START -->
@@ -271,20 +271,20 @@
 							<div class="d-flex align-items-center">
 								<!-- Avatar -->
 								<div class="avatar me-3">
-									<img class="avatar-img rounded-circle shadow" src="assets/images/avatar/01.jpg" alt="avatar">
+									<img class="avatar-img rounded-circle shadow" src="assets/images/avatar/zaiminhobaltinhocotinho.jfif" alt="avatar">
 								</div>
 								<div>
-									<a class="h6" href="#">Lori Ferguson</a>
-									<p class="small m-0">example@gmail.com</p>
+									<a class="h6" href="#">Saadi waed </a>
+									<p class="small m-0">SaadiWaed@gmail.com</p>
 								</div>
 							</div>
 						</li>
 						<!-- Links -->
 						<li> <hr class="dropdown-divider"></li>
-						<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Edit Profile</a></li>
-						<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Account Settings</a></li>
-						<li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Help</a></li>
-						<li><a class="dropdown-item bg-danger-soft-hover" href="#"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
+						<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>ModifierProfile</a></li>
+						<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Parametres Compte</a></li>
+						<li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Aider</a></li>
+						<li><a class="dropdown-item bg-danger-soft-hover" href="#"><i class="bi bi-power fa-fw me-2"></i>Se déconnecter</a></li>
 						<li> <hr class="dropdown-divider"></li>
 						<!-- Dark mode options START -->
 						<li>
@@ -326,7 +326,7 @@
 
 <!-- **************** MAIN CONTENT START **************** -->
 <main>
-
+{% block main_content %}
 <!-- =======================
 Main Banner START -->
 <section class="overflow-hidden pt-6 pt-xxl-0">
@@ -354,7 +354,7 @@ Main Banner START -->
 			<!-- Main content -->
 			<div class="col-lg-6 col-xl-4 col-xxl-5 text-center position-relative">
 				<!-- Title -->
-				<h1 class="display-6">Discover best classes for the best learning</h1>
+				<h1 class="display-6"> Découvrez les meilleurs livres pour une meilleure lecture</h1>
 				<!-- Svg decoration -->
 				<figure class="position-absolute top-0 start-100 translate-middle pe-7 pb-4">
 						<svg width="94.5px" height="67.6px" viewBox="0 0 94.5 67.6">
@@ -377,17 +377,17 @@ Main Banner START -->
 							C57.5,58.1,60.8,63.5,59.8,64.9z"/>
 						</svg>
 				</figure>
-				<p>Online learning and teaching marketplace with 5K+ courses & 10M students. Taught by experts to help you acquire new skills.</p>
+				<p>Plateforme de lecture et de partage de livres en ligne avec plus de 5 000 ouvrages et 10 millions de lecteurs. Recommandés par des experts pour vous aider à découvrir de nouvelles connaissances.</p>
 
 				<!-- Buttons -->
 				<div class="d-sm-flex align-items-center justify-content-center">
 					<!-- Button -->
-					<a href="#" class="btn btn-lg btn-warning me-2 mb-4 mb-sm-0">View Courses<i class="bi bi-arrow-right ms-2"></i></a>
+					<a href="#" class="btn btn-lg btn-warning me-2 mb-4 mb-sm-0">Voir les livres<i class="bi bi-arrow-right ms-2"></i></a>
 					<!-- Video button -->
           <div class="d-flex align-items-center justify-content-center py-2 ms-0 ms-sm-4">
             <a data-glightbox data-gallery="office-tour" href="https://www.youtube.com/embed/tXHviS-4ygo" class="btn btn-lg btn-round btn-light mb-0 overflow-visible me-7"> 
               <i class="fas fa-play"></i>
-              <h6 class="mb-0 ms-2 fw-normal position-absolute start-100 top-50 translate-middle-y">Watch video</h6>
+              <h6 class="mb-0 ms-2 fw-normal position-absolute start-100 top-50 translate-middle-y">Regarder video</h6>
             </a>
           </div>
 				</div>
@@ -414,7 +414,7 @@ Main Banner START -->
 									<i class="bi bi-star-fill"></i>
 								</div>
 								<!-- Info -->
-								<h6 class="mb-0 small mb-0 ms-3">Over 1M Students have given a five star review to their tutors</h6>
+								<h6 class="mb-0 small mb-0 ms-3">Plus d’1 million de lecteurs ont donné une note 5 étoiles à leurs livres</h6>
 							</div>
 						</div>
 					</div>
@@ -447,8 +447,8 @@ Feature START -->
 
 			<!-- Title -->
 			<div class="col-sm-6 col-lg-4">
-				<h2>Why choose our classes</h2>
-				<p class="mb-0">Comfort reached gay perhaps chamber his six detract besides add. Moonlight newspaper up its enjoyment agreeable depending.</p>
+				<h2>Pourquoi choisir nos livres</h2>
+				<p class="mb-0">Découvrez des livres soigneusement sélectionnés pour enrichir votre expérience de lecture et satisfaire tous les goûts.</p>
 			</div>
 
 			<!-- Feature item -->
@@ -467,8 +467,8 @@ Feature START -->
 							<path d="M47.15,44.93H4.2c-1.56,0-2.83-1.27-2.83-2.83V20.06c0-1.56,1.27-2.83,2.83-2.83H6c0.57,0,1.03,0.46,1.03,1.03 c0,0.57-0.46,1.03-1.03,1.03H4.2c-0.43,0-0.77,0.35-0.77,0.77V42.1c0,0.43,0.35,0.77,0.77,0.77h42.95c0.43,0,0.77-0.35,0.77-0.77 V20.06c0-0.43-0.35-0.77-0.77-0.77h-2.51c-0.57,0-1.03-0.46-1.03-1.03c0-0.57,0.46-1.03,1.03-1.03h2.51c1.56,0,2.83,1.27,2.83,2.83 V42.1C49.97,43.66,48.71,44.93,47.15,44.93z"/>
 						</svg>
 					</figure>
-					<h5>Occasional Video Update</h5>
-					<p class="mb-0">Mountains in just switching city steps Might rung line what Was or between towards the have phase.</p>
+					<h5>Mises à jour occasionnelles en vidéo</h5>
+					<p class="mb-0">Suivez les dernières nouveautés et recommandations de livres à travers nos vidéos informatives.</p>
 				</div>
 			</div>
 
@@ -498,8 +498,8 @@ Feature START -->
 							<path d="M52.15,56.75H37.27c-0.48,0-0.86-0.39-0.86-0.86v-6.5c0-2.73,2.04-5.02,4.75-5.33c0.47-0.06,0.9,0.28,0.95,0.76 s-0.29,0.9-0.76,0.95c-1.84,0.21-3.23,1.77-3.23,3.62v5.63h13.15V49.4c0-1.85-1.39-3.41-3.23-3.62c-0.47-0.05-0.81-0.48-0.76-0.95 c0.05-0.47,0.49-0.81,0.95-0.76c2.71,0.31,4.75,2.6,4.75,5.33v6.5C53.01,56.37,52.63,56.75,52.15,56.75z"/>
 						</svg>
 					</figure>
-					<h5>Online Course From Experts</h5>
-					<p class="mb-0">Prisoners And mountains in just switching city steps Might rung line Was or between the have phase.</p>
+					<h5>Livres en ligne sélectionnés par des experts</h5>
+					<p class="mb-0">Découvrez des ouvrages choisis par des spécialistes pour enrichir vos connaissances et vos compétences.</p>
 				</div>
 			</div>
 
@@ -519,8 +519,8 @@ Feature START -->
 							<path d="M46.59,30.46c-1.98,0-3.6-1.61-3.6-3.6s1.61-3.6,3.6-3.6s3.6,1.61,3.6,3.6S48.57,30.46,46.59,30.46z M46.59,24.92 c-1.07,0-1.95,0.87-1.95,1.95s0.87,1.95,1.95,1.95c1.07,0,1.95-0.87,1.95-1.95S47.66,24.92,46.59,24.92z"/>
 						</svg>
 					</figure>
-					<h5>Class Program Options</h5>
-					<p class="mb-0">Switching city steps Might rung line what Mr Bulk; Was or between towards the have phase.</p>
+					<h5>Options de programmes de lecture</h5>
+					<p class="mb-0">Explorez différents parcours de lecture selon vos intérêts : romans, essais, sciences, arts, et bien plus.</p>
 				</div>
 			</div>
 
@@ -547,8 +547,8 @@ Feature START -->
 								<path d="M41.74,24.62h-6.47c-0.47,0-0.84-0.38-0.84-0.84c0-0.47,0.38-0.84,0.84-0.84h6.47c0.47,0,0.84,0.38,0.84,0.84 C42.58,24.24,42.2,24.62,41.74,24.62z"/>
 							</svg>
 						</figure>
-					<h5>Over 500+ High Quality Courses</h5>
-					<p class="mb-0">Go he prisoners And mountains in just switching city steps Might.</p>
+					<h5>Plus de 500 livres de haute qualité</h5>
+					<p class="mb-0">Explorez notre vaste catalogue de livres soigneusement sélectionnés pour tous les goûts et niveaux.</p>
 				</div>
 			</div>
 
@@ -566,8 +566,8 @@ Feature START -->
 								<path d="M27.59,52.15c-14.19,0-25.73-11.54-25.73-25.73c0-14.19,11.54-25.73,25.73-25.73c0.48,0,0.86,0.39,0.86,0.86 c0,0.48-0.39,0.86-0.86,0.86c-13.24,0-24,10.77-24,24c0,13.24,10.77,24,24,24s24-10.77,24-24c0-0.48,0.39-0.86,0.86-0.86 c0.48,0,0.86,0.39,0.86,0.86C53.32,40.61,41.78,52.15,27.59,52.15z"/>
 							</svg>
 						</figure>
-					<h5>Earn a Certificate of Achievement</h5>
-					<p class="mb-0">Go he prisoners And mountains in just switching city steps Might.</p>
+					<h5>Obtenez un certificat de lecture</h5>
+					<p class="mb-0">Complétez vos parcours de lecture et recevez un certificat attestant de vos connaissances et compétences acquises.</p>
 				</div>
 			</div>
 
@@ -584,8 +584,8 @@ Instructor grid START -->
 		<!-- Title -->
 		<div class="row mb-4">
 			<div class="col-md-8 text-center mx-auto">
-				<h2 class="fs-1">Featured Courses With Their Instructors</h2>
-				<p class="mb-0">Space is limited. Reserve your spot today!</p>
+				<h2 class="fs-1">Livres en vedette et leurs auteurs</h2>
+				<p class="mb-0">Places limitées. Réservez votre exemplaire dès aujourd’hui !</p>
 			</div>
 		</div>
 
@@ -607,7 +607,7 @@ Instructor grid START -->
 					<div class="card-body px-2">
 						<!-- Title -->
 						<h5 class="card-title"><a href="workshop-detail.html" class="stretched-link">Build your brand & business</a></h5>
-						<h6 class="mb-0 fw-normal">With Dennis Barrett</h6>
+						<h6 class="mb-0 fw-normal">Avec Dennis Barrett</h6>
 					</div>
 				</div>
 			</div>
@@ -629,7 +629,7 @@ Instructor grid START -->
 					<div class="card-body px-2">
 						<!-- Title -->
 						<h5 class="card-title"><a href="workshop-detail.html" class="stretched-link">Master in logo design</a></h5>
-						<h6 class="mb-0 fw-normal">With Jacqueline Miller</h6>
+						<h6 class="mb-0 fw-normal">Avec Jacqueline Miller</h6>
 					</div>
 				</div>
 			</div>
@@ -651,7 +651,7 @@ Instructor grid START -->
 					<div class="card-body px-2">
 						<!-- Title -->
 						<h5 class="card-title"><a href="workshop-detail.html" class="stretched-link">Create brand using vector illustration</a></h5>
-						<h6 class="mb-0 fw-normal">With Louis Ferguson</h6>
+						<h6 class="mb-0 fw-normal">Avec Louis Ferguson</h6>
 					</div>
 				</div>
 			</div>
@@ -673,7 +673,7 @@ Instructor grid START -->
 					<div class="card-body px-2">
 						<!-- Title -->
 						<h5 class="card-title"><a href="workshop-detail.html" class="stretched-link">Develop your marketing skills style</a></h5>
-						<h6 class="mb-0 fw-normal">With Frances Guerrero</h6>
+						<h6 class="mb-0 fw-normal">Avec Frances Guerrero</h6>
 					</div>
 				</div>
 			</div>
@@ -695,7 +695,7 @@ Instructor grid START -->
 					<div class="card-body px-2">
 						<!-- Title -->
 						<h5 class="card-title"><a href="workshop-detail.html" class="stretched-link">Build your own responsive website</a></h5>
-						<h6 class="mb-0 fw-normal">With Amanda Reed</h6>
+						<h6 class="mb-0 fw-normal">Avec Amanda Reed</h6>
 					</div>
 				</div>
 			</div>
@@ -717,7 +717,7 @@ Instructor grid START -->
 					<div class="card-body px-2">
 						<!-- Title -->
 						<h5 class="card-title"><a href="workshop-detail.html" class="stretched-link">Become a professional product photographer</a></h5>
-						<h6 class="mb-0 fw-normal">With Samuel Bishop</h6>
+						<h6 class="mb-0 fw-normal">Avec Samuel Bishop</h6>
 					</div>
 				</div>
 			</div>
@@ -739,7 +739,7 @@ Instructor grid START -->
 					<div class="card-body px-2">
 						<!-- Title -->
 						<h5 class="card-title"><a href="workshop-detail.html" class="stretched-link">Developed your photo editing skills</a></h5>
-						<h6 class="mb-0 fw-normal">With Lori Stevens</h6>
+						<h6 class="mb-0 fw-normal">Avec Lori Stevens</h6>
 					</div>
 				</div>
 			</div>
@@ -761,7 +761,7 @@ Instructor grid START -->
 					<div class="card-body px-2">
 						<!-- Title -->
 						<h5 class="card-title"><a href="workshop-detail.html" class="stretched-link">Master logo design</a></h5>
-						<h6 class="mb-0 fw-normal">With Joan Wallace</h6>
+						<h6 class="mb-0 fw-normal">Avec Joan Wallace</h6>
 					</div>
 				</div>
 			</div>
@@ -783,17 +783,17 @@ Action box START -->
 					<div class="row g-4 align-items-center">
 						<div class="col-md-6">
 							<!-- Title -->
-							<h6 class="text-primary">Newsletter</h6>
-							<h2 class="mb-0">Subscribe Mail list!</h2>
-							<p class="mb-0">Speedily say has suitable disposal add boy. On forth doubt miles of child. Exercise joy man children rejoiced.</p>
+							<h6 class="text-primary">Bulletin d’information</h6>
+							<h2 class="mb-0">S’abonner à la liste de diffusion !</h2>
+							<p class="mb-0">Recevez les dernières nouveautés, recommandations de livres et événements directement dans votre boîte mail.</p>
 						</div>
 
 						<!-- Form -->
 						<div class="col-md-6">
 							<form class="bg-body rounded-2 p-2">
 								<div class="input-group">
-									<input class="form-control border-0 me-1" type="email" placeholder="Enter your email">
-									<button type="button" class="btn btn-blue mb-0 rounded-2">Subscribe!</button>
+									<input class="form-control border-0 me-1" type="email" placeholder="Entrer vos email">
+									<button type="button" class="btn btn-blue mb-0 rounded-2">S’abonner!</button>
 								</div>
 							</form>
 						</div>
@@ -813,8 +813,8 @@ Top Listed START -->
 		<!-- Title -->
 		<div class="row mb-4">
 			<div class="col-12 mx-auto text-center">
-				<h2 class="fs-1">Top Listed Courses</h2>
-				<p class="mb-0">Check out most 🤩 courses in the market</p>
+				<h2 class="fs-1">Livres les plus populaires</h2>
+				<p class="mb-0">Découvrez les livres les plus appréciés par nos lecteurs</p>
 			</div>
 		</div>
 
@@ -834,7 +834,7 @@ Top Listed START -->
 								<h5 class="card-title fw-normal"><a href="course-detail.html" class="stretched-link">Sketch from A to Z: for app designer</a></h5>
 								<div class="d-sm-flex justify-content-between align-items-center">
 									<h6 class="mb-0">Billy Vasquez</h6>
-									<a href="#" class="btn btn-link p-0 mb-0">View detail<i class="bi bi-arrow-right ms-2"></i></a>
+									<a href="#" class="btn btn-link p-0 mb-0">Voir detaille<i class="bi bi-arrow-right ms-2"></i></a>
 								</div>
 							</div>
 						</div>
@@ -852,7 +852,7 @@ Top Listed START -->
 								<h5 class="card-title fw-normal"><a href="course-detail.html" class="stretched-link">Graphic Design Masterclass</a></h5>
 								<div class="d-sm-flex justify-content-between align-items-center">
 									<h6 class="mb-0">Carolyn Ortiz</h6>
-									<a href="#" class="btn btn-link p-0 mb-0">View detail<i class="bi bi-arrow-right ms-2"></i></a>
+									<a href="#" class="btn btn-link p-0 mb-0">Voir detaille<i class="bi bi-arrow-right ms-2"></i></a>
 								</div>
 							</div>
 						</div>
@@ -870,7 +870,7 @@ Top Listed START -->
 								<h5 class="card-title fw-normal"><a href="course-detail.html" class="stretched-link">Create a Design System in Figma</a></h5>
 								<div class="d-sm-flex justify-content-between align-items-center">
 									<h6 class="mb-0">Dennis Barrett</h6>
-									<a href="#" class="btn btn-link p-0 mb-0">View detail<i class="bi bi-arrow-right ms-2"></i></a>
+									<a href="#" class="btn btn-link p-0 mb-0">Voir detaille<i class="bi bi-arrow-right ms-2"></i></a>
 								</div>
 							</div>
 						</div>
@@ -888,7 +888,7 @@ Top Listed START -->
 								<h5 class="card-title fw-normal"><a href="course-detail.html" class="stretched-link">Build Responsive Websites with HTML</a></h5>
 								<div class="d-sm-flex justify-content-between align-items-center">
 									<h6 class="mb-0">Larry Lawson</h6>
-									<a href="#" class="btn btn-link p-0 mb-0">View detail<i class="bi bi-arrow-right ms-2"></i></a>
+									<a href="#" class="btn btn-link p-0 mb-0">Voir detaille<i class="bi bi-arrow-right ms-2"></i></a>
 								</div>
 							</div>
 						</div>
@@ -906,7 +906,7 @@ Top Listed START -->
 								<h5 class="card-title fw-normal"><a href="course-detail.html" class="stretched-link">Build Responsive Websites with Angular</a></h5>
 								<div class="d-sm-flex justify-content-between align-items-center">
 									<h6 class="mb-0">Larry Lawson</h6>
-									<a href="#" class="btn btn-link p-0 mb-0">View detail<i class="bi bi-arrow-right ms-2"></i></a>
+									<a href="#" class="btn btn-link p-0 mb-0">Voir detaille<i class="bi bi-arrow-right ms-2"></i></a>
 								</div>
 							</div>
 						</div>
@@ -931,8 +931,8 @@ Faq START -->
 
 			<div class="col-lg-6 col-xl-5">
 				<!-- Title and button -->
-				<h2 class="fs-1">Frequently Asked Questions</h2>
-				<p class="mb-0">We are answering the most frequent questions. No worries if you do not find the exact one. You can find out more by searching or continuing by clicking the button below or directly <a href="#" class="text-decoration-underline">Contact our supports</a></p>
+				<h2 class="fs-1">Questions fréquentes</h2>
+				<p class="mb-0">Nous répondons aux questions les plus fréquentes. Pas de souci si vous ne trouvez pas exactement ce que vous cherchez. Vous pouvez en savoir plus en effectuant une recherche ou en poursuivant en cliquant sur le bouton ci-dessous. <a href="#" class="text-decoration-underline">Contactez notre support</a></p>
 			</div>
 
 			<div class="col-lg-6 ms-xl-auto">
@@ -942,12 +942,12 @@ Faq START -->
 					<div class="accordion-item">
 						<h2 class="accordion-header" id="headingOne">
 							<button class="accordion-button h6 rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-								What is this theme layout for?
+							À quoi sert ce modèle de thème ?
 							</button>
 						</h2>
 						<div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionFaq">
 							<div class="accordion-body">
-								Yet remarkably appearance gets him his projection. Diverted endeavor bed peculiar men the not desirous. Acuteness abilities ask can offending furnished fulfilled sex. Warrant fifteen exposed ye at mistake. Blush since so in noisy still built up an again. As young ye hopes no he place means. Partiality diminution gay yet entreaties admiration. In mention perhaps attempt pointed suppose. Unknown ye chamber of warrant of Norland arrived
+								LibraryHub est votre bibliothèque en ligne intelligente, vous permettant de découvrir, emprunter et lire des livres de qualité en toute simplicité. Explorez notre catalogue, suivez vos auteurs préférés et profitez de recommandations personnalisées pour enrichir votre expérience de lecture.
 							</div>
 						</div>
 					</div>
@@ -956,12 +956,12 @@ Faq START -->
 					<div class="accordion-item">
 						<h2 class="accordion-header" id="headingTwo">
 							<button class="accordion-button h6 rounded collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-								How can we help?
+								Comment pouvons-nous vous aider ?
 							</button>
 						</h2>
 						<div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionFaq">
 							<div class="accordion-body">
-								What deal evil rent by real in. But her ready least set lived spite solid. September how men saw tolerably two behavior arranging. She offices for highest and replied one venture pasture. Applauded no discovery in newspaper allowance am northward. Frequently partiality possession resolution at or appearance unaffected me. Engaged its was the evident pleased husband. Ye goodness felicity do disposal dwelling no. First am plate jokes to began to cause a scale. Subjects he prospect elegance followed no overcame possible it on. Improved own provided blessing may peculiar domestic. Sight house has sex never. No visited raising gravity outward subject my cottage Mr be.
+								Chez LibraryHub, nous aidons les lecteurs à découvrir des livres passionnants et enrichissants. Notre plateforme propose un large catalogue de livres, des recommandations personnalisées, et des outils intelligents pour faciliter vos emprunts et votre expérience de lecture. Que vous soyez passionné de romans, de sciences ou d’arts, LibraryHub vous accompagne dans votre découverte du savoir.
 							</div>
 						</div>
 					</div>
@@ -970,12 +970,20 @@ Faq START -->
 					<div class="accordion-item">
 						<h2 class="accordion-header" id="headingThree">
 							<button class="accordion-button h6 rounded collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-								How to edit my Profile?
+								Comment modifier mon profil ?
 							</button>
 						</h2>
 						<div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionFaq">
 							<div class="accordion-body">
-								First am plate jokes to began to cause a scale. Subjects he prospect elegance followed no overcame possible it on. Improved own provided blessing may peculiar domestic. Sight house has sex never. No visited raising gravity outward subject my cottage Mr be.
+								Pour mettre à jour votre profil sur LibraryHub :
+
+1.Cliquez sur votre avatar ou nom en haut à droite.
+
+2.Sélectionnez Mon profil dans le menu.
+
+3.Modifiez vos informations personnelles, vos préférences de lecture ou votre mot de passe.
+
+4.Cliquez sur Enregistrer pour sauvegarder vos changements.
 							</div>
 						</div>
 					</div>
@@ -984,13 +992,22 @@ Faq START -->
 					<div class="accordion-item">
 						<h2 class="accordion-header" id="headingFour">
 							<button class="accordion-button h6 rounded collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-								How much should I offer the sellers? 
+								Quel prix devrais‑je proposer aux vendeurs ?
 							</button>
 						</h2>
 						<div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionFaq">
 							<div class="accordion-body">
-								Post no so what deal evil rent by real in. But her ready least set lived spite solid. September how men saw tolerably two behavior arranging. She offices for highest and replied one venture pasture. Applauded no discovery in newspaper allowance am northward. Frequently partiality possession resolution at or appearance unaffected me. Engaged its was the evident pleased husband. Ye goodness felicity do disposal dwelling no. First am plate jokes to began to cause a scale. Subjects he prospect elegance followed no overcame possible it on. Improved own provided blessing may peculiar domestic. Sight house has sex never. No visited raising gravity outward subject my cottage Mr be. Hold do at tore in park feet near my case. Invitation at understood occasional sentiments insipidity inhabiting in. Off melancholy alteration principles old. Is do speedily kindness properly oh. Respect article painted cottage he is offices parlors.
-							</div>
+Chez LibraryHub, vous pouvez :
+
+Explorer notre catalogue pour trouver des livres qui vous intéressent.
+
+Lire des avis et recommandations d’autres lecteurs.
+
+Contacter les auteurs ou partager vos commentaires.
+
+Suivre vos parcours de lecture et recevoir des suggestions personnalisées.
+
+Notre objectif est de rendre votre expérience de lecture simple, enrichissante et interactive.							</div>
 						</div>
 					</div>
 
@@ -998,13 +1015,22 @@ Faq START -->
 					<div class="accordion-item">
 						<h2 class="accordion-header" id="headingFive">
 							<button class="accordion-button h6 rounded collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-								Additional Options and Services 
+								Options et services supplémentaires
 							</button>
 						</h2>
 						<div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionFaq">
 							<div class="accordion-body">
-								But her ready least set lived spite solid. September how men saw tolerably two behavior arranging. She offices for highest and replied one venture pasture. Applauded no discovery in newspaper allowance am northward. Frequently partiality possession resolution at or appearance unaffected me. Engaged its was the evident pleased husband. Ye goodness felicity do disposal dwelling no. First am plate jokes to began to cause a scale. Subjects he prospect elegance followed no overcame possible it on. Improved own provided blessing may peculiar domestic. Sight house has sex never. No visited raising gravity outward subject my cottage Mr be. Hold do at tore in park feet near my case. Invitation at understood occasional sentiments insipidity inhabiting in. Off melancholy alteration principles old. Is do speedily kindness properly oh. Respect article painted cottage he is offices parlors.
-							</div>
+LibraryHub vous propose plusieurs fonctionnalités pour enrichir votre expérience de lecture :
+
+Recommandations personnalisées : découvrez des livres adaptés à vos goûts et à vos habitudes de lecture.
+
+Notifications d’emprunt et de retour : recevez des alertes pour ne jamais manquer un livre que vous suivez.
+
+Classements et favoris : suivez vos livres préférés et consultez les plus populaires de la communauté.
+
+Événements et ateliers : participez à des discussions, clubs de lecture et ateliers en ligne.
+
+Ces services sont conçus pour rendre votre expérience de bibliothèque en ligne plus interactive et pratique.							</div>
 						</div>
 					</div>
 				</div>
@@ -1017,6 +1043,7 @@ Faq START -->
 <!-- =======================
 Faq END -->
 
+{% endblock %}
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
 
@@ -1032,18 +1059,18 @@ Footer START -->
 			<div class="col-md-5 col-lg-4">
 				<!-- logo -->
 				<a class="me-0" href="index.html">
-					<img class="light-mode-item h-40px" src="assets/images/logo.svg" alt="logo">
-					<img class="dark-mode-item h-40px" src="assets/images/logo-light.svg" alt="logo">
+					<img class="light-mode-item h-40px" src="assets/images/image.svg" alt="logo">
+					<img class="dark-mode-item h-40px" src="assets/images/image.svg" alt="logo">
 				</a>
 
-				<p class="my-3">Eduport education theme, built specifically for the education centers which is dedicated to teaching and involve learners.</p>
+				<p class="my-3">LibraryHub, votre bibliothèque en ligne intelligente, conçue pour les passionnés de lecture et les apprenants, dédiée à la découverte et au partage de connaissances.</p>
 				<!-- Newsletter -->
 				<form class="row row-cols-lg-auto g-2">
 					<div class="col-12">
-						<input type="email" class="form-control" placeholder="Enter your email address">
+						<input type="email" class="form-control" placeholder="Entrer votre email">
 					</div>
 					<div class="col-12">
-						<button type="submit" class="btn btn-dark m-0">Subscribe</button>
+						<button type="submit" class="btn btn-dark m-0">S'abonner</button>
 					</div>
 				</form>
 			</div>
@@ -1054,30 +1081,30 @@ Footer START -->
 				<div class="row g-4 g-lg-5">
 					<!-- Link block -->
 					<div class="col-6 col-sm-4">
-						<h5 class="mb-2 mb-md-3">Company</h5>
+						<h5 class="mb-2 mb-md-3">À propos de nous</h5>
 						<ul class="nav flex-column">
-							<li class="nav-item"><a class="nav-link" href="#">About us</a></li>
-							<li class="nav-item"><a class="nav-link" href="#">Contact us</a></li>
-							<li class="nav-item"><a class="nav-link" href="#">News and Blogs</a></li>
-							<li class="nav-item"><a class="nav-link" href="#">Library</a></li>
-							<li class="nav-item"><a class="nav-link" href="#">Career</a></li>
+							<li class="nav-item"><a class="nav-link" href="#">À propos de nous</a></li>
+							<li class="nav-item"><a class="nav-link" href="#">contactez-nous</a></li>
+							<li class="nav-item"><a class="nav-link" href="#">Actualités et blogs</a></li>
+							<li class="nav-item"><a class="nav-link" href="#">Bibliothèque</a></li>
+							<li class="nav-item"><a class="nav-link" href="#">Carrières</a></li>
 						</ul>
 					</div>
 
 					<!-- Link block -->
 					<div class="col-6 col-sm-4">
-						<h5 class="mb-2 mb-md-3">Teaching</h5>
+						<h5 class="mb-2 mb-md-3">Lecture</h5>
 						<ul class="nav flex-column">
-							<li class="nav-item"><a class="nav-link pt-0" href="#">Become instructor</a></li>
-							<li class="nav-item"><a class="nav-link" href="#">Download</a></li>
-							<li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
+							<li class="nav-item"><a class="nav-link pt-0" href="#">Devenir auteur</a></li>
+							<li class="nav-item"><a class="nav-link" href="#">Télécharger</a></li>
+							<li class="nav-item"><a class="nav-link" href="#">Tarifs</a></li>
 							<li class="nav-item"><a class="nav-link" href="#">Services</a></li>
 						</ul>
 					</div>
 
 					<!-- Link block -->
 					<div class="col-6 col-sm-4">
-						<h5 class="mb-2 mb-md-3">Follow Us</h5>
+						<h5 class="mb-2 mb-md-3">Suivez-nous</h5>
 						<ul class="nav flex-column">
 							<li class="nav-item"><a class="nav-link pt-0" href="#"><i class="fab fa-whatsapp fa-fw me-1"></i>WhatsApp</a></li>
 							<li class="nav-item"><a class="nav-link" href="#"><i class="fab fa-youtube fa-fw me-1"></i>YouTube</a></li>
@@ -1098,13 +1125,13 @@ Footer START -->
 			<div class="col-12">
 				<div class="d-md-flex justify-content-between align-items-center pt-2 pb-4 text-center">
 					<!-- copyright text -->
-					<div class="text-primary-hover"> Copyrights ©2023 Eduport. Build by <a href="https://www.webestica.com/" target="_blank" class="text-reset">Webestica</a>.</div>
+					<div class="text-primary-hover"> Copyrights ©2026 LibraryHub. Build by <a href="https://www.webestica.com/" target="_blank" class="text-reset">Esprit</a>.</div>
 					
 					<!-- copyright links-->
 					<div class="nav justify-content-center mt-3 mt-md-0">
 						<ul class="list-inline mb-0">
-							<li class="list-inline-item"><a class="nav-link" href="#">Terms of use</a></li>
-							<li class="list-inline-item"><a class="nav-link" href="#">Privacy policy</a></li>
+							<li class="list-inline-item"><a class="nav-link" href="#">Conditions d’utilisation</a></li>
+							<li class="list-inline-item"><a class="nav-link" href="#">Politique de confidentialité</a></li>
 							<li class="list-inline-item pe-0"><a class="nav-link" href="#">Cookies</a></li>
 						</ul>
 					</div>
