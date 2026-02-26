@@ -1,0 +1,169 @@
+{{ form_start(form, { attr: { novalidate: 'novalidate', class:'category-form' } }) }}
+
+<style>
+
+    .category-card{
+        background:white;
+        border-radius:22px;
+        padding:30px;
+        box-shadow:0 18px 50px rgba(0,0,0,.08);
+    }
+
+    .section-title{
+        font-size:20px;
+        font-weight:700;
+        margin-bottom:22px;
+        color:#1f2937;
+    }
+
+    /* Floating Inputs */
+    .form-floating > .form-control{
+        border-radius:12px;
+        border:1px solid #e5e7eb;
+    }
+
+    .form-control:focus{
+        border-color:#3b82f6;
+        box-shadow:0 0 0 3px rgba(59,130,246,.15);
+    }
+
+    .form-error{
+        font-size:13px;
+        color:#dc2626;
+        margin-top:6px;
+    }
+
+    /* ICON PREVIEW BOX */
+    .icon-box{
+        border:2px dashed #d1d5db;
+        border-radius:18px;
+        padding:30px;
+        text-align:center;
+        background:#f9fafb;
+        transition:.25s;
+    }
+
+    .icon-box:hover{
+        border-color:#3b82f6;
+        background:#f1f5ff;
+    }
+
+    .icon-preview{
+        width:90px;
+        height:90px;
+        object-fit:contain;
+        margin-bottom:12px;
+    }
+
+    .icon-font{
+        font-size:64px;
+        margin-bottom:12px;
+        color:#3b82f6;
+    }
+
+    .submit-bar{
+        margin-top:28px;
+        padding-top:18px;
+        border-top:1px solid #eef1f4;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+    }
+
+</style>
+
+<div class="container py-4">
+    <div class="category-card">
+
+        <div class="section-title">
+            Gestion de catégorie
+        </div>
+
+        <div class="row g-4">
+
+            <!-- LEFT : ICON -->
+            <div class="col-lg-4">
+
+                <div class="icon-box">
+
+                    {% if category is defined and category.icon %}
+                        {% if 'uploads/' in category.icon or '.' in category.icon %}
+                            <img src="{{ asset(category.icon) }}" class="icon-preview" id="iconPreview">
+                        {% else %}
+                            <i id="iconPreviewFont" class="{{ category.icon }} icon-font"></i>
+                        {% endif %}
+                    {% else %}
+                        <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" class="icon-preview" id="iconPreview">
+                    {% endif %}
+
+                    <div class="fw-semibold">Icône de la catégorie</div>
+                    <small class="text-muted d-block mb-3">
+                        Upload image ou classe Bootstrap icon (ex: bi-book)
+                    </small>
+
+                    {{ form_widget(form.iconFile, {'attr':{'class':'form-control','onchange':'previewIcon(event)'}}) }}
+                    <div class="form-error">{{ form_errors(form.iconFile) }}</div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT : DATA -->
+            <div class="col-lg-8">
+
+                <div class="row g-3">
+
+                    <div class="col-12">
+                        <div class="form-floating">
+                            {{ form_widget(form.name, {'attr':{'class':'form-control','placeholder':'Nom catégorie'}}) }}
+                            {{ form_label(form.name) }}
+                        </div>
+                        <div class="form-error">{{ form_errors(form.name) }}</div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Description</label>
+                        {{ form_widget(form.descriptionCat, {'attr':{'class':'form-control','rows':5}}) }}
+                        <div class="form-error">{{ form_errors(form.descriptionCat) }}</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="submit-bar">
+
+            <div class="text-muted small">
+                Cette catégorie sera visible lors de l’ajout d’un livre.
+            </div>
+
+            <button class="btn btn-primary px-4 py-2 rounded-pill">
+                <i class="bi bi-check-circle"></i>
+                {{ button_label|default('Enregistrer') }}
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+function previewIcon(event){
+    const file = event.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(){
+        const img = document.getElementById('iconPreview');
+        if(img){
+            img.src = reader.result;
+        }
+    }
+    reader.readAsDataURL(file);
+}
+</script>
+
+{{ form_end(form) }}
