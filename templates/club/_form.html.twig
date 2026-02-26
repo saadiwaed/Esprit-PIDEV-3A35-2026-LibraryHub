@@ -1,0 +1,67 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+<table class="table table-bordered">
+    <tr>
+        <td>{{ form_label(form.title, "Titre") }}</td>
+        <td>{{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.title) }}</td>
+    </tr>
+
+    <tr>
+        <td>{{ form_label(form.description, "Description") }}</td>
+        <td>{{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}</td>
+        <td>{{ form_errors(form.description) }}</td>
+    </tr>
+
+    <tr>
+        <td>{{ form_label(form.category, "Catégorie") }}</td>
+        <td>{{ form_widget(form.category, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.category) }}</td>
+    </tr>
+
+    <tr>
+        <td>{{ form_label(form.meetingDate, "Date de réunion") }}</td>
+        <td>{{ form_widget(form.meetingDate, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.meetingDate) }}</td>
+    </tr>
+
+    <tr>
+        <td>{{ form_label(form.meetingLocation, "Lieu de réunion") }}</td>
+        <td>{{ form_widget(form.meetingLocation, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.meetingLocation) }}</td>
+    </tr>
+
+    <tr>
+        <td>{{ form_label(form.capacity, "Capacité") }}</td>
+        <td>{{ form_widget(form.capacity, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.capacity) }}</td>
+    </tr>
+
+    <tr>
+        <td>{{ form_label(form.isPrivate, "Privé") }}</td>
+        <td>{{ form_widget(form.isPrivate, {'attr': {'class': 'form-check-input'}}) }}</td>
+        <td>{{ form_errors(form.isPrivate) }}</td>
+    </tr>
+
+
+
+    
+
+    <tr>
+        <td>{{ form_label(form.imageFile, "Image") }}</td>
+        <td>{{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}</td>
+        <td>{{ form_errors(form.imageFile) }}</td>
+    </tr>
+
+
+   
+
+   
+</table>
+
+<div class="mt-3">
+    <button type="submit" class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+    <a href="{{ path('app_club_index') }}" class="btn btn-secondary">Annuler</a>
+</div>
+
+{{ form_end(form) }}

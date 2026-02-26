@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Créer votre compte - LibraryHub</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1754cf",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                        "gold-accent": "#D4AF37",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .field-group {
+            transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+        }
+        .field-group:hover:not(.field-group--error):not(:focus-within) {
+            box-shadow: 0 2px 8px rgba(23, 84, 207, 0.06);
+        }
+        .field-group:focus-within {
+            box-shadow: 0 0 0 3px rgba(23, 84, 207, 0.15);
+            border-color: #1754cf;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .field-group--error {
+            border-color: #dc2626;
+            background-color: rgba(254, 226, 226, 0.4);
+            box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.2);
+        }
+        .field-group--error:focus-within {
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+        .floating-label-input:focus-within label,
+        .floating-label-input input:not(:placeholder-shown) + label,
+        .floating-label-input input:not([value=""]) + label {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: #1754cf;
+        }
+        .field-group--error .floating-label-input label {
+            color: #b91c1c;
+        }
+        .field-group--error:focus-within .floating-label-input label {
+            color: #dc2626;
+        }
+        .gold-gradient-icon {
+            background: linear-gradient(135deg, #D4AF37 0%, #F9E498 50%, #B8860B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .error-msg {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.35rem;
+            font-size: 0.8125rem;
+            color: #b91c1c;
+        }
+        .error-msg::before {
+            content: "";
+            width: 0.25rem;
+            height: 0.25rem;
+            border-radius: 50%;
+            background-color: currentColor;
+            flex-shrink: 0;
+        }
+        .checkbox-group--error {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #fecaca;
+            background-color: rgba(254, 226, 226, 0.3);
+        }
+        body { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="font-display bg-[#f6f6f8] text-slate-800 min-h-screen overflow-hidden">
+<main class="flex min-h-screen w-full">
+    <!-- Left: Immersive Visual -->
+    <section class="hidden lg:flex lg:w-3/5 relative overflow-hidden group">
+        <div class="absolute inset-0 bg-primary/10 mix-blend-multiply z-10"></div>
+        <img alt="Personne lisant un livre dans une bibliothèque ensoleillée" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9c7i4qUbOvgA4ynjyf3SAnMr88ZQG3udniFnNW8QXapZYQJEzAuSnB7Ffi7cWnyY816EJN8ezpn-zSPrMTod4IxvwfaNf_Olrn5jlM5RtmPseVvgfU-v00_kC-l5EsOWuYDPz61P71ke5X3G8VNMoB8wik0Ao4N-5faNw6EXr703RZr4vGa-ecc4stkP1BAl6Abkx034BsUJNN2MMkwRxdZB5bituTe34A-3ISQRflFIWKLf7iveGMpvPf05cIJq3PujwHJrZclo" />
+        <div class="relative z-20 flex flex-col justify-between p-16 h-full text-white">
+            <div>
+                <a href="{{ path('app_frontoffice') }}" class="inline-flex items-center gap-2 mb-8 no-underline text-white hover:opacity-90 transition-opacity">
+                    <i class="fas fa-book-open text-2xl" style="color: #1754cf;"></i>
+                    <span class="text-2xl font-bold tracking-tight"><span class="text-white">LIBRARY</span><span class="text-amber-300">HUB</span></span>
+                </a>
+                <h1 class="text-6xl font-serif max-w-xl leading-tight">
+                    Commencez votre <br/><span class="italic text-blue-200">voyage</span> intellectuel.
+                </h1>
+            </div>
+            <div class="max-w-md">
+                <p class="text-lg text-white/80 font-light leading-relaxed mb-6">
+                    Accédez à plus de 4 millions de manuscrits rares, de revues contemporaines et d'artefacts numériques sélectionnés pour l'érudit moderne.
+                </p>
+                <div class="flex items-center gap-4">
+                    <div class="flex -space-x-3">
+                        <img class="w-10 h-10 rounded-full border-2 border-white/30 object-cover" alt="" src="{{ asset('assets/images/avatar/01.jpg') }}"/>
+                        <img class="w-10 h-10 rounded-full border-2 border-white/30 object-cover" alt="" src="{{ asset('assets/images/avatar/02.jpg') }}"/>
+                        <img class="w-10 h-10 rounded-full border-2 border-white/30 object-cover" alt="" src="{{ asset('assets/images/avatar/03.jpg') }}"/>
+                    </div>
+                    <span class="text-sm font-medium">Rejoint par plus de <strong>12 000 chercheurs</strong> ce mois-ci</span>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+    </section>
+
+    <!-- Right: Register Form -->
+    <section class="w-full lg:w-2/5 flex flex-col items-center justify-center p-8 bg-[#f6f6f8] relative min-h-screen">
+        <div class="absolute top-20 right-20 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 left-20 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+        <div class="w-full max-w-md z-10">
+            <div class="glass-effect p-10 rounded-xl shadow-2xl border border-white/40">
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-inner mb-4">
+                        <span class="material-icons-round text-3xl gold-gradient-icon">person_add</span>
+                    </div>
+                    <h2 class="text-3xl font-serif font-bold text-slate-900 mb-2">Créer votre compte</h2>
+                    <p class="text-slate-500 font-medium">Rejoignez la bibliothèque numérique</p>
+                </div>
+
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                {{ form_errors(registrationForm) }}
+
+                {{ form_start(registrationForm, {'attr': {'class': 'space-y-6', 'id': 'registerForm', 'novalidate': 'novalidate'}}) }}
+
+                    <div class="relative floating-label-input group">
+                        {{ form_widget(registrationForm.firstName, {
+                            'attr': {
+                                'class': 'peer w-full px-4 pt-6 pb-2 bg-white/50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none',
+                                'placeholder': ' '
+                            }
+                        }) }}
+                        {{ form_label(registrationForm.firstName, null, { 'label_attr': { 'class': 'absolute left-4 top-4 text-slate-400 pointer-events-none transition-all duration-200 origin-left' } }) }}
+                        <span class="material-icons-round absolute right-4 top-4 text-slate-300 group-focus-within:text-primary transition-colors">person</span>
+                        <div id="firstNameError" class="mt-1 text-sm text-red-600" style="display: none;"></div>
+                        {{ form_errors(registrationForm.firstName) }}
+                    </div>
+
+                    <div class="relative floating-label-input group">
+                        {{ form_widget(registrationForm.lastName, {
+                            'attr': {
+                                'class': 'peer w-full px-4 pt-6 pb-2 bg-white/50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none',
+                                'placeholder': ' '
+                            }
+                        }) }}
+                        {{ form_label(registrationForm.lastName, null, { 'label_attr': { 'class': 'absolute left-4 top-4 text-slate-400 pointer-events-none transition-all duration-200 origin-left' } }) }}
+                        <span class="material-icons-round absolute right-4 top-4 text-slate-300 group-focus-within:text-primary transition-colors">person</span>
+                        <div id="lastNameError" class="mt-1 text-sm text-red-600" style="display: none;"></div>
+                        {{ form_errors(registrationForm.lastName) }}
+                    </div>
+
+                    <div class="relative floating-label-input group">
+                        {{ form_widget(registrationForm.email, {
+                            'attr': {
+                                'class': 'peer w-full px-4 pt-6 pb-2 bg-white/50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none',
+                                'placeholder': ' '
+                            }
+                        }) }}
+                        {{ form_label(registrationForm.email, null, { 'label_attr': { 'class': 'absolute left-4 top-4 text-slate-400 pointer-events-none transition-all duration-200 origin-left' } }) }}
+                        <span class="material-icons-round absolute right-4 top-4 text-slate-300 group-focus-within:text-primary transition-colors">alternate_email</span>
+                        <div id="emailError" class="mt-1 text-sm text-red-600" style="display: none;"></div>
+                        {{ form_errors(registrationForm.email) }}
+                    </div>
+
+                    <div class="relative floating-label-input group">
+                        {{ form_widget(registrationForm.plainPassword.first, {
+                            'attr': {
+                                'class': 'peer w-full px-4 pt-6 pb-2 bg-white/50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none',
+                                'placeholder': ' '
+                            }
+                        }) }}
+                        {{ form_label(registrationForm.plainPassword.first, null, { 'label_attr': { 'class': 'absolute left-4 top-4 text-slate-400 pointer-events-none transition-all duration-200 origin-left' } }) }}
+                        <button type="button" class="absolute right-4 top-4 text-slate-300 hover:text-slate-500 transition-colors focus:outline-none togglePassword" data-target="plainPasswordFirst" aria-label="Afficher le mot de passe">
+                            <span class="material-icons-round text-xl">visibility</span>
+                        </button>
+                        <div id="plainPasswordFirstError" class="mt-1 text-sm text-red-600" style="display: none;"></div>
+                        {{ form_errors(registrationForm.plainPassword.first) }}
+                    </div>
+
+                    <div class="relative floating-label-input group">
+                        {{ form_widget(registrationForm.plainPassword.second, {
+                            'attr': {
+                                'class': 'peer w-full px-4 pt-6 pb-2 bg-white/50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none',
+                                'placeholder': ' '
+                            }
+                        }) }}
+                        {{ form_label(registrationForm.plainPassword.second, null, { 'label_attr': { 'class': 'absolute left-4 top-4 text-slate-400 pointer-events-none transition-all duration-200 origin-left' } }) }}
+                        <button type="button" class="absolute right-4 top-4 text-slate-300 hover:text-slate-500 transition-colors focus:outline-none togglePassword" data-target="plainPasswordSecond" aria-label="Afficher le mot de passe">
+                            <span class="material-icons-round text-xl">visibility</span>
+                        </button>
+                        <div id="plainPasswordSecondError" class="mt-1 text-sm text-red-600" style="display: none;"></div>
+                        {{ form_errors(registrationForm.plainPassword.second) }}
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                        {{ form_widget(registrationForm.agreeTerms, { 'attr': { 'class': 'w-4 h-4 mt-1 rounded border-slate-300 text-primary focus:ring-primary/20 bg-white transition-colors' } }) }}
+                        {{ form_label(registrationForm.agreeTerms, null, { 'label_attr': { 'class': 'text-sm text-slate-600 cursor-pointer' } }) }}
+                        <div id="agreeTermsError" class="mt-1 text-sm text-red-600" style="display: none;"></div>
+                    </div>
+                    {{ form_errors(registrationForm.agreeTerms) }}
+
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg shadow-lg transition-all transform active:scale-[0.98]">
+                        Créer un compte
+                    </button>
+                {{ form_end(registrationForm) }}
+
+                <div class="relative my-8 text-center">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-slate-200"></div>
+                    </div>
+                    <span class="relative px-4 bg-transparent text-xs font-bold uppercase tracking-widest text-slate-400">OU</span>
+                </div>
+                <p class="text-center text-slate-500">
+                    Déjà un compte ?
+                    <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4 ml-1" href="{{ path('app_login') }}">Se connecter</a>
+                </p>
+            </div>
+
+            <div class="mt-8 text-center">
+                <div class="mt-12 flex items-center justify-center gap-6">
+                    <a class="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors" href="#">Légal</a>
+                    <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                    <a class="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors" href="#">Confidentialité</a>
+                    <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                    <a class="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors" href="#">Support</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+(function() {
+    var form = document.getElementById('registerForm');
+    if (!form) return;
+
+    var firstNameInput = document.getElementById('registration_form_firstName');
+    var lastNameInput = document.getElementById('registration_form_lastName');
+    var emailInput = document.getElementById('registration_form_email');
+    var passwordFirstInput = document.getElementById('registration_form_plainPassword_first');
+    var passwordSecondInput = document.getElementById('registration_form_plainPassword_second');
+    var agreeTermsInput = document.getElementById('registration_form_agreeTerms');
+
+    var firstNameError = document.getElementById('firstNameError');
+    var lastNameError = document.getElementById('lastNameError');
+    var emailError = document.getElementById('emailError');
+    var plainPasswordFirstError = document.getElementById('plainPasswordFirstError');
+    var plainPasswordSecondError = document.getElementById('plainPasswordSecondError');
+    var agreeTermsError = document.getElementById('agreeTermsError');
+
+    function showError(inputEl, errorEl, message) {
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+        if (inputEl) inputEl.classList.add('border-red-500');
+    }
+    function clearError(inputEl, errorEl) {
+        if (errorEl) {
+            errorEl.textContent = '';
+            errorEl.style.display = 'none';
+        }
+        if (inputEl) inputEl.classList.remove('border-red-500');
+    }
+    function isEmailValid(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+    }
+
+    document.querySelectorAll('.togglePassword').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var targetId = this.getAttribute('data-target');
+            var input = targetId === 'plainPasswordFirst' ? passwordFirstInput : passwordSecondInput;
+            var icon = this.querySelector('.material-icons-round');
+            if (!input || !icon) return;
+            var type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            icon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+    });
+
+    function focusField(inputEl) {
+        if (inputEl) {
+            inputEl.focus();
+            inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    form.addEventListener('submit', function(e) {
+        if (firstNameError) clearError(firstNameInput, firstNameError);
+        if (lastNameError) clearError(lastNameInput, lastNameError);
+        if (emailError) clearError(emailInput, emailError);
+        if (plainPasswordFirstError) clearError(passwordFirstInput, plainPasswordFirstError);
+        if (plainPasswordSecondError) clearError(passwordSecondInput, plainPasswordSecondError);
+        if (agreeTermsError) clearError(agreeTermsInput, agreeTermsError);
+
+        var firstName = firstNameInput ? (firstNameInput.value || '').trim() : '';
+        if (firstName === '') {
+            showError(firstNameInput, firstNameError, 'Ce champ est obligatoire.');
+            focusField(firstNameInput);
+            e.preventDefault();
+            return;
+        }
+
+        var lastName = lastNameInput ? (lastNameInput.value || '').trim() : '';
+        if (lastName === '') {
+            showError(lastNameInput, lastNameError, 'Ce champ est obligatoire.');
+            focusField(lastNameInput);
+            e.preventDefault();
+            return;
+        }
+
+        var email = emailInput ? (emailInput.value || '').trim() : '';
+        if (email === '') {
+            showError(emailInput, emailError, 'Ce champ est obligatoire.');
+            focusField(emailInput);
+            e.preventDefault();
+            return;
+        }
+        if (!isEmailValid(email)) {
+            showError(emailInput, emailError, 'Veuillez saisir une adresse e-mail valide.');
+            focusField(emailInput);
+            e.preventDefault();
+            return;
+        }
+
+        var passwordFirst = passwordFirstInput ? passwordFirstInput.value : '';
+        if (passwordFirst === '') {
+            showError(passwordFirstInput, plainPasswordFirstError, 'Ce champ est obligatoire.');
+            focusField(passwordFirstInput);
+            e.preventDefault();
+            return;
+        }
+        if (passwordFirst.length < 6) {
+            showError(passwordFirstInput, plainPasswordFirstError, 'Le mot de passe doit contenir au moins 6 caractères.');
+            focusField(passwordFirstInput);
+            e.preventDefault();
+            return;
+        }
+
+        var passwordSecond = passwordSecondInput ? passwordSecondInput.value : '';
+        if (passwordSecond === '') {
+            showError(passwordSecondInput, plainPasswordSecondError, 'Veuillez confirmer le mot de passe.');
+            focusField(passwordSecondInput);
+            e.preventDefault();
+            return;
+        }
+        if (passwordFirst !== passwordSecond) {
+            showError(passwordSecondInput, plainPasswordSecondError, 'Les deux mots de passe ne correspondent pas.');
+            focusField(passwordSecondInput);
+            e.preventDefault();
+            return;
+        }
+
+        if (agreeTermsInput && !agreeTermsInput.checked) {
+            showError(agreeTermsInput, agreeTermsError, 'Vous devez accepter les conditions.');
+            focusField(agreeTermsInput);
+            e.preventDefault();
+            return;
+        }
+    });
+
+    if (firstNameInput && firstNameError) firstNameInput.addEventListener('input', function() { clearError(firstNameInput, firstNameError); });
+    if (lastNameInput && lastNameError) lastNameInput.addEventListener('input', function() { clearError(lastNameInput, lastNameError); });
+    if (emailInput && emailError) emailInput.addEventListener('input', function() { clearError(emailInput, emailError); });
+    if (passwordFirstInput && plainPasswordFirstError) passwordFirstInput.addEventListener('input', function() { clearError(passwordFirstInput, plainPasswordFirstError); });
+    if (passwordSecondInput && plainPasswordSecondError) passwordSecondInput.addEventListener('input', function() { clearError(passwordSecondInput, plainPasswordSecondError); });
+    if (agreeTermsInput && agreeTermsError) agreeTermsInput.addEventListener('change', function() { clearError(agreeTermsInput, agreeTermsError); });
+})();
+</script>
+</body>
+</html>

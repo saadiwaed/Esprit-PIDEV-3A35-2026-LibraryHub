@@ -1,0 +1,109 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Communautes{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1">Communautes</h1>
+            <p class="text-muted mb-0">Gestion des espaces de discussion.</p>
+        </div>
+        <a href="{{ path('app_community_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Nouvelle communaute
+        </a>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    <form method="get" action="{{ path('app_community_index') }}" class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg-7">
+                    <label for="community-search" class="form-label mb-1">Recherche</label>
+                    <input
+                        id="community-search"
+                        name="q"
+                        type="search"
+                        class="form-control"
+                        placeholder="Nom, description ou objectif"
+                        value="{{ filters.q }}"
+                    >
+                </div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="community-sort" class="form-label mb-1">Tri</label>
+                    <select id="community-sort" name="sort" class="form-select">
+                        <option value="newest" {{ filters.sort == 'newest' ? 'selected' : '' }}>Plus recentes</option>
+                        <option value="oldest" {{ filters.sort == 'oldest' ? 'selected' : '' }}>Plus anciennes</option>
+                        <option value="name_asc" {{ filters.sort == 'name_asc' ? 'selected' : '' }}>Nom A-Z</option>
+                        <option value="name_desc" {{ filters.sort == 'name_desc' ? 'selected' : '' }}>Nom Z-A</option>
+                        <option value="most_posts" {{ filters.sort == 'most_posts' ? 'selected' : '' }}>Plus de posts</option>
+                        <option value="most_members" {{ filters.sort == 'most_members' ? 'selected' : '' }}>Plus de membres</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-6 col-lg-2 d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Appliquer</button>
+                    {% if filters.q or filters.sort != 'newest' %}
+                        <a href="{{ path('app_community_index') }}" class="btn btn-outline-secondary">Reinitialiser</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Createur</th>
+                            <th>Statut</th>
+                            <th>Publique</th>
+                            <th>Posts</th>
+                            <th>Creation</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for community in communities %}
+                        <tr>
+                            <td>#{{ community.id }}</td>
+                            <td class="fw-semibold">
+                                <i class="{{ community.iconClass }} me-2 text-primary"></i>{{ community.name }}
+                            </td>
+                            <td>
+                                {{ community.description|length > 80 ? community.description|slice(0, 80) ~ '...' : community.description }}
+                            </td>
+                            <td>{{ community.createdBy ? community.createdBy.fullName : '-' }}</td>
+                            <td>
+                                <span class="badge {{ community.status.getBadgeClass() }}">{{ community.status.getLabel() }}</span>
+                            </td>
+                            <td>{{ community.isPublic ? 'Oui' : 'Non' }}</td>
+                            <td>{{ community.postCount }}</td>
+                            <td>{{ community.createdAt ? community.createdAt|date('d/m/Y H:i') : '-' }}</td>
+                            <td class="text-end">
+                                <a href="{{ path('app_community_show', {'id': community.id}) }}" class="btn btn-sm btn-outline-primary">Voir</a>
+                                <a href="{{ path('app_community_edit', {'id': community.id}) }}" class="btn btn-sm btn-outline-warning">Modifier</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">Aucune communaute trouvee.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% if form.vars.submitted and not form.vars.valid %}
+    <div id="form-error-summary" class="alert alert-danger form-error-summary mb-4" role="alert" tabindex="-1">
+        <div class="d-flex align-items-center mb-2">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>{{ title|default('Erreur dans le formulaire :') }}</strong>
+        </div>
+        <p class="mb-2">Veuillez corriger les erreurs suivantes :</p>
+        <ul class="mb-0 ps-3">
+            {% include 'partials/_form_error_items.html.twig' with {
+                current_form: form,
+                root_form: form
+            } only %}
+        </ul>
+    </div>
+{% endif %}

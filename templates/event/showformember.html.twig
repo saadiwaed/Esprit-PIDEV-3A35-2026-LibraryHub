@@ -1,0 +1,288 @@
+{% extends 'frontoffice/navbar.html.twig' %}
+
+{% block title %}{{ event.title }} - Détails de l'événement{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_event_index') }}">Événements</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Colonne principale - Détails de l'événement -->
+        <div class="col-lg-8">
+            <!-- En-tête de l'événement -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="h2 mb-2">{{ event.title }}</h1>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-tag me-1"></i>{{ event.type.getLabel() }}
+                                </span>
+                                <span class="badge bg-{{ event.status.color ?? 'secondary' }}">
+                                    <i class="bi bi-circle-fill me-1 small"></i>{{ event.status.label }}
+                                </span>
+                                <span class="badge bg-info">
+                                    <i class="bi bi-people me-1"></i>{{ event.capacity ? event.capacity ~ ' places' : 'Place illimitée' }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions rapides -->
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear"></i> Actions
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if app.user and (app.user == event.createdBy or is_granted('ROLE_ADMIN')) %}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_event_edit', {'id': event.id}) }}">
+                                            <i class="bi bi-pencil me-2"></i>Modifier
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_event_index') }}">
+                                        <i class="bi bi-list me-2"></i>Tous les événements
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_event_my_events') }}">
+                                        <i class="bi bi-calendar-check me-2"></i>Mes événements
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Image de l'événement -->
+                    {% if event.image %}
+                        <div class="text-center mb-4">
+                            <img src="{{ asset('uploads/events/' ~ event.image) }}" 
+                                 alt="{{ event.title }}"
+                                 class="img-fluid rounded-3 shadow-sm"
+                                 style="max-height: 400px; width: auto;">
+                        </div>
+                    {% endif %}
+
+                    <!-- Description -->
+                    <div class="mt-4">
+                        <h5 class="fw-semibold mb-3">
+                            <i class="bi bi-file-text text-primary me-2"></i>Description
+                        </h5>
+                        <p class="text-muted" style="line-height: 1.7;">{{ event.description ?: 'Aucune description fournie.' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations pratiques -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-semibold mb-0">
+                        <i class="bi bi-info-circle text-primary me-2"></i>Informations pratiques
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                                    <i class="bi bi-calendar text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted text-uppercase fw-semibold">Date de début</small>
+                                    <p class="mb-0 fw-bold">{{ event.startDateTime|date('d/m/Y H:i') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                                    <i class="bi bi-calendar-check text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted text-uppercase fw-semibold">Date de fin</small>
+                                    <p class="mb-0 fw-bold">{{ event.endDateTime|date('d/m/Y H:i') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                                    <i class="bi bi-geo-alt text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted text-uppercase fw-semibold">Lieu</small>
+                                    <p class="mb-0 fw-bold">{{ event.location ?: 'Non défini' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                                    <i class="bi bi-clock text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted text-uppercase fw-semibold">Date limite</small>
+                                    <p class="mb-0 fw-bold">{{ event.registrationDeadline ? event.registrationDeadline|date('d/m/Y H:i') : 'Pas de limite' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne latérale -->
+        <div class="col-lg-4">
+            <!-- Organisateur -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-semibold mb-0">
+                        <i class="bi bi-person-circle text-primary me-2"></i>Organisateur
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar me-3">
+                            {% if event.createdBy.avatar %}
+                                <img src="{{ asset('uploads/avatars/' ~ event.createdBy.avatar) }}" 
+                                     class="rounded-circle" 
+                                     width="60" height="60"
+                                     style="object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                     style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                    {{ event.createdBy.firstName|slice(0, 1)|upper }}{{ event.createdBy.lastName|slice(0, 1)|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ event.createdBy.fullName }}</h6>
+                            <small class="text-muted">{{ event.createdBy.email }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clubs organisateurs -->
+            {% if event.organizingClubs|length > 0 %}
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h5 class="fw-semibold mb-0">
+                            <i class="bi bi-people text-primary me-2"></i>Clubs organisateurs
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% for club in event.organizingClubs %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar me-2">
+                                    <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center"
+                                         style="width: 40px; height: 40px;">
+                                        {{ club.title|slice(0, 1)|upper }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="{{ path('app_club_show', {'id': club.id}) }}" 
+                                       class="text-decoration-none fw-semibold">{{ club.title }}</a>
+                                    <br>
+                                    <small class="text-muted">{{ club.members|length }} membres</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Statistiques -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-semibold mb-0">
+                        <i class="bi bi-bar-chart text-primary me-2"></i>Statistiques
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Créé le</span>
+                        <span class="fw-semibold">{{ event.createdDate|date('d/m/Y') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Capacité</span>
+                        <span class="fw-semibold">{{ event.capacity ? event.capacity : 'Illimitée' }}</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-semibold mb-0">
+                        <i class="bi bi-lightning-charge text-primary me-2"></i>Actions
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-grid gap-2">
+                        {% if app.user %}
+                            {% if isRegistered is defined and isRegistered %}
+                                <form method="post" action="{{ path('app_event_leave', {'id': event.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('leave' ~ event.id) }}">
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="bi bi-x-circle me-2"></i>Se désister
+                                    </button>
+                                </form>
+                                <small class="text-success text-center">
+                                    <i class="bi bi-check-circle"></i> Vous êtes inscrit
+                                    {% if registrationStatus and registrationStatus.value == 'waitlisted' %}
+                                        (liste d'attente)
+                                    {% endif %}
+                                </small>
+                            {% else %}
+                                <form method="post" action="{{ path('app_event_join', {'id': event.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('join' ~ event.id) }}">
+                                    <button type="submit" class="btn btn-success w-100" 
+                                            {{ event.isFull ? 'disabled' : '' }}>
+                                        <i class="bi bi-check-circle me-2"></i>Participer
+                                    </button>
+                                </form>
+                                {% if event.isFull %}
+                                    <small class="text-danger text-center">Complet</small>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="btn btn-primary w-100">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter pour participer
+                            </a>
+                        {% endif %}
+                        
+                        <a href="{{ path('app_event_my_events') }}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+</style>
+{% endblock %}

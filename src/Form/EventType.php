@@ -2,40 +2,95 @@
 
 namespace App\Form;
 
-use App\Entity\Club;
 use App\Entity\Event;
-use App\Entity\User;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Enum\EventStatus;
+use App\Enum\EventTypes;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class EventType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('title', null, ['required' => false])
-            ->add('description', null, ['required' => false])
-            ->add('startDateTime', null, ['required' => false])
-            ->add('endDateTime', null, ['required' => false])
-            ->add('location', null, ['required' => false])
-            ->add('capacity', null, ['required' => false])
-            ->add('registrationDeadline', null, ['required' => false])
-            ->add('status', null, ['required' => false])
-            ->add('createdDate', null, ['required' => false])
-            ->add('image', null, ['required' => false])
-            ->add('createdBy', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-                'required' => false,
+            ->add('title', TextType::class, [
+                'label' => 'Titre',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Titre de l\'événement'
+                ]
             ])
-            ->add('organizingClubs', EntityType::class, [
-                'class' => Club::class,
-                'choice_label' => 'id',
-                'multiple' => true,
-                'required' => false,
+            ->add('description', TextareaType::class, [
+                'label' => 'Description',
+                'attr' => [
+                    'class' => 'form-control',
+                    'rows' => 5,
+                    'placeholder' => 'Description de l\'événement'
+                ]
             ])
+            ->add('startDateTime', DateTimeType::class, [
+                'label' => 'Date et heure de début',
+                'widget' => 'single_text',
+                'html5' => true,
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('endDateTime', DateTimeType::class, [
+                'label' => 'Date et heure de fin',
+                'widget' => 'single_text',
+                'html5' => true,
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('location', TextType::class, [
+                'label' => 'Lieu',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Adresse ou lien virtuel'
+                ]
+            ])
+            ->add('capacity', IntegerType::class, [
+                'label' => 'Capacité',
+                'attr' => [
+                    'class' => 'form-control',
+                    'min' => 1,
+                    'placeholder' => 'Nombre maximum de participants'
+                ]
+            ])
+            ->add('registrationDeadline', DateTimeType::class, [
+                'label' => 'Date limite d\'inscription',
+                'widget' => 'single_text',
+                'html5' => true,
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('type', ChoiceType::class, [
+                'choices' => EventTypes::cases(),
+                'choice_value' => 'value',
+                'choice_label' => function (EventTypes $type) {
+                    return $type->getLabel();
+                },
+                'choice_attr' => function (EventTypes $type) {
+                    return ['data-icon' => $type->getIcon()];
+                },
+                'label' => 'Type d\'événement',
+                'attr' => ['class' => 'form-select'],
+            ])
+            ->add('imageFile', VichImageType::class, [
+                'label' => 'Image de l\'événement',
+                'required' => false,
+                'allow_delete' => true,
+                'delete_label' => 'Supprimer l\'image',
+                'download_uri' => false,
+                'image_uri' => true,
+                'attr' => ['class' => 'form-control']
+            ])
+            
+
         ;
     }
 

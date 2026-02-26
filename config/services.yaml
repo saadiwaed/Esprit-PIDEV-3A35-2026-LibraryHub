@@ -5,6 +5,38 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     uploads_dir: '%kernel.project_dir%/public/uploads'
+    attachments_directory: '%kernel.project_dir%/public/uploads/attachments'
+    stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
+    stripe_publishable_key: '%env(STRIPE_PUBLISHABLE_KEY)%'
+    stripe_price_monthly: '%env(STRIPE_PRICE_MONTHLY)%'
+    stripe_price_annual: '%env(STRIPE_PRICE_ANNUAL)%'
+    app.loan.default_loan_days: 21
+    app.loan.renewal_days: 14
+    app.loan.max_renewals: 3
+    app.loan.daily_penalty_rate: 0.50
+    app.loan.daily_late_fee_rate: 0.50
+    app.forum.api.timeout_seconds: '%env(float:FORUM_MODERATION_API_TIMEOUT)%'
+    app.forum.api.toxicity_threshold: '%env(float:FORUM_MODERATION_TOXICITY_THRESHOLD)%'
+    app.forum.ai.enabled: '%env(bool:FORUM_AI_ENABLED)%'
+    app.forum.ai.provider: '%env(string:FORUM_AI_PROVIDER)%'
+    app.forum.ai.endpoint: '%env(string:FORUM_AI_ENDPOINT)%'
+    app.forum.ai.api_key: '%env(string:FORUM_AI_API_KEY)%'
+    app.forum.ai.model: '%env(string:FORUM_AI_MODEL)%'
+    app.forum.ai.timeout_seconds: '%env(float:FORUM_AI_TIMEOUT_SECONDS)%'
+    app.forum.ai.temperature: '%env(float:FORUM_AI_TEMPERATURE)%'
+    app.forum.ai.max_tokens: '%env(int:FORUM_AI_MAX_TOKENS)%'
+    app.forum.ai.min_input_chars: '%env(int:FORUM_AI_MIN_INPUT_CHARS)%'
+    app.forum.ai.confidence_threshold: '%env(float:FORUM_AI_CONFIDENCE_THRESHOLD)%'
+    app.forum.ai.max_context_comments: '%env(int:FORUM_AI_MAX_CONTEXT_COMMENTS)%'
+    app.face.threshold: '%env(float:FACE_THRESHOLD)%'
+    app.virtual_librarian.ai.enabled: '%env(bool:VR_AI_ENABLED)%'
+    app.virtual_librarian.ai.provider: '%env(string:VR_AI_PROVIDER)%'
+    app.virtual_librarian.ai.endpoint: '%env(string:VR_AI_ENDPOINT)%'
+    app.virtual_librarian.ai.api_key: '%env(string:VR_AI_API_KEY)%'
+    app.virtual_librarian.ai.model: '%env(string:VR_AI_MODEL)%'
+    app.virtual_librarian.ai.timeout_seconds: '%env(float:VR_AI_TIMEOUT_SECONDS)%'
+    app.virtual_librarian.ai.temperature: '%env(float:VR_AI_TEMPERATURE)%'
+    app.virtual_librarian.ai.max_tokens: '%env(int:VR_AI_MAX_TOKENS)%'
 
 services:
     # default configuration for services in *this* file
@@ -24,3 +56,81 @@ services:
     App\Service\FileUploader:
         arguments:
             $uploadsDirectory: '%kernel.project_dir%/public'
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    App\Service\GoogleBooksService:
+        arguments:
+            $googleBooksApiKey: '%env(GOOGLE_BOOKS_API_KEY)%'
+    # --- File Upload Service Configuration ---
+    App\Service\FileUploadService:
+        arguments:
+            $attachmentsDirectory: '%attachments_directory%'
+    App\Service\LoanService:
+        arguments:
+            $defaultLoanDays: '%app.loan.default_loan_days%'
+            $renewalDays: '%app.loan.renewal_days%'
+            $maxRenewals: '%app.loan.max_renewals%'
+            $dailyPenaltyRate: '%app.loan.daily_penalty_rate%'
+
+    App\Service\RenewalService:
+        arguments:
+            $renewalDays: '%app.loan.renewal_days%'
+            $maxRenewals: '%app.loan.max_renewals%'
+
+    App\Command\AccrueDailyLateFeesCommand:
+        arguments:
+            $dailyLateFeeRate: '%app.loan.daily_late_fee_rate%'
+
+    App\Service\Forum\LlmAiClient:
+        arguments:
+            $enabled: '%app.forum.ai.enabled%'
+            $provider: '%app.forum.ai.provider%'
+            $endpoint: '%app.forum.ai.endpoint%'
+            $apiKey: '%app.forum.ai.api_key%'
+            $model: '%app.forum.ai.model%'
+            $timeoutSeconds: '%app.forum.ai.timeout_seconds%'
+            $temperature: '%app.forum.ai.temperature%'
+            $maxTokens: '%app.forum.ai.max_tokens%'
+
+    App\Service\VirtualLibrarianAiClient:
+        arguments:
+            $enabled: '%app.virtual_librarian.ai.enabled%'
+            $provider: '%app.virtual_librarian.ai.provider%'
+            $endpoint: '%app.virtual_librarian.ai.endpoint%'
+            $apiKey: '%app.virtual_librarian.ai.api_key%'
+            $model: '%app.virtual_librarian.ai.model%'
+            $timeoutSeconds: '%app.virtual_librarian.ai.timeout_seconds%'
+            $temperature: '%app.virtual_librarian.ai.temperature%'
+            $maxTokens: '%app.virtual_librarian.ai.max_tokens%'
+
+    App\Service\Forum\ForumAiAssistantService:
+        arguments:
+            $minInputChars: '%app.forum.ai.min_input_chars%'
+            $confidenceThreshold: '%app.forum.ai.confidence_threshold%'
+            $maxContextComments: '%app.forum.ai.max_context_comments%'
+
+    App\Service\Forum\PerspectiveApiClient:
+        arguments:
+            $endpoint: '%env(string:PERSPECTIVE_API_ENDPOINT)%'
+            $apiKey: '%env(string:PERSPECTIVE_API_KEY)%'
+            $timeoutSeconds: '%app.forum.api.timeout_seconds%'
+
+    App\Service\Forum\ForumContentModerationService:
+        arguments:
+            $toxicityThreshold: '%app.forum.api.toxicity_threshold%'
+
+    App\Service\FaceRecognitionService:
+        arguments:
+            $threshold: '%app.face.threshold%'
+
+    App\Service\StripeConfigService:
+        arguments:
+            $stripeSecretKey: '%stripe_secret_key%'
+            $stripePriceMonthly: '%stripe_price_monthly%'
+            $stripePriceAnnual: '%stripe_price_annual%'
+            $projectDir: '%kernel.project_dir%'
+
+    App\Controller\MembershipController:
+        arguments:
+            $stripeConfig: '@App\Service\StripeConfigService'

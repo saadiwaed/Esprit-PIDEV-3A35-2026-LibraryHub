@@ -276,7 +276,7 @@ final class BiblioCatalogController extends AbstractController
         $pagination = $paginator->paginate(
             $query,
             $request->query->getInt('page',1),
-            4 // nobmbre de elements par page
+            6 // nobmbre de elements par page
         );
     
         // AJAX request -> return only grid

@@ -1,0 +1,379 @@
+{% extends 'forum_front/layout.html.twig' %}
+
+{% macro render_comment(comment, post, isMember, commentReactionMap, replyForms, childCommentsByParent) %}
+    {% set childComments = childCommentsByParent[comment.id] ?? [] %}
+    {% set replyCount = childComments|length %}
+    {% set hasReplies = replyCount > 0 %}
+    {% set repliesCollapseId = 'comment-replies-' ~ comment.id %}
+
+    <article id="comment-{{ comment.id }}" class="forum-ui-card comment-card p-3 mt-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <div class="fw-semibold">{{ comment.createdBy ? comment.createdBy.fullName : 'Utilisateur inconnu' }}</div>
+                <div class="small text-muted">
+                    {% if comment.createdAt %}
+                        <time datetime="{{ comment.createdAt|date('c') }}" title="{{ comment.createdAt|date('d/m/Y H:i') }}">
+                            {{ comment.createdAt|ago(null, 'fr') }}
+                        </time>
+                    {% else %}
+                        -
+                    {% endif %}
+                </div>
+            </div>
+            <span class="forum-ui-chip"><i class="bi bi-activity"></i>Score: {{ comment.score }}</span>
+        </div>
+        <p class="comment-content mb-2 mt-2">{{ comment.content|nl2br }}</p>
+        {% set commentReaction = commentReactionMap[comment.id] ?? null %}
+        <div class="d-flex flex-wrap align-items-center gap-2 comment-reaction-row">
+            <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'like'}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
+                <button type="submit" class="btn btn-sm reaction-btn {{ commentReaction and commentReaction.value == 'like' ? 'btn-primary' : 'btn-outline-primary' }}" {{ isMember ? '' : 'disabled' }}>
+                    <i class="bi bi-hand-thumbs-up me-1"></i>Like ({{ comment.likeCount }})
+                </button>
+            </form>
+            <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'dislike'}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
+                <button type="submit" class="btn btn-sm reaction-btn {{ commentReaction and commentReaction.value == 'dislike' ? 'btn-danger' : 'btn-outline-danger' }}" {{ isMember ? '' : 'disabled' }}>
+                    <i class="bi bi-hand-thumbs-down me-1"></i>Dislike ({{ comment.dislikeCount }})
+                </button>
+            </form>
+            {% if hasReplies %}
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary forum-ui-btn replies-toggle"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ repliesCollapseId }}"
+                    aria-expanded="false"
+                    aria-controls="{{ repliesCollapseId }}"
+                >
+                    <i class="bi bi-chat-left-dots me-1"></i>Reponses ({{ replyCount }})
+                    <i class="bi bi-chevron-down ms-1"></i>
+                </button>
+            {% endif %}
+            {% if isMember and post.allowComments %}
+                {% set replyForm = replyForms[comment.id] ?? null %}
+                {% if replyForm %}
+                    {% set replyFormId = 'reply-form-' ~ comment.id %}
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary forum-ui-btn reply-toggle"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#{{ replyFormId }}"
+                        aria-expanded="false"
+                        aria-controls="{{ replyFormId }}"
+                    >
+                        <i class="bi bi-reply me-1"></i>Repondre
+                    </button>
+                    <div class="collapse w-100 mt-2" id="{{ replyFormId }}">
+                        <div class="forum-ui-filter p-3 reply-form-box">
+                            {{ form_start(replyForm, {'attr': {'novalidate': 'novalidate'}}) }}
+                                <div class="mb-2">
+                                    {{ form_row(replyForm.content, {'label': 'Votre reponse'}) }}
+                                </div>
+                                {{ form_widget(replyForm.save, {'attr': {'class': 'btn btn-sm btn-primary forum-ui-btn'}}) }}
+                            {{ form_end(replyForm) }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </article>
+
+    {% if hasReplies %}
+        <div id="{{ repliesCollapseId }}" class="collapse comment-thread-collapse">
+            <div class="comment-thread">
+            {% for child in childComments %}
+                {{ _self.render_comment(child, post, isMember, commentReactionMap, replyForms, childCommentsByParent) }}
+            {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% block title %}{{ post.title }} - Forum{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .forum-post-v2 .post-body {
+            line-height: 1.75;
+            font-size: 1.02rem;
+        }
+
+        .forum-post-v2 .post-body .toastui-editor-contents {
+            font-family: "Roboto", sans-serif;
+            color: #223447;
+            line-height: 1.75;
+        }
+
+        .forum-post-v2 .post-body .toastui-editor-contents h1,
+        .forum-post-v2 .post-body .toastui-editor-contents h2,
+        .forum-post-v2 .post-body .toastui-editor-contents h3,
+        .forum-post-v2 .post-body .toastui-editor-contents h4 {
+            font-family: "Heebo", sans-serif;
+            color: #162738;
+            margin-top: 1rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .forum-post-v2 .post-body .toastui-editor-contents pre {
+            border-radius: 10px;
+            border: 1px solid #dde8f4;
+        }
+
+        .forum-post-v2 .reaction-row form,
+        .forum-post-v2 .comment-reaction-row form {
+            margin: 0;
+        }
+
+        .forum-post-v2 .reaction-btn {
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .forum-post-v2 .report-box textarea {
+            min-height: 110px;
+        }
+
+        .forum-post-v2 .attachments-list .list-group-item {
+            border-color: #e1ebf6;
+            padding: 0.75rem 0;
+        }
+
+        .forum-post-v2 .comment-card .comment-content {
+            color: #27394d;
+            line-height: 1.65;
+        }
+
+        .forum-post-v2 .comment-thread {
+            margin-left: 1.25rem;
+            padding-left: 1rem;
+            border-left: 2px solid #e4edf7;
+        }
+
+        .forum-post-v2 .reply-toggle {
+            font-weight: 600;
+        }
+
+        .forum-post-v2 .replies-toggle {
+            font-weight: 600;
+        }
+
+        .forum-post-v2 .replies-toggle .bi-chevron-down {
+            transition: transform 0.2s ease;
+        }
+
+        .forum-post-v2 .replies-toggle[aria-expanded="true"] .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .forum-post-v2 .reply-form-box textarea {
+            min-height: 90px;
+        }
+
+        @media (max-width: 767.98px) {
+            .forum-post-v2 .post-header {
+                gap: 0.65rem;
+            }
+
+            .forum-post-v2 .comment-thread {
+                margin-left: 0.8rem;
+                padding-left: 0.65rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<section class="forum-ui-page forum-post-v2">
+    <div class="container forum-ui-section">
+        {% for label in ['success', 'warning', 'error'] %}
+            {% for message in app.flashes(label) %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="row justify-content-center">
+            <div class="col-xl-9">
+                <a href="{{ path('app_front_community_show', {'id': post.community.id}) }}" class="forum-ui-back-link mb-3"><i class="bi bi-arrow-left"></i> Retour a {{ post.community.name }}</a>
+
+                <article class="forum-ui-surface p-4">
+                    <div class="post-header d-flex flex-wrap justify-content-between align-items-start mb-3">
+                        <h1 class="forum-ui-title h3 mb-0">{{ post.title }}</h1>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if post.spoilerWarning %}
+                                <span class="forum-ui-chip"><i class="bi bi-exclamation-triangle"></i>Spoiler</span>
+                            {% endif %}
+                            <span class="forum-ui-chip"><i class="bi bi-bar-chart-line"></i>Score {{ post.score }}</span>
+                        </div>
+                    </div>
+
+                    <div class="forum-ui-chip-row mb-3">
+                        <span class="forum-ui-chip">
+                            <i class="bi bi-calendar-event"></i>
+                            {% if post.createdAt %}
+                                <time datetime="{{ post.createdAt|date('c') }}" title="{{ post.createdAt|date('d/m/Y H:i') }}">
+                                    {{ post.createdAt|ago(null, 'fr') }}
+                                </time>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                        <span class="forum-ui-chip"><i class="bi bi-person"></i>{{ post.createdBy ? post.createdBy.fullName : 'Utilisateur inconnu' }}</span>
+                        <span class="forum-ui-chip"><i class="bi bi-chat-square-text"></i>{{ post.commentCount }} commentaire(s)</span>
+                    </div>
+
+                    {% set postViewerId = 'postContentViewer' ~ post.id %}
+                    <div id="{{ postViewerId }}" class="post-body mb-4"></div>
+                    {{ toast_ui_editor_widget_viewer(postViewerId, post.content ?? '', {
+                        jquery: { enable: false },
+                        viewer: { options: { height: 'auto', widget_rules: [] } },
+                        extensions: { codeSyntaxHighlight: {}, tableMergedCell: {} }
+                    }) }}
+
+                    {% if post.externalUrl %}
+                        <p class="mb-4">
+                            <a href="{{ post.externalUrl }}" target="_blank" rel="noreferrer" class="btn btn-light forum-ui-btn">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>Lien complementaire
+                            </a>
+                        </p>
+                    {% endif %}
+
+                    <div class="forum-ui-filter mb-4">
+                        <div class="d-flex flex-wrap align-items-center gap-2 reaction-row">
+                            <form method="post" action="{{ path('app_front_post_react', {'id': post.id, 'type': 'like'}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('react_post_' ~ post.id) }}">
+                                <button type="submit" class="btn btn-sm reaction-btn {{ currentPostReaction and currentPostReaction.value == 'like' ? 'btn-primary' : 'btn-outline-primary' }}" {{ isMember ? '' : 'disabled' }}>
+                                    <i class="bi bi-hand-thumbs-up me-1"></i>Like ({{ post.likeCount }})
+                                </button>
+                            </form>
+                            <form method="post" action="{{ path('app_front_post_react', {'id': post.id, 'type': 'dislike'}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('react_post_' ~ post.id) }}">
+                                <button type="submit" class="btn btn-sm reaction-btn {{ currentPostReaction and currentPostReaction.value == 'dislike' ? 'btn-danger' : 'btn-outline-danger' }}" {{ isMember ? '' : 'disabled' }}>
+                                    <i class="bi bi-hand-thumbs-down me-1"></i>Dislike ({{ post.dislikeCount }})
+                                </button>
+                            </form>
+                            <span class="forum-ui-chip"><i class="bi bi-activity"></i>Score: {{ post.score }}</span>
+                        </div>
+                    </div>
+
+                    <h2 class="h5 forum-ui-title mb-2">Pieces jointes</h2>
+                    {% if post.hasAttachments() %}
+                        <ul class="list-group list-group-flush attachments-list">
+                            {% for attachment in post.attachments %}
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-2">
+                                    <span>{{ attachment.getDisplayName() }}</span>
+                                    <a href="{{ asset('uploads/attachments/' ~ attachment.filePath) }}" target="_blank" rel="noreferrer" class="btn btn-sm btn-outline-primary forum-ui-btn">Ouvrir</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="forum-ui-empty">Aucune piece jointe.</p>
+                    {% endif %}
+
+                    {% if app.user and isMember %}
+                        {% if hasReportedPost %}
+                            <div class="alert alert-info py-2 small mt-4 mb-0">
+                                Vous avez deja signale ce post. Merci, la moderation va le traiter.
+                            </div>
+                        {% else %}
+                            {% set reportFormId = 'post-report-form-' ~ post.id %}
+                            <div class="mt-4">
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger forum-ui-btn mb-2"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#{{ reportFormId }}"
+                                    aria-expanded="false"
+                                    aria-controls="{{ reportFormId }}"
+                                >
+                                    <i class="bi bi-flag me-1"></i>Signaler ce post
+                                </button>
+                                <div class="collapse" id="{{ reportFormId }}">
+                                    <form method="post" action="{{ path('app_front_post_report', {'id': post.id}) }}" class="forum-ui-filter report-box">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('report_post_' ~ post.id) }}">
+                                        <label for="post-report-reason" class="form-label mb-1 fw-semibold">Signaler ce post</label>
+                                        <textarea id="post-report-reason" name="reason" class="form-control mb-2" rows="3" minlength="10" maxlength="1500" required placeholder="Expliquez le probleme (spam, contenu inapproprie, etc.)."></textarea>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger forum-ui-btn">
+                                            <i class="bi bi-flag me-1"></i>Envoyer le signalement
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </article>
+
+                {% if app.user %}
+                    <section class="forum-ui-surface mt-4 p-4" data-forum-ai-summary data-endpoint="{{ path('app_forum_ai_post_summary', {'id': post.id}) }}">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <h2 class="h5 forum-ui-title mb-0">Synthese IA de la discussion</h2>
+                            <button type="button" class="btn btn-sm btn-outline-primary forum-ui-btn" data-ai-action="summary-generate">
+                                Generer la synthese
+                            </button>
+                        </div>
+                        <div class="small text-muted mb-2" data-ai-status></div>
+                        <div class="forum-ui-filter" data-ai-summary-output>
+                            <p class="mb-0 text-muted">Cliquez sur "Generer la synthese" pour obtenir un resume du fil.</p>
+                        </div>
+                    </section>
+                {% endif %}
+
+                <section class="forum-ui-surface mt-4 p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h2 class="h4 forum-ui-title mb-0">Commentaires</h2>
+                        <span class="forum-ui-chip"><i class="bi bi-chat-left-text"></i>{{ post.commentCount }}</span>
+                    </div>
+
+                    {% if isMember and post.allowComments %}
+                        <div
+                            class="forum-ui-filter mb-3"
+                            data-forum-ai-comment
+                            data-endpoint="{{ path('app_forum_ai_post_comment_suggest', {'id': post.id}) }}"
+                            data-content-id="{{ commentForm.content.vars.id }}"
+                        >
+                            {% for message in app.flashes('comment_error') %}
+                                <div class="alert alert-danger mb-3" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                            {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate'}}) }}
+                                <div class="mb-3">
+                                    {{ form_row(commentForm.content) }}
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    <button type="button" class="btn btn-outline-primary forum-ui-btn" data-ai-action="comment-generate">
+                                        Suggestion IA
+                                    </button>
+                                    {{ form_widget(commentForm.save, {'attr': {'class': 'btn btn-primary forum-ui-btn'}}) }}
+                                </div>
+                                <div class="small mt-2 text-muted" data-ai-status></div>
+                            {{ form_end(commentForm) }}
+                        </div>
+                    {% elseif app.user and not isMember %}
+                        <div class="alert alert-warning mb-3">Rejoignez la communaute pour commenter ou reagir.</div>
+                    {% elseif app.user and isMember and not post.allowComments %}
+                        <div class="alert alert-secondary mb-3">Les commentaires sont desactives pour ce post.</div>
+                    {% else %}
+                        <div class="alert alert-info mb-3">Connectez-vous et rejoignez la communaute pour commenter.</div>
+                    {% endif %}
+
+                    {% for comment in topLevelComments %}
+                        {{ _self.render_comment(comment, post, isMember, commentReactionMap, replyForms, childCommentsByParent) }}
+                    {% else %}
+                        <p class="forum-ui-empty mt-3">Aucun commentaire pour le moment.</p>
+                    {% endfor %}
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/forum-ai-assistant.js') }}?v=20260223-5"></script>
+{% endblock %}

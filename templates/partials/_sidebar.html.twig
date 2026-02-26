@@ -1,0 +1,233 @@
+{# LibraryHub Sidebar Navigation Partial #}
+{# Location: templates/partials/_sidebar.html.twig #}
+
+<aside class="sidebar bg-dark text-white h-100 position-sticky top-0">
+    <div class="d-flex flex-column h-100">
+        
+        {# Logo/Header Section #}
+        <div class="sidebar-header border-bottom border-secondary p-3">
+            <h4 class="text-center mb-0">
+                <i class="bi bi-book"></i> LIB RARYHUB
+            </h4>
+            <small class="text-center d-block text-secondary">Bibliotheque</small>
+        </div>
+
+        {# Main Navigation (scrollable) #}
+        <nav class="flex-grow-1 overflow-y-auto sidebar-nav">
+            
+            {# Dashboard #}
+            <div class="nav-item">
+                <a href="{{ path('app_home') }}" class="nav-link d-flex align-items-center gap-2 px-3 py-3 text-white-50" style="text-decoration: none;">
+                    <i class="bi bi-house-door"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            {# Catalogue Accordion #}
+            <div class="accordion accordion-flush" id="catalogueAccordion">
+                <div class="accordion-item border-0 bg-dark">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button accordion-button-dark px-3 py-3 gap-2 bg-dark text-white-50" type="button" data-bs-toggle="collapse" data-bs-target="#catalogueCollapse" aria-expanded="false" aria-controls="catalogueCollapse" style="text-decoration: none;">
+                            <i class="bi bi-book"></i>
+                            <span>Catalogue</span>
+                        </button>
+                    </h2>
+                    <div id="catalogueCollapse" class="accordion-collapse collapse" data-bs-parent="#catalogueAccordion">
+                        <div class="accordion-body p-0">
+                            <nav class="nav flex-column">
+                                <a href="{{ path('app_club_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 text-white-50 small" style="text-decoration: none;">
+                                    <i class="bi bi-chevron-right"></i> Clubs
+                                </a>
+                                <a href="{{ path('app_event_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 text-white-50 small" style="text-decoration: none;">
+                                    <i class="bi bi-chevron-right"></i> Evenements
+                                </a>
+                                <a href="{{ path('app_reading_challenge_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 text-white-50 small" style="text-decoration: none;">
+                                    <i class="bi bi-chevron-right"></i> Defis de Lecture
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            {# Accueil #}
+            <div class="nav-item">
+                <a href="{{ path('app_frontoffice') }}" class="nav-link d-flex align-items-center gap-2 px-3 py-3 text-white-50" style="text-decoration: none;">
+                    <i class="bi bi-house-door"></i>
+                    <span>Accueil</span>
+                </a>
+            </div>
+
+
+            {# Mon Profil Accordion #}
+            <div class="accordion accordion-flush" id="profileAccordion">
+                <div class="accordion-item border-0 bg-dark">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button accordion-button-dark px-3 py-3 gap-2 bg-dark text-white-50" type="button" data-bs-toggle="collapse" data-bs-target="#profileCollapse" aria-expanded="false" aria-controls="profileCollapse" style="text-decoration: none;">
+                            <i class="bi bi-person-circle"></i>
+                            <span>Mon profil</span>
+                        </button>
+                    </h2>
+                    <div id="profileCollapse" class="accordion-collapse collapse" data-bs-parent="#profileAccordion">
+                        <div class="accordion-body p-0">
+                            <nav class="nav flex-column">
+                                <a href="#" class="nav-link d-flex align-items-center gap-2 px-4 py-2 text-white-50 small" style="text-decoration: none;">
+                                    <i class="bi bi-chevron-right"></i> Mes informations
+                                </a>
+                                <a href="#" class="nav-link d-flex align-items-center gap-2 px-4 py-2 text-white-50 small" style="text-decoration: none;">
+                                    <i class="bi bi-chevron-right"></i> Parametres
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Notifications #}
+            <div class="nav-item">
+                <a href="#" class="nav-link d-flex align-items-center gap-2 px-3 py-3 text-white-50 position-relative" style="text-decoration: none;">
+                    <i class="bi bi-bell"></i>
+                    <span>Notifications</span>
+                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle p-2" style="width: 8px; height: 8px; border-radius: 50%;"></span>
+                </a>
+            </div>
+
+            {# Admin/Librarian Section #}
+            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_LIBRARIAN') %}
+                <hr class="border-secondary my-3">
+
+                {# Gestion Bibliotheque Title #}
+                <div class="px-3 mb-2">
+                    <small class="text-uppercase text-secondary fw-bold">Gestion Bibliotheque</small>
+                </div>
+
+                {# Gestion Prets Accordion #}
+                <div class="accordion accordion-flush" id="loanManagementAccordion">
+                    <div class="accordion-item border-0 bg-dark">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button accordion-button-dark px-3 py-3 gap-2 {% if app.request.attributes.get('_route') starts with 'loan' or app.request.attributes.get('_route') starts with 'penalty' or app.request.attributes.get('_route') starts with 'renewal' or app.request.attributes.get('_route') starts with 'app_stats' %}bg-primary text-white{% else %}bg-dark text-white-50{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#loanManagementCollapse" aria-expanded="{% if app.request.attributes.get('_route') starts with 'loan' or app.request.attributes.get('_route') starts with 'penalty' or app.request.attributes.get('_route') starts with 'renewal' or app.request.attributes.get('_route') starts with 'app_stats' %}true{% else %}false{% endif %}" aria-controls="loanManagementCollapse" style="text-decoration: none;">
+                                <i class="bi bi-gear"></i>
+                                <span>Gestion prets</span>
+                            </button>
+                        </h2>
+                        <div id="loanManagementCollapse" class="accordion-collapse collapse {% if app.request.attributes.get('_route') starts with 'loan' or app.request.attributes.get('_route') starts with 'penalty' or app.request.attributes.get('_route') starts with 'renewal' or app.request.attributes.get('_route') starts with 'app_stats' %}show{% endif %}" data-bs-parent="#loanManagementAccordion">
+                            <div class="accordion-body p-0">
+                                <nav class="nav flex-column">
+                                    {# Prets en cours #}
+                                    <a href="{{ path('loan_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small {% if app.request.attributes.get('_route') == 'loan_index' %}bg-primary-subtle text-primary fw-semibold{% else %}text-white-50{% endif %}" style="text-decoration: none;">
+                                        <i class="bi bi-chevron-right"></i> Prets en cours
+                                    </a>
+
+                                    {# Tous les prets #}
+                                    <a href="{{ path('loan_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small text-white-50" style="text-decoration: none;">
+                                        <i class="bi bi-chevron-right"></i> Tous les prets
+                                    </a>
+
+                                    {# Amendes / Penalties #}
+                                    <a href="{{ path('penalty_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small {% if app.request.attributes.get('_route') == 'penalty_index' %}bg-primary-subtle text-primary fw-semibold{% else %}text-white-50{% endif %}" style="text-decoration: none;">
+                                        <i class="bi bi-chevron-right"></i> Amendes / Penalties
+                                    </a>
+
+                                    <a href="{{ path('app_stats_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small {% if app.request.attributes.get('_route') == 'app_stats_index' or app.request.attributes.get('_route') == 'app_stats_index_alt' %}bg-primary-subtle text-primary fw-semibold{% else %}text-white-50{% endif %}" style="text-decoration: none;">
+                                        <i class="bi bi-graph-up"></i> Statistiques
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        </nav>
+
+        {# Footer Section (Logout) #}
+        <div class="sidebar-footer border-top border-secondary p-3">
+            {% if app.user %}
+                <div class="d-flex align-items-center gap-2 mb-3 text-white-50">
+                    <i class="bi bi-person-fill"></i>
+                    <small>{{ app.user.firstName }} {{ app.user.lastName }}</small>
+                </div>
+                {# Note: Add app_logout route in security.yaml when implemented #}
+                <a href="#" onclick="alert('Logout route not configured')" class="btn btn-sm btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration: none;">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Deconnexion</span>
+                </a>
+            {% else %}
+                <div class="text-center text-white-50 small">
+                    <p class="mb-2">Not logged in</p>
+                    {# Note: Configure login route when implementing authentication #}
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</aside>
+
+<style>
+    .sidebar {
+        width: 260px;
+        min-height: 100vh;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 100%;
+            min-height: auto;
+            max-height: 60vh;
+        }
+    }
+
+    .accordion-button-dark {
+        color: rgba(255, 255, 255, 0.65);
+        background-color: transparent;
+        border: none;
+    }
+
+    .accordion-button-dark:not(.collapsed) {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    .accordion-button-dark:focus {
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-nav .nav-link {
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-nav .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff !important;
+    }
+
+    .sidebar-nav .accordion-item.active .accordion-button-dark {
+        background-color: rgba(13, 110, 253, 0.25);
+        color: #fff;
+    }
+
+    .sidebar-nav {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+</style>

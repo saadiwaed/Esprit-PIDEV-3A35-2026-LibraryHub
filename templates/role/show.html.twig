@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Role Details{% endblock %}
+
+{% block body %}
+<div class="page-content">
+    <div class="page-content-wrapper border">
+        <!-- Title -->
+        <div class="row mb-3">
+            <div class="col-12 d-sm-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-2 mb-sm-0">Role Details</h1>
+                <div>
+                    <a href="{{ path('app_role_edit', {'id': role.id}) }}" class="btn btn-sm btn-success mb-0 me-2">
+                        <i class="bi bi-pencil-square me-2"></i>Edit
+                    </a>
+                    <a href="{{ path('app_role_index') }}" class="btn btn-sm btn-secondary mb-0">
+                        <i class="bi bi-arrow-left me-2"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card START -->
+        <div class="card bg-transparent border">
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Role Name</h6>
+                        <p class="mb-0">
+                            <span class="badge bg-primary bg-opacity-10 text-primary fs-6">{{ role.name }}</span>
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Users Count</h6>
+                        <p class="mb-0">
+                            <span class="badge bg-info bg-opacity-10 text-info fs-6">
+                                {{ role.users|length }} user(s)
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="col-12">
+                        <h6 class="text-muted">Description</h6>
+                        <p class="mb-0">{{ role.description ?: 'No description provided' }}</p>
+                    </div>
+
+                    {% if role.users|length > 0 %}
+                    <div class="col-12">
+                        <h6 class="text-muted">Assigned Users</h6>
+                        <div class="list-group">
+                            {% for user in role.users %}
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ user.fullName }}</h6>
+                                        <small class="text-muted">{{ user.email }}</small>
+                                    </div>
+                                    <small>Status: <span class="badge bg-{{ user.status == 'ACTIVE' ? 'success' : 'warning' }}">{{ user.status }}</span></small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Card END -->
+    </div>
+</div>
+{% endblock %}

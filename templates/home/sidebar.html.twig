@@ -5,14 +5,14 @@
 <div class="d-flex align-items-center">
     <a class="navbar-brand" href="{{ path('app_home') }}">
         <div class="d-flex align-items-center">
-            <!-- Icône livre plus petite -->
+            <!-- Icone livre plus petite -->
             <div class="bg-gradient-primary rounded p-1 me-2 shadow-sm">
                 <i class="fas fa-book-open text-white fs-4"></i>
             </div>
             <!-- Texte plus compact -->
             <div class="border-start border-white border-opacity-25 ps-2">
                 <h5 class="text-white mb-0 fw-bold">LIBRARY<span class="text-warning">HUB</span></h5>
-                <small class="text-white-50" style="font-size: 0.7rem;">Bibliothèque</small>
+                <small class="text-white-50" style="font-size: 0.7rem;">Bibliotheque</small>
             </div>
         </div>
     </a>
@@ -27,7 +27,7 @@
 <ul class="navbar-nav flex-column" id="navbar-sidebar">
     
     <!-- Menu item 1 -->
-    <li class="nav-item"><a href="{{ path('biblio_catalog_index') }}" class="nav-link"><i class="bi bi-house fa-fw me-2"></i>Dashboard</a></li>
+    <li class="nav-item"><a href="{{ path('app_home') }}" class="nav-link active"><i class="bi bi-house fa-fw me-2"></i>Dashboard</a></li>
     
     <!-- Title -->
     <li class="nav-item ms-2 my-2">Navigation Principale</li>
@@ -45,6 +45,198 @@
         </ul>
     </li>
  
+    <!-- Mon profil -->
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseProfil" role="button" aria-expanded="false" aria-controls="collapseProfil">
+            <i class="bi bi-person fa-fw me-2"></i>Mon profil
+        </a>
+        <ul class="nav collapse flex-column" id="collapseProfil" data-bs-parent="#navbar-sidebar">
+            <li class="nav-item"> <a class="nav-link" href="#">Informations</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Parametres</a></li>
+            {% if is_granted('ROLE_ADMIN') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_face_register') }}">
+                        <i class="bi bi-person-bounding-box me-2"></i> Reconnaissance faciale (admin)
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </li>
+
+
+    <!-- Notifications -->
+    <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-bell fa-fw me-2"></i>Notifications</a></li>
+
+
+    <!-- Title -->
+    <li class="nav-item ms-2 my-2">Gestion Bibliotheque</li>
+
+    <!-- Gestion prets -->
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseGestionPrets" role="button" aria-expanded="false" aria-controls="collapseGestionPrets">
+            <i class="bi bi-arrow-left-right fa-fw me-2"></i>Gestion prets
+        </a>
+        <ul class="nav collapse flex-column" id="collapseGestionPrets" data-bs-parent="#navbar-sidebar">
+
+            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_index') }}">Tous les prêts</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_renewal_index') }}">Renouvellements</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_new') }}">Nouveau prêt</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('penalty_index') }}">Amendes</a></li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_stats_index') }}">
+                    <i class="bi bi-graph-up me-2"></i> Statistiques
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    <!-- Gestion livres -->
+    <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="collapse" href="#collapseCatalogueAdmin" role="button" aria-expanded="false" aria-controls="collapseCatalogueAdmin">
+        <i class="bi bi-book-half fa-fw me-2"></i>Catalogue
+    </a>
+    <ul class="nav collapse flex-column" id="collapseCatalogueAdmin" data-bs-parent="#navbar-sidebar">
+        
+        {# Dashboard #}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('biblio_catalog_index') }}">
+                <i class="bi bi-grid-3x3-gap-fill me-2"></i> Tableau de bord
+            </a>
+        </li>
+        
+        {# Livres #}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('biblio_book_index') }}">
+                <i class="bi bi-book me-2"></i> Livres
+            </a>
+        </li>
+        
+        {# Catégories #}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('biblio_category_index') }}">
+                <i class="bi bi-tags me-2"></i> Catégories
+            </a>
+        </li>
+        
+        {# Auteurs #}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('biblio_author_index') }}">
+                <i class="bi bi-people me-2"></i> Auteurs
+            </a>
+        </li>
+    </ul>
+</li>
+
+    <!-- Gestion membres -->
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseGestionMembres" role="button" aria-expanded="false" aria-controls="collapseGestionMembres">
+            <i class="bi bi-people fa-fw me-2"></i>Gestion membres
+        </a>
+        <ul class="nav collapse flex-column" id="collapseGestionMembres" data-bs-parent="#navbar-sidebar">
+            <li class="nav-item"> <a class="nav-link" href="{{ path('app_user_index') }}">Liste utilisateurs</a></li>
+            {% if is_granted('ROLE_ADMIN') %}
+                <li class="nav-item"> <a class="nav-link" href="{{ path('app_role_index') }}">Gérer les rôles</a></li>
+            {% endif %}
+            <li class="nav-item"> <a class="nav-link" href="{{ path('app_reading_profile_index') }}">Profils de lecture</a></li>
+
+        </ul>
+    </li>
+    <!-- Administration section -->
+<li class="nav-item ms-2 my-2">Administration</li>
+
+<!-- Gestion Evenements -->
+<li class="nav-item">
+    <a class="nav-link" data-bs-toggle="collapse" href="#collapseEvenementsAdmin" role="button" aria-expanded="false" aria-controls="collapseEvenementsAdmin">
+        <i class="bi bi-calendar-event fa-fw me-2"></i>Gestion Evenements
+    </a>
+    <ul class="nav collapse flex-column" id="collapseEvenementsAdmin" data-bs-parent="#navbar-sidebar">
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_index') }}">Liste des événements</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_new') }}">Créer un événement</a></li>
+
+    </ul>
+</li>
+
+<!-- Gestion Clubs -->
+<li class="nav-item">
+    <a class="nav-link" data-bs-toggle="collapse" href="#collapseClubsAdmin" role="button" aria-expanded="false" aria-controls="collapseClubsAdmin">
+        <i class="bi bi-people fa-fw me-2"></i>Gestion Clubs
+    </a>
+    <ul class="nav collapse flex-column" id="collapseClubsAdmin" data-bs-parent="#navbar-sidebar">
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_index') }}">Liste des clubs</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_new') }}">Creer un club</a></li>
+    </ul>
+</li>
+
+
+
+<!-- Gestion Forum -->
+<li class="nav-item">
+    <a class="nav-link" data-bs-toggle="collapse" href="#collapseForumAdmin" role="button" aria-expanded="false" aria-controls="collapseForumAdmin">
+        <i class="bi bi-chat-dots fa-fw me-2"></i>Gestion Forum
+    </a>
+    <ul class="nav collapse flex-column" id="collapseForumAdmin" data-bs-parent="#navbar-sidebar">
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_community_index') }}">Communautes</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{{ path('app_post_index') }}">Posts</a></li>
+    </ul>
+</li>
+    <!-- Demandes d'achat -->
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseDemandesAchat" role="button" aria-expanded="false" aria-controls="collapseDemandesAchat">
+            <i class="bi bi-cart-plus fa-fw me-2"></i>Demandes d'achat
+        </a>
+        <ul class="nav collapse flex-column" id="collapseDemandesAchat" data-bs-parent="#navbar-sidebar">
+            <li class="nav-item"> <a class="nav-link" href="#">Nouvelle demande</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Mes demandes</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Gestion demandes</a></li>
+        </ul>
+    </li>
+
+    <!-- Title -->
+    <li class="nav-item ms-2 my-2">Administration</li>
+
+    <!-- Administration système (Admin only) -->
+    {% if is_granted('ROLE_ADMIN') %}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseAdminSystem" role="button" aria-expanded="false" aria-controls="collapseAdminSystem">
+            <i class="bi bi-gear fa-fw me-2"></i>Administration
+        </a>
+        <ul class="nav collapse flex-column" id="collapseAdminSystem" data-bs-parent="#navbar-sidebar">
+            <li class="nav-item"> <a class="nav-link" href="{{ path('app_user_index') }}">Utilisateurs</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('app_role_index') }}">Rôles</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Journaux système</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Sauvegardes</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Parametres systeme</a></li>
+        </ul>
+    </li>
+    {% endif %}
+
+    <!-- Rapports -->
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseRapports" role="button" aria-expanded="false" aria-controls="collapseRapports">
+            <i class="bi bi-graph-up fa-fw me-2"></i>Rapports
+        </a>
+        <ul class="nav collapse flex-column" id="collapseRapports" data-bs-parent="#navbar-sidebar">
+            <li class="nav-item"> <a class="nav-link" href="#">Rapports mensuels</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Statistiques</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Audit</a></li>
+        </ul>
+    </li>
+
+    <!-- Types d'abonnements -->
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseAbonnements" role="button" aria-expanded="false" aria-controls="collapseAbonnements">
+            <i class="bi bi-credit-card fa-fw me-2"></i>Abonnements
+        </a>
+        <ul class="nav collapse flex-column" id="collapseAbonnements" data-bs-parent="#navbar-sidebar">
+            <li class="nav-item"> <a class="nav-link" href="#">Types d'abonnements</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Gestion abonnements</a></li>
+            <li class="nav-item"> <a class="nav-link" href="#">Paiements</a></li>
+        </ul>
+    </li>
+
+    <!-- Recommandations -->
+    <li class="nav-item"> <a class="nav-link" href="#"><i class="bi bi-lightbulb fa-fw me-2"></i>Recommandations</a></li>
+
 </ul>
 <!-- Sidebar menu end -->
 
@@ -57,7 +249,7 @@
         <a class="h5 mb-0 text-body" href="index.html" data-bs-toggle="tooltip" data-bs-placement="top" title="Home">
             <i class="bi bi-globe"></i>
         </a>
-        <a class="h5 mb-0 text-body" href="sign-in.html" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+        <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Se déconnecter">
             <i class="bi bi-power"></i>
         </a>
     </div>

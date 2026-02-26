@@ -76,7 +76,7 @@
 	</script>
 
 	<!-- Favicon -->
-<link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
+
 
 <!-- Google Font -->
 <link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -103,14 +103,16 @@
 	<nav class="navbar navbar-expand-xl">
 		<div class="container">
 			<!-- Logo START -->
-			<a class="navbar-brand" href="index.html">
-				<img class="light-mode-item navbar-brand-item" src="{{asset('assets/images/image.svg')}}" alt="logo" style="width: 100px; height:auto; border-radius: 50%;">
-				<img class="dark-mode-item navbar-brand-item" src="{{asset('assets/images/image.svg')}}" alt="logo"style="width: 100px; height:auto; border-radius: 50%;">
+			<a class="navbar-brand" href="{{ path('app_frontoffice') }}">
+				<h3 class="mb-0 text-primary">
+					<i class="fas fa-book-open me-2"></i>
+					<span class="text-dark">LIBRARY</span><span class="text-warning">HUB</span>
+				</h3>
 			</a>
 			<!-- Logo END -->
 	
 			<!-- Responsive navbar toggler -->
-			<button class="navbar-toggler ms-sm-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
 				aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-animation">
 					<span></span>
@@ -121,50 +123,130 @@
 	
 			<!-- Main navbar START -->
 			<div class="navbar-collapse collapse" id="navbarCollapse">
-				<!-- Nav Search START -->
-				<div class="col-xl-7">
-					<div class="nav my-3 my-xl-0 px-4 flex-nowrap align-items-center">
-						<div class="nav-item w-100">
-							<form class="rounded position-relative">
-								<input class="form-control pe-5 bg-secondary bg-opacity-10 border-0" type="search" placeholder="Search" aria-label="Search">
-								<button class="btn btn-link bg-transparent px-2 py-0 position-absolute top-50 end-0 translate-middle-y"
-									type="submit"><i class="fas fa-search fs-6 text-primary"></i></button>
-							</form>
-						</div>
-					</div>
-				</div>
-				<!-- Nav Search END -->
+		<!-- Nav Main menu START -->
+<ul class="navbar-nav navbar-nav-scroll ms-auto align-items-center">
 
-				<!-- Nav Main menu START -->
-				<ul class="navbar-nav navbar-nav-scroll ms-auto">
-					<!-- Nav item 1 Demos -->
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Parcourir</a>
-						<ul class="dropdown-menu" aria-labelledby="demoMenu">
-							<li> <a class="dropdown-item" href="index.html">Home Default</a></li>
-							<li> <a class="dropdown-item" href="index-2.html"> Forum et discussions</a></li>
-							<li> <a class="dropdown-item" href="index-3.html">Catalogue et inventaire</a></li>
-							<li> <a class="dropdown-item" href="index-4.html">Emprunts et Retours </a></li>
-							<li> <a class="dropdown-item" href="index-5.html">Journal et Defi</a></li>
-							<li> <a class="dropdown-item" href="index-6.html">Événements et activités</a></li>
-							<li> <a class="dropdown-item" href="index-7.html">Forum et discussions</a></li>
-							
-						</ul>
-					</li>
+	<!-- Parcourir Dropdown (catalog branch) -->
+	<li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			Parcourir
+		</a>
+		<ul class="dropdown-menu" aria-labelledby="demoMenu">
+			<li><a class="dropdown-item" href="index.html">Home Default</a></li>
+			<li><a class="dropdown-item" href="index-2.html">Forum et discussions</a></li>
+			<li><a class="dropdown-item" href="index-3.html">Catalogue et inventaire</a></li>
+			<li><a class="dropdown-item" href="index-4.html">Emprunts et Retours</a></li>
+			<li><a class="dropdown-item" href="index-5.html">Journal et Defi</a></li>
+			<li><a class="dropdown-item" href="index-6.html">Événements et activités</a></li>
+			<li><a class="dropdown-item" href="index-7.html">Forum et discussions</a></li>
+		</ul>
+	</li>
 
-					<!-- Nav item 2 Course -->
-					<li class="nav-item dropdown"><a class="nav-link" href="{{path('biblio_catalog_index_client')}}">Livres</a></li>
-					<li class="nav-item dropdown"><a class="nav-link" href="{{path('biblio_catalog_index_client')}}">Auteurs</a></li>
-					<li class="nav-item dropdown"><a class="nav-link" href="{{path('app_stats')}}"> stats</a></li>
+	<!-- Accueil -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_frontoffice') }}">
+			<i class="bi bi-house-door me-1"></i>Accueil
+		</a>
+	</li>
 
-					<!-- Nav item 3 Components -->
-					<li class="nav-item"><a class="nav-link" href="docs/alerts.html">Composants</a></li>
-				</ul>
-				<!-- Nav Main menu END -->
-			</div>
-			<!-- Main navbar END -->
+	<!-- Livres (client catalog) -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('biblio_catalog_index_client') }}">
+			<i class="bi bi-book me-1"></i>Livres
+		</a>
+	</li>
 
-			<!-- Profile and notification START -->
+	<!-- Auteurs -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('biblio_catalog_index_client') }}">
+			<i class="bi bi-person me-1"></i>Auteurs
+		</a>
+	</li>
+
+	<!-- Stats -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_stats') }}">
+			<i class="bi bi-bar-chart me-1"></i>Stats
+		</a>
+	</li>
+
+	<!-- Mes Événements -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_event_my_events') }}">
+			<i class="bi bi-calendar-event me-1"></i>Mes Événements
+		</a>
+	</li>
+
+	<!-- Club de Lecture -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_my_clubs') }}">
+			<i class="bi bi-people-fill me-1"></i>Club de Lecture
+		</a>
+	</li>
+
+	<!-- Forum Dropdown -->
+	<li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+			<i class="bi bi-chat-dots me-1"></i>Forum
+		</a>
+		<ul class="dropdown-menu">
+			<li>
+				<a class="dropdown-item" href="{{ path('app_front_community_index') }}">
+					<i class="bi bi-people me-2"></i>Toutes les communautés
+				</a>
+			</li>
+			<li>
+				<a class="dropdown-item" href="{{ path('app_front_community_new') }}">
+					<i class="bi bi-plus-circle me-2"></i>Créer une communauté
+				</a>
+			</li>
+			<li><hr class="dropdown-divider"></li>
+			<li>
+				<a class="dropdown-item" href="#">
+					<i class="bi bi-bookmark me-2"></i>Mes communautés
+				</a>
+			</li>
+			<li>
+				<a class="dropdown-item" href="#">
+					<i class="bi bi-file-text me-2"></i>Mes posts
+				</a>
+			</li>
+		</ul>
+	</li>
+
+	<!-- Abonnement -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_membership_index') }}">
+			<i class="bi bi-credit-card me-1"></i>Abonnement
+		</a>
+	</li>
+
+	<!-- Composants (catalog branch) -->
+	<li class="nav-item">
+		<a class="nav-link" href="docs/alerts.html">Composants</a>
+	</li>
+
+	<!-- Auth Buttons -->
+	{% if not app.user %}
+		<li class="nav-item ms-3">
+			<a class="btn btn-sm btn-outline-primary" href="{{ path('app_login') }}">
+				<i class="bi bi-box-arrow-in-right me-1"></i>Connexion
+			</a>
+		</li>
+		<li class="nav-item ms-2">
+			<a class="btn btn-sm btn-primary" href="{{ path('app_register') }}">
+				<i class="bi bi-person-plus me-1"></i>S'inscrire
+			</a>
+		</li>
+	{% endif %}
+
+</ul>
+<!-- Nav Main menu END -->
+</div>
+<!-- Main navbar END -->
+
+			<!-- Profile and notification START (only for logged-in users) -->
+			{% if app.user %}
 			<ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
 				<!-- Notification dropdown START -->
 				<li class="nav-item ms-0 ms-md-3 dropdown">
@@ -261,7 +343,17 @@
 				<li class="nav-item ms-3 dropdown">
 					<!-- Avatar -->
 					<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
-						<img class="avatar-img rounded-circle" src="assets/images/avatar/zaiminhobaltinhocotinho.jfif" alt="avatar">
+						{% if app.user %}
+							{% if app.user.avatar %}
+								<img class="avatar-img rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+							{% else %}
+								<div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+									{{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
+								</div>
+							{% endif %}
+						{% else %}
+							<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/zaiminhobaltinhocotinho.jfif') }}" alt="avatar">
+						{% endif %}
 					</a>
 
 					<!-- Profile dropdown START -->
@@ -271,20 +363,39 @@
 							<div class="d-flex align-items-center">
 								<!-- Avatar -->
 								<div class="avatar me-3">
-									<img class="avatar-img rounded-circle shadow" src="assets/images/avatar/zaiminhobaltinhocotinho.jfif" alt="avatar">
+									{% if app.user %}
+										{% if app.user.avatar %}
+											<img class="avatar-img rounded-circle shadow" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+										{% else %}
+											<div class="avatar-img rounded-circle shadow bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+												{{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
+											</div>
+										{% endif %}
+									{% else %}
+										<img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/zaiminhobaltinhocotinho.jfif') }}" alt="avatar">
+									{% endif %}
 								</div>
 								<div>
-									<a class="h6" href="#">Saadi waed </a>
-									<p class="small m-0">SaadiWaed@gmail.com</p>
+									{% if app.user %}
+										<a class="h6" href="#">{{ app.user.fullName }}</a>
+										<p class="small m-0">{{ app.user.email }}</p>
+									{% else %}
+										<a class="h6" href="#">Invité</a>
+										<p class="small m-0">Non connecté</p>
+									{% endif %}
 								</div>
 							</div>
 						</li>
 						<!-- Links -->
 						<li> <hr class="dropdown-divider"></li>
-						<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>ModifierProfile</a></li>
+						<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Modifier Profile</a></li>
 						<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Parametres Compte</a></li>
 						<li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Aider</a></li>
-						<li><a class="dropdown-item bg-danger-soft-hover" href="#"><i class="bi bi-power fa-fw me-2"></i>Se déconnecter</a></li>
+						{% if app.user %}
+							<li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Se déconnecter</a></li>
+						{% else %}
+							<li><a class="dropdown-item" href="{{ path('app_login') }}"><i class="bi bi-box-arrow-in-right fa-fw me-2"></i>Se connecter</a></li>
+						{% endif %}
 						<li> <hr class="dropdown-divider"></li>
 						<!-- Dark mode options START -->
 						<li>
@@ -317,6 +428,7 @@
 				<!-- Profile dropdown END -->
 			</ul>
 			<!-- Profile and notification END -->
+			{% endif %}
 		
 		</div>
 	</nav>
@@ -326,7 +438,7 @@
 
 <!-- **************** MAIN CONTENT START **************** -->
 <main>
-{% block main_content %}
+{% block body %}
 <!-- =======================
 Main Banner START -->
 <section class="overflow-hidden pt-6 pt-xxl-0">
@@ -1143,11 +1255,73 @@ Footer START -->
 <!-- =======================
 Footer END -->
 
+<!-- Widget de chat du bibliothécaire virtuel -->
+<button id="vh-chat-launcher" type="button"
+        class="position-fixed bottom-0 end-0 m-4 btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+        style="width: 56px; height: 56px; z-index: 1080;">
+    <i class="bi bi-chat-dots-fill"></i>
+</button>
+
+<style>
+    /* Styles du widget Bibliothécaire virtuel */
+    #vh-chat-messages {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .vh-msg {
+        max-width: 85%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        line-height: 1.35;
+        white-space: pre-wrap; /* garde les retours à la ligne */
+        word-break: break-word;
+    }
+    .vh-msg-bot {
+        align-self: flex-start;
+        background: #f1f5f9;
+        color: #0f172a;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+    .vh-msg-user {
+        align-self: flex-end;
+        background: #0d6efd;
+        color: #fff;
+    }
+</style>
+
+<div id="vh-chat-panel"
+     class="position-fixed bottom-0 end-0 m-4 bg-white shadow-lg rounded-3 border vh-chat-panel"
+     data-endpoint="{{ path('app_virtual_assistant_ask') }}"
+     style="width: 360px; max-width: 90vw; height: 440px; max-height: 70vh; z-index: 1079; display: none;">
+    <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+        <div>
+            <div class="fw-bold">Bibliothécaire virtuel</div>
+            <small class="text-muted">Posez une question sur LibraryHub</small>
+        </div>
+        <button type="button" class="btn btn-sm btn-light border-0"
+                onclick="document.getElementById('vh-chat-panel').style.display='none'">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div id="vh-chat-messages" class="px-3 py-2" style="height: 310px; overflow-y: auto; font-size: 0.9rem;">
+        <div class="vh-msg vh-msg-bot">
+            Bonjour, je suis le bibliothécaire virtuel. Comment puis-je vous aider aujourd'hui ?
+        </div>
+    </div>
+    <form id="vh-chat-form" class="border-top px-2 py-2 d-flex gap-2">
+        <input id="vh-chat-input" type="text" class="form-control form-control-sm"
+               placeholder="Ex: Comment prolonger un prêt ?" autocomplete="off">
+        <button class="btn btn-sm btn-primary" type="submit">
+            <i class="bi bi-send"></i>
+        </button>
+    </form>
+</div>
+
 <!-- Back to top -->
 <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 
 {% block javascripts %}
-
 
 <!-- Bootstrap JS -->
 <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
@@ -1158,8 +1332,9 @@ Footer END -->
 
 <!-- Template Functions -->
 <script src="{{ asset('assets/js/functions.js') }}"></script>
+<script src="{{ asset('js/virtual-librarian.js') }}"></script>
 
-    {% endblock %}
+{% endblock %}
 
 
 
