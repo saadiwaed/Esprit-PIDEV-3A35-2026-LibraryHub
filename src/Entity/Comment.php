@@ -44,6 +44,15 @@ class Comment
     #[Assert\NotNull]
     private ?Post $post = null;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(name: 'parent_comment_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
+    private ?self $parent = null;
+
+    /** @var Collection<int, Comment> */
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent', cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    private Collection $children;
+
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?User $createdBy = null;
@@ -55,6 +64,7 @@ class Comment
     public function __construct()
     {
         $this->reactions = new ArrayCollection();
+        $this->children = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -129,6 +139,54 @@ class Comment
         $this->post = $post;
 
         return $this;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): self
+    {
+        if ($parent === $this) {
+            throw new \InvalidArgumentException('Un commentaire ne peut pas etre son propre parent.');
+        }
+
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /** @return Collection<int, Comment> */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(self $child): self
+    {
+        if (!$this->children->contains($child)) {
+            $this->children->add($child);
+            $child->setParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChild(self $child): self
+    {
+        if ($this->children->removeElement($child)) {
+            if ($child->getParent() === $this) {
+                $child->setParent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isReply(): bool
+    {
+        return $this->parent !== null;
     }
 
     public function getCreatedBy(): ?User
