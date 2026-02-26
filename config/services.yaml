@@ -27,6 +27,7 @@ parameters:
     app.forum.ai.min_input_chars: '%env(int:FORUM_AI_MIN_INPUT_CHARS)%'
     app.forum.ai.confidence_threshold: '%env(float:FORUM_AI_CONFIDENCE_THRESHOLD)%'
     app.forum.ai.max_context_comments: '%env(int:FORUM_AI_MAX_CONTEXT_COMMENTS)%'
+    app.face.threshold: '%env(float:FACE_THRESHOLD)%'
 
 services:
     # default configuration for services in *this* file
@@ -95,6 +96,10 @@ services:
     App\Service\Forum\ForumContentModerationService:
         arguments:
             $toxicityThreshold: '%app.forum.api.toxicity_threshold%'
+
+    App\Service\FaceRecognitionService:
+        arguments:
+            $threshold: '%app.face.threshold%'
 
     App\Service\StripeConfigService:
         arguments:

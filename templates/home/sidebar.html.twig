@@ -40,7 +40,13 @@
         <ul class="nav collapse flex-column" id="collapseProfil" data-bs-parent="#navbar-sidebar">
             <li class="nav-item"> <a class="nav-link" href="#">Informations</a></li>
             <li class="nav-item"> <a class="nav-link" href="#">Parametres</a></li>
-
+            {% if is_granted('ROLE_ADMIN') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_face_register') }}">
+                        <i class="bi bi-person-bounding-box me-2"></i> Reconnaissance faciale (admin)
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     </li>
 
@@ -230,7 +236,7 @@
         <a class="h5 mb-0 text-body" href="index.html" data-bs-toggle="tooltip" data-bs-placement="top" title="Home">
             <i class="bi bi-globe"></i>
         </a>
-        <a class="h5 mb-0 text-body" href="sign-in.html" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+        <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Se déconnecter">
             <i class="bi bi-power"></i>
         </a>
     </div>

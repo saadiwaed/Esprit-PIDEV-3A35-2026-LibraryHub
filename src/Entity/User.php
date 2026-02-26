@@ -88,6 +88,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $isPremium = false;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $faceDescriptor = null;
+
     /**
      * RELATION ManyToMany: A User can have many Roles, and a Role can belong to many Users.
      * Example: User "Ali" can be both MEMBER and LIBRARIAN.
@@ -297,6 +300,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsPremium(bool $isPremium): static
     {
         $this->isPremium = $isPremium;
+        return $this;
+    }
+
+    public function getFaceDescriptor(): ?string
+    {
+        return $this->faceDescriptor;
+    }
+
+    /**
+     * @param array<string|float>|string|null $descriptor
+     */
+    public function setFaceDescriptor($descriptor): static
+    {
+        if (is_array($descriptor)) {
+            $descriptor = implode(',', array_map('strval', $descriptor));
+        }
+
+        $this->faceDescriptor = $descriptor;
+
         return $this;
     }
 

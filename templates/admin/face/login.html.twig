@@ -1,0 +1,75 @@
+{% extends 'frontoffice/base.html.twig' %}
+
+{% block title %}Connexion admin - Reconnaissance faciale{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
+    <script src="{{ asset('js/admin-face-login.js') }}" defer></script>
+{% endblock %}
+
+{% block body %}
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div id="face-login-alert" class="alert d-none" role="alert"></div>
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h1 class="h4 mb-3 text-center">Connexion administrateur</h1>
+                        <p class="text-muted text-center mb-4">
+                            Étape 1 : identifiez-vous par reconnaissance faciale, puis saisissez votre mot de passe.
+                        </p>
+
+                        <div id="step-face">
+                            <div class="mb-3 text-center">
+                                <button class="btn btn-outline-primary me-2" id="btn-start-webcam">
+                                    <i class="bi bi-camera-video me-1"></i> Activer la webcam
+                                </button>
+                                <button class="btn btn-success" id="btn-scan-face" disabled>
+                                    <i class="bi bi-person-bounding-box me-1"></i> Scanner mon visage
+                                </button>
+                            </div>
+                            <div class="border rounded-3 p-3 bg-light mb-3">
+                                <div class="position-relative mx-auto" style="max-width: 480px;">
+                                    <video id="face-login-video" autoplay muted playsinline class="w-100 rounded-3 border"></video>
+                                    <canvas id="face-login-canvas" class="position-absolute top-0 start-0"></canvas>
+                                </div>
+                                <p class="small text-muted mt-3 mb-0 text-center">
+                                    Regardez la caméra et attendez que votre visage soit détecté, puis cliquez sur
+                                    <strong>Scanner mon visage</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <form id="face-login-form" class="d-none" method="post" action="{{ path('app_login') }}">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                            <input type="hidden" name="face_login_token" id="face_login_token">
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Adresse e-mail</label>
+                                <input type="email" class="form-control" id="email" name="_username" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mot de passe</label>
+                                <input type="password" class="form-control" id="password" name="_password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                Se connecter au backoffice
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="{{ path('app_login') }}" class="small text-muted text-decoration-none">
+                        &larr; Retour à la connexion classique
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

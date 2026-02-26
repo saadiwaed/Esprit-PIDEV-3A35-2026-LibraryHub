@@ -18,6 +18,7 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            user_checker: App\Security\AdminFaceUserChecker
             
             # Form login configuration
             form_login:
@@ -48,6 +49,8 @@ security:
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/face-login, roles: PUBLIC_ACCESS }
+        - { path: ^/assistant, roles: PUBLIC_ACCESS }
 
         # Forum member actions
         - { path: ^/forum/communities/new, roles: ROLE_MEMBER }
