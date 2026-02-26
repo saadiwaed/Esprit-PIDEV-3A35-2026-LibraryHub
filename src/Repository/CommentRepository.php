@@ -25,9 +25,12 @@ class CommentRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('c')
             ->leftJoin('c.createdBy', 'author')
             ->addSelect('author')
+            ->leftJoin('c.parent', 'parent')
+            ->addSelect('parent')
             ->andWhere('c.post = :post')
             ->setParameter('post', $post)
             ->orderBy('c.createdAt', 'ASC')
+            ->addOrderBy('c.id', 'ASC')
             ->getQuery()
             ->getResult();
     }

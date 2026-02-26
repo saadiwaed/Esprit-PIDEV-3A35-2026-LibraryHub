@@ -1,5 +1,95 @@
 {% extends 'forum_front/layout.html.twig' %}
 
+{% macro render_comment(comment, post, isMember, commentReactionMap, replyForms, childCommentsByParent) %}
+    {% set childComments = childCommentsByParent[comment.id] ?? [] %}
+    {% set replyCount = childComments|length %}
+    {% set hasReplies = replyCount > 0 %}
+    {% set repliesCollapseId = 'comment-replies-' ~ comment.id %}
+
+    <article id="comment-{{ comment.id }}" class="forum-ui-card comment-card p-3 mt-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <div class="fw-semibold">{{ comment.createdBy ? comment.createdBy.fullName : 'Utilisateur inconnu' }}</div>
+                <div class="small text-muted">
+                    {% if comment.createdAt %}
+                        <time datetime="{{ comment.createdAt|date('c') }}" title="{{ comment.createdAt|date('d/m/Y H:i') }}">
+                            {{ comment.createdAt|ago(null, 'fr') }}
+                        </time>
+                    {% else %}
+                        -
+                    {% endif %}
+                </div>
+            </div>
+            <span class="forum-ui-chip"><i class="bi bi-activity"></i>Score: {{ comment.score }}</span>
+        </div>
+        <p class="comment-content mb-2 mt-2">{{ comment.content|nl2br }}</p>
+        {% set commentReaction = commentReactionMap[comment.id] ?? null %}
+        <div class="d-flex flex-wrap align-items-center gap-2 comment-reaction-row">
+            <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'like'}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
+                <button type="submit" class="btn btn-sm reaction-btn {{ commentReaction and commentReaction.value == 'like' ? 'btn-primary' : 'btn-outline-primary' }}" {{ isMember ? '' : 'disabled' }}>
+                    <i class="bi bi-hand-thumbs-up me-1"></i>Like ({{ comment.likeCount }})
+                </button>
+            </form>
+            <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'dislike'}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
+                <button type="submit" class="btn btn-sm reaction-btn {{ commentReaction and commentReaction.value == 'dislike' ? 'btn-danger' : 'btn-outline-danger' }}" {{ isMember ? '' : 'disabled' }}>
+                    <i class="bi bi-hand-thumbs-down me-1"></i>Dislike ({{ comment.dislikeCount }})
+                </button>
+            </form>
+            {% if hasReplies %}
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary forum-ui-btn replies-toggle"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ repliesCollapseId }}"
+                    aria-expanded="false"
+                    aria-controls="{{ repliesCollapseId }}"
+                >
+                    <i class="bi bi-chat-left-dots me-1"></i>Reponses ({{ replyCount }})
+                    <i class="bi bi-chevron-down ms-1"></i>
+                </button>
+            {% endif %}
+            {% if isMember and post.allowComments %}
+                {% set replyForm = replyForms[comment.id] ?? null %}
+                {% if replyForm %}
+                    {% set replyFormId = 'reply-form-' ~ comment.id %}
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary forum-ui-btn reply-toggle"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#{{ replyFormId }}"
+                        aria-expanded="false"
+                        aria-controls="{{ replyFormId }}"
+                    >
+                        <i class="bi bi-reply me-1"></i>Repondre
+                    </button>
+                    <div class="collapse w-100 mt-2" id="{{ replyFormId }}">
+                        <div class="forum-ui-filter p-3 reply-form-box">
+                            {{ form_start(replyForm, {'attr': {'novalidate': 'novalidate'}}) }}
+                                <div class="mb-2">
+                                    {{ form_row(replyForm.content, {'label': 'Votre reponse'}) }}
+                                </div>
+                                {{ form_widget(replyForm.save, {'attr': {'class': 'btn btn-sm btn-primary forum-ui-btn'}}) }}
+                            {{ form_end(replyForm) }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </article>
+
+    {% if hasReplies %}
+        <div id="{{ repliesCollapseId }}" class="collapse comment-thread-collapse">
+            <div class="comment-thread">
+            {% for child in childComments %}
+                {{ _self.render_comment(child, post, isMember, commentReactionMap, replyForms, childCommentsByParent) }}
+            {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}
+
 {% block title %}{{ post.title }} - Forum{% endblock %}
 
 {% block stylesheets %}
@@ -55,9 +145,40 @@
             line-height: 1.65;
         }
 
+        .forum-post-v2 .comment-thread {
+            margin-left: 1.25rem;
+            padding-left: 1rem;
+            border-left: 2px solid #e4edf7;
+        }
+
+        .forum-post-v2 .reply-toggle {
+            font-weight: 600;
+        }
+
+        .forum-post-v2 .replies-toggle {
+            font-weight: 600;
+        }
+
+        .forum-post-v2 .replies-toggle .bi-chevron-down {
+            transition: transform 0.2s ease;
+        }
+
+        .forum-post-v2 .replies-toggle[aria-expanded="true"] .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .forum-post-v2 .reply-form-box textarea {
+            min-height: 90px;
+        }
+
         @media (max-width: 767.98px) {
             .forum-post-v2 .post-header {
                 gap: 0.65rem;
+            }
+
+            .forum-post-v2 .comment-thread {
+                margin-left: 0.8rem;
+                padding-left: 0.65rem;
             }
         }
     </style>
@@ -240,40 +361,8 @@
                         <div class="alert alert-info mb-3">Connectez-vous et rejoignez la communaute pour commenter.</div>
                     {% endif %}
 
-                    {% for comment in comments %}
-                        <article class="forum-ui-card comment-card p-3 mt-3">
-                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-                                <div>
-                                    <div class="fw-semibold">{{ comment.createdBy ? comment.createdBy.fullName : 'Utilisateur inconnu' }}</div>
-                                    <div class="small text-muted">
-                                        {% if comment.createdAt %}
-                                            <time datetime="{{ comment.createdAt|date('c') }}" title="{{ comment.createdAt|date('d/m/Y H:i') }}">
-                                                {{ comment.createdAt|ago(null, 'fr') }}
-                                            </time>
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <span class="forum-ui-chip"><i class="bi bi-activity"></i>Score: {{ comment.score }}</span>
-                            </div>
-                            <p class="comment-content mb-2 mt-2">{{ comment.content|nl2br }}</p>
-                            {% set commentReaction = commentReactionMap[comment.id] ?? null %}
-                            <div class="d-flex flex-wrap align-items-center gap-2 comment-reaction-row">
-                                <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'like'}) }}">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
-                                    <button type="submit" class="btn btn-sm reaction-btn {{ commentReaction and commentReaction.value == 'like' ? 'btn-primary' : 'btn-outline-primary' }}" {{ isMember ? '' : 'disabled' }}>
-                                        <i class="bi bi-hand-thumbs-up me-1"></i>Like ({{ comment.likeCount }})
-                                    </button>
-                                </form>
-                                <form method="post" action="{{ path('app_front_comment_react', {'postId': post.id, 'commentId': comment.id, 'type': 'dislike'}) }}">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('react_comment_' ~ comment.id) }}">
-                                    <button type="submit" class="btn btn-sm reaction-btn {{ commentReaction and commentReaction.value == 'dislike' ? 'btn-danger' : 'btn-outline-danger' }}" {{ isMember ? '' : 'disabled' }}>
-                                        <i class="bi bi-hand-thumbs-down me-1"></i>Dislike ({{ comment.dislikeCount }})
-                                    </button>
-                                </form>
-                            </div>
-                        </article>
+                    {% for comment in topLevelComments %}
+                        {{ _self.render_comment(comment, post, isMember, commentReactionMap, replyForms, childCommentsByParent) }}
                     {% else %}
                         <p class="forum-ui-empty mt-3">Aucun commentaire pour le moment.</p>
                     {% endfor %}

@@ -29,6 +29,7 @@ use App\Service\PostModerationService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -334,14 +335,37 @@ final class PostController extends AbstractController
 
     #[Route('/forum/posts/{id}', name: 'app_front_post_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function frontShow(
-        Post $post,
+        int $id,
+        PostRepository $postRepository,
         CommentRepository $commentRepository,
         PostReactionRepository $postReactionRepository,
         CommentReactionRepository $commentReactionRepository,
         PostReportRepository $postReportRepository
     ): Response {
-        $community = $this->assertFrontPostIsVisible($post);
+        $post = $postRepository->find($id);
+        if (!$post instanceof Post) {
+            return $this->renderPostUnavailable();
+        }
+
+        $community = $this->getVisibleFrontCommunity($post);
+        if (!$community instanceof Community) {
+            return $this->renderPostUnavailable($post);
+        }
+
         $comments = $commentRepository->findByPostForFront($post);
+        $topLevelComments = [];
+        $childCommentsByParent = [];
+
+        foreach ($comments as $commentItem) {
+            $parentId = $commentItem->getParent()?->getId();
+            if ($parentId === null) {
+                $topLevelComments[] = $commentItem;
+
+                continue;
+            }
+
+            $childCommentsByParent[$parentId][] = $commentItem;
+        }
 
         $comment = new Comment();
         $commentForm = $this->createForm(CommentType::class, $comment, [
@@ -354,6 +378,7 @@ final class PostController extends AbstractController
         $currentPostReaction = null;
         $commentReactionMap = [];
         $hasReportedPost = false;
+        $replyForms = [];
 
         if ($user instanceof User) {
             $currentPostReaction = $postReactionRepository->findOneByPostAndUser($post, $user)?->getType();
@@ -367,10 +392,34 @@ final class PostController extends AbstractController
             }
         }
 
+        if ($isMember && $post->isAllowComments()) {
+            foreach ($comments as $commentItem) {
+                $commentId = $commentItem->getId();
+                if ($commentId === null) {
+                    continue;
+                }
+
+                $reply = new Comment();
+                $reply->setPost($post);
+                $reply->setParent($commentItem);
+
+                $replyForms[$commentId] = $this->createNamedCommentForm('reply_comment_' . $commentId, $reply, [
+                    'action' => $this->generateUrl('app_front_post_comment_reply', [
+                        'postId' => $post->getId(),
+                        'parentId' => $commentId,
+                    ]),
+                    'method' => 'POST',
+                ])->createView();
+            }
+        }
+
         return $this->render('forum_front/post/show.html.twig', [
             'post' => $post,
             'comments' => $comments,
+            'topLevelComments' => $topLevelComments,
+            'childCommentsByParent' => $childCommentsByParent,
             'commentForm' => $commentForm->createView(),
+            'replyForms' => $replyForms,
             'isMember' => $isMember,
             'currentPostReaction' => $currentPostReaction,
             'commentReactionMap' => $commentReactionMap,
@@ -378,71 +427,101 @@ final class PostController extends AbstractController
         ]);
     }
 
+    #[Route('/forum/posts/{id}/unavailable', name: 'app_front_post_unavailable', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function frontUnavailable(
+        int $id,
+        Request $request,
+        PostRepository $postRepository,
+        CommunityRepository $communityRepository
+    ): Response {
+        $post = $postRepository->find($id);
+        if ($post instanceof Post && $this->getVisibleFrontCommunity($post) instanceof Community) {
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $community = null;
+        $communityId = $request->query->getInt('community');
+        if ($communityId > 0) {
+            $community = $communityRepository->find($communityId);
+        }
+
+        return $this->renderPostUnavailable($post, $community);
+    }
+
     #[Route('/forum/posts/{id}/comments/new', name: 'app_front_post_comment_new', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function addComment(
-        Post $post,
+        int $id,
         Request $request,
         EntityManagerInterface $entityManager,
+        ForumContentModerationService $forumContentModerationService,
+        PostRepository $postRepository
+    ): Response
+    {
+        $post = $postRepository->find($id);
+        if (!$post instanceof Post) {
+            return $this->redirectToUnavailablePost($id, null, 'Ce post n est plus disponible.');
+        }
+
+        if (!$this->getVisibleFrontCommunity($post) instanceof Community) {
+            return $this->redirectToUnavailablePost(
+                $id,
+                $post->getCommunity()?->getId(),
+                'Ce post n est plus disponible.'
+            );
+        }
+
+        return $this->handleCommentCreation($post, null, $request, $entityManager, $forumContentModerationService);
+    }
+
+    #[Route('/forum/posts/{postId}/comments/{parentId}/reply', name: 'app_front_post_comment_reply', methods: ['POST'], requirements: ['postId' => '\d+', 'parentId' => '\d+'])]
+    public function addCommentReply(
+        int $postId,
+        int $parentId,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        PostRepository $postRepository,
+        CommentRepository $commentRepository,
         ForumContentModerationService $forumContentModerationService
     ): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_MEMBER');
-
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            throw $this->createAccessDeniedException('Utilisateur non authentifie.');
+        $post = $postRepository->find($postId);
+        if (!$post instanceof Post) {
+            return $this->redirectToUnavailablePost($postId, null, 'Ce post n est plus disponible.');
         }
 
-        $community = $this->assertFrontPostIsVisible($post);
-        if (!$community->hasMember($user)) {
-            $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de commenter.');
-
-            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        if (!$this->getVisibleFrontCommunity($post) instanceof Community) {
+            return $this->redirectToUnavailablePost(
+                $postId,
+                $post->getCommunity()?->getId(),
+                'Ce post n est plus disponible.'
+            );
         }
 
-        if (!$post->isAllowComments()) {
-            $this->addFlash('warning', 'Les commentaires sont desactives pour ce post.');
+        $parentComment = $commentRepository->find($parentId);
 
-            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        if (!$parentComment instanceof Comment || $parentComment->getPost()?->getId() !== $post->getId()) {
+            $this->addFlash('warning', 'Le commentaire parent n est plus disponible.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $postId], Response::HTTP_SEE_OTHER);
         }
 
-        $comment = new Comment();
-        $comment->setPost($post);
-        $comment->setCreatedBy($user);
-        $form = $this->createForm(CommentType::class, $comment);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $moderationResult = $forumContentModerationService->moderate((string) $comment->getContent(), 'commentaire');
-            if ($moderationResult->isBlocked()) {
-                $this->addFlash('comment_error', $moderationResult->getMessage());
-
-                return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
-            }
-
-            $post->incrementCommentCount();
-
-            $entityManager->persist($comment);
-            $entityManager->flush();
-
-            $message = 'Commentaire publie.';
-            if ($moderationResult->isApiAvailable() && $moderationResult->getToxicityScore() !== null) {
-                $message .= sprintf(' (Score de toxicite API: %.2f)', $moderationResult->getToxicityScore());
-            }
-            $this->addFlash('success', $message);
-        } else {
-            $this->addFlash('comment_error', 'Impossible de publier ce commentaire.');
-        }
-
-        return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        return $this->handleCommentCreation(
+            $post,
+            $parentComment,
+            $request,
+            $entityManager,
+            $forumContentModerationService,
+            'reply_comment_' . $parentId
+        );
     }
 
     #[Route('/forum/posts/{id}/report', name: 'app_front_post_report', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function reportPost(
-        Post $post,
+        int $id,
         Request $request,
         EntityManagerInterface $entityManager,
-        PostReportRepository $postReportRepository
+        PostReportRepository $postReportRepository,
+        PostRepository $postRepository
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_MEMBER');
 
@@ -451,7 +530,20 @@ final class PostController extends AbstractController
             throw $this->createAccessDeniedException('Utilisateur non authentifie.');
         }
 
-        $community = $this->assertFrontPostIsVisible($post);
+        $post = $postRepository->find($id);
+        if (!$post instanceof Post) {
+            return $this->redirectToUnavailablePost($id, null, 'Ce post n est plus disponible.');
+        }
+
+        $community = $this->getVisibleFrontCommunity($post);
+        if (!$community instanceof Community) {
+            return $this->redirectToUnavailablePost(
+                $id,
+                $post->getCommunity()?->getId(),
+                'Ce post n est plus disponible.'
+            );
+        }
+
         if (!$community->hasMember($user)) {
             $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de signaler un post.');
 
@@ -498,11 +590,12 @@ final class PostController extends AbstractController
 
     #[Route('/forum/posts/{id}/react/{type}', name: 'app_front_post_react', methods: ['POST'], requirements: ['id' => '\d+', 'type' => 'like|dislike'])]
     public function reactPost(
-        Post $post,
+        int $id,
         string $type,
         Request $request,
         EntityManagerInterface $entityManager,
-        PostReactionRepository $postReactionRepository
+        PostReactionRepository $postReactionRepository,
+        PostRepository $postRepository
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_MEMBER');
 
@@ -511,7 +604,20 @@ final class PostController extends AbstractController
             throw $this->createAccessDeniedException('Utilisateur non authentifie.');
         }
 
-        $community = $this->assertFrontPostIsVisible($post);
+        $post = $postRepository->find($id);
+        if (!$post instanceof Post) {
+            return $this->redirectToUnavailablePost($id, null, 'Ce post n est plus disponible.');
+        }
+
+        $community = $this->getVisibleFrontCommunity($post);
+        if (!$community instanceof Community) {
+            return $this->redirectToUnavailablePost(
+                $id,
+                $post->getCommunity()?->getId(),
+                'Ce post n est plus disponible.'
+            );
+        }
+
         if (!$community->hasMember($user)) {
             $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de reagir.');
 
@@ -583,13 +689,26 @@ final class PostController extends AbstractController
         }
 
         $post = $postRepository->find($postId);
-        $comment = $commentRepository->find($commentId);
-
-        if (!$post instanceof Post || !$comment instanceof Comment || $comment->getPost()?->getId() !== $post->getId()) {
-            throw $this->createNotFoundException('Commentaire introuvable.');
+        if (!$post instanceof Post) {
+            return $this->redirectToUnavailablePost($postId, null, 'Ce post n est plus disponible.');
         }
 
-        $community = $this->assertFrontPostIsVisible($post);
+        $community = $this->getVisibleFrontCommunity($post);
+        if (!$community instanceof Community) {
+            return $this->redirectToUnavailablePost(
+                $postId,
+                $post->getCommunity()?->getId(),
+                'Ce post n est plus disponible.'
+            );
+        }
+
+        $comment = $commentRepository->find($commentId);
+        if (!$comment instanceof Comment || $comment->getPost()?->getId() !== $post->getId()) {
+            $this->addFlash('warning', 'Ce commentaire n est plus disponible.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $postId], Response::HTTP_SEE_OTHER);
+        }
+
         if (!$community->hasMember($user)) {
             $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de reagir.');
 
@@ -642,7 +761,94 @@ final class PostController extends AbstractController
         return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
     }
 
-    private function assertFrontPostIsVisible(Post $post): Community
+    private function handleCommentCreation(
+        Post $post,
+        ?Comment $parentComment,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ForumContentModerationService $forumContentModerationService,
+        ?string $formName = null
+    ): Response {
+        $this->denyAccessUnlessGranted('ROLE_MEMBER');
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('Utilisateur non authentifie.');
+        }
+
+        $community = $this->getVisibleFrontCommunity($post);
+        if (!$community instanceof Community) {
+            return $this->redirectToUnavailablePost(
+                $post->getId() ?? 0,
+                $post->getCommunity()?->getId(),
+                'Ce post n est plus disponible.'
+            );
+        }
+
+        if (!$community->hasMember($user)) {
+            $this->addFlash('warning', 'Vous devez rejoindre la communaute avant de commenter.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        if (!$post->isAllowComments()) {
+            $this->addFlash('warning', 'Les commentaires sont desactives pour ce post.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($parentComment instanceof Comment && $parentComment->getPost()?->getId() !== $post->getId()) {
+            $this->addFlash('warning', 'Le commentaire parent n est plus disponible.');
+
+            return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $comment = new Comment();
+        $comment->setPost($post);
+        $comment->setCreatedBy($user);
+        $comment->setParent($parentComment);
+
+        $form = $formName === null
+            ? $this->createForm(CommentType::class, $comment)
+            : $this->createNamedCommentForm($formName, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $moderationResult = $forumContentModerationService->moderate((string) $comment->getContent(), 'commentaire');
+            if ($moderationResult->isBlocked()) {
+                $this->addFlash('comment_error', $moderationResult->getMessage());
+
+                return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+            }
+
+            $post->incrementCommentCount();
+
+            $entityManager->persist($comment);
+            $entityManager->flush();
+
+            $message = $parentComment instanceof Comment ? 'Reponse publiee.' : 'Commentaire publie.';
+            if ($moderationResult->isApiAvailable() && $moderationResult->getToxicityScore() !== null) {
+                $message .= sprintf(' (Score de toxicite API: %.2f)', $moderationResult->getToxicityScore());
+            }
+            $this->addFlash('success', $message);
+        } else {
+            $this->addFlash('comment_error', 'Impossible de publier ce commentaire.');
+        }
+
+        return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    private function createNamedCommentForm(string $name, Comment $comment, array $options = [])
+    {
+        $formFactory = $this->container->get('form.factory');
+        if (!$formFactory instanceof FormFactoryInterface) {
+            throw new \LogicException('Le service form.factory est indisponible.');
+        }
+
+        return $formFactory->createNamed($name, CommentType::class, $comment, $options);
+    }
+
+    private function getVisibleFrontCommunity(Post $post): ?Community
     {
         $community = $post->getCommunity();
 
@@ -652,10 +858,45 @@ final class PostController extends AbstractController
             || $community->getStatus() !== CommunityStatus::APPROVED
             || $post->getStatus() !== PostStatus::PUBLISHED
         ) {
-            throw $this->createNotFoundException('Post introuvable.');
+            return null;
         }
 
         return $community;
+    }
+
+    private function redirectToUnavailablePost(int $postId, ?int $communityId = null, ?string $flashMessage = null): Response
+    {
+        if ($flashMessage !== null && $flashMessage !== '') {
+            $this->addFlash('warning', $flashMessage);
+        }
+
+        $routeParameters = ['id' => $postId];
+        if ($communityId !== null) {
+            $routeParameters['community'] = $communityId;
+        }
+
+        return $this->redirectToRoute('app_front_post_unavailable', $routeParameters, Response::HTTP_SEE_OTHER);
+    }
+
+    private function renderPostUnavailable(?Post $post = null, ?Community $fallbackCommunity = null): Response
+    {
+        $community = $post?->getCommunity();
+        if (!$community instanceof Community) {
+            $community = $fallbackCommunity;
+        }
+
+        $canNavigateToCommunity = $community instanceof Community
+            && $community->isPublic()
+            && $community->getStatus() === CommunityStatus::APPROVED;
+
+        $response = new Response();
+        $response->setStatusCode(Response::HTTP_GONE);
+
+        return $this->render('forum_front/post/unavailable.html.twig', [
+            'post' => $post,
+            'community' => $community,
+            'canNavigateToCommunity' => $canNavigateToCommunity,
+        ], $response);
     }
 
     /**

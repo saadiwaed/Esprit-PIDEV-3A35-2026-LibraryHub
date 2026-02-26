@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\User;
-use App\Service\Forum\LlmAiClient;
 
 /**
  * Assistant "bibliothécaire virtuel" simple.
@@ -14,7 +13,7 @@ use App\Service\Forum\LlmAiClient;
 final class VirtualLibrarianService
 {
     public function __construct(
-        private readonly LlmAiClient $llmAiClient,
+        private readonly VirtualLibrarianAiClient $aiClient,
     ) {
     }
 
@@ -40,7 +39,7 @@ final class VirtualLibrarianService
 
         $profileLine = $this->buildProfileLine($user);
 
-        // 1) Réponses locales rapides basées sur des règles simples
+        // 1) Réponses locales rapides basées sur des règles simples (salutations uniquement)
         $ruleBased = $this->getRuleBasedAnswer($question, $user);
         if ($ruleBased !== null) {
             return [
@@ -66,7 +65,7 @@ PROMPT;
             $question
         );
 
-        $payload = $this->llmAiClient->requestJson(
+        $payload = $this->aiClient->requestJson(
             'virtual_librarian',
             $systemPrompt . "\n\nRetourne un objet JSON {\"answer\": string}.",
             $userPrompt
@@ -102,7 +101,8 @@ PROMPT;
     }
 
     /**
-     * Réponses "intelligentes" mais locales, sans appel HTTP externe.
+     * Réponses locales très simples (salutations).
+     * Toutes les autres questions passent par l'API externe.
      */
     private function getRuleBasedAnswer(string $question, ?User $user): ?string
     {
@@ -113,41 +113,6 @@ PROMPT;
             return "Bonjour ! Je suis le bibliothécaire virtuel de LibraryHub. "
                 . "Vous pouvez me demander comment prolonger un prêt, comprendre les abonnements "
                 . "ou obtenir des idées de lecture.";
-        }
-
-        // Prêts et prolongations
-        if (str_contains($q, 'prêt') || str_contains($q, 'pret') || str_contains($q, 'prolong')) {
-            return "Pour gérer vos prêts sur LibraryHub, connectez-vous puis allez dans la section « Mes emprunts ». "
-                . "Vous y verrez la date de retour prévue et, si les conditions le permettent, un bouton pour prolonger le prêt. "
-                . "En général, un prêt peut être prolongé tant que le livre n’est pas déjà réservé par un autre membre.";
-        }
-
-        // Retards et pénalités
-        if (str_contains($q, 'retard') || str_contains($q, 'amende') || str_contains($q, 'pénalité') || str_contains($q, 'penalite')) {
-            return "En cas de retard, LibraryHub applique des pénalités journalières configurées par la bibliothèque. "
-                . "Vous pouvez consulter le détail de vos pénalités éventuelles dans la section « Mes emprunts » ou « Mes pénalités ». "
-                . "Plus vous rendez le livre tôt, moins la pénalité sera élevée.";
-        }
-
-        // Abonnements
-        if (str_contains($q, 'abonnement') || str_contains($q, 'premium') || str_contains($q, 'mensuel') || str_contains($q, 'annuel')) {
-            return "LibraryHub propose un abonnement mensuel et un abonnement annuel. "
-                . "L’abonnement premium donne un accès étendu au catalogue et aux fonctionnalités avancées. "
-                . "Vous pouvez voir les offres détaillées et souscrire depuis la page « Abonnement » du site.";
-        }
-
-        // Clubs de lecture
-        if (str_contains($q, 'club') || str_contains($q, 'lecture') && str_contains($q, 'rejoindre')) {
-            return "Pour rejoindre un club de lecture, allez dans la section « Club de Lecture » du frontoffice. "
-                . "Vous y trouverez la liste des clubs disponibles et, si vous êtes connecté, un bouton pour demander à rejoindre un club ou en créer un nouveau.";
-        }
-
-        // Suggestions de livres générales
-        if (str_contains($q, 'recommander') || str_contains($q, 'suggestion') || str_contains($q, 'idée de livre') || str_contains($q, 'idee de livre')) {
-            return "Je peux vous proposer quelques pistes : "
-                . "• Pour apprendre la programmation : cherchez des livres dans la catégorie Informatique / Développement.\n"
-                . "• Pour la détente : explorez les romans contemporains et la littérature classique.\n"
-                . "• Pour la recherche : utilisez le moteur de recherche par auteur, titre ou catégorie dans le catalogue.";
         }
 
         // Par défaut : pas de règle locale, on laisse la main au modèle externe

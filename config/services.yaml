@@ -28,6 +28,14 @@ parameters:
     app.forum.ai.confidence_threshold: '%env(float:FORUM_AI_CONFIDENCE_THRESHOLD)%'
     app.forum.ai.max_context_comments: '%env(int:FORUM_AI_MAX_CONTEXT_COMMENTS)%'
     app.face.threshold: '%env(float:FACE_THRESHOLD)%'
+    app.virtual_librarian.ai.enabled: '%env(bool:VR_AI_ENABLED)%'
+    app.virtual_librarian.ai.provider: '%env(string:VR_AI_PROVIDER)%'
+    app.virtual_librarian.ai.endpoint: '%env(string:VR_AI_ENDPOINT)%'
+    app.virtual_librarian.ai.api_key: '%env(string:VR_AI_API_KEY)%'
+    app.virtual_librarian.ai.model: '%env(string:VR_AI_MODEL)%'
+    app.virtual_librarian.ai.timeout_seconds: '%env(float:VR_AI_TIMEOUT_SECONDS)%'
+    app.virtual_librarian.ai.temperature: '%env(float:VR_AI_TEMPERATURE)%'
+    app.virtual_librarian.ai.max_tokens: '%env(int:VR_AI_MAX_TOKENS)%'
 
 services:
     # default configuration for services in *this* file
@@ -80,6 +88,17 @@ services:
             $timeoutSeconds: '%app.forum.ai.timeout_seconds%'
             $temperature: '%app.forum.ai.temperature%'
             $maxTokens: '%app.forum.ai.max_tokens%'
+
+    App\Service\VirtualLibrarianAiClient:
+        arguments:
+            $enabled: '%app.virtual_librarian.ai.enabled%'
+            $provider: '%app.virtual_librarian.ai.provider%'
+            $endpoint: '%app.virtual_librarian.ai.endpoint%'
+            $apiKey: '%app.virtual_librarian.ai.api_key%'
+            $model: '%app.virtual_librarian.ai.model%'
+            $timeoutSeconds: '%app.virtual_librarian.ai.timeout_seconds%'
+            $temperature: '%app.virtual_librarian.ai.temperature%'
+            $maxTokens: '%app.virtual_librarian.ai.max_tokens%'
 
     App\Service\Forum\ForumAiAssistantService:
         arguments:
