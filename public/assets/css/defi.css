@@ -1,0 +1,29 @@
+<style>
+    .bg-opacity-20 { background-color: rgba(255,255,255,0.2); }
+    .bg-opacity-5 { background-color: rgba(40,167,69,0.05); }
+    .btn-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        transition: transform 0.3s;
+    }
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+        color: white;
+    }
+    .card {
+        transition: all 0.3s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+    }
+    .progress-bar-animated {
+        animation: progress 1.5s ease-in-out;
+    }
+    @keyframes progress {
+        0% { width: 0; }
+        100% { width: {{ pourcentage }}%; }
+    }
+</style>

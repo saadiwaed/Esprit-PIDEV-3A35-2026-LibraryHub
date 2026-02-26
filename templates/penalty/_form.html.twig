@@ -45,6 +45,34 @@
                 }) }}
             </div>
 
+            <div class="mb-3" id="ai-penalty-suggestion-box">
+                <div class="card border-info">
+                    <div class="card-body py-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <strong>Suggestion IA</strong>
+                            <span class="spinner-border spinner-border-sm text-info d-none" role="status" aria-hidden="true" id="ai-penalty-spinner"></span>
+                        </div>
+                        <div class="small mt-2">
+                            <div>
+                                <span class="text-muted">Montant suggéré :</span>
+                                <span class="fw-semibold" id="ai-penalty-amount">—</span>
+                                <span class="text-muted">TND</span>
+                                <span class="text-muted" id="ai-penalty-confidence"></span>
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-muted">Motif suggéré :</span>
+                                <span class="fw-semibold" id="ai-penalty-reason">—</span>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="ai-penalty-use" disabled>
+                                Utiliser la suggestion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="mb-3">
                 {{ form_row(form.waived, {
                     label_attr: {class: form.waived.vars.errors|length > 0 ? 'has-error-label' : ''}
@@ -65,7 +93,7 @@
             <i class="bi bi-check-circle"></i> {{ button_label|default('Enregistrer') }}
         </button>
         <button type="reset" class="btn btn-outline-secondary btn-lg">
-            <i class="bi bi-arrow-counterclockwise"></i> Reinitialiser
+            <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
         </button>
     </div>
 
@@ -115,3 +143,91 @@
     });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const endpoint = {{ path('penalty_ai_suggestion')|json_encode|raw }};
+        const loanSelect = document.getElementById({{ form.loan.vars.id|json_encode|raw }});
+        const amountInput = document.getElementById({{ form.amount.vars.id|json_encode|raw }});
+        const reasonSelect = document.querySelector('[data-reason-select="1"]');
+        const customReasonInput = document.querySelector('[data-custom-reason="1"]');
+
+        const spinner = document.getElementById('ai-penalty-spinner');
+        const amountEl = document.getElementById('ai-penalty-amount');
+        const reasonEl = document.getElementById('ai-penalty-reason');
+        const confEl = document.getElementById('ai-penalty-confidence');
+        const useBtn = document.getElementById('ai-penalty-use');
+
+        if (!loanSelect || !spinner || !amountEl || !reasonEl || !confEl || !useBtn) {
+            return;
+        }
+
+        let lastSuggestion = null;
+
+        const setLoading = function (loading) {
+            spinner.classList.toggle('d-none', !loading);
+            useBtn.disabled = loading || !lastSuggestion || !amountInput || !reasonSelect || !customReasonInput;
+        };
+
+        const renderSuggestion = function (s) {
+            lastSuggestion = s;
+            const amount = typeof s.amount === 'number' ? s.amount : parseFloat(s.amount || '0');
+            const confidence = typeof s.confidence === 'number' ? s.confidence : parseInt(s.confidence || '0', 10);
+            amountEl.textContent = isFinite(amount) ? amount.toFixed(2) : '—';
+            reasonEl.textContent = (s.reason || '—').toString();
+            confEl.textContent = confidence > 0 ? ` (Confiance : ${confidence}%)` : '';
+            useBtn.disabled = confidence <= 0;
+        };
+
+        const fetchSuggestion = async function () {
+            const loanId = loanSelect.value ? parseInt(loanSelect.value, 10) : 0;
+            lastSuggestion = null;
+            amountEl.textContent = '—';
+            reasonEl.textContent = '—';
+            confEl.textContent = '';
+            useBtn.disabled = true;
+
+            if (!loanId || loanId <= 0) {
+                return;
+            }
+
+            setLoading(true);
+            try {
+                const res = await fetch(`${endpoint}?loanId=${encodeURIComponent(loanId)}`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const json = await res.json();
+                renderSuggestion(json || {});
+            } catch (e) {
+                renderSuggestion({ amount: 0, reason: 'Suggestion IA indisponible - montant calculé automatiquement.', confidence: 0 });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        useBtn.addEventListener('click', function () {
+            if (!lastSuggestion || !amountInput || !reasonSelect || !customReasonInput) {
+                return;
+            }
+
+            const amount = typeof lastSuggestion.amount === 'number'
+                ? lastSuggestion.amount
+                : parseFloat(lastSuggestion.amount || '0');
+
+            if (isFinite(amount)) {
+                amountInput.value = amount.toFixed(2);
+                amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+                amountInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            reasonSelect.value = 'other';
+            reasonSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+            customReasonInput.value = (lastSuggestion.reason || '').toString();
+            customReasonInput.dispatchEvent(new Event('input', { bubbles: true }));
+            customReasonInput.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        loanSelect.addEventListener('change', fetchSuggestion);
+        fetchSuggestion();
+    });
+</script>

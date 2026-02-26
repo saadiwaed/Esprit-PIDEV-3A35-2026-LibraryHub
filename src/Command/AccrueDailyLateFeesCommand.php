@@ -61,10 +61,7 @@ final class AccrueDailyLateFeesCommand extends Command
                 continue;
             }
 
-            $expectedLateDays = (int) \DateTimeImmutable::createFromInterface($dueDate)
-                ->setTime(0, 0, 0)
-                ->diff($today)
-                ->format('%a') + 1;
+            $expectedLateDays = (int) $loan->getDaysLate($today);
 
             $penalty = $this->penaltyRepository->findActiveLatePenaltyForLoan($loan);
 
@@ -80,10 +77,10 @@ final class AccrueDailyLateFeesCommand extends Command
 
                 $penalty = (new Penalty())
                     ->setLoan($loan)
-                    ->setReason(Penalty::DAILY_LATE_REASON_PREFIX)
+                    ->setReason(sprintf('%s - Retard de %d jours', Penalty::DAILY_LATE_REASON_PREFIX, $expectedLateDays))
                     ->setDailyRate($this->dailyLateFeeRate)
-                    ->setLateDays(1)
-                    ->setAmount(round($this->dailyLateFeeRate, 2))
+                    ->setLateDays($expectedLateDays)
+                    ->setAmount(round($expectedLateDays * $this->dailyLateFeeRate, 2))
                     ->setIssueDate(\DateTime::createFromImmutable($today))
                     ->setStatus(PaymentStatus::UNPAID)
                     ->setWaived(false)
@@ -102,6 +99,9 @@ final class AccrueDailyLateFeesCommand extends Command
                 if ($penalty->getLateDays() < $expectedLateDays) {
                     $penalty->setLateDays($expectedLateDays);
                     $penalty->setAmount(round($expectedLateDays * $rate, 2));
+                    if ($penalty->isDailyLateFee()) {
+                        $penalty->setReason(sprintf('%s - Retard de %d jours', Penalty::DAILY_LATE_REASON_PREFIX, $expectedLateDays));
+                    }
                     ++$updated;
                     ++$dirty;
                 } else {

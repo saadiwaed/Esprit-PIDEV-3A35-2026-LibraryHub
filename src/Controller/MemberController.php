@@ -2,222 +2,229 @@
 
 namespace App\Controller;
 
+use App\Entity\Loan;
 use App\Entity\LoanRequest;
+use App\Entity\RenewalRequest;
 use App\Entity\User;
 use App\Enum\LoanStatus;
-use App\Enum\LoanRequestStatus;
 use App\Form\LoanRequestType;
 use App\Repository\BookRepository;
+use App\Repository\BookCopyRepository;
 use App\Repository\LoanRepository;
-use App\Repository\LoanRequestRepository;
 use App\Repository\PenaltyRepository;
-use App\Service\LoanService;
+use App\Repository\RenewalRequestRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class MemberController extends AbstractController
 {
-    #[Route('/accueil', name: 'member_home', methods: ['GET'])]
-    #[Route('/espace-membre', name: 'member_space', methods: ['GET'])]
-    public function memberSpace(LoanRequestRepository $loanRequestRepository): Response
-    {
-        $user = $this->getUser();
-        $loanRequests = $user instanceof User ? $loanRequestRepository->findLatestForMember($user, 5) : [];
-
-        $loanRequest = (new LoanRequest())
-            ->setDesiredLoanDate(new \DateTimeImmutable('today'))
-            ->setDesiredReturnDate((new \DateTimeImmutable('today'))->modify('+7 days'));
-
-        $form = $this->createForm(LoanRequestType::class, $loanRequest, [
-            'action' => $this->generateUrl('member_loan_request_submit'),
-            'method' => 'POST',
-        ]);
-
-        return $this->render('member/home.html.twig', [
-            'loanRequests' => $loanRequests,
-            'loanRequestForm' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/mes-emprunts', name: 'member_my_loans', methods: ['GET'])]
-    public function myLoans(LoanRepository $loanRepository, LoanService $loanService): Response
-    {
-        $user = $this->getUser();
-        $loans = $user instanceof User ? $loanRepository->findByMember($user->getId()) : [];
-        $openLoans = [];
-        $historyLoans = [];
-
-        foreach ($loans as $loan) {
-            if ($loan->getReturnDate() instanceof \DateTimeInterface) {
-                $historyLoans[] = $loan;
-            } else {
-                $openLoans[] = $loan;
-            }
-        }
-
-        return $this->render('member/loans.html.twig', [
-            'openLoans' => $openLoans,
-            'historyLoans' => $historyLoans,
-            'maxRenewals' => $loanService->getMaxRenewals(),
-        ]);
-    }
-
-    #[Route('/renouvellements/demander', name: 'member_renewal_request', methods: ['GET'])]
-    public function renewalRequestEntry(): Response
-    {
-        return $this->redirectToRoute('member_my_loans', [
-            '_fragment' => 'renouvellements',
-        ]);
-    }
-
-    #[Route('/loans/{id<\\d+>}/request-renewal', name: 'member_loan_request_renewal', methods: ['POST'])]
-    public function requestRenewal(
+    #[Route('/mes-emprunts', name: 'member_loans', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
+    public function myLoans(
         Request $request,
-        int $id,
         LoanRepository $loanRepository,
-        LoanService $loanService
+        PenaltyRepository $penaltyRepository,
     ): Response {
-        $loan = $loanRepository->find($id);
-        if ($loan === null) {
-            $this->addFlash('error', 'Emprunt introuvable.');
-
-            return $this->redirectToRoute('member_my_loans');
+        $member = $this->getUser();
+        if (!$member instanceof User) {
+            throw $this->createAccessDeniedException('Vous devez être connecté pour accéder à cette page.');
         }
 
-        $user = $this->getUser();
-        if ($user instanceof User && $loan->getMember()?->getId() !== $user->getId()) {
-            throw $this->createAccessDeniedException('Accès refusé.');
-        }
-
-        if ($loan->getStatus() !== LoanStatus::ACTIVE) {
-            $this->addFlash('error', 'Seuls les emprunts actifs peuvent être renouvelés.');
-
-            return $this->redirectToRoute('member_my_loans');
-        }
-
-        if ($loan->getRenewalCount() >= $loanService->getMaxRenewals()) {
-            $this->addFlash('error', 'Limite de renouvellements atteinte.');
-
-            return $this->redirectToRoute('member_my_loans');
-        }
-
-        if (!$this->isCsrfTokenValid('request_renewal' . $loan->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton CSRF invalide.');
-
-            return $this->redirectToRoute('member_my_loans');
-        }
-
-        try {
-            $renewal = $loanService->renewLoan($loan);
-            $this->addFlash('success', sprintf(
-                'Renouvellement enregistré avec succès (n° %d). Nouvelle date limite : %s.',
-                $renewal->getRenewalNumber(),
-                $renewal->getNewDueDate()?->format('d/m/Y')
-            ));
-        } catch (\LogicException|\InvalidArgumentException $exception) {
-            $this->addFlash('error', $exception->getMessage());
-        }
-
-        return $this->redirectToRoute('member_my_loans', [
-            '_fragment' => 'renouvellements',
-        ]);
-    }
-
-    #[Route('/mes-penalites', name: 'member_my_penalties', methods: ['GET'])]
-    public function myPenalties(PenaltyRepository $penaltyRepository): Response
-    {
-        $user = $this->getUser();
-        $penalties = $user instanceof User ? $penaltyRepository->findForMember($user) : [];
-
-        return $this->render('member/penalties.html.twig', [
-            'penalties' => $penalties,
-        ]);
-    }
-
-    #[Route('/emprunts/demander', name: 'member_loan_request', methods: ['GET'])]
-    public function requestLoan(): Response
-    {
         $loanRequest = (new LoanRequest())
-            ->setDesiredLoanDate(new \DateTimeImmutable('today'))
-            ->setDesiredReturnDate((new \DateTimeImmutable('today'))->modify('+7 days'));
+            ->setDesiredLoanDate(new \DateTimeImmutable('today'));
 
         $form = $this->createForm(LoanRequestType::class, $loanRequest, [
-            'action' => $this->generateUrl('member_loan_request_submit'),
+            'action' => $this->generateUrl('member_loan_request_create'),
             'method' => 'POST',
         ]);
 
-        return $this->render('member/loan_request.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return $this->render('member/my_loans.html.twig', $this->buildLoansPageData(
+            member: $member,
+            loanRepository: $loanRepository,
+            penaltyRepository: $penaltyRepository,
+            loanRequestForm: $form->createView(),
+            activeTab: $request->query->getString('tab', 'loans'),
+        ));
     }
 
-    #[Route('/emprunts/demander', name: 'member_request_loan', methods: ['POST'])]
-    #[Route('/emprunts/demander', name: 'member_loan_request_submit', methods: ['POST'])]
-    public function requestLoanSubmit(
+    #[Route('/emprunts/demander', name: 'member_loan_request_create', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
+    public function createLoanRequest(
         Request $request,
+        LoanRepository $loanRepository,
+        PenaltyRepository $penaltyRepository,
         BookRepository $bookRepository,
-        LoanRequestRepository $loanRequestRepository,
-        EntityManagerInterface $entityManager
+        BookCopyRepository $bookCopyRepository,
+        EntityManagerInterface $entityManager,
     ): Response {
-        $user = $this->getUser();
-        $member = $user instanceof User ? $user : null;
+        $member = $this->getUser();
+        if (!$member instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
 
-        $loanRequest = new LoanRequest();
+        $loanRequest = (new LoanRequest())
+            ->setMember($member)
+            ->setRequestedAt(new \DateTimeImmutable())
+            ->setStatus(LoanRequest::STATUS_PENDING)
+            ->setDesiredLoanDate(new \DateTimeImmutable('today'));
+
         $form = $this->createForm(LoanRequestType::class, $loanRequest, [
-            'action' => $this->generateUrl('member_loan_request_submit'),
+            'action' => $this->generateUrl('member_loan_request_create'),
             'method' => 'POST',
         ]);
         $form->handleRequest($request);
 
-        if (!$form->isSubmitted() || !$form->isValid()) {
-            $loanRequests = $member instanceof User ? $loanRequestRepository->findLatestForMember($member, 5) : [];
-
-            return $this->render('member/home.html.twig', [
-                'loanRequests' => $loanRequests,
-                'loanRequestForm' => $form->createView(),
-                'openLoanRequestModal' => true,
-            ]);
+        if (!$form->isSubmitted()) {
+            return $this->redirectToRoute('member_loans', ['tab' => 'request']);
         }
 
-        $desiredLoanDate = $loanRequest->getDesiredLoanDate();
-        $desiredReturnDate = $loanRequest->getDesiredReturnDate();
-        if ($desiredLoanDate instanceof \DateTimeImmutable && $desiredReturnDate instanceof \DateTimeImmutable) {
-            if ($desiredReturnDate <= $desiredLoanDate) {
-                $form->get('desiredReturnDate')->addError(new FormError('La date de retour doit être postérieure à la date d’emprunt souhaitée.'));
+        $enteredId = $loanRequest->getBookId();
+        if ($enteredId > 0) {
+            $bookExists = $bookRepository->find($enteredId) !== null;
+            $bookCopyExists = $bookCopyRepository->find($enteredId) !== null;
+
+            if (!$bookExists && !$bookCopyExists) {
+                $form->get('bookId')->addError(new FormError('Livre non trouvé.'));
             }
         }
 
-        $bookId = (int) $form->get('bookId')->getData();
-        $book = $bookRepository->find($bookId);
-        if ($book === null) {
-            $form->get('bookId')->addError(new FormError("L'ID du livre est invalide."));
+        $desiredLoanDate = $loanRequest->getDesiredLoanDate();
+        if ($desiredLoanDate instanceof \DateTimeInterface) {
+            $today = new \DateTimeImmutable('today');
+            $desiredDay = \DateTimeImmutable::createFromInterface($desiredLoanDate)->setTime(0, 0, 0);
+            if ($desiredDay < $today) {
+                $form->get('desiredLoanDate')->addError(new FormError('La date d\'emprunt souhaitée doit être aujourd\'hui ou ultérieure.'));
+            }
         }
 
-        if (!$form->isValid()) {
-            $loanRequests = $member instanceof User ? $loanRequestRepository->findLatestForMember($member, 5) : [];
+        if ($form->isValid()) {
+            $entityManager->persist($loanRequest);
+            $entityManager->flush();
 
-            return $this->render('member/home.html.twig', [
-                'loanRequests' => $loanRequests,
-                'loanRequestForm' => $form->createView(),
-                'openLoanRequestModal' => true,
-            ]);
+            $this->addFlash('success', 'Votre demande d\'emprunt a été envoyée avec succès !');
+
+            return $this->redirectToRoute('member_loans', ['tab' => 'request']);
         }
 
-        $loanRequest
+        return $this->render('member/my_loans.html.twig', $this->buildLoansPageData(
+            member: $member,
+            loanRepository: $loanRepository,
+            penaltyRepository: $penaltyRepository,
+            loanRequestForm: $form->createView(),
+            activeTab: 'request',
+        ));
+    }
+
+    #[Route('/loans/{id<\\d+>}/request-renewal', name: 'member_loan_request_renewal', methods: ['POST'])]
+    #[Route('/mes-emprunts/{id<\\d+>}/renouveler', name: 'member_loan_renew', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
+    public function requestRenewal(
+        Request $request,
+        Loan $loan,
+        RenewalRequestRepository $renewalRequestRepository,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $member = $this->getUser();
+        if (!$member instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($loan->getMember()?->getId() !== $member->getId()) {
+            throw $this->createAccessDeniedException('Accès interdit à cet emprunt.');
+        }
+
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('member_loan_request_renewal_' . $loan->getId(), $token)) {
+            $this->addFlash('error', 'Jeton CSRF invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('member_loans');
+        }
+
+        if ($loan->getReturnDate() instanceof \DateTimeInterface || $loan->getStatus() === LoanStatus::RETURNED) {
+            $this->addFlash('error', 'Cet emprunt a déjà été retourné. Renouvellement impossible.');
+
+            return $this->redirectToRoute('member_loans');
+        }
+
+        if (!$loan->canBeRenewed()) {
+            $this->addFlash('error', 'Cet emprunt n\'est pas renouvelable (seuls les emprunts en cours ou en retard peuvent être renouvelés).');
+
+            return $this->redirectToRoute('member_loans');
+        }
+
+        $maxRenewals = (int) $this->getParameter('max_renewals');
+        if ($loan->maxRenewalsReached($maxRenewals)) {
+            $this->addFlash('error', 'Vous avez atteint la limite de renouvellements.');
+
+            return $this->redirectToRoute('member_loans');
+        }
+
+        $existing = $renewalRequestRepository->findPendingForLoanAndMember($loan, $member);
+        if ($existing instanceof RenewalRequest) {
+            $this->addFlash('info', 'Une demande de renouvellement est déjà en attente pour cet emprunt.');
+
+            return $this->redirectToRoute('member_loans');
+        }
+
+        $renewalRequest = (new RenewalRequest())
+            ->setLoan($loan)
             ->setMember($member)
-            ->setBook($book)
-            ->setRequestedAt(new \DateTimeImmutable())
-            ->setStatus(LoanRequestStatus::PENDING);
+            ->setStatus(RenewalRequest::STATUS_PENDING)
+            ->setRequestedAt(new \DateTimeImmutable());
 
-        $entityManager->persist($loanRequest);
+        $entityManager->persist($renewalRequest);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Demande envoyée ! Vous serez informé dès que possible.');
+        $this->addFlash('success', 'Demande de renouvellement envoyée.');
 
-        return $this->redirectToRoute('member_home', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('member_loans');
+    }
+
+    /**
+     * @return array{
+     *     loans: array,
+     *     penalties: array,
+     *     unpaidTotal: float,
+     *     renewalDays: int,
+     *     maxRenewals: int,
+     *     loanRequestForm: mixed,
+     *     activeTab: string
+     * }
+     */
+    private function buildLoansPageData(
+        User $member,
+        LoanRepository $loanRepository,
+        PenaltyRepository $penaltyRepository,
+        mixed $loanRequestForm,
+        string $activeTab,
+    ): array {
+        $loans = $loanRepository->findByMember($member);
+        $penalties = $penaltyRepository->findByMember($member);
+
+        $unpaidTotal = 0.0;
+        foreach ($penalties as $penalty) {
+            if ($penalty->isWaived()) {
+                continue;
+            }
+
+            if (\in_array($penalty->getStatus()->value, ['unpaid', 'partial'], true)) {
+                $unpaidTotal += $penalty->getAmount();
+            }
+        }
+
+        return [
+            'loans' => $loans,
+            'penalties' => $penalties,
+            'unpaidTotal' => round($unpaidTotal, 2),
+            'renewalDays' => (int) $this->getParameter('renewal_days'),
+            'maxRenewals' => (int) $this->getParameter('max_renewals'),
+            'loanRequestForm' => $loanRequestForm,
+            'activeTab' => $activeTab,
+        ];
     }
 }

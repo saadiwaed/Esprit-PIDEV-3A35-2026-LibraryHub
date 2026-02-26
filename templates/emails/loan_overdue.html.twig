@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rappel – emprunt en retard</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.5; color: #111;">
+    <p>Bonjour {{ loan.member.firstName }} {{ loan.member.lastName }},</p>
+
+    <p>
+        Votre emprunt <strong>#{{ loan.id }}</strong> est actuellement en retard de
+        <strong>{{ daysLate }} jour(s)</strong>.
+    </p>
+
+    <ul>
+        <li>Date limite : <strong>{{ loan.dueDate ? loan.dueDate|date('d/m/Y') : '-' }}</strong></li>
+        <li>Pénalité impayée à ce jour : <strong>{{ totalUnpaidPenalty|number_format(2, ',', ' ') }} TND</strong></li>
+    </ul>
+
+    <p>
+        Merci de retourner l’ouvrage au plus vite ou de contacter la bibliothèque si vous avez besoin d’assistance.
+    </p>
+
+    <p>
+        Accéder à vos emprunts : <a href="{{ myLoansUrl }}">{{ myLoansUrl }}</a>
+    </p>
+
+    <p style="color:#666; font-size: 12px;">
+        Si vous avez déjà retourné l’ouvrage, vous pouvez ignorer ce message.
+    </p>
+</body>
+</html>
+

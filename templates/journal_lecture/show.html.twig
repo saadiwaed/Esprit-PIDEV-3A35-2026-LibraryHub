@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}JournalLecture{% endblock %}
+
+{% block body %}
+    <h1>JournalLecture</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ journal_lecture.id }}</td>
+            </tr>
+            <tr>
+                <th>User_id</th>
+                <td>{{ journal_lecture.userId }}</td>
+            </tr>
+            <tr>
+                <th>Created_at</th>
+                <td>{{ journal_lecture.createdAt ? journal_lecture.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ journal_lecture.titre }}</td>
+            </tr>
+            <tr>
+                <th>Livre_id</th>
+                <td>{{ journal_lecture.livreId }}</td>
+            </tr>
+            <tr>
+                <th>Date_lecture</th>
+                <td>{{ journal_lecture.dateLecture ? journal_lecture.dateLecture|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Duree_minutes</th>
+                <td>{{ journal_lecture.dureeMinutes }}</td>
+            </tr>
+            <tr>
+                <th>Lieu</th>
+                <td>{{ journal_lecture.lieu }}</td>
+            </tr>
+            <tr>
+                <th>Concentration</th>
+                <td>{{ journal_lecture.concentration }}</td>
+            </tr>
+            <tr>
+                <th>Page_lues</th>
+                <td>{{ journal_lecture.pageLues }}</td>
+            </tr>
+            <tr>
+                <th>Resume</th>
+                <td>{{ journal_lecture.resume }}</td>
+            </tr>
+            <tr>
+                <th>Reflexion</th>
+                <td>{{ journal_lecture.reflexion }}</td>
+            </tr>
+            <tr>
+                <th>Note_perso</th>
+                <td>{{ journal_lecture.notePerso }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_journal_lecture_index') }}">back to list</a>
+
+    <a href="{{ path('app_journal_lecture_edit', {'id': journal_lecture.id}) }}">edit</a>
+
+    {{ include('journal_lecture/_delete_form.html.twig') }}
+{% endblock %}

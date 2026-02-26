@@ -13,6 +13,8 @@ class LatePenaltyType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $defaultDailyRate = (float) ($options['default_daily_rate'] ?? 0.50);
+
         $builder
             ->add('amount', NumberType::class, [
                 'label' => 'Montant de la pénalité (TND)',
@@ -26,6 +28,25 @@ class LatePenaltyType extends AbstractType
                     'min' => '0.01',
                     'step' => '0.01',
                     'placeholder' => 'Ex: 2.50',
+                    'readonly' => true,
+                ],
+                'help' => 'Calculé automatiquement (jours de retard × taux journalier).',
+            ])
+            ->add('dailyRate', NumberType::class, [
+                'label' => 'Taux journalier (TND)',
+                'scale' => 2,
+                'required' => true,
+                'data' => $defaultDailyRate,
+                'constraints' => [
+                    new Assert\NotBlank(message: 'Le taux journalier est obligatoire.'),
+                    new Assert\Positive(message: 'Le taux journalier doit etre strictement positif.'),
+                ],
+                'attr' => [
+                    'class' => 'form-control',
+                    'min' => '0.01',
+                    'step' => '0.01',
+                    'placeholder' => 'Ex: 0.50',
+                    'inputmode' => 'decimal',
                 ],
             ])
             ->add('notes', TextareaType::class, [
@@ -51,7 +72,7 @@ class LatePenaltyType extends AbstractType
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
             'csrf_token_id' => 'late_penalty_form',
+            'default_daily_rate' => 0.50,
         ]);
     }
 }
-

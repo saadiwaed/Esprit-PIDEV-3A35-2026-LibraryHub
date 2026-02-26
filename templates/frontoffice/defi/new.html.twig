@@ -1,0 +1,330 @@
+{% extends 'frontoffice/base_defi.html.twig' %}
+
+{% block title %}🎯 Créer un Défi - LibraryHub{% endblock %}
+
+{% block body %}
+<!-- BANNER -->
+<section class="position-relative py-5" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white bg-opacity-20 rounded-3 p-3 me-4">
+                        <i class="fas fa-plus-circle fa-3x text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="display-5 fw-bold text-white mb-2">🎯 CRÉER UN DÉFI PERSONNEL</h1>
+                        <p class="text-white mb-0 opacity-90">Fixez-vous des objectifs et suivez votre progression</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FORMULAIRE -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border-radius: 30px;">
+                    <div class="card-body p-5">
+                        
+                        {{ form_start(form, {'attr': {'class': 'row g-4', 'novalidate': 'novalidate'}}) }}
+                        
+                        {# ============================================ #}
+                        {# 🚨 AFFICHAGE DES ERREURS GLOBALES #}
+
+                        
+                        {# ============================================ #}
+                        {% if form.vars.errors|length > 0 %}
+                            <div class="col-12">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <strong>❌ Le formulaire contient des erreurs :</strong>
+                                            <ul class="mb-0 mt-2">
+                                                {% for error in form.vars.errors %}
+                                                    <li>{{ error.message }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- ======================================== -->
+                        <!-- 📝 TITRE DU DÉFI -->
+                        <!-- ======================================== -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-heading text-primary me-2"></i>Titre du défi
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.titre, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.titre.vars.errors|length ? ' is-invalid' : ''),
+                                    'placeholder': 'Ex: Lire 5 livres ce mois-ci'
+                                }
+                            }) }}
+                            {% if form.titre.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.titre.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Donnez un titre clair et motivant à votre défi (min. 3 caractères)</small>
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 📝 DESCRIPTION -->
+                        <!-- ======================================== -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-align-left text-primary me-2"></i>Description
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.description, {
+                                'attr': {
+                                    'class': 'form-control border-2' ~ (form.description.vars.errors|length ? ' is-invalid' : ''),
+                                    'rows': '4',
+                                    'placeholder': 'Décrivez votre objectif en détail...'
+                                }
+                            }) }}
+                            {% if form.description.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Décrivez votre objectif (min. 10 caractères)</small>
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 🎯 TYPE DE DÉFI -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-tag text-primary me-2"></i>Type de défi
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.type_defi, {
+                                'attr': {
+                                    'class': 'form-select form-select-lg border-2' ~ (form.type_defi.vars.errors|length ? ' is-invalid' : '')
+                                }
+                            }) }}
+                            {% if form.type_defi.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.type_defi.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="mt-2 p-3 bg-light rounded-3">
+                                <small class="text-muted d-block">
+                                    <span class="fw-bold text-primary">• Quantitatif</span> = nombre à atteindre
+                                </small>
+                                <small class="text-muted d-block">
+                                    <span class="fw-bold text-success">• Thématique</span> = catégorie à explorer
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 📊 DIFFICULTÉ -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-chart-simple text-primary me-2"></i>Difficulté
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.difficulte, {
+                                'attr': {
+                                    'class': 'form-select form-select-lg border-2' ~ (form.difficulte.vars.errors|length ? ' is-invalid' : ''),
+                                    'min': '1',
+                                    'max': '5'
+                                }
+                            }) }}
+                            {% if form.difficulte.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.difficulte.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="mt-2">
+                                {% for i in 1..5 %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endfor %}
+                                <small class="text-muted ms-2">1 = Facile, 5 = Expert</small>
+                            </div>
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 📅 DATES -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-calendar-alt text-primary me-2"></i>Date de début
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-2">
+                                    <i class="fas fa-calendar"></i>
+                                </span>
+                                {{ form_widget(form.date_debut, {
+                                    'attr': {
+                                        'class': 'form-control form-control-lg border-2' ~ (form.date_debut.vars.errors|length ? ' is-invalid' : '')
+                                    }
+                                }) }}
+                            </div>
+                            {% if form.date_debut.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.date_debut.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-calendar-check text-primary me-2"></i>Date de fin
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-2">
+                                    <i class="fas fa-calendar-check"></i>
+                                </span>
+                                {{ form_widget(form.date_fin, {
+                                    'attr': {
+                                        'class': 'form-control form-control-lg border-2' ~ (form.date_fin.vars.errors|length ? ' is-invalid' : '')
+                                    }
+                                }) }}
+                            </div>
+                            {% if form.date_fin.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.date_fin.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 🎯 OBJECTIF ET UNITÉ -->
+                        <!-- ======================================== -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-bullseye text-primary me-2"></i>Objectif
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.objectif, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.objectif.vars.errors|length ? ' is-invalid' : ''),
+                                    'placeholder': '10',
+                                    'min': '1'
+                                }
+                            }) }}
+                            {% if form.objectif.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.objectif.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-ruler text-primary me-2"></i>Unité
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.unite, {
+                                'attr': {
+                                    'class': 'form-select form-select-lg border-2' ~ (form.unite.vars.errors|length ? ' is-invalid' : '')
+                                }
+                            }) }}
+                            {% if form.unite.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.unite.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted d-block mt-1">Choisissez l'unité de mesure</small>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-gift text-primary me-2"></i>Récompense
+                            </label>
+                            {{ form_widget(form.recompense, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.recompense.vars.errors|length ? ' is-invalid' : ''),
+                                    'placeholder': 'M\'offrir un nouveau livre'
+                                }
+                            }) }}
+                            {% if form.recompense.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.recompense.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Optionnel - Récompensez-vous !</small>
+                        </div>
+
+                        <!-- ✅ CHAMPS CACHÉS -->
+                        <div style="display: none;">
+                            {{ form_widget(form.statut) }}
+                            {{ form_widget(form.progression) }}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 🚀 BOUTONS D'ACTION -->
+                        <!-- ======================================== -->
+                        <div class="col-12 mt-5">
+                            <hr class="mb-4">
+                            <div class="d-flex gap-3 justify-content-end">
+                                <a href="{{ path('app_front_defi_index') }}" class="btn btn-lg btn-outline-secondary px-5 py-3">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </a>
+                                <button type="submit" class="btn btn-lg btn-primary px-5 py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-save me-2"></i>Créer le défi
+                                </button>
+                                <button type="submit" name="brouillon" value="1" class="btn btn-lg btn-warning px-5 py-3">
+                                    <i class="fas fa-pencil-alt me-2"></i>Enregistrer brouillon
+                                </button>
+                            </div>
+                            <p class="text-muted text-end mt-3">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Les champs avec <span class="text-danger">*</span> sont obligatoires
+                            </p>
+                        </div>
+
+                        {{ form_end(form) }}
+                        
+                        <!-- ℹ️ INFORMATION SYSTÈME -->
+                        {% if defi.id %}
+                            <div class="mt-4 p-3 bg-light rounded-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i> 
+                                    Défi créé le {{ defi.createdAt|date('d/m/Y H:i') }}
+                                </small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

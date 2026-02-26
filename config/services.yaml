@@ -4,11 +4,43 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    attachments_directory: '%kernel.project_dir%/public/uploads/attachments'
     app.loan.default_loan_days: 21
     app.loan.renewal_days: 14
     app.loan.max_renewals: 3
     app.loan.daily_penalty_rate: 0.50
     app.loan.daily_late_fee_rate: 0.50
+    app.penalty.ai.min_amount: 1.0
+    app.penalty.ai.max_amount: 10.0
+    renewal_days: '%app.loan.renewal_days%'
+    max_renewals: '%app.loan.max_renewals%'
+    app.ai.default_provider: 'auto'
+    app.ai.provider: '%env(default:app.ai.default_provider:AI_PROVIDER)%'
+    app.openai.api_key: '%env(OPENAI_API_KEY)%'
+    app.openai.default_model: 'gpt-4o-mini'
+    app.openai.model: '%env(default:app.openai.default_model:OPENAI_MODEL)%'
+    app.gemini.api_key: '%env(GEMINI_API_KEY)%'
+    app.gemini.default_model: 'gemini-1.5-flash-latest'
+    app.gemini.model: '%env(default:app.gemini.default_model:GEMINI_MODEL)%'
+
+    app.brevo.api_key: '%env(BREVO_API_KEY)%'
+    app.brevo.default_sender_email: 'no-reply@libraryhub.tn'
+    app.brevo.sender_email: '%env(default:app.brevo.default_sender_email:BREVO_SENDER_EMAIL)%'
+    app.brevo.default_sender_name: 'LIBRARYHUB'
+    app.brevo.sender_name: '%env(default:app.brevo.default_sender_name:BREVO_SENDER_NAME)%'
+
+    app.twilio.sid: '%env(TWILIO_SID)%'
+    app.twilio.auth_token: '%env(TWILIO_AUTH_TOKEN)%'
+    app.twilio.phone_number: '%env(TWILIO_PHONE_NUMBER)%'
+
+    app.reminder.default_public_base_url: 'http://localhost:8000'
+    app.reminder.public_base_url: '%env(default:app.reminder.default_public_base_url:APP_PUBLIC_BASE_URL)%'
+    app.reminder.default_due_soon_days: 2
+    app.reminder.due_soon_days: '%env(default:app.reminder.default_due_soon_days:REMINDER_DUE_SOON_DAYS)%'
+    app.reminder.default_sms_overdue_days_threshold: 3
+    app.reminder.sms_overdue_days_threshold: '%env(default:app.reminder.default_sms_overdue_days_threshold:REMINDER_SMS_DAYS_OVERDUE_THRESHOLD)%'
+    app.reminder.default_sms_penalty_threshold: 5
+    app.reminder.sms_penalty_threshold: '%env(default:app.reminder.default_sms_penalty_threshold:REMINDER_SMS_PENALTY_THRESHOLD)%'
 
 services:
     # default configuration for services in *this* file
@@ -27,6 +59,14 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\GoogleBooksService:
+        arguments:
+            $googleBooksApiKey: '%env(GOOGLE_BOOKS_API_KEY)%'
+    # --- File Upload Service Configuration ---
+    App\Service\FileUploadService:
+        arguments:
+            $attachmentsDirectory: '%attachments_directory%'
     App\Service\LoanService:
         arguments:
             $defaultLoanDays: '%app.loan.default_loan_days%'
@@ -39,6 +79,61 @@ services:
             $renewalDays: '%app.loan.renewal_days%'
             $maxRenewals: '%app.loan.max_renewals%'
 
+    App\Service\AIRenewalSuggester:
+        arguments:
+            $cache: '@cache.app'
+            $maxRenewals: '%app.loan.max_renewals%'
+            $aiProvider: '%app.ai.provider%'
+            $geminiApiKey: '%app.gemini.api_key%'
+            $geminiModel: '%app.gemini.model%'
+            $openaiApiKey: '%app.openai.api_key%'
+            $openaiModel: '%app.openai.model%'
+
+    App\Service\AIPenaltySuggester:
+        arguments:
+            $cache: '@cache.app'
+            $aiProvider: '%app.ai.provider%'
+            $geminiApiKey: '%app.gemini.api_key%'
+            $geminiModel: '%app.gemini.model%'
+            $openaiApiKey: '%app.openai.api_key%'
+            $openaiModel: '%app.openai.model%'
+            $dailyRate: '%app.loan.daily_penalty_rate%'
+            $minAmount: '%app.penalty.ai.min_amount%'
+            $maxAmount: '%app.penalty.ai.max_amount%'
+
     App\Command\AccrueDailyLateFeesCommand:
         arguments:
             $dailyLateFeeRate: '%app.loan.daily_late_fee_rate%'
+
+    App\Command\AccrueDailyPenaltiesCommand:
+        arguments:
+            $dailyLateFeeRate: '%app.loan.daily_late_fee_rate%'
+
+    App\Command\SendLoanRemindersCommand:
+        arguments:
+            $dueSoonDays: '%app.reminder.due_soon_days%'
+
+    Brevo\Brevo:
+        arguments:
+            $apiKey: '%app.brevo.api_key%'
+            $options:
+                timeout: 30
+                maxRetries: 2
+
+    Twilio\Rest\Client:
+        arguments:
+            $username: '%app.twilio.sid%'
+            $password: '%app.twilio.auth_token%'
+
+    App\Service\LoanReminderService:
+        arguments:
+            $brevoApiKey: '%app.brevo.api_key%'
+            $brevoSenderEmail: '%app.brevo.sender_email%'
+            $brevoSenderName: '%app.brevo.sender_name%'
+            $twilioSid: '%app.twilio.sid%'
+            $twilioAuthToken: '%app.twilio.auth_token%'
+            $twilioFromPhoneNumber: '%app.twilio.phone_number%'
+            $publicBaseUrl: '%app.reminder.public_base_url%'
+            $dueSoonDays: '%app.reminder.due_soon_days%'
+            $smsOverdueDaysThreshold: '%app.reminder.sms_overdue_days_threshold%'
+            $smsPenaltyThreshold: '%app.reminder.sms_penalty_threshold%'

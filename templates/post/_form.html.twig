@@ -1,0 +1,27 @@
+﻿{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-lg-8">{{ form_row(form.title) }}</div>
+            {% if form.community is defined %}
+                <div class="col-lg-4">{{ form_row(form.community) }}</div>
+            {% endif %}
+
+            <div class="col-12">{{ form_row(form.content) }}</div>
+
+            <div class="col-md-4">{{ form_row(form.status) }}</div>
+            <div class="col-md-8">{{ form_row(form.externalUrl) }}</div>
+
+            <div class="col-12">{{ form_row(form.attachmentFiles) }}</div>
+
+            <div class="col-md-4">{{ form_row(form.spoilerWarning) }}</div>
+            <div class="col-md-4">{{ form_row(form.isPinned) }}</div>
+            <div class="col-md-4">{{ form_row(form.allowComments) }}</div>
+        </div>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+        <a href="{{ path('app_post_index') }}" class="btn btn-light">Annuler</a>
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+    </div>
+</div>
+{{ form_end(form) }}

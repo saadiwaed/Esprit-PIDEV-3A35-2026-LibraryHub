@@ -13,23 +13,9 @@
                             <form method="post" action="{{ path('loan_return', {'id': loan.id}) }}" class="d-inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('return' ~ loan.id) }}">
                                 <button type="submit" class="btn btn-success">
-                                    <i class="bi bi-check2-circle"></i> Marquer comme retourne
+                                    <i class="bi bi-check2-circle"></i> Marquer comme retourné
                                 </button>
                             </form>
-                        {% endif %}
-                        {% if is_granted('ROLE_LIBRARIAN') and loan.status == constant('App\\Enum\\LoanStatus::OVERDUE') and loan.penalties is empty and latePenaltyForm %}
-                            <button
-                                type="button"
-                                class="btn btn-danger"
-                                data-bs-toggle="modal"
-                                data-bs-target="#latePenaltyModal"
-                            >
-                                <i class="bi bi-exclamation-triangle"></i> Ajouter pénalité ({{ daysLate }} jours de retard)
-                            </button>
-                        {% elseif loan.penalties is not empty %}
-                            <span class="badge bg-info text-dark align-self-center">
-                                Pénalité déjà enregistrée ({{ loan.penalties|length }})
-                            </span>
                         {% endif %}
                         {% if loan.status.value == 'active' or loan.status.value == 'overdue' %}
                             <a href="{{ path('loan_renew', {'id': loan.id}) }}" class="btn btn-info">
@@ -64,23 +50,30 @@
                     <div class="card-header bg-light">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">Loan Information</h5>
-                            {% if is_granted('ROLE_LIBRARIAN') and loan.status == constant('App\\Enum\\LoanStatus::OVERDUE') and loan.penalties is empty and latePenaltyForm %}
-                                <button
-                                    type="button"
-                                    class="btn btn-warning btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#latePenaltyModal"
-                                >
-                                    Ajouter pénalité ({{ daysLate }} jours de retard)
-                                </button>
-                            {% elseif loan.penalties is not empty %}
-                                <span class="badge bg-info text-dark">
-                                    Pénalité déjà enregistrée ({{ loan.penalties|length }})
-                                </span>
+                            {% if loan.status == constant('App\\Enum\\LoanStatus::OVERDUE') %}
+                                {% if activeLatePenalty %}
+                                    <span class="badge bg-secondary">
+                                        Pénalité déjà appliquée ({{ loan.totalUnpaidPenalty|number_format(2, ',', ' ') }} TND impayé)
+                                    </span>
+                                {% elseif latePenaltyForm %}
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#addPenaltyModal">
+                                        Ajouter une pénalité pour retard ({{ daysLate }} jours)
+                                    </button>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
                     <div class="card-body">
+                        {% if activeLatePenalty %}
+                            <div class="alert alert-warning">
+                                <div class="fw-semibold">Pénalité de retard journalier</div>
+                                <div class="small text-muted">
+                                    Jours de retard facturés : {{ activeLatePenalty.lateDays }}
+                                    · Taux journalier : {{ activeLatePenalty.dailyRate|number_format(2, ',', ' ') }} TND
+                                    · Montant impayé : {{ activeLatePenalty.amount|number_format(2, ',', ' ') }} TND
+                                </div>
+                            </div>
+                        {% endif %}
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label"><strong>Status</strong></label>
@@ -106,7 +99,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label"><strong>Checkout Time</strong></label>
-                            <p>{{ loan.checkoutTime ? loan.checkoutTime|date('d/m/Y H:i:s') : '-' }}</p>
+                                <p>{{ loan.checkoutTime ? loan.checkoutTime|date('d/m/Y H:i:s') : '-' }}</p>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label"><strong>Due Date</strong></label>
@@ -168,22 +161,22 @@
         </div>
     </div>
 
-    {% if is_granted('ROLE_LIBRARIAN') and loan.status == constant('App\\Enum\\LoanStatus::OVERDUE') and loan.penalties is empty and latePenaltyForm %}
-        <div class="modal fade" id="latePenaltyModal" tabindex="-1" aria-labelledby="latePenaltyModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
+    {% if latePenaltyForm and loan.status == constant('App\\Enum\\LoanStatus::OVERDUE') %}
+        <div class="modal fade" id="addPenaltyModal" tabindex="-1" aria-labelledby="addPenaltyModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="latePenaltyModalLabel">Ajouter une pénalité pour retard</h5>
+                        <h5 class="modal-title" id="addPenaltyModalLabel">Ajouter une pénalité pour retard</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="alert alert-warning mb-3">
+                        <div class="alert alert-warning">
                             <strong>Emprunt #{{ loan.id }}</strong><br>
-                            Retard de {{ daysLate }} jour(s).
+                            Retard : {{ daysLate }} jour(s)
                         </div>
 
-                        <div class="mb-3 small text-muted">
-                            <div><strong>Raison :</strong> {{ latePenaltyReason }}</div>
+                        <div class="mb-3">
+                            <div><strong>Motif :</strong> {{ latePenaltyReason }}</div>
                             <div><strong>Date d'émission :</strong> {{ latePenaltyIssueDate|date('d/m/Y') }}</div>
                             <div><strong>Statut :</strong> {{ latePenaltyStatus.value|upper }}</div>
                         </div>
@@ -195,20 +188,52 @@
                             <input type="hidden" name="status" value="{{ latePenaltyStatus.value }}">
 
                             {{ form_row(latePenaltyForm.amount) }}
+                            {{ form_row(latePenaltyForm.dailyRate) }}
                             {{ form_row(latePenaltyForm.notes) }}
 
                             <div class="d-flex gap-2 mt-3">
                                 <button type="submit" class="btn btn-danger">
                                     Enregistrer la pénalité
                                 </button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     Annuler
                                 </button>
+                                <a href="{{ path('loan_create_late_penalty', {'id': loan.id}) }}" class="btn btn-link ms-auto">
+                                    Ouvrir sur une page dédiée
+                                </a>
                             </div>
                         {{ form_end(latePenaltyForm) }}
                     </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modalEl = document.getElementById('addPenaltyModal');
+                if (!modalEl) return;
+
+                const daysLate = {{ daysLate }};
+                modalEl.addEventListener('shown.bs.modal', function () {
+                    const amount = modalEl.querySelector('input[type="number"], input[name$="[amount]"]');
+                    if (amount) amount.focus();
+                });
+
+                const dailyRateInput = modalEl.querySelector('input[name$="[dailyRate]"]');
+                const amountInput = modalEl.querySelector('input[name$="[amount]"]');
+                const recompute = function () {
+                    if (!dailyRateInput || !amountInput) return;
+                    const rate = parseFloat(dailyRateInput.value || '0');
+                    if (!isFinite(rate)) return;
+                    const amt = Math.max(0, daysLate) * Math.max(0, rate);
+                    amountInput.value = amt.toFixed(2);
+                };
+                if (dailyRateInput) {
+                    dailyRateInput.addEventListener('input', recompute);
+                    dailyRateInput.addEventListener('change', recompute);
+                }
+                recompute();
+            });
+        </script>
     {% endif %}
 {% endblock %}

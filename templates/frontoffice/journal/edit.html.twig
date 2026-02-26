@@ -1,0 +1,359 @@
+{% extends 'frontoffice/base_journal.html.twig' %}
+
+{% block title %}✏️ Modifier - {{ journal_lecture.titre }}{% endblock %}
+
+{% block body %}
+<!-- BANNER -->
+<section class="position-relative py-5" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white bg-opacity-20 rounded-3 p-3 me-4">
+                        <i class="fas fa-edit fa-3x text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="display-5 fw-bold text-white mb-2">✏️ MODIFIER LA LECTURE</h1>
+                        <p class="text-white mb-0 opacity-90">{{ journal_lecture.titre }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FORMULAIRE -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border-radius: 30px;">
+                    <div class="card-body p-5">
+                        
+                        {{ form_start(form, {'attr': {'class': 'row g-4', 'novalidate': 'novalidate'}}) }}
+                        
+                        {# ============================================ #}
+                        {# 🚨 AFFICHAGE DES ERREURS GLOBALES #}
+                        
+                        {# ============================================ #}
+                        {% if form.vars.errors|length > 0 %}
+                            <div class="col-12">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <strong>❌ Le formulaire contient des erreurs :</strong>
+                                            <ul class="mb-0 mt-2">
+                                                {% for error in form.vars.errors %}
+                                                    <li>{{ error.message }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- ======================================== -->
+                        <!-- 📝 TITRE DE LA LECTURE -->
+                        <!-- ======================================== -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-heading text-warning me-2"></i>Titre de la lecture
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.titre, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.titre.vars.errors|length ? ' is-invalid' : ''),
+                                    'placeholder': 'Ex: Dune - Chapitres 1 à 5'
+                                }
+                            }) }}
+                            {% if form.titre.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.titre.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 📚 ID DU LIVRE -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-book text-warning me-2"></i>ID du livre
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.livre_id, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.livre_id.vars.errors|length ? ' is-invalid' : ''),
+                                    'placeholder': '123'
+                                }
+                            }) }}
+                            {% if form.livre_id.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.livre_id.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 📅 DATE DE LECTURE -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-calendar-alt text-warning me-2"></i>Date de lecture
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-2">
+                                    <i class="fas fa-calendar"></i>
+                                </span>
+                                {{ form_widget(form.date_lecture, {
+                                    'attr': {
+                                        'class': 'form-control form-control-lg border-2' ~ (form.date_lecture.vars.errors|length ? ' is-invalid' : '')
+                                    }
+                                }) }}
+                            </div>
+                            {% if form.date_lecture.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.date_lecture.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- ⏱️ DURÉE & PAGES -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-clock text-warning me-2"></i>Durée (minutes)
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.duree_minutes, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.duree_minutes.vars.errors|length ? ' is-invalid' : ''),
+                                    'placeholder': '45'
+                                }
+                            }) }}
+                            {% if form.duree_minutes.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.duree_minutes.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-file-alt text-warning me-2"></i>Pages lues
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.page_lues, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.page_lues.vars.errors|length ? ' is-invalid' : ''),
+                                    'placeholder': '30'
+                                }
+                            }) }}
+                            {% if form.page_lues.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.page_lues.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 📍 LIEU -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-map-marker-alt text-warning me-2"></i>Lieu
+                            </label>
+                            {{ form_widget(form.lieu, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.lieu.vars.errors|length ? ' is-invalid' : ''),
+                                    'placeholder': 'Maison, Bibliothèque, Café...'
+                                }
+                            }) }}
+                            {% if form.lieu.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.lieu.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- ⚡ CONCENTRATION -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-bolt text-warning me-2"></i>Concentration (1-10)
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.concentration, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.concentration.vars.errors|length ? ' is-invalid' : ''),
+                                    'min': '1',
+                                    'max': '10',
+                                    'placeholder': '7'
+                                }
+                            }) }}
+                            {% if form.concentration.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.concentration.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 📝 RÉSUMÉ -->
+                        <!-- ======================================== -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-align-left text-warning me-2"></i>Résumé
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.resume, {
+                                'attr': {
+                                    'class': 'form-control border-2' ~ (form.resume.vars.errors|length ? ' is-invalid' : ''),
+                                    'rows': '4',
+                                    'placeholder': 'De quoi parle ce chapitre/livre ? Qu\'avez-vous appris ?'
+                                }
+                            }) }}
+                            {% if form.resume.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.resume.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 💭 RÉFLEXIONS -->
+                        <!-- ======================================== -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-pencil-alt text-warning me-2"></i>Réflexions personnelles
+                            </label>
+                            {{ form_widget(form.reflexion, {
+                                'attr': {
+                                    'class': 'form-control border-2' ~ (form.reflexion.vars.errors|length ? ' is-invalid' : ''),
+                                    'rows': '3',
+                                    'placeholder': 'Vos impressions, critiques, idées...'
+                                }
+                            }) }}
+                            {% if form.reflexion.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.reflexion.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- ⭐ NOTE PERSONNELLE -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-star text-warning me-2"></i>Note personnelle (1-5)
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.note_perso, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg border-2' ~ (form.note_perso.vars.errors|length ? ' is-invalid' : ''),
+                                    'min': '1',
+                                    'max': '5',
+                                    'placeholder': '4'
+                                }
+                            }) }}
+                            {% if form.note_perso.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.note_perso.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 🏆 LIEN VERS DÉFI -->
+                        <!-- ======================================== -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold fs-5 mb-2">
+                                <i class="fas fa-trophy text-warning me-2"></i>Lier à un défi
+                            </label>
+                            {{ form_widget(form.defi, {
+                                'attr': {
+                                    'class': 'form-select form-select-lg border-2' ~ (form.defi.vars.errors|length ? ' is-invalid' : '')
+                                }
+                            }) }}
+                            {% if form.defi.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.defi.vars.errors %}
+                                        {{ error.message }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ======================================== -->
+                        <!-- 🚀 BOUTONS D'ACTION -->
+                        <!-- ======================================== -->
+                        <div class="col-12 mt-5">
+                            <hr class="mb-4">
+                            <div class="d-flex gap-3 justify-content-end">
+                                <a href="{{ path('app_front_journal_index') }}" class="btn btn-lg btn-outline-secondary px-5 py-3">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </a>
+                                <button type="submit" class="btn btn-lg btn-warning px-5 py-3" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                                    <i class="fas fa-save me-2"></i>Mettre à jour
+                                </button>
+                            </div>
+                            <p class="text-muted text-end mt-3">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Les champs avec <span class="text-danger">*</span> sont obligatoires
+                            </p>
+                        </div>
+
+                        {{ form_end(form) }}
+
+                        <!-- ✅ INFORMATIONS SYSTÈME -->
+                        <div class="mt-4 p-3 bg-light rounded-3">
+                            <div class="row">
+                        
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">
+                                        <i class="fas fa-user me-1"></i> Utilisateur: ID #{{ journal_lecture.user.id }}
+                                    </small>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">
+                                        <i class="fas fa-clock me-1"></i> Créé le: {{ journal_lecture.createdAt|date('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

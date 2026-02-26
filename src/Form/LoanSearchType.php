@@ -16,41 +16,41 @@ class LoanSearchType extends AbstractType
     {
         $builder
             ->add('search', TextType::class, [
-                'label' => 'Keyword',
+                'label' => 'Mot-clé',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'Search keyword...',
+                    'placeholder' => 'Rechercher…',
                 ],
             ])
             ->add('filterType', ChoiceType::class, [
-                'label' => 'Filter Type',
+                'label' => 'Type de filtre',
                 'required' => false,
-                'placeholder' => 'Choose a filter',
+                'placeholder' => 'Choisir un filtre',
                 'choices' => [
-                    'By Member Name' => 'member',
-                    'By Checkout Date' => 'checkout',
-                    'By Return Date' => 'return',
+                    'Par membre' => 'member',
+                    'Par date d\'emprunt' => 'checkout',
+                    'Par date de retour' => 'return',
                 ],
             ])
             ->add('memberSearch', TextType::class, [
-                'label' => 'Member Name',
+                'label' => 'Membre',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'Member name...',
+                    'placeholder' => 'Nom, prénom, email…',
                 ],
             ])
             ->add('dateFrom', DateType::class, [
-                'label' => 'From',
+                'label' => 'Du',
                 'widget' => 'single_text',
                 'required' => false,
             ])
             ->add('dateTo', DateType::class, [
-                'label' => 'To',
+                'label' => 'Au',
                 'widget' => 'single_text',
                 'required' => false,
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Search',
+                'label' => 'Rechercher',
             ]);
     }
 

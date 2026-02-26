@@ -7,12 +7,16 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Enum\EventStatus;
+use App\Enum\EventTypes;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Enum\RegistrationStatus;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\Table(name: 'events')]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Event
 {
     #[ORM\Id]
@@ -25,26 +29,26 @@ class Event
     #[Assert\Length(
         min: 3,
         max: 255,
-        minMessage: 'Le titre doit contenir au moins {{ limit }} caracteres',
-        maxMessage: 'Le titre ne peut pas depasser {{ limit }} caracteres'
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères'
     )]
     private ?string $title = null;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'La description est obligatoire')]
-    #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caracteres')]
+    #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caractères')]
     private ?string $description = null;
 
     #[ORM\Column(type: 'datetime')]
-    #[Assert\NotBlank(message: 'La date de debut est obligatoire')]
-    #[Assert\GreaterThan('today', message: 'La date de debut doit Ãªtre future')]
+    #[Assert\NotBlank(message: 'La date de début est obligatoire')]
+    #[Assert\GreaterThan('today', message: 'La date de début doit être future')]
     private ?\DateTimeInterface $startDateTime = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'La date de fin est obligatoire')]
     #[Assert\GreaterThan(
         propertyPath: 'startDateTime',
-        message: 'La date de fin doit Ãªtre apres la date de debut'
+        message: 'La date de fin doit être après la date de début'
     )]
     private ?\DateTimeInterface $endDateTime = null;
 
@@ -53,36 +57,29 @@ class Event
     private ?string $location = null;
 
     #[ORM\Column(type: 'integer')]
-    #[Assert\NotBlank(message: 'La capacite est obligatoire')]
-    #[Assert\Positive(message: 'La capacite doit Ãªtre un nombre positif')]
-    #[Assert\LessThanOrEqual(value: 1000, message: 'La capacite ne peut pas depasser 1000 personnes')]
+    #[Assert\NotBlank(message: 'La capacité est obligatoire')]
+    #[Assert\Positive(message: 'La capacité doit être un nombre positif')]
+    #[Assert\LessThanOrEqual(value: 1000, message: 'La capacité ne peut pas dépasser 1000 personnes')]
     private ?int $capacity = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'La date limite d\'inscription est obligatoire')]
     #[Assert\LessThan(
         propertyPath: 'startDateTime',
-        message: 'La date limite d\'inscription doit Ãªtre avant la date de debut'
+        message: 'La date limite d\'inscription doit être avant la date de début'
     )]
     private ?\DateTimeInterface $registrationDeadline = null;
 
     #[ORM\Column(type: 'string', length: 20, enumType: EventStatus::class)]
     private EventStatus $status = EventStatus::UPCOMING;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdEvents')]
     #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: false)]
     private ?User $createdBy = null;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdDate = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\File(
-        maxSize: '2M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
-        mimeTypesMessage: 'Veuillez uploader une image valide (JPEG, PNG ou GIF)'
-    )]
-    private ?string $image = null;
 
     #[ORM\ManyToMany(
         targetEntity: Club::class, 
@@ -93,13 +90,32 @@ class Event
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: EventRegistration::class)]
     private Collection $registrations;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $image = null;
+
+    #[Vich\UploadableField(mapping: 'event_image', fileNameProperty: 'image')]
+    private ?File $imageFile = null;
+
     public function __construct()
     {
         $this->organizingClubs = new ArrayCollection();
         $this->createdDate = new \DateTime();
         $this->registrations = new ArrayCollection();
     }
+#[ORM\Column(type: 'string', length: 50, enumType: EventTypes::class)]
+    private EventTypes $type = EventTypes::READING; 
 
+
+    public function getType(): EventTypes
+    {
+        return $this->type;
+    }
+
+    public function setType(EventTypes $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
     #[ORM\PrePersist]
     public function setCreatedDateValue(): void
     {
@@ -259,67 +275,47 @@ class Event
         return $this;
     }
 
-    /**
-     * Verifie si l'evenement est Ã  venir
-     */
     public function isUpcoming(): bool
     {
         return $this->startDateTime > new \DateTime();
     }
 
-    /**
-     * Verifie si l'evenement est en cours
-     */
+   
     public function isOngoing(): bool
     {
         $now = new \DateTime();
         return $this->startDateTime <= $now && $this->endDateTime >= $now;
     }
 
-    /**
-     * Verifie si l'evenement est passe
-     */
+  
     public function isPast(): bool
     {
         return $this->endDateTime < new \DateTime();
     }
 
 
-    /**
-     * Retourne le club principal organisateur (premier de la liste)
-     */
+   
     public function getMainOrganizer(): ?Club
     {
         return $this->organizingClubs->first() ?: null;
     }
 
-    /**
-     * Verifie si un club specifique organise cet evenement
-     */
+ 
     public function isOrganizedByClub(Club $club): bool
     {
         return $this->organizingClubs->contains($club);
     }
 
-    /**
-     * Verifie si l'evenement est organise par plusieurs clubs
-     */
     public function isCollaborative(): bool
     {
         return $this->organizingClubs->count() > 1;
     }
 
-    /**
-     * Retourne le nombre de clubs organisateurs
-     */
     public function getOrganizerCount(): int
     {
         return $this->organizingClubs->count();
     }
 
-    /**
-     * Retourne la duree de l'evenement en heures
-     */
     public function getDurationInHours(): float
     {
         if (!$this->startDateTime || !$this->endDateTime) {
@@ -333,9 +329,7 @@ class Event
         return round($hours, 1);
     }
 
-    /**
-     * Verifie si l'evenement commence bientÃ´t (dans moins de 24h)
-     */
+  
     public function isStartingSoon(): bool
     {
         $now = new \DateTime();
@@ -344,9 +338,6 @@ class Event
         return $difference > 0 && $difference <= 86400; // 24h en secondes
     }
 
-    /**
-     * Retourne les membres de tous les clubs organisateurs (sans doublons)
-     */
     public function getAllOrganizersMembers(): Collection
     {
         $allMembers = new ArrayCollection();
@@ -362,9 +353,6 @@ class Event
         return $allMembers;
     }
 
-    /**
-     * Verifie si un utilisateur est membre d'un club organisateur
-     */
     public function isUserInOrganizingClub(User $user): bool
     {
         foreach ($this->organizingClubs as $club) {
@@ -375,18 +363,15 @@ class Event
         return false;
     }
 
-    /**
-     * Verifie si l'evenement est complet
-     */
+
     public function isFull(): bool
     {
-        // Ã€ implementer si vous avez des inscriptions Ã  l'evenement
         return false;
     }
 
     public function __toString(): string
     {
-        return $this->title ?? 'Evenement';
+        return $this->title ?? 'Événement';
     }
     public function getAvailableSpots(): int
 {
@@ -410,4 +395,18 @@ public function getWaitlistCount(): int
         fn(EventRegistration $reg) => $reg->isWaitlisted()
     )->count();
 }
+
+public function setImageFile(?File $imageFile = null): void
+{
+    $this->imageFile = $imageFile;
+    
+    if ($imageFile) {
+        $this->createdDate = new \DateTime(); // Use your existing createdDate field
+    }
+}
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
 }

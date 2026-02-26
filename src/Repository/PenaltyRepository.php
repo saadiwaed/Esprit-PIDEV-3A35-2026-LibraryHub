@@ -58,29 +58,14 @@ class PenaltyRepository extends ServiceEntityRepository
     /**
      * @return Penalty[]
      */
-    public function findForMember(User $member, int $limit = 200): array
+    public function findByMember(User $member): array
     {
         return $this->createQueryBuilder('p')
-            ->leftJoin('p.loan', 'l')
-            ->addSelect('l')
+            ->innerJoin('p.loan', 'l')
             ->andWhere('l.member = :member')
             ->setParameter('member', $member)
-            ->addSelect(
-                'CASE
-                    WHEN p.status = :statusUnpaid THEN 0
-                    WHEN p.status = :statusPartial THEN 1
-                    WHEN p.status = :statusPaid THEN 2
-                    ELSE 3
-                END AS HIDDEN penaltyStatusPriority'
-            )
-            ->setParameter('statusUnpaid', PaymentStatus::UNPAID)
-            ->setParameter('statusPartial', PaymentStatus::PARTIAL)
-            ->setParameter('statusPaid', PaymentStatus::PAID)
-            ->orderBy('penaltyStatusPriority', 'ASC')
-            ->addOrderBy('p.waived', 'ASC')
-            ->addOrderBy('p.issueDate', 'DESC')
+            ->orderBy('p.issueDate', 'DESC')
             ->addOrderBy('p.id', 'DESC')
-            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }
@@ -260,4 +245,3 @@ class PenaltyRepository extends ServiceEntityRepository
         return $this->findByFiltersAndSort([], $sortBy);
     }
 }
-

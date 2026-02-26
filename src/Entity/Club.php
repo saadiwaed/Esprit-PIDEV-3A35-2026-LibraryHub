@@ -8,10 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\ClubRepository;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: ClubRepository::class)]
 #[ORM\Table(name: 'clubs')]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Club
 {
     #[ORM\Id]
@@ -24,21 +27,21 @@ class Club
     #[Assert\Length(
         min: 3,
         max: 255,
-        minMessage: 'Le titre doit contenir au moins {{ limit }} caracteres',
-        maxMessage: 'Le titre ne peut pas depasser {{ limit }} caracteres'
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères'
     )]
     private ?string $title = null;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'La description est obligatoire')]
-    #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caracteres')]
+    #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caractères')]
     private ?string $description = null;
 
     #[ORM\Column(type: 'string', length: 100)]
-    #[Assert\NotBlank(message: 'La categorie est obligatoire')]
+    #[Assert\NotBlank(message: 'La catégorie est obligatoire')]
     private ?string $category = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'foundedClubs')]
     #[ORM\JoinColumn(name: 'founder_id', referencedColumnName: 'id', nullable: false)]
     private ?User $founder = null;
 
@@ -47,18 +50,18 @@ class Club
     private Collection $members;
 
     #[ORM\Column(type: 'datetime')]
-    #[Assert\NotBlank(message: 'La date de reunion est obligatoire')]
-    #[Assert\GreaterThan('today', message: 'La date de reunion doit Ãªtre future')]
+    #[Assert\NotBlank(message: 'La date de réunion est obligatoire')]
+    #[Assert\GreaterThan('today', message: 'La date de réunion doit être future')]
     private ?\DateTimeInterface $meetingDate = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\NotBlank(message: 'Le lieu de reunion est obligatoire')]
+    #[Assert\NotBlank(message: 'Le lieu de réunion est obligatoire')]
     private ?string $meetingLocation = null;
 
     #[ORM\Column(type: 'integer')]
-    #[Assert\NotBlank(message: 'La capacite est obligatoire')]
-    #[Assert\Positive(message: 'La capacite doit Ãªtre un nombre positif')]
-    #[Assert\LessThanOrEqual(value: 500, message: 'La capacite ne peut pas depasser 500 membres')]
+    #[Assert\NotBlank(message: 'La capacité est obligatoire')]
+    #[Assert\Positive(message: 'La capacité doit être un nombre positif')]
+    #[Assert\LessThanOrEqual(value: 500, message: 'La capacité ne peut pas dépasser 500 membres')]
     private ?int $capacity = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
@@ -74,13 +77,12 @@ class Club
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdDate = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\File(
-        maxSize: '2M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
-        mimeTypesMessage: 'Veuillez uploader une image valide (JPEG, PNG ou GIF)'
-    )]
+   #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image = null;
+
+    #[Vich\UploadableField(mapping: 'club_image', fileNameProperty: 'image')]
+    private ?File $imageFile = null;
+
 
     #[ORM\ManyToMany(
         targetEntity: Event::class, 
@@ -91,6 +93,8 @@ class Club
     #[ORM\JoinColumn(name: 'club_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'event_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private Collection $organizedEvents;
+
+
 
     public function __construct()
     {
@@ -291,77 +295,50 @@ class Club
         return $this;
     }
 
-    /**
-     * Calcul les places disponibles
-     */
     public function getAvailableSpots(): int
     {
         return $this->capacity - $this->members->count();
     }
 
-    /**
-     * Verifie si le club est complet
-     */
     public function isFull(): bool
     {
         return $this->members->count() >= $this->capacity;
     }
 
-    /**
-     * Verifie si un utilisateur est membre
-     */
     public function isMember(User $user): bool
     {
         return $this->members->contains($user);
     }
 
-    /**
-     * Verifie si un utilisateur peut rejoindre
-     */
     public function canJoin(): bool
     {
         return !$this->isFull() && $this->status === ClubStatus::ACTIVE;
     }
 
-    /**
-     * Active le club
-     */
     public function activate(): self
     {
         $this->status = ClubStatus::ACTIVE;
         return $this;
     }
 
-    /**
-     * Desactive le club
-     */
     public function deactivate(): self
     {
         $this->status = ClubStatus::INACTIVE;
         return $this;
     }
 
-    /**
-     * Met le club en pause
-     */
     public function pause(): self
     {
         $this->status = ClubStatus::PAUSED;
         return $this;
     }
 
-    /**
-     * Archive le club
-     */
     public function archive(): self
     {
         $this->status = ClubStatus::ARCHIVED;
         return $this;
     }
 
-    /**
-     * Retourne les evenements Ã  venir organises par le club
-     */
     public function getUpcomingEvents(): Collection
     {
         return $this->organizedEvents->filter(
@@ -369,9 +346,6 @@ class Club
         );
     }
 
-    /**
-     * Retourne les evenements passes organises par le club
-     */
     public function getPastEvents(): Collection
     {
         return $this->organizedEvents->filter(
@@ -379,9 +353,6 @@ class Club
         );
     }
 
-    /**
-     * Retourne les evenements en cours
-     */
     public function getOngoingEvents(): Collection
     {
         return $this->organizedEvents->filter(
@@ -389,25 +360,16 @@ class Club
         );
     }
 
-    /**
-     * Verifie si le club organise un evenement specifique
-     */
     public function isOrganizingEvent(Event $event): bool
     {
         return $this->organizedEvents->contains($event);
     }
 
-    /**
-     * Compte le nombre d'evenements organises
-     */
     public function getEventCount(): int
     {
         return $this->organizedEvents->count();
     }
 
-    /**
-     * Retourne le prochain evenement organise
-     */
     public function getNextEvent(): ?Event
     {
         $upcomingEvents = $this->getUpcomingEvents();
@@ -416,7 +378,6 @@ class Club
             return null;
         }
         
-        // Trier par date de debut la plus proche
         $eventsArray = $upcomingEvents->toArray();
         usort($eventsArray, fn($a, $b) => $a->getStartDateTime() <=> $b->getStartDateTime());
         
@@ -426,5 +387,18 @@ class Club
     public function __toString(): string
     {
         return $this->title ?? 'Club';
+    }
+    public function setImageFile(?File $imageFile = null): void
+{
+    $this->imageFile = $imageFile;
+    
+    if ($imageFile) {
+        $this->createdDate = new \DateTime(); 
+    }
+}
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
     }
 }

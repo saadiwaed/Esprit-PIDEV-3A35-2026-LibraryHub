@@ -1,0 +1,418 @@
+{% extends 'frontoffice/base_journal.html.twig' %}
+
+{% block title %}📖 Mon Journal de Lecture{% endblock %}
+
+{% block body %}
+<!-- ======================================== -->
+<!-- 🎯 BANNER PRINCIPAL -->
+<!-- ======================================== -->
+<section class="position-relative py-5" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-white bg-opacity-20 rounded-3 p-3 me-3">
+                        <i class="fas fa-book-open fa-3x text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="display-4 fw-bold text-white mb-2">📖 MON JOURNAL DE LECTURE</h1>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white rounded-pill px-3 py-1 me-2">
+                                <span class="text-primary fw-bold">{{ total_lectures }}</span>
+                                <span class="text-muted">lectures</span>
+                            </div>
+                            <div class="bg-white rounded-pill px-3 py-1">
+                                <span class="text-success fw-bold">{{ total_pages }}</span>
+                                <span class="text-muted">pages</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ path('app_front_journal_new') }}" class="btn btn-warning btn-lg px-5 py-3 shadow-lg">
+                    <i class="fas fa-plus-circle me-2 fa-lg"></i>
+                    <div class="text-start d-inline-block">
+                        <small class="d-block fw-light">AJOUTER UNE</small>
+                        <span class="fw-bold">NOUVELLE LECTURE</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================================== -->
+<!-- 💬 CITATION DU JOUR -->
+<!-- ======================================== -->
+<div class="container mt-4">
+    <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 20px;">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="bg-white bg-opacity-20 rounded-3 p-3">
+                        <i class="fas fa-quote-right fa-2x text-white"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <p class="text-white fst-italic mb-1 fs-5">"{{ citation.contenu }}"</p>
+                    <p class="text-white-50 mb-0">— {{ citation.auteur }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================== -->
+<!-- 📊 STATISTIQUES AVANCÉES -->
+<!-- ======================================== -->
+<div class="container mt-4">
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-gradient-primary text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-book fa-2x opacity-50"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-white-50 mb-1">Total lectures</h6>
+                            <h3 class="text-white mb-0">{{ total_lectures }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-gradient-success" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-file-alt fa-2x opacity-50"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-white-50 mb-1">Pages lues</h6>
+                            <h3 class="text-white mb-0">{{ total_pages }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-gradient-warning" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock fa-2x opacity-50"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-white-50 mb-1">Temps total</h6>
+                            <h3 class="text-white mb-0">
+                                {% set total_minutes = journal_lectures|reduce((carry, j) => carry + j.dureeMinutes, 0) %}
+                                {{ (total_minutes / 60)|round }}h{{ total_minutes % 60 }}min
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-gradient-danger" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-star fa-2x opacity-50"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-white-50 mb-1">Note moyenne</h6>
+                            <h3 class="text-white mb-0">
+                                {% if journal_lectures|length > 0 %}
+                                    {{ (journal_lectures|reduce((carry, j) => carry + j.notePerso, 0) / journal_lectures|length)|round(1) }}/5
+                                {% else %}
+                                    0/5
+                                {% endif %}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================== -->
+<!-- 🔍 BARRE DE RECHERCHE ET FILTRES -->
+<!-- ======================================== -->
+<div class="container mt-4">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <form method="get" action="{{ path('app_front_journal_index') }}" class="row g-3">
+                
+                <!-- RECHERCHE -->
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-primary text-white border-0">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                               name="search" 
+                               class="form-control form-control-lg border-0 shadow-none" 
+                               placeholder="🔍 Rechercher un titre ou un résumé..."
+                               value="{{ search|default('') }}">
+                        {% if search|default('') %}
+                            <a href="{{ path('app_front_journal_index', {'sort': sortBy|default('date_desc'), 'lieu': filterLieu|default(''), 'note': filterNote|default('')}) }}" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- TRI -->
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-warning text-dark border-0">
+                            <i class="fas fa-sort"></i>
+                        </span>
+                        <select name="sort" class="form-select form-select-lg border-0 shadow-none">
+                            <option value="date_desc" {{ sortBy|default('date_desc') == 'date_desc' ? 'selected' : '' }}>📅 Date (récent → ancien)</option>
+                            <option value="date_asc" {{ sortBy|default('') == 'date_asc' ? 'selected' : '' }}>📅 Date (ancien → récent)</option>
+                            <option value="note_desc" {{ sortBy|default('') == 'note_desc' ? 'selected' : '' }}>⭐ Note (haute → basse)</option>
+                            <option value="note_asc" {{ sortBy|default('') == 'note_asc' ? 'selected' : '' }}>⭐ Note (basse → haute)</option>
+                            <option value="duree_desc" {{ sortBy|default('') == 'duree_desc' ? 'selected' : '' }}>⏱️ Durée (long → court)</option>
+                            <option value="duree_asc" {{ sortBy|default('') == 'duree_asc' ? 'selected' : '' }}>⏱️ Durée (court → long)</option>
+                            <option value="pages_desc" {{ sortBy|default('') == 'pages_desc' ? 'selected' : '' }}>📄 Pages (plus → moins)</option>
+                            <option value="pages_asc" {{ sortBy|default('') == 'pages_asc' ? 'selected' : '' }}>📄 Pages (moins → plus)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- FILTRE LIEU -->
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-info text-white border-0">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </span>
+                        <select name="lieu" class="form-select form-select-lg border-0 shadow-none">
+                            <option value="">📍 Tous les lieux</option>
+                            {% for lieu in lieux|default([]) %}
+                                <option value="{{ lieu }}" {{ filterLieu|default('') == lieu ? 'selected' : '' }}>{{ lieu }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- FILTRE NOTE -->
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white border-0">
+                            <i class="fas fa-star"></i>
+                        </span>
+                        <select name="note" class="form-select form-select-lg border-0 shadow-none">
+                            <option value="">⭐ Toutes les notes</option>
+                            {% for i in 1..5 %}
+                                <option value="{{ i }}" {{ filterNote|default('') == i ? 'selected' : '' }}>{{ i }} étoile{% if i > 1 %}s{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- BOUTONS ACTIONS -->
+                <div class="col-12 text-end mt-3">
+                    <button type="submit" class="btn btn-primary px-5">
+                        <i class="fas fa-filter me-2"></i>Appliquer les filtres
+                    </button>
+                    <a href="{{ path('app_front_journal_index') }}" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-undo me-2"></i>Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- RÉSULTATS DE LA RECHERCHE -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">
+            <span class="badge bg-primary bg-opacity-10 text-primary p-3">
+                <i class="fas fa-book-open me-2"></i>
+                {{ journal_lectures|length }} lecture{% if journal_lectures|length > 1 %}s{% endif %} trouvée{% if journal_lectures|length > 1 %}s{% endif %}
+            </span>
+        </h5>
+        {% if search|default('') or filterLieu|default('') or filterNote|default('') %}
+            <div class="d-flex gap-2">
+                <span class="badge bg-light text-dark p-2">
+                    <i class="fas fa-filter me-1"></i>Filtres actifs:
+                    {% if search|default('') %} "{{ search }}" {% endif %}
+                    {% if filterLieu|default('') %} 📍 {{ filterLieu }} {% endif %}
+                    {% if filterNote|default('') %} ⭐ {{ filterNote }}/5 {% endif %}
+                </span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ======================================== -->
+<!-- 💬 MESSAGES FLASH -->
+<!-- ======================================== -->
+<div class="container mt-4">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show shadow-sm">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="fas fa-check-circle fa-2x"></i>
+                </div>
+                <div>
+                    <strong>Bravo !</strong> {{ message }}
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- ======================================== -->
+<!-- 📚 LISTE DES LECTURES -->
+<!-- ======================================== -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for journal in journal_lectures %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-lg h-100" style="border-radius: 20px;">
+                        <div class="card-body p-4">
+                            <!-- EN-TÊTE -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                                    <i class="fas fa-calendar me-1"></i>{{ journal.dateLecture|date('d/m/Y') }}
+                                </span>
+                                <div class="dropdown">
+                                    <button class="btn btn-light btn-sm rounded-circle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ path('app_front_journal_show', {'id': journal.id}) }}">
+                                                <i class="fas fa-eye text-primary me-2"></i>Voir détails
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ path('app_front_journal_edit', {'id': journal.id}) }}">
+                                                <i class="fas fa-edit text-warning me-2"></i>Modifier
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <form method="post" action="{{ path('app_front_journal_delete', {'id': journal.id}) }}"
+                                                  onsubmit="return confirm('🗑️ Supprimer cette lecture ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ journal.id) }}">
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="fas fa-trash-alt me-2"></i>Supprimer
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- TITRE -->
+                            <h3 class="h5 fw-bold mb-3">{{ journal.titre }}</h3>
+
+                            <!-- STATISTIQUES -->
+                            <div class="d-flex justify-content-between mb-3">
+                                <div class="text-center">
+                                    <span class="badge bg-light text-dark p-2">
+                                        <i class="fas fa-clock text-primary me-1"></i>
+                                        {{ journal.dureeMinutes }} min
+                                    </span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="badge bg-light text-dark p-2">
+                                        <i class="fas fa-file-alt text-success me-1"></i>
+                                        {{ journal.pageLues }} pages
+                                    </span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="badge bg-light text-dark p-2">
+                                        <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                        {{ journal.lieu|default('-') }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- CONCENTRATION & NOTE -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <small class="text-muted d-block">Concentration</small>
+                                    <div>
+                                        {% for i in 1..5 %}
+                                            {% if i <= journal.concentration/2 %}
+                                                <i class="fas fa-bolt text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-bolt text-secondary"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Ma note</small>
+                                    <div>
+                                        {% for i in 1..5 %}
+                                            {% if i <= journal.notePerso %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RÉSUMÉ -->
+                            <p class="card-text text-muted small mb-3">
+                                {{ journal.resume|slice(0, 100) }}{% if journal.resume|length > 100 %}...{% endif %}
+                            </p>
+
+                            <!-- LIEN VERS DÉFI -->
+                            {% if journal.defi %}
+                                <div class="mt-3 pt-2 border-top">
+                                    <a href="{{ path('app_front_defi_show', {'id': journal.defi.id}) }}" 
+                                       class="text-decoration-none small">
+                                        <i class="fas fa-trophy text-warning me-1"></i>
+                                        Défi: {{ journal.defi.titre }}
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                            <!-- BOUTON VOIR -->
+                            <div class="mt-3">
+                                <a href="{{ path('app_front_journal_show', {'id': journal.id}) }}" 
+                                   class="btn btn-outline-primary w-100">
+                                    Lire la suite <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- AUCUNE LECTURE -->
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="bg-light rounded-circle d-inline-flex p-5 mb-4">
+                            <i class="fas fa-book-open fa-4x text-muted"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">Aucune lecture enregistrée</h3>
+                        <p class="text-muted mb-4">Commencez votre journal de lecture dès maintenant !</p>
+                        <a href="{{ path('app_front_journal_new') }}" class="btn btn-primary btn-lg px-5">
+                            <i class="fas fa-plus-circle me-2"></i>Ajouter ma première lecture
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+{% endblock %}

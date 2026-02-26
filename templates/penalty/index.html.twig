@@ -49,12 +49,12 @@
                         <div class="col-12 col-md-5">
                             <label class="form-label" for="penalty-sort-by">Trier par</label>
                             <select id="penalty-sort-by" name="sortBy" class="form-select">
-                                <option value="">-- Ordre par defaut --</option>
-                                <option value="member_name_asc" {{ app.request.query.get('sortBy') == 'member_name_asc' ? 'selected' : '' }}>Adherent (A â†‘)</option>
-                                <option value="amount_desc" {{ app.request.query.get('sortBy') == 'amount_desc' ? 'selected' : '' }}>Montant (eleve â†“)</option>
-                                <option value="issue_desc" {{ app.request.query.get('sortBy') == 'issue_desc' ? 'selected' : '' }}>Date emission (recent â†“)</option>
-                                <option value="status_priority" {{ app.request.query.get('sortBy') == 'status_priority' ? 'selected' : '' }}>Statut (impayee > partielle > payee)</option>
-                                <option value="waived_last" {{ app.request.query.get('sortBy') == 'waived_last' ? 'selected' : '' }}>Exoneree (en dernier)</option>
+                                <option value="">-- Ordre par défaut --</option>
+                                <option value="member_name_asc" {{ app.request.query.get('sortBy') == 'member_name_asc' ? 'selected' : '' }}>Adhérent (A ↑)</option>
+                                <option value="amount_desc" {{ app.request.query.get('sortBy') == 'amount_desc' ? 'selected' : '' }}>Montant (élevé ↓)</option>
+                                <option value="issue_desc" {{ app.request.query.get('sortBy') == 'issue_desc' ? 'selected' : '' }}>Date émission (récent ↓)</option>
+                                <option value="status_priority" {{ app.request.query.get('sortBy') == 'status_priority' ? 'selected' : '' }}>Statut (impayée > partielle > payée)</option>
+                                <option value="waived_last" {{ app.request.query.get('sortBy') == 'waived_last' ? 'selected' : '' }}>Exonérée (en dernier)</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-2">
@@ -65,7 +65,7 @@
                 {% if penalties|length > 0 %}
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="text-muted">
-                            Total resultats : {{ totalResults }}
+                            Total résultats : {{ totalResults }}
                         </div>
                     </div>
                     <div class="table-responsive">
@@ -77,17 +77,17 @@
                                     {% set dir = sort == 'loan' and direction == 'asc' ? 'desc' : 'asc' %}
                                     <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'loan', 'direction': dir})) }}">Emprunt #</a></th>
                                     {% set dir = sort == 'member' and direction == 'asc' ? 'desc' : 'asc' %}
-                                    <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'member', 'direction': dir})) }}">Adherent</a></th>
+                                    <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'member', 'direction': dir})) }}">Adhérent</a></th>
                                     {% set dir = sort == 'amount' and direction == 'asc' ? 'desc' : 'asc' %}
                                     <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'amount', 'direction': dir})) }}">Montant</a></th>
                                     {% set dir = sort == 'reason' and direction == 'asc' ? 'desc' : 'asc' %}
                                     <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'reason', 'direction': dir})) }}">Raison</a></th>
                                     {% set dir = sort == 'issueDate' and direction == 'asc' ? 'desc' : 'asc' %}
-                                    <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'issueDate', 'direction': dir})) }}">Date emission</a></th>
+                                    <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'issueDate', 'direction': dir})) }}">Date émission</a></th>
                                     {% set dir = sort == 'status' and direction == 'asc' ? 'desc' : 'asc' %}
                                     <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'status', 'direction': dir})) }}">Statut</a></th>
                                     {% set dir = sort == 'waived' and direction == 'asc' ? 'desc' : 'asc' %}
-                                    <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'waived', 'direction': dir})) }}">Exonere</a></th>
+                                    <th><a href="{{ path('penalty_index', queryParams|merge({'sort': 'waived', 'direction': dir})) }}">Exonéré</a></th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -102,15 +102,15 @@
                                         </td>
                                         <td>{{ penalty.loan.member.fullName }}</td>
                                         <td>
-                                            <span class="badge bg-info">{{ penalty.amount|number_format(2, ',', ' ') }} â‚¬</span>
+                                            <span class="badge bg-info">{{ penalty.amount|number_format(2, ',', ' ') }} €</span>
                                         </td>
                                         <td>{{ penalty.reason }}</td>
                                         <td>{{ penalty.issueDate ? penalty.issueDate|date('d/m/Y') : '-' }}</td>
                                         <td>
                                             {% if penalty.status.value == 'unpaid' %}
-                                                <span class="badge bg-danger">Impayee</span>
+                                                <span class="badge bg-danger">Impayée</span>
                                             {% elseif penalty.status.value == 'paid' %}
-                                                <span class="badge bg-success">Payee</span>
+                                                <span class="badge bg-success">Payée</span>
                                             {% else %}
                                                 <span class="badge bg-warning text-dark">Partielle</span>
                                             {% endif %}
@@ -149,10 +149,10 @@
                             <ul class="pagination justify-content-center">
                                 {% if currentPage > 1 %}
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ path('penalty_index', queryParams|merge({'page': 1})) }}">Premiere</a>
+                                        <a class="page-link" href="{{ path('penalty_index', queryParams|merge({'page': 1})) }}">Première</a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ path('penalty_index', queryParams|merge({'page': currentPage - 1})) }}">Precedente</a>
+                                        <a class="page-link" href="{{ path('penalty_index', queryParams|merge({'page': currentPage - 1})) }}">Précédente</a>
                                     </li>
                                 {% endif %}
 
@@ -173,7 +173,7 @@
                                         <a class="page-link" href="{{ path('penalty_index', queryParams|merge({'page': currentPage + 1})) }}">Suivante</a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ path('penalty_index', queryParams|merge({'page': maxPage})) }}">Derniere</a>
+                                        <a class="page-link" href="{{ path('penalty_index', queryParams|merge({'page': maxPage})) }}">Dernière</a>
                                     </li>
                                 {% endif %}
                             </ul>
@@ -182,7 +182,7 @@
                 {% else %}
                     <div class="text-center py-5">
                         <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                        <p class="text-muted mt-3">Aucune amende trouvee. <a href="{{ path('penalty_new') }}">Creer une amende</a></p>
+                        <p class="text-muted mt-3">Aucune amende trouvée. <a href="{{ path('penalty_new') }}">Créer une amende</a></p>
                     </div>
                 {% endif %}
             </div>
@@ -190,4 +190,3 @@
         <!-- Penalties Table END -->
     </div>
 {% endblock %}
-

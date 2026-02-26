@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Statut de votre demande d’emprunt</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.5; color: #111;">
+    <p>Bonjour {{ request.member.firstName }} {{ request.member.lastName }},</p>
+
+    {% if status == constant('App\\\\Entity\\\\LoanRequest::STATUS_APPROVED') %}
+        <p>Votre demande d’emprunt <strong>#{{ request.id }}</strong> a été <strong>approuvée</strong>.</p>
+    {% else %}
+        <p>Votre demande d’emprunt <strong>#{{ request.id }}</strong> a été <strong>refusée</strong>.</p>
+    {% endif %}
+
+    <ul>
+        <li>Livre : <strong>#{{ request.bookId }}</strong></li>
+        <li>Date souhaitée de début : <strong>{{ request.desiredLoanDate ? request.desiredLoanDate|date('d/m/Y') : '-' }}</strong></li>
+        <li>Date souhaitée de retour : <strong>{{ request.desiredReturnDate ? request.desiredReturnDate|date('d/m/Y') : '-' }}</strong></li>
+    </ul>
+
+    {% if request.notes %}
+        <p><strong>Note :</strong> {{ request.notes }}</p>
+    {% endif %}
+
+    <p>
+        Vous pouvez consulter vos demandes ici : <a href="{{ myLoansUrl }}">{{ myLoansUrl }}</a>
+    </p>
+</body>
+</html>
+

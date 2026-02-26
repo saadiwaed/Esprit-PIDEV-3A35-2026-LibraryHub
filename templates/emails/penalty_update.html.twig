@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mise à jour de pénalité</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.5; color: #111;">
+    <p>Bonjour {{ loan.member.firstName }} {{ loan.member.lastName }},</p>
+
+    <p>
+        Votre pénalité liée à l’emprunt <strong>#{{ loan.id }}</strong> a été mise à jour.
+    </p>
+
+    <ul>
+        <li>Montant de la pénalité : <strong>{{ penalty.amount|number_format(2, ',', ' ') }} TND</strong></li>
+        <li>Jours facturés : <strong>{{ penalty.lateDays }}</strong></li>
+        <li>Taux journalier : <strong>{{ penalty.dailyRate|number_format(2, ',', ' ') }} TND</strong></li>
+        <li>Total des pénalités impayées : <strong>{{ totalUnpaidPenalty|number_format(2, ',', ' ') }} TND</strong></li>
+    </ul>
+
+    <p>
+        Accéder à vos emprunts : <a href="{{ myLoansUrl }}">{{ myLoansUrl }}</a>
+    </p>
+</body>
+</html>
+

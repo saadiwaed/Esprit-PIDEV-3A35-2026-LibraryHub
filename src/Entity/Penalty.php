@@ -157,9 +157,7 @@ class Penalty
 
     public function setIssueDate(\DateTimeInterface $issueDate): static
     {
-        $this->issueDate = $issueDate instanceof \DateTime
-            ? clone $issueDate
-            : new \DateTime($issueDate->format('Y-m-d'), $issueDate->getTimezone());
+        $this->issueDate = $issueDate;
 
         return $this;
     }

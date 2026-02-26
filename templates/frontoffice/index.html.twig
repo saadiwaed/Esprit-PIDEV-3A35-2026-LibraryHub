@@ -3,6 +3,8 @@
 {% block title %}LibraryHub!{% endblock %}
 
 {% block body %}
+
+
 <!-- Header START -->
 <header class="navbar-light navbar-sticky">
 	<!-- Logo Nav START -->
@@ -340,6 +342,51 @@ Main Banner START -->
 </section>
 <!-- =======================
 Main Banner END -->
+
+
+
+<!-- ======================= 🎯 MES OUTILS DE LECTURE 🎯 ======================= -->
+<!-- ======================= 🎯 MES OUTILS DE LECTURE 🎯 ======================= -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="bg-gradient-primary-light rounded-4 p-5 shadow-sm">
+                    <div class="row align-items-center g-4">
+                        <div class="col-lg-6">
+                            <h2 class="display-6 fw-bold mb-3">
+                                <span class="text-warning">📖</span> Mon espace lecture
+                            </h2>
+                            <p class="lead mb-4">Documentez vos lectures et relevez des défis personnalisés pour progresser !</p>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="d-flex flex-wrap justify-content-center justify-content-lg-end gap-3">
+                                <a href="{{ path('app_front_journal_index') }}" class="btn btn-primary btn-lg px-5 py-3">
+                                    <i class="fas fa-book-open me-2 fa-lg"></i>
+                                    <div class="text-start">
+                                        <small class="d-block fw-light">Mon</small>
+                                        <span class="fw-bold">Journal de lecture</span>
+                                    </div>
+                                </a>
+                                <a href="{{ path('app_front_defi_index') }}" class="btn btn-warning btn-lg px-5 py-3">
+                                    <i class="fas fa-trophy me-2 fa-lg"></i>
+                                    <div class="text-start">
+                                        <small class="d-block fw-light">Mes</small>
+                                        <span class="fw-bold">Défis de lecture</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ======================= FIN DES OUTILS DE LECTURE ======================= -->
+<!-- ======================= FIN DES OUTILS DE LECTURE ======================= -->
+
+
 
 <!-- =======================
 Feature START -->

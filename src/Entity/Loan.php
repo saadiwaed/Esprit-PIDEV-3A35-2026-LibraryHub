@@ -65,11 +65,17 @@ class Loan
     #[Assert\NotNull(message: 'L\'adherent est obligatoire.')]
     private ?User $member = null;
 
-    #[ORM\OneToMany(targetEntity: Penalty::class, mappedBy: 'loan', cascade: ['remove'], fetch: 'EXTRA_LAZY')]
+    #[ORM\OneToMany(targetEntity: Penalty::class, mappedBy: 'loan', cascade: ['remove'])]
     private Collection $penalties;
 
     #[ORM\OneToMany(targetEntity: Renewal::class, mappedBy: 'loan', cascade: ['remove'])]
     private Collection $renewals;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lastEmailReminderSentAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lastSmsReminderSentAt = null;
 
     /**
      * Non persisted snapshot used to detect dueDate changes after return.
@@ -110,7 +116,7 @@ class Loan
 
     public function setCheckoutTime(\DateTimeInterface $checkoutTime): static
     {
-        $this->checkoutTime = self::toMutableDateTime($checkoutTime);
+        $this->checkoutTime = $checkoutTime;
 
         return $this;
     }
@@ -122,7 +128,7 @@ class Loan
 
     public function setDueDate(\DateTimeInterface $dueDate): static
     {
-        $this->dueDate = self::toMutableDateTime($dueDate);
+        $this->dueDate = $dueDate;
 
         return $this;
     }
@@ -134,9 +140,7 @@ class Loan
 
     public function setReturnDate(?\DateTimeInterface $returnDate): static
     {
-        $this->returnDate = $returnDate instanceof \DateTimeInterface
-            ? self::toMutableDateTime($returnDate)
-            : null;
+        $this->returnDate = $returnDate;
 
         return $this;
     }
@@ -219,16 +223,6 @@ class Loan
         return $this->penalties;
     }
 
-    public function hasPenalty(): bool
-    {
-        return $this->penalties->count() > 0;
-    }
-
-    public function getPenaltiesCount(): int
-    {
-        return $this->penalties->count();
-    }
-
     public function addPenalty(Penalty $penalty): static
     {
         if (!$this->penalties->contains($penalty)) {
@@ -246,6 +240,30 @@ class Loan
                 $penalty->setLoan(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLastEmailReminderSentAt(): ?\DateTimeImmutable
+    {
+        return $this->lastEmailReminderSentAt;
+    }
+
+    public function setLastEmailReminderSentAt(?\DateTimeImmutable $lastEmailReminderSentAt): static
+    {
+        $this->lastEmailReminderSentAt = $lastEmailReminderSentAt;
+
+        return $this;
+    }
+
+    public function getLastSmsReminderSentAt(): ?\DateTimeImmutable
+    {
+        return $this->lastSmsReminderSentAt;
+    }
+
+    public function setLastSmsReminderSentAt(?\DateTimeImmutable $lastSmsReminderSentAt): static
+    {
+        $this->lastSmsReminderSentAt = $lastSmsReminderSentAt;
 
         return $this;
     }
@@ -608,14 +626,5 @@ class Loan
     private static function toDateOnly(\DateTimeInterface $date): \DateTimeImmutable
     {
         return \DateTimeImmutable::createFromInterface($date)->setTime(0, 0, 0);
-    }
-
-    private static function toMutableDateTime(\DateTimeInterface $dateTime): \DateTime
-    {
-        if ($dateTime instanceof \DateTime) {
-            return clone $dateTime;
-        }
-
-        return new \DateTime($dateTime->format('Y-m-d H:i:s.u'), $dateTime->getTimezone());
     }
 }

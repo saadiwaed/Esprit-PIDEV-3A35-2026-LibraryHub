@@ -1,0 +1,26 @@
+﻿<header class="navbar-light navbar-sticky">
+    <nav class="navbar navbar-expand-xl">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_frontoffice') }}">
+                <img class="light-mode-item navbar-brand-item" src="{{ asset('assets/images/image.svg') }}" alt="logo" style="width:100px;height:auto;border-radius:50%;">
+            </a>
+
+            <button class="navbar-toggler ms-sm-auto" type="button" data-bs-toggle="collapse" data-bs-target="#forumNavbar" aria-controls="forumNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+            </button>
+
+            <div class="navbar-collapse collapse" id="forumNavbar">
+                <ul class="navbar-nav navbar-nav-scroll ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="forumMenu" data-bs-toggle="dropdown" aria-expanded="false">Parcourir</a>
+                        <ul class="dropdown-menu" aria-labelledby="forumMenu">
+                            <li><a class="dropdown-item" href="{{ path('app_frontoffice') }}">Accueil</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_front_community_index') }}">Forum et discussions</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{{ path('app_front_community_index') }}">Communautes</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

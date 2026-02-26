@@ -14,7 +14,7 @@ enum ClubStatus: string
             self::ACTIVE => 'Actif',
             self::INACTIVE => 'Inactif',
             self::PAUSED => 'En pause',
-            self::ARCHIVED => 'Archive',
+            self::ARCHIVED => 'Archivé',
         };
     }
 

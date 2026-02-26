@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\LoanRequest;
-use App\Enum\LoanRequestStatus;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -11,7 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<LoanRequest>
  */
-class LoanRequestRepository extends ServiceEntityRepository
+final class LoanRequestRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -21,29 +20,50 @@ class LoanRequestRepository extends ServiceEntityRepository
     /**
      * @return LoanRequest[]
      */
-    public function findPending(int $limit = 50): array
+    public function findRecentlyDecided(\DateTimeImmutable $since): array
     {
-        return $this->createQueryBuilder('lr')
-            ->andWhere('lr.status = :status')
-            ->setParameter('status', LoanRequestStatus::PENDING)
-            ->orderBy('lr.requestedAt', 'ASC')
-            ->setMaxResults($limit)
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.status IN (:decided)')
+            ->andWhere('r.requestedAt >= :since')
+            ->setParameter('decided', [LoanRequest::STATUS_APPROVED, LoanRequest::STATUS_REJECTED])
+            ->setParameter('since', $since)
+            ->orderBy('r.requestedAt', 'DESC')
+            ->addOrderBy('r.id', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
-    /**
-     * @return LoanRequest[]
-     */
-    public function findLatestForMember(User $member, int $limit = 5): array
+    public function findMemberLastEmailReminderSentAt(User $member): ?\DateTimeImmutable
     {
-        return $this->createQueryBuilder('lr')
-            ->andWhere('lr.member = :member')
+        $row = $this->createQueryBuilder('r')
+            ->select('r.lastEmailReminderSentAt AS lastEmailReminderSentAt')
+            ->andWhere('r.member = :member')
+            ->andWhere('r.lastEmailReminderSentAt IS NOT NULL')
             ->setParameter('member', $member)
-            ->orderBy('lr.requestedAt', 'DESC')
-            ->setMaxResults($limit)
+            ->orderBy('r.lastEmailReminderSentAt', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
+
+        $value = \is_array($row) ? ($row['lastEmailReminderSentAt'] ?? null) : null;
+
+        return $value instanceof \DateTimeImmutable ? $value : null;
+    }
+
+    public function findMemberLastSmsReminderSentAt(User $member): ?\DateTimeImmutable
+    {
+        $row = $this->createQueryBuilder('r')
+            ->select('r.lastSmsReminderSentAt AS lastSmsReminderSentAt')
+            ->andWhere('r.member = :member')
+            ->andWhere('r.lastSmsReminderSentAt IS NOT NULL')
+            ->setParameter('member', $member)
+            ->orderBy('r.lastSmsReminderSentAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $value = \is_array($row) ? ($row['lastSmsReminderSentAt'] ?? null) : null;
+
+        return $value instanceof \DateTimeImmutable ? $value : null;
     }
 }
-

@@ -8,9 +8,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class FrontofficeController extends AbstractController
 {
-    #[Route('/acceuil', name: 'app_frontoffice', methods: ['GET'])]
+    #[Route('/', name: 'app_frontoffice')]
     public function index(): Response
     {
-        return $this->render('frontoffice/index.html.twig');
+        return $this->render('frontoffice/index.html.twig', [
+            'controller_name' => 'FrontofficeController',
+        ]);
     }
 }

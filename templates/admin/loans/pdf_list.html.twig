@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr" dir="{{ isRtl ? 'rtl' : 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des emprunts - LIBRARYHUB</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: dejavusans, DejaVu Sans, Arial, sans-serif;
+            font-size: 11px;
+            color: #212529;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 4px 0;
+        }
+
+        .meta {
+            color: #6c757d;
+            font-size: 10px;
+            margin-bottom: 12px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            border: 1px solid #dee2e6;
+            padding: 6px 8px;
+            vertical-align: top;
+        }
+
+        .table thead th {
+            background: #f8f9fa;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+
+        .table td {
+            white-space: nowrap;
+        }
+
+        .table td.wrap {
+            white-space: normal;
+        }
+
+        .text-end { text-align: right; }
+
+        tr.row-overdue td {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+        }
+
+        tr.row-late-return td {
+            background: #fff3cd;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            line-height: 1.2;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .badge-primary { background: #0d6efd; }
+        .badge-success { background: #198754; }
+        .badge-danger { background: #dc3545; }
+        .badge-warning { background: #ffc107; color: #212529; }
+
+        .note {
+            margin-top: 10px;
+            font-size: 10px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Liste des emprunts au {{ generatedAt|date('d/m/Y') }}</h1>
+    <div class="meta">
+        Généré le {{ generatedAt|date('d/m/Y H:i') }} —
+        Page {{ page }} ({{ exportedCount }} résultat(s) affiché(s) / {{ totalResults }} au total)
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Membre</th>
+            <th>Livre</th>
+            <th>Emprunté le</th>
+            <th>Limite</th>
+            <th>Statut</th>
+            <th class="text-end">Retard</th>
+            <th class="text-end">Pénalités</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for loan in loans %}
+            {% set isCurrentlyOverdue = loan.status.value == 'overdue' %}
+            {% set isLateReturn = (loan.status.value == 'returned') and (loan.daysLate > 0) %}
+
+            <tr class="{% if isCurrentlyOverdue %}row-overdue{% elseif isLateReturn %}row-late-return{% endif %}">
+                <td><strong>#{{ loan.id }}</strong></td>
+                <td class="wrap">
+                    {{ loan.member ? (loan.member.fullName ?? '–') : '–' }}
+                    <div style="color: #6c757d; font-size: 10px;">{{ loan.member ? (loan.member.email ?? '') : '' }}</div>
+                </td>
+                <td>
+                    {% if loan.bookCopy %}
+                        Exemplaire #{{ loan.bookCopy.id }}
+                    {% else %}
+                        –
+                    {% endif %}
+                </td>
+                <td>{{ loan.checkoutTime ? loan.checkoutTime|date('d/m/Y') : '—' }}</td>
+                <td>{{ loan.dueDate ? loan.dueDate|date('d/m/Y') : '—' }}</td>
+                <td>
+                    {% if loan.status.value == 'returned' %}
+                        <span class="badge badge-success">Rendu</span>
+                    {% elseif loan.status.value == 'overdue' %}
+                        <span class="badge badge-danger">En retard</span>
+                    {% else %}
+                        <span class="badge badge-primary">Actif</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    {% if loan.daysLate > 0 %}
+                        <span class="badge badge-warning">{{ loan.daysLate }} j</span>
+                    {% else %}
+                        0 j
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    {% set unpaid = loan.totalUnpaidPenalty %}
+                    {% if unpaid > 0 %}
+                        <span class="badge badge-danger">{{ unpaid|number_format(2, ',', ' ') }} TND</span>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8" class="wrap">Aucun emprunt à exporter.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="note">
+        LIBRARYHUB — Export PDF des emprunts
+    </div>
+</body>
+</html>

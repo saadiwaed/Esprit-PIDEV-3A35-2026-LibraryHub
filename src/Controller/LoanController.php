@@ -11,9 +11,12 @@ use App\Form\LoanSearchType;
 use App\Form\LoanType;
 use App\Repository\LoanRepository;
 use App\Service\LoanService;
+use App\Service\LoanReminderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -110,101 +113,104 @@ class LoanController extends AbstractController
         ]);
     }
 
-    #[Route('/{id<\\d+>}', name: 'show', methods: ['GET'])]
-    public function show(Loan $loan): Response
+    #[Route('/{id}', name: 'show', methods: ['GET'])]
+    public function show(
+        Loan $loan,
+        #[Autowire('%app.loan.daily_late_fee_rate%')] float $dailyLateFeeRate,
+    ): Response
     {
-        $latePenaltyForm = null;
         $daysLate = $loan->getDaysLate();
-        $penaltiesCount = $loan->getPenaltiesCount();
 
+        $latePenaltyFormView = null;
+        $activeLatePenalty = $loan->getActiveLatePenalty();
         if (
-            $this->isGranted('ROLE_LIBRARIAN')
-            && $loan->getStatus() === LoanStatus::OVERDUE
-            && $penaltiesCount === 0
+            $loan->getStatus() === LoanStatus::OVERDUE
+            && $activeLatePenalty === null
+            && ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_LIBRARIAN'))
         ) {
             $latePenaltyForm = $this->createForm(LatePenaltyType::class, [
-                'amount' => null,
+                'amount' => round(max(0, $daysLate) * max(0, $dailyLateFeeRate), 2),
+                'dailyRate' => $dailyLateFeeRate,
                 'notes' => null,
             ], [
-                'action' => $this->generateUrl('loan_add_penalty', ['id' => $loan->getId()]),
+                'action' => $this->generateUrl('loan_create_late_penalty_submit', ['id' => $loan->getId()]),
                 'method' => 'POST',
-            ])->createView();
+                'default_daily_rate' => $dailyLateFeeRate,
+            ]);
+
+            $latePenaltyFormView = $latePenaltyForm->createView();
         }
 
         return $this->render('loan/show.html.twig', [
             'loan' => $loan,
-            'latePenaltyForm' => $latePenaltyForm,
             'daysLate' => $daysLate,
-            'penaltiesCount' => $penaltiesCount,
-            'latePenaltyReason' => sprintf('Retard de %d jours', $daysLate),
-            'latePenaltyIssueDate' => new \DateTimeImmutable('today'),
+            'latePenaltyForm' => $latePenaltyFormView,
+            'activeLatePenalty' => $activeLatePenalty,
+            'latePenaltyReason' => sprintf('Retard journalier - Retard de %d jours', $daysLate),
+            'latePenaltyIssueDate' => new \DateTime('today'),
             'latePenaltyStatus' => PaymentStatus::UNPAID,
         ]);
     }
 
-    #[Route('/{id<\\d+>}/add-penalty', name: 'add_penalty_form', methods: ['GET'])]
-    #[Route('/{id<\\d+>}/create-late-penalty', name: 'create_late_penalty', methods: ['GET'])]
-    public function createLatePenalty(Loan $loan): Response
+    #[Route('/{id}/create-late-penalty', name: 'create_late_penalty', methods: ['GET'])]
+    public function createLatePenalty(
+        Loan $loan,
+        #[Autowire('%app.loan.daily_late_fee_rate%')] float $dailyLateFeeRate,
+    ): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_LIBRARIAN');
-        $daysLate = $loan->getDaysLate();
-        if ($loan->getStatus() !== LoanStatus::OVERDUE || $daysLate <= 0) {
+        $this->assertAdminOrLibrarian();
+        if ($loan->getStatus() !== LoanStatus::OVERDUE) {
             throw $this->createNotFoundException('Cet emprunt n\'est pas en retard.');
         }
 
-        if ($loan->hasPenalty()) {
-            $this->addFlash('info', 'Une pénalité existe déjà pour cet emprunt.');
-
-            return $this->redirectToRoute('loan_show', ['id' => $loan->getId()]);
-        }
-
+        $daysLate = $loan->getDaysLate();
         $form = $this->createForm(LatePenaltyType::class, [
-            'amount' => null,
+            'amount' => round(max(0, $daysLate) * max(0, $dailyLateFeeRate), 2),
+            'dailyRate' => $dailyLateFeeRate,
             'notes' => null,
         ], [
-            'action' => $this->generateUrl('loan_add_penalty', ['id' => $loan->getId()]),
+            'action' => $this->generateUrl('loan_create_late_penalty_submit', ['id' => $loan->getId()]),
             'method' => 'POST',
+            'default_daily_rate' => $dailyLateFeeRate,
         ]);
 
         return $this->render('loan/create_late_penalty.html.twig', [
             'loan' => $loan,
             'daysLate' => $daysLate,
-            'reason' => sprintf('Retard de %d jours', $daysLate),
-            'issueDate' => new \DateTimeImmutable('today'),
+            'reason' => sprintf('Retard journalier - Retard de %d jours', $daysLate),
+            'issueDate' => new \DateTime('today'),
             'status' => PaymentStatus::UNPAID,
             'form' => $form->createView(),
         ]);
     }
 
-    #[Route('/{id<\\d+>}/add-penalty', name: 'add_penalty', methods: ['POST'])]
-    #[Route('/{id<\\d+>}/create-late-penalty', name: 'create_late_penalty_submit', methods: ['POST'])]
+    #[Route('/{id}/create-late-penalty', name: 'create_late_penalty_submit', methods: ['POST'])]
     public function createLatePenaltySubmit(
         Loan $loan,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        LoanReminderService $loanReminderService,
+        LoggerInterface $logger,
+        #[Autowire('%app.loan.daily_late_fee_rate%')] float $dailyLateFeeRate,
     ): Response {
-        $this->denyAccessUnlessGranted('ROLE_LIBRARIAN');
-        $daysLate = $loan->getDaysLate();
-        if ($loan->getStatus() !== LoanStatus::OVERDUE || $daysLate <= 0) {
+        $this->assertAdminOrLibrarian();
+        if ($loan->getStatus() !== LoanStatus::OVERDUE) {
             throw $this->createNotFoundException('Cet emprunt n\'est pas en retard.');
         }
 
-        if ($loan->hasPenalty()) {
-            $this->addFlash('info', 'Une pénalité existe déjà pour cet emprunt.');
-
-            return $this->redirectToRoute('loan_show', ['id' => $loan->getId()]);
-        }
-
-        $reason = sprintf('Retard de %d jours', $daysLate);
-        $issueDate = new \DateTimeImmutable('today');
+        $daysLate = $loan->getDaysLate();
+        $reason = sprintf('Retard journalier - Retard de %d jours', $daysLate);
+        $issueDate = new \DateTime('today');
         $status = PaymentStatus::UNPAID;
 
         $form = $this->createForm(LatePenaltyType::class, [
-            'amount' => null,
+            'amount' => round(max(0, $daysLate) * max(0, $dailyLateFeeRate), 2),
+            'dailyRate' => $dailyLateFeeRate,
             'notes' => null,
         ], [
-            'action' => $this->generateUrl('loan_add_penalty', ['id' => $loan->getId()]),
+            'action' => $this->generateUrl('loan_create_late_penalty_submit', ['id' => $loan->getId()]),
             'method' => 'POST',
+            'default_daily_rate' => $dailyLateFeeRate,
         ]);
         $form->handleRequest($request);
 
@@ -219,13 +225,18 @@ class LoanController extends AbstractController
             ]);
         }
 
-        /** @var array{amount: mixed, notes: mixed} $data */
+        /** @var array{amount: mixed, dailyRate?: mixed, notes: mixed} $data */
         $data = $form->getData();
+
+        $rate = isset($data['dailyRate']) && is_numeric($data['dailyRate']) ? (float) $data['dailyRate'] : $dailyLateFeeRate;
+        $rate = round(max(0.01, $rate), 2);
+        $amount = round(max(0, $daysLate) * $rate, 2);
 
         $penalty = (new Penalty())
             ->setLoan($loan)
-            ->setAmount((float) $data['amount'])
-            ->setLateDays($daysLate)
+            ->setDailyRate($rate)
+            ->setLateDays(max(0, $daysLate))
+            ->setAmount($amount)
             ->setReason($reason)
             ->setIssueDate($issueDate)
             ->setWaived(false)
@@ -235,12 +246,39 @@ class LoanController extends AbstractController
         $entityManager->persist($penalty);
         $entityManager->flush();
 
-        $this->addFlash('success', sprintf('Pénalité enregistrée pour %d jours de retard', $daysLate));
+        $this->addFlash('success', sprintf('Pénalité ajoutée avec succès pour %d jours de retard', $daysLate));
+
+        try {
+            $reminder = $loanReminderService->sendPenaltyUpdate($penalty, 'created');
+            $sentAt = new \DateTimeImmutable();
+
+            if (($reminder['should_update_email_sent_at'] ?? false) === true) {
+                $loan->setLastEmailReminderSentAt($sentAt);
+            }
+            if (($reminder['should_update_sms_sent_at'] ?? false) === true) {
+                $loan->setLastSmsReminderSentAt($sentAt);
+            }
+
+            if (($reminder['should_update_email_sent_at'] ?? false) === true || ($reminder['should_update_sms_sent_at'] ?? false) === true) {
+                $entityManager->flush();
+            }
+        } catch (\Throwable $e) {
+            $logger->error('Penalty reminder failed after creation.', ['loan_id' => $loan->getId(), 'penalty_id' => $penalty->getId(), 'exception' => $e]);
+        }
 
         return $this->redirectToRoute('loan_show', ['id' => $loan->getId()]);
     }
 
-    #[Route('/{id<\\d+>}/edit', name: 'edit', methods: ['GET', 'POST'])]
+    private function assertAdminOrLibrarian(): void
+    {
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_LIBRARIAN')) {
+            return;
+        }
+
+        throw $this->createAccessDeniedException('Accès réservé aux administrateurs/bibliothécaires.');
+    }
+
+    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Loan $loan, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(LoanType::class, $loan, [
@@ -262,7 +300,7 @@ class LoanController extends AbstractController
         ]);
     }
 
-    #[Route('/{id<\\d+>}', name: 'delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Loan $loan, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $loan->getId(), $request->request->get('_token'))) {
@@ -275,7 +313,7 @@ class LoanController extends AbstractController
         return $this->redirectToRoute('loan_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id<\\d+>}/return', name: 'return', methods: ['POST'])]
+    #[Route('/{id}/return', name: 'return', methods: ['POST'])]
     public function returnLoan(Request $request, Loan $loan, LoanService $loanService): Response
     {
         if (!$this->isCsrfTokenValid('return' . $loan->getId(), $request->request->get('_token'))) {
@@ -294,4 +332,3 @@ class LoanController extends AbstractController
         return $this->redirectToRoute('loan_show', ['id' => $loan->getId()]);
     }
 }
-

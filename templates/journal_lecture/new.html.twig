@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New JournalLecture{% endblock %}
+
+{% block body %}
+    <h1>Create new JournalLecture</h1>
+
+    {{ include('journal_lecture/_form.html.twig') }}
+
+    <a href="{{ path('app_journal_lecture_index') }}">back to list</a>
+{% endblock %}

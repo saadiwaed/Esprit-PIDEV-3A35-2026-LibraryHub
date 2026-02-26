@@ -33,7 +33,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    // Methodes personnalisees
+    // Méthodes personnalisées
     public function findByRole(string $role): array
     {
         return $this->createQueryBuilder('u')
@@ -82,6 +82,24 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->orWhere('u.email LIKE :query')
             ->setParameter('query', '%' . $query . '%')
             ->orderBy('u.lastName', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Search users by name or email with limit for suggestions
+     */
+    public function searchByNameOrEmail(string $query, int $limit = 10): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('LOWER(u.firstName) LIKE LOWER(:query)')
+            ->orWhere('LOWER(u.lastName) LIKE LOWER(:query)')
+            ->orWhere('LOWER(u.email) LIKE LOWER(:query)')
+            ->orWhere("LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(:query)")
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('u.firstName', 'ASC')
+            ->addOrderBy('u.lastName', 'ASC')
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }

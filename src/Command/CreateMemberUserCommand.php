@@ -2,7 +2,9 @@
 
 namespace App\Command;
 
+use App\Entity\Role;
 use App\Entity\User;
+use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -15,13 +17,14 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
     name: 'app:user:create-member',
-    description: 'Cree (ou met Ã  jour) un utilisateur (membre ou admin) pour pouvoir se connecter.',
+    description: 'Create a member user (and ROLE_MEMBER if missing).',
 )]
 final class CreateMemberUserCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
+        private readonly RoleRepository $roleRepository,
         private readonly UserPasswordHasherInterface $passwordHasher,
     ) {
         parent::__construct();
@@ -30,64 +33,72 @@ final class CreateMemberUserCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('email', null, InputOption::VALUE_REQUIRED, 'Email du membre', 'member@libraryhub.test')
-            ->addOption('password', null, InputOption::VALUE_REQUIRED, 'Mot de passe du membre', 'password123')
-            ->addOption('first-name', null, InputOption::VALUE_REQUIRED, 'Prenom', 'Membre')
-            ->addOption('last-name', null, InputOption::VALUE_REQUIRED, 'Nom', 'LibraryHub')
-            ->addOption('admin', null, InputOption::VALUE_NONE, 'Creer un compte admin (ROLE_LIBRARIAN)');
+            ->addOption('email', null, InputOption::VALUE_REQUIRED, 'Member email.', 'member1@libraryhub.local')
+            ->addOption('password', null, InputOption::VALUE_OPTIONAL, 'Member password (generated if omitted).')
+            ->addOption('first-name', null, InputOption::VALUE_REQUIRED, 'First name.', 'Member')
+            ->addOption('last-name', null, InputOption::VALUE_REQUIRED, 'Last name.', 'One')
+            ->addOption('status', null, InputOption::VALUE_REQUIRED, 'User status (PENDING|ACTIVE|INACTIVE).', 'ACTIVE')
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'If the email exists, update password and ensure ROLE_MEMBER.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
-        $email = trim((string) $input->getOption('email'));
-        $password = (string) $input->getOption('password');
-        $firstName = trim((string) $input->getOption('first-name'));
-        $lastName = trim((string) $input->getOption('last-name'));
-        $isAdmin = (bool) $input->getOption('admin');
+        $email = (string) $input->getOption('email');
+        $plainPassword = $input->getOption('password');
+        $firstName = (string) $input->getOption('first-name');
+        $lastName = (string) $input->getOption('last-name');
+        $status = strtoupper((string) $input->getOption('status'));
+        $force = (bool) $input->getOption('force');
 
-        if ($email === '' || $password === '' || $firstName === '' || $lastName === '') {
-            $io->error('Email / mot de passe / prenom / nom sont obligatoires.');
+        if (!in_array($status, ['PENDING', 'ACTIVE', 'INACTIVE'], true)) {
+            $io->error('Invalid status. Use PENDING, ACTIVE, or INACTIVE.');
+            return Command::INVALID;
+        }
 
-            return Command::FAILURE;
+        if ($plainPassword === null || $plainPassword === '') {
+            $plainPassword = $this->generatePassword();
+        } else {
+            $plainPassword = (string) $plainPassword;
         }
 
         $user = $this->userRepository->findOneBy(['email' => $email]);
-        $isNew = false;
-
-        if (!$user instanceof User) {
-            $user = new User();
-            $user->setEmail($email);
-            $isNew = true;
+        if ($user !== null && !$force) {
+            $io->error(sprintf('User with email "%s" already exists. Re-run with --force to update it.', $email));
+            return Command::FAILURE;
         }
 
-        $user
-            ->setFirstName($firstName)
-            ->setLastName($lastName)
-            ->setRoles($isAdmin ? ['ROLE_LIBRARIAN'] : ['ROLE_USER'])
-            ->setStatus('active')
-            ->setMembershipType('basic')
-            ->setIsVerified(true);
+        $roleMember = $this->roleRepository->findOneBy(['name' => 'ROLE_MEMBER']);
+        if ($roleMember === null) {
+            $roleMember = (new Role())->setName('ROLE_MEMBER')->setDescription('Member');
+            $this->entityManager->persist($roleMember);
+        }
 
-        $user->setPassword($this->passwordHasher->hashPassword($user, $password));
-
-        if ($isNew) {
+        if ($user === null) {
+            $user = new User();
+            $user->setEmail($email);
+            $user->setFirstName($firstName);
+            $user->setLastName($lastName);
+            $user->setStatus($status);
             $this->entityManager->persist($user);
         }
 
+        $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
+        $user->addRole($roleMember);
+
         $this->entityManager->flush();
 
-        $io->success(sprintf(
-            '%s : %s (roles: %s / email: %s / mot de passe: %s)',
-            $isNew ? 'Membre cree' : 'Membre mis Ã  jour',
-            $user->getFullName(),
-            implode(',', $user->getRoles()),
-            $email,
-            $password
-        ));
+        $io->success('Member user ready.');
+        $io->writeln(sprintf('Email: %s', $email));
+        $io->writeln(sprintf('Password: %s', $plainPassword));
 
         return Command::SUCCESS;
+    }
+
+    private function generatePassword(): string
+    {
+        return 'M!' . bin2hex(random_bytes(8));
     }
 }
 

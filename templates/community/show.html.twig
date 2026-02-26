@@ -1,0 +1,154 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Communaute{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1"><i class="{{ community.iconClass }} me-2 text-primary"></i>{{ community.name }}</h1>
+            <p class="text-muted mb-0">Details de la communaute et liste de ses posts.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_post_new', {'community': community.id}) }}" class="btn btn-primary">
+                <i class="fas fa-pen me-1"></i> Ajouter un post
+            </a>
+            <a href="{{ path('app_community_edit', {'id': community.id}) }}" class="btn btn-outline-warning">Modifier</a>
+        </div>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    <div class="row g-4">
+        <div class="col-xl-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h2 class="h6 mb-0">Informations</h2>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">ID</dt>
+                        <dd class="col-sm-7">#{{ community.id }}</dd>
+
+                        <dt class="col-sm-5">Nom</dt>
+                        <dd class="col-sm-7">{{ community.name }}</dd>
+
+                        <dt class="col-sm-5">Icone</dt>
+                        <dd class="col-sm-7"><i class="{{ community.iconClass }} me-2"></i><code>{{ community.iconClass }}</code></dd>
+
+                        <dt class="col-sm-5">Description</dt>
+                        <dd class="col-sm-7">{{ community.description }}</dd>
+
+                        <dt class="col-sm-5">Objectif</dt>
+                        <dd class="col-sm-7">{{ community.purpose }}</dd>
+
+                        <dt class="col-sm-5">Regles</dt>
+                        <dd class="col-sm-7">{{ community.rules ?: '-' }}</dd>
+
+                        <dt class="col-sm-5">Statut</dt>
+                        <dd class="col-sm-7"><span class="badge {{ community.status.getBadgeClass() }}">{{ community.status.getLabel() }}</span></dd>
+
+                        <dt class="col-sm-5">Publique</dt>
+                        <dd class="col-sm-7">{{ community.isPublic ? 'Oui' : 'Non' }}</dd>
+
+                        <dt class="col-sm-5">Membres</dt>
+                        <dd class="col-sm-7">{{ community.memberCount }}</dd>
+
+                        <dt class="col-sm-5">Posts</dt>
+                        <dd class="col-sm-7">{{ community.postCount }}</dd>
+
+                        <dt class="col-sm-5">Creation</dt>
+                        <dd class="col-sm-7">{{ community.createdAt ? community.createdAt|date('d/m/Y H:i') : '-' }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h6 mb-0">Posts de la communaute</h2>
+                    <span class="badge bg-secondary">{{ posts|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="p-3 border-bottom">
+                        <form method="get" action="{{ path('app_community_show', {'id': community.id}) }}">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-12 col-lg-7">
+                                    <label for="community-post-search" class="form-label mb-1">Recherche</label>
+                                    <input
+                                        id="community-post-search"
+                                        name="q"
+                                        type="search"
+                                        class="form-control"
+                                        placeholder="Titre ou contenu du post"
+                                        value="{{ postFilters.q }}"
+                                    >
+                                </div>
+                                <div class="col-12 col-md-6 col-lg-3">
+                                    <label for="community-post-sort" class="form-label mb-1">Tri</label>
+                                    <select id="community-post-sort" name="sort" class="form-select">
+                                        <option value="newest" {{ postFilters.sort == 'newest' ? 'selected' : '' }}>Plus recents</option>
+                                        <option value="oldest" {{ postFilters.sort == 'oldest' ? 'selected' : '' }}>Plus anciens</option>
+                                        <option value="most_commented" {{ postFilters.sort == 'most_commented' ? 'selected' : '' }}>Plus commentes</option>
+                                        <option value="title_asc" {{ postFilters.sort == 'title_asc' ? 'selected' : '' }}>Titre A-Z</option>
+                                        <option value="title_desc" {{ postFilters.sort == 'title_desc' ? 'selected' : '' }}>Titre Z-A</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6 col-lg-2 d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">Appliquer</button>
+                                    {% if postFilters.q or postFilters.sort != 'newest' %}
+                                        <a href="{{ path('app_community_show', {'id': community.id}) }}" class="btn btn-outline-secondary">Reinitialiser</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Statut</th>
+                                    <th>Creation</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for post in posts %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ post.title }}</div>
+                                        <small class="text-muted">{{ post.commentCount }} commentaire(s)</small>
+                                    </td>
+                                    <td><span class="badge {{ post.status.getBadgeClass() }}">{{ post.status.getLabel() }}</span></td>
+                                    <td>{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</td>
+                                    <td class="text-end">
+                                        <a href="{{ path('app_post_show', {'id': post.id}) }}" class="btn btn-sm btn-outline-primary">Voir</a>
+                                        <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="btn btn-sm btn-outline-warning">Modifier</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">Aucun post dans cette communaute.</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <a href="{{ path('app_community_index') }}" class="btn btn-light">Retour a la liste</a>
+        {{ include('community/_delete_form.html.twig') }}
+    </div>
+</div>
+{% endblock %}

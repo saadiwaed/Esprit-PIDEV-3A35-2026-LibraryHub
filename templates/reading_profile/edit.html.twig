@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Reading Profile{% endblock %}
+
+{% block body %}
+<div class="page-content">
+    <div class="page-content-wrapper border">
+        <!-- Title -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <h1 class="h3 mb-2 mb-sm-0">Edit Reading Profile: {{ reading_profile.user.fullName }}</h1>
+            </div>
+        </div>
+
+        <!-- Card START -->
+        <div class="card bg-transparent border">
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    <div class="row g-4">
+                        <!-- User Selection -->
+                        <div class="col-12">
+                            <h5 class="mb-3">User Selection</h5>
+                        </div>
+
+                        <div class="col-12">
+                            {{ form_row(form.user) }}
+                        </div>
+
+                        <!-- Reading Statistics -->
+                        <div class="col-12">
+                            <h5 class="mb-3 mt-3">Reading Statistics</h5>
+                        </div>
+
+                        <div class="col-md-4">
+                            {{ form_row(form.totalBooksRead) }}
+                        </div>
+
+                        <div class="col-md-4">
+                            {{ form_row(form.readingGoalPerMonth) }}
+                        </div>
+
+                        <div class="col-md-4">
+                            {{ form_row(form.averageRating) }}
+                        </div>
+
+                        <!-- Preferences -->
+                        <div class="col-12">
+                            <h5 class="mb-3 mt-3">Reading Preferences</h5>
+                        </div>
+
+                        <div class="col-md-6">
+                            {{ form_row(form.favoriteGenres) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            {{ form_row(form.preferredLanguages) }}
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Update Profile
+                            </button>
+                            <a href="{{ path('app_reading_profile_index') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+        <!-- Card END -->
+    </div>
+</div>
+{% endblock %}

@@ -24,9 +24,9 @@
                     <label class="form-label fw-semibold text-muted">Date de retour</label>
                     <div class="form-control-plaintext">
                         {{ loan.returnDate|date('d/m/Y H:i') }}
-                        <span class="badge bg-success ms-2">Retour enregistre</span>
+                        <span class="badge bg-success ms-2">Retour enregistré</span>
                     </div>
-                    <small class="text-muted">La date de retour est geree par l'action de retour.</small>
+                    <small class="text-muted">La date de retour est gérée par l'action de retour.</small>
                 {% else %}
                     {{ form_row(form.returnDate, {
                         label_attr: {class: form.returnDate.vars.errors|length > 0 ? 'has-error-label' : ''}
@@ -68,7 +68,7 @@
             <i class="bi bi-check-circle"></i> {{ button_label|default('Enregistrer') }}
         </button>
         <button type="reset" class="btn btn-outline-secondary btn-lg">
-            <i class="bi bi-arrow-counterclockwise"></i> Reinitialiser
+            <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
         </button>
     </div>
 
@@ -92,4 +92,3 @@
         });
     </script>
 {% endif %}
-

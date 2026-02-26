@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Loan;
+use App\Entity\User;
 use App\Enum\LoanStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -127,6 +128,60 @@ class LoanRepository extends ServiceEntityRepository
             ->setParameter('refreshableStatuses', [LoanStatus::ACTIVE, LoanStatus::OVERDUE])
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return Loan[]
+     */
+    public function findDueSoonLoans(int $daysBefore = 2, ?\DateTimeInterface $reference = null): array
+    {
+        $today = \DateTimeImmutable::createFromInterface($reference ?? new \DateTimeImmutable('today'))->setTime(0, 0, 0);
+        $targetDueDate = $today->modify(sprintf('+%d days', max(0, $daysBefore)))->setTime(0, 0, 0);
+
+        return $this->createQueryBuilder('l')
+            ->andWhere('l.status = :activeStatus')
+            ->andWhere('l.returnDate IS NULL')
+            ->andWhere('l.dueDate = :targetDueDate')
+            ->setParameter('activeStatus', LoanStatus::ACTIVE)
+            ->setParameter('targetDueDate', \DateTime::createFromImmutable($targetDueDate))
+            ->orderBy('l.dueDate', 'ASC')
+            ->addOrderBy('l.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findMemberLastEmailReminderSentAt(User $member): ?\DateTimeImmutable
+    {
+        $row = $this->createQueryBuilder('l')
+            ->select('l.lastEmailReminderSentAt AS lastEmailReminderSentAt')
+            ->andWhere('l.member = :member')
+            ->andWhere('l.lastEmailReminderSentAt IS NOT NULL')
+            ->setParameter('member', $member)
+            ->orderBy('l.lastEmailReminderSentAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $value = \is_array($row) ? ($row['lastEmailReminderSentAt'] ?? null) : null;
+
+        return $value instanceof \DateTimeImmutable ? $value : null;
+    }
+
+    public function findMemberLastSmsReminderSentAt(User $member): ?\DateTimeImmutable
+    {
+        $row = $this->createQueryBuilder('l')
+            ->select('l.lastSmsReminderSentAt AS lastSmsReminderSentAt')
+            ->andWhere('l.member = :member')
+            ->andWhere('l.lastSmsReminderSentAt IS NOT NULL')
+            ->setParameter('member', $member)
+            ->orderBy('l.lastSmsReminderSentAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $value = \is_array($row) ? ($row['lastSmsReminderSentAt'] ?? null) : null;
+
+        return $value instanceof \DateTimeImmutable ? $value : null;
     }
 
     /**

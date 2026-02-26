@@ -1,0 +1,179 @@
+{{ form_start(form, { attr: { novalidate: 'novalidate', class:'author-form' } }) }}
+
+<style>
+
+    .author-card{
+        background:white;
+        border-radius:22px;
+        padding:30px;
+        box-shadow:0 15px 45px rgba(0,0,0,.08);
+    }
+
+    .section-title{
+        font-weight:700;
+        font-size:18px;
+        margin-bottom:18px;
+        color:#1f2937;
+    }
+
+    /* Floating input */
+    .form-floating > .form-control,
+    .form-floating > .form-select{
+        border-radius:12px;
+        border:1px solid #e5e7eb;
+        padding:14px 14px;
+    }
+
+    .form-floating > label{
+        color:#6b7280;
+        font-weight:500;
+    }
+
+    .form-control:focus{
+        border-color:#3b82f6;
+        box-shadow:0 0 0 3px rgba(59,130,246,.15);
+    }
+
+    .form-error{
+        font-size:13px;
+        color:#dc2626;
+        margin-top:6px;
+    }
+
+    /* PHOTO UPLOADER */
+    .photo-box{
+        border:2px dashed #d1d5db;
+        border-radius:18px;
+        padding:25px;
+        text-align:center;
+        background:#f9fafb;
+        transition:.25s;
+    }
+
+    .photo-box:hover{
+        border-color:#3b82f6;
+        background:#f1f5ff;
+    }
+
+    .photo-preview{
+        width:160px;
+        height:160px;
+        object-fit:cover;
+        border-radius:18px;
+        margin-bottom:12px;
+        box-shadow:0 10px 25px rgba(0,0,0,.15);
+    }
+
+    .submit-bar{
+        border-top:1px solid #eef1f4;
+        margin-top:30px;
+        padding-top:20px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+    }
+
+</style>
+
+<div class="container py-4">
+    <div class="author-card">
+
+        <div class="section-title">
+            Informations de l'auteur
+        </div>
+
+        <div class="row g-4">
+
+            <!-- LEFT : PHOTO -->
+            <div class="col-lg-4">
+
+                <div class="photo-box">
+
+                    {% if author is defined and author.photo %}
+                        <img src="{{ asset(author.photo) }}" class="photo-preview" id="previewImg">
+                    {% else %}
+                        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                             class="photo-preview" id="previewImg">
+                    {% endif %}
+
+                    <div class="mb-2 fw-semibold">Photo de l'auteur</div>
+                    <small class="text-muted d-block mb-3">
+                        JPG, PNG — recommandée 400x400
+                    </small>
+
+                    {{ form_widget(form.photoFile, {'attr':{'class':'form-control','onchange':'previewPhoto(event)'}}) }}
+                    <div class="form-error">{{ form_errors(form.photoFile) }}</div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT : INFOS -->
+            <div class="col-lg-8">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ form_widget(form.firstname, {'attr':{'class':'form-control','placeholder':'Prénom'}}) }}
+                            {{ form_label(form.firstname) }}
+                        </div>
+                        <div class="form-error">{{ form_errors(form.firstname) }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ form_widget(form.lastname, {'attr':{'class':'form-control','placeholder':'Nom'}}) }}
+                            {{ form_label(form.lastname) }}
+                        </div>
+                        <div class="form-error">{{ form_errors(form.lastname) }}</div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-floating">
+                            {{ form_widget(form.nationality, {'attr':{'class':'form-control','placeholder':'Nationalité'}}) }}
+                            {{ form_label(form.nationality) }}
+                        </div>
+                        <div class="form-error">{{ form_errors(form.nationality) }}</div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Biographie</label>
+                        {{ form_widget(form.biography, {'attr':{'class':'form-control','rows':6}}) }}
+                        <div class="form-error">{{ form_errors(form.biography) }}</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="submit-bar">
+
+            <div class="text-muted small">
+                Vérifiez les informations avant d’enregistrer.
+            </div>
+
+            <button class="btn btn-primary px-4 py-2 rounded-pill">
+                <i class="bi bi-check-circle"></i>
+                {{ button_label|default('Enregistrer') }}
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+function previewPhoto(event){
+    const reader = new FileReader();
+    reader.onload = function(){
+        document.getElementById('previewImg').src = reader.result;
+    }
+    reader.readAsDataURL(event.target.files[0]);
+}
+</script>
+
+{{ form_end(form) }}

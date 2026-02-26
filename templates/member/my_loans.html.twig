@@ -1,0 +1,281 @@
+{% extends 'frontoffice/navbar.html.twig' %}
+
+{% block title %}Mes emprunts - LibraryHub{% endblock %}
+
+{% block body %}
+    {% set tab = activeTab|default(app.request.query.get('tab') ?: 'loans') %}
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+                <div>
+                    <h1 class="h3 mb-1">Mes emprunts</h1>
+                    <p class="text-muted mb-0">Consultez vos emprunts, faites une demande et suivez vos pénalités.</p>
+                </div>
+            </div>
+
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            <ul class="nav nav-tabs mb-4" id="memberLoansTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if tab == 'loans' %}active{% endif %}" id="loans-tab" data-bs-toggle="tab" data-bs-target="#loans-pane" type="button" role="tab" aria-controls="loans-pane" aria-selected="{% if tab == 'loans' %}true{% else %}false{% endif %}">
+                        Ma liste d'emprunts
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if tab == 'request' %}active{% endif %}" id="request-tab" data-bs-toggle="tab" data-bs-target="#request-pane" type="button" role="tab" aria-controls="request-pane" aria-selected="{% if tab == 'request' %}true{% else %}false{% endif %}">
+                        Faire une demande d'emprunt
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if tab == 'penalties' %}active{% endif %}" id="penalties-tab" data-bs-toggle="tab" data-bs-target="#penalties-pane" type="button" role="tab" aria-controls="penalties-pane" aria-selected="{% if tab == 'penalties' %}true{% else %}false{% endif %}">
+                        Mes pénalités
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="memberLoansTabsContent">
+                {# 1) Ma liste d'emprunts #}
+                <div class="tab-pane fade {% if tab == 'loans' %}show active{% endif %}" id="loans-pane" role="tabpanel" aria-labelledby="loans-tab" tabindex="0">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Livre</th>
+                                            <th>Date d'emprunt</th>
+                                            <th>Date limite</th>
+                                            <th>Statut</th>
+                                            <th>Jours de retard</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if loans is empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">Aucun emprunt trouvé.</td>
+                                        </tr>
+                                    {% else %}
+                                        {% for loan in loans %}
+                                            {% set daysLate = loan.daysLate %}
+                                            {% set isOverdueNow = loan.returnDate is null and daysLate > 0 %}
+                                            {% set isOpenLoan = loan.canBeRenewed %}
+                                            {% set maxReached = isOpenLoan and loan.renewalCount >= maxRenewals %}
+                                            {% set canRequestRenewal = loan.isRenewable(maxRenewals) %}
+                                            {% set proposedDueDate = (loan.dueDate and canRequestRenewal) ? (loan.dueDate|date_modify('+' ~ renewalDays ~ ' days')) : null %}
+                                            <tr class="{% if isOverdueNow %}table-danger{% endif %}">
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="bg-primary bg-opacity-10 text-primary rounded-2 d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                                            <i class="bi bi-book"></i>
+                                                        </div>
+                                                        <div class="lh-sm">
+                                                            <div class="fw-semibold">Exemplaire #{{ loan.bookCopy.id }}</div>
+                                                            <small class="text-muted">Emprunt #{{ loan.id }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>{{ loan.checkoutTime ? loan.checkoutTime|date('d/m/Y') : '-' }}</td>
+                                                <td>{{ loan.dueDate ? loan.dueDate|date('d/m/Y') : '-' }}</td>
+                                                <td>
+                                                    {% set statusValue = loan.status.value %}
+                                                    {% if statusValue == 'active' %}
+                                                        <span class="badge bg-success">En cours</span>
+                                                    {% elseif statusValue == 'overdue' %}
+                                                        <span class="badge bg-danger">En retard</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">Retourné</span>
+                                                    {% endif %}
+
+                                                    {% if isOverdueNow %}
+                                                        <div class="small text-danger mt-1">En retard de {{ daysLate }} jour{{ daysLate > 1 ? 's' : '' }}</div>
+                                                    {% endif %}
+
+                                                    {% if isOpenLoan %}
+                                                        <div class="small text-muted mt-1">Renouvellement {{ loan.renewalCount }}/{{ maxRenewals }}</div>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if daysLate > 0 %}
+                                                        <span class="text-danger fw-semibold">{{ daysLate }}</span>
+                                                    {% else %}
+                                                        <span class="text-muted">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-end">
+                                                    {% if canRequestRenewal %}
+                                                        <form method="post" action="{{ path('member_loan_renew', {'id': loan.id}) }}" class="d-inline">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('member_loan_request_renewal_' ~ loan.id) }}">
+                                                            <button type="submit" class="btn btn-outline-primary btn-sm"
+                                                                    onclick="return confirm({{ ('Confirmer la demande de renouvellement ?\nNouvelle date proposée : ' ~ (proposedDueDate ? proposedDueDate|date('d/m/Y') : '-'))|json_encode|raw }});">
+                                                                Demander un renouvellement
+                                                            </button>
+                                                        </form>
+                                                    {% elseif maxReached %}
+                                                        <span class="text-muted small">Limite de renouvellements atteinte</span>
+                                                    {% else %}
+                                                        <span class="text-muted">-</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                {# 2) Faire une demande d'emprunt #}
+                <div class="tab-pane fade {% if tab == 'request' %}show active{% endif %}" id="request-pane" role="tabpanel" aria-labelledby="request-tab" tabindex="0">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+                                <div>
+                                    <h2 class="h5 mb-1">Nouvelle demande d'emprunt</h2>
+                                    <p class="text-muted mb-0">Indiquez l'ID du livre et vos dates souhaitées.</p>
+                                </div>
+                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#loanRequestCollapse" aria-expanded="true" aria-controls="loanRequestCollapse">
+                                    <i class="bi bi-plus-circle me-1"></i>Nouvelle demande d'emprunt
+                                </button>
+                            </div>
+
+                            <div class="collapse show" id="loanRequestCollapse">
+                                {{ form_start(loanRequestForm, {
+                                    action: path('member_loan_request_create'),
+                                    method: 'POST',
+                                    attr: {'class': 'row g-3'}
+                                }) }}
+                                    {{ form_errors(loanRequestForm) }}
+                                    <div class="col-md-4">
+                                        {{ form_label(loanRequestForm.bookId) }}
+                                        {{ form_widget(loanRequestForm.bookId) }}
+                                        {{ form_errors(loanRequestForm.bookId) }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{ form_label(loanRequestForm.desiredLoanDate) }}
+                                        {{ form_widget(loanRequestForm.desiredLoanDate) }}
+                                        {{ form_errors(loanRequestForm.desiredLoanDate) }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{ form_label(loanRequestForm.desiredReturnDate) }}
+                                        {{ form_widget(loanRequestForm.desiredReturnDate) }}
+                                        {{ form_errors(loanRequestForm.desiredReturnDate) }}
+                                    </div>
+                                    <div class="col-12">
+                                        {{ form_label(loanRequestForm.notes) }}
+                                        {{ form_widget(loanRequestForm.notes) }}
+                                        {{ form_errors(loanRequestForm.notes) }}
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="bi bi-send me-1"></i>Envoyer ma demande
+                                        </button>
+                                    </div>
+                                {{ form_end(loanRequestForm) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# 3) Mes pénalités #}
+                <div class="tab-pane fade {% if tab == 'penalties' %}show active{% endif %}" id="penalties-pane" role="tabpanel" aria-labelledby="penalties-tab" tabindex="0">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <div class="text-muted">Total impayé</div>
+                                            <div class="display-6 fw-bold {% if unpaidTotal > 0 %}text-danger{% endif %}">
+                                                {{ unpaidTotal|number_format(2, ',', ' ') }} €
+                                            </div>
+                                        </div>
+                                        <div class="bg-danger bg-opacity-10 text-danger rounded-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                                            <i class="bi bi-exclamation-triangle fs-3"></i>
+                                        </div>
+                                    </div>
+                                    <p class="text-muted small mb-0 mt-3">
+                                        Les pénalités exonerées ne sont pas comptabilisées.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Raison</th>
+                                                    <th>Montant</th>
+                                                    <th>Date d'émission</th>
+                                                    <th>Statut</th>
+                                                    <th>Exonérée</th>
+                                                    <th class="text-end">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% if penalties is empty %}
+                                                <tr>
+                                                    <td colspan="6" class="text-center text-muted py-4">Aucune pénalité trouvée.</td>
+                                                </tr>
+                                            {% else %}
+                                                {% for penalty in penalties %}
+                                                    {% set statusValue = penalty.status.value %}
+                                                    {% set isUnpaid = (statusValue == 'unpaid' or statusValue == 'partial') and not penalty.waived %}
+                                                    <tr class="{% if isUnpaid %}table-danger{% endif %}">
+                                                        <td>{{ penalty.reasonLabel }}</td>
+                                                        <td class="fw-semibold">{{ penalty.amount|number_format(2, ',', ' ') }} €</td>
+                                                        <td>{{ penalty.issueDate ? penalty.issueDate|date('d/m/Y') : '-' }}</td>
+                                                        <td>
+                                                            {% if statusValue == 'unpaid' %}
+                                                                <span class="badge bg-danger">Impayée</span>
+                                                            {% elseif statusValue == 'partial' %}
+                                                                <span class="badge bg-warning text-dark">Partielle</span>
+                                                            {% else %}
+                                                                <span class="badge bg-success">Payée</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            {% if penalty.waived %}
+                                                                <span class="badge bg-secondary">Oui</span>
+                                                            {% else %}
+                                                                <span class="badge bg-light text-dark border">Non</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="text-end">
+                                                            {% if isUnpaid %}
+                                                                <a class="btn btn-sm btn-outline-primary disabled" href="#" aria-disabled="true">
+                                                                    Payer
+                                                                </a>
+                                                            {% else %}
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Payer</button>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

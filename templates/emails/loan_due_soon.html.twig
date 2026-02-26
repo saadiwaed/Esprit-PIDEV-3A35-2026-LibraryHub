@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rappel – échéance proche</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.5; color: #111;">
+    <p>Bonjour {{ loan.member.firstName }} {{ loan.member.lastName }},</p>
+
+    <p>
+        Petit rappel : votre emprunt <strong>#{{ loan.id }}</strong> arrive bientôt à échéance.
+    </p>
+
+    <ul>
+        <li>Date limite : <strong>{{ dueDate|date('d/m/Y') }}</strong></li>
+    </ul>
+
+    <p>
+        Merci de prévoir le retour avant la date limite, ou de faire une demande de renouvellement si cela est possible.
+    </p>
+
+    <p>
+        Accéder à vos emprunts : <a href="{{ myLoansUrl }}">{{ myLoansUrl }}</a>
+    </p>
+
+    <p style="color:#666; font-size: 12px;">
+        Si vous avez déjà retourné l’ouvrage, vous pouvez ignorer ce message.
+    </p>
+</body>
+</html>
+

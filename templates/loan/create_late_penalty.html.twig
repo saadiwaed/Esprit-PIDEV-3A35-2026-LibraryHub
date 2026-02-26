@@ -16,7 +16,35 @@
                     <div class="card-body">
                         <div class="alert alert-warning mb-4">
                             <strong>Emprunt #{{ loan.id }}</strong><br>
-                            Ajouter pénalité ({{ daysLate }} jours de retard)
+                            Créer pénalité ({{ daysLate }} jours de retard)
+                        </div>
+
+                        <div class="mb-4" id="ai-late-penalty-suggestion-box">
+                            <div class="card border-info">
+                                <div class="card-body py-2">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <strong>Suggestion IA</strong>
+                                        <span class="spinner-border spinner-border-sm text-info d-none" role="status" aria-hidden="true" id="ai-late-penalty-spinner"></span>
+                                    </div>
+                                    <div class="small mt-2">
+                                        <div>
+                                            <span class="text-muted">Montant suggéré :</span>
+                                            <span class="fw-semibold" id="ai-late-penalty-amount">—</span>
+                                            <span class="text-muted">TND</span>
+                                            <span class="text-muted" id="ai-late-penalty-confidence"></span>
+                                        </div>
+                                        <div class="mt-1">
+                                            <span class="text-muted">Motif suggéré :</span>
+                                            <span class="fw-semibold" id="ai-late-penalty-reason">—</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="ai-late-penalty-use" disabled>
+                                            Utiliser la suggestion
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mb-4">
@@ -32,6 +60,7 @@
                             <input type="hidden" name="status" value="{{ status.value }}">
 
                             {{ form_row(form.amount) }}
+                            {{ form_row(form.dailyRate) }}
                             {{ form_row(form.notes) }}
 
                             <div class="d-flex gap-2 mt-3">
@@ -48,5 +77,84 @@
             </div>
         </div>
     </div>
-{% endblock %}
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const endpoint = {{ path('penalty_ai_suggestion')|json_encode|raw }};
+            const loanId = {{ loan.id }};
+
+            const spinner = document.getElementById('ai-late-penalty-spinner');
+            const amountEl = document.getElementById('ai-late-penalty-amount');
+            const reasonEl = document.getElementById('ai-late-penalty-reason');
+            const confEl = document.getElementById('ai-late-penalty-confidence');
+            const useBtn = document.getElementById('ai-late-penalty-use');
+
+            const amountInput = document.getElementById({{ form.amount.vars.id|json_encode|raw }});
+            const notesInput = document.getElementById({{ form.notes.vars.id|json_encode|raw }});
+
+            if (!spinner || !amountEl || !reasonEl || !confEl || !useBtn || !amountInput) {
+                return;
+            }
+
+            let lastSuggestion = null;
+
+            const setLoading = function (loading) {
+                spinner.classList.toggle('d-none', !loading);
+                useBtn.disabled = loading || !lastSuggestion || (parseInt(lastSuggestion.confidence || '0', 10) <= 0);
+            };
+
+            const renderSuggestion = function (s) {
+                lastSuggestion = s;
+                const amount = typeof s.amount === 'number' ? s.amount : parseFloat(s.amount || '0');
+                const confidence = typeof s.confidence === 'number' ? s.confidence : parseInt(s.confidence || '0', 10);
+                amountEl.textContent = isFinite(amount) ? amount.toFixed(2) : '—';
+                reasonEl.textContent = (s.reason || '—').toString();
+                confEl.textContent = confidence > 0 ? ` (Confiance : ${confidence}%)` : '';
+                useBtn.disabled = confidence <= 0;
+            };
+
+            const fetchSuggestion = async function () {
+                lastSuggestion = null;
+                setLoading(true);
+                try {
+                    const res = await fetch(`${endpoint}?loanId=${encodeURIComponent(loanId)}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const json = await res.json();
+                    renderSuggestion(json || {});
+                } catch (e) {
+                    renderSuggestion({ amount: 0, reason: 'Suggestion IA indisponible - montant calculé automatiquement.', confidence: 0 });
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            useBtn.addEventListener('click', function () {
+                if (!lastSuggestion) {
+                    return;
+                }
+
+                const amount = typeof lastSuggestion.amount === 'number'
+                    ? lastSuggestion.amount
+                    : parseFloat(lastSuggestion.amount || '0');
+
+                if (isFinite(amount)) {
+                    amountInput.value = amount.toFixed(2);
+                    amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    amountInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                if (notesInput && lastSuggestion.reason) {
+                    const text = (lastSuggestion.reason || '').toString().trim();
+                    if (text !== '') {
+                        notesInput.value = text;
+                        notesInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        notesInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            });
+
+            fetchSuggestion();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Statut de votre demande de renouvellement</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.5; color: #111;">
+    <p>Bonjour {{ request.member.firstName }} {{ request.member.lastName }},</p>
+
+    {% set loanId = request.loan ? request.loan.id : null %}
+
+    {% if status == constant('App\\\\Entity\\\\RenewalRequest::STATUS_APPROVED') %}
+        <p>Votre demande de renouvellement{% if loanId %} (emprunt <strong>#{{ loanId }}</strong>){% endif %} a été <strong>approuvée</strong>.</p>
+    {% else %}
+        <p>Votre demande de renouvellement{% if loanId %} (emprunt <strong>#{{ loanId }}</strong>){% endif %} a été <strong>refusée</strong>.</p>
+    {% endif %}
+
+    {% if request.notes %}
+        <p><strong>Note :</strong> {{ request.notes }}</p>
+    {% endif %}
+
+    <p>
+        Accéder à vos emprunts : <a href="{{ myLoansUrl }}">{{ myLoansUrl }}</a>
+    </p>
+</body>
+</html>
+

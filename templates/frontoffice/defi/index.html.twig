@@ -1,0 +1,494 @@
+{% extends 'frontoffice/base_defi.html.twig' %}
+
+{% block title %}🎯 Mes Défis de Lecture - LibraryHub{% endblock %}
+
+{% block body %}
+<!-- ======================================== -->
+<!-- 🎯 BANNER PRINCIPAL -->
+<!-- ======================================== -->
+<section class="position-relative overflow-hidden py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-white bg-opacity-20 rounded-3 p-2 me-3">
+                        <i class="fas fa-trophy fa-3x text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="display-4 fw-bold text-white mb-2">🎯 MES DÉFIS</h1>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white rounded-pill px-3 py-1">
+                                <span class="text-primary fw-bold">{{ total_actifs|default(0) }}</span>
+                                <span class="text-muted">actifs</span>
+                            </div>
+                            <div class="ms-3 bg-white rounded-pill px-3 py-1">
+                                <span class="text-success fw-bold">{{ total_termines|default(0) }}</span>
+                                <span class="text-muted">terminés</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ path('app_front_defi_new') }}" class="btn btn-warning btn-lg px-5 py-3 shadow-lg">
+                    <i class="fas fa-plus-circle me-2 fa-lg"></i>
+                    <div class="text-start d-inline-block">
+                        <small class="d-block fw-light">CRÉER UN</small>
+                        <span class="fw-bold">NOUVEAU DÉFI</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="position-absolute top-0 end-0 opacity-10">
+        <i class="fas fa-trophy fa-10x text-white"></i>
+    </div>
+</section>
+
+<!-- ======================================== -->
+<!-- 💬 CITATION DU JOUR -->
+<!-- ======================================== -->
+<div class="container mt-4">
+    <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="bg-white bg-opacity-20 rounded-3 p-3">
+                        <i class="fas fa-quote-right fa-2x text-white"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <p class="text-white fst-italic mb-1 fs-5">"{{ citation.contenu }}"</p>
+                    <p class="text-white-50 mb-0">— {{ citation.auteur }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ======================================== -->
+<!-- 📊 STATISTIQUES AVANCÉES -->
+<!-- ======================================== -->
+<div class="container mt-4">
+    <div class="row g-3">
+        <!-- TOTAL DÉFIS -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-trophy fa-2x opacity-50 text-white"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-white-50 mb-1">Total défis</h6>
+                            <h3 class="text-white mb-0">{{ total_defis|default(0) }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- DÉFIS ACTIFS -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-fire fa-2x opacity-50 text-white"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-white-50 mb-1">Défis actifs</h6>
+                            <h3 class="text-white mb-0">{{ total_actifs|default(0) }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAUX DE RÉUSSITE -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle fa-2x opacity-50 text-white"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-white-50 mb-1">Taux de réussite</h6>
+                            <h3 class="text-white mb-0">
+                                {% if total_defis|default(0) > 0 %}
+                                    {{ ((total_termines|default(0) / total_defis) * 100)|round }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PROGRESSION MOYENNE -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-chart-line fa-2x opacity-50 text-white"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-white-50 mb-1">Progression moy.</h6>
+                            <h3 class="text-white mb-0">
+                                {% if total_objectifs|default(0) > 0 %}
+                                    {{ ((total_progression|default(0) / total_objectifs) * 100)|round }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================== -->
+<!-- 🔍 BARRE DE RECHERCHE ET FILTRES -->
+<!-- ======================================== -->
+<div class="container mt-4">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <form method="get" action="{{ path('app_front_defi_index') }}" class="row g-3">
+                
+                <!-- RECHERCHE -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-primary text-white border-0">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                               name="search" 
+                               class="form-control form-control-lg border-0 shadow-none" 
+                               placeholder="🔍 Rechercher un défi..."
+                               value="{{ search|default('') }}">
+                        {% if search|default('') %}
+                            <a href="{{ path('app_front_defi_index', {
+                                'sort': sortBy|default('date_fin_asc'),
+                                'type': filterType|default(''),
+                                'statut': filterStatus|default(''),
+                                'difficulte': filterDifficulte|default('')
+                            }) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- TRI -->
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-warning text-dark border-0">
+                            <i class="fas fa-sort"></i>
+                        </span>
+                        <select name="sort" class="form-select form-select-lg border-0 shadow-none">
+                            <option value="date_fin_asc" {{ sortBy|default('date_fin_asc') == 'date_fin_asc' ? 'selected' : '' }}>📅 Date fin (proche → lointain)</option>
+                            <option value="date_fin_desc" {{ sortBy|default('') == 'date_fin_desc' ? 'selected' : '' }}>📅 Date fin (lointain → proche)</option>
+                            <option value="titre_asc" {{ sortBy|default('') == 'titre_asc' ? 'selected' : '' }}>📝 Titre (A → Z)</option>
+                            <option value="titre_desc" {{ sortBy|default('') == 'titre_desc' ? 'selected' : '' }}>📝 Titre (Z → A)</option>
+                            <option value="difficulte_desc" {{ sortBy|default('') == 'difficulte_desc' ? 'selected' : '' }}>⚡ Difficulté (élevée → faible)</option>
+                            <option value="difficulte_asc" {{ sortBy|default('') == 'difficulte_asc' ? 'selected' : '' }}>⚡ Difficulté (faible → élevée)</option>
+                            <option value="progression_desc" {{ sortBy|default('') == 'progression_desc' ? 'selected' : '' }}>📊 Progression (haute → basse)</option>
+                            <option value="progression_asc" {{ sortBy|default('') == 'progression_asc' ? 'selected' : '' }}>📊 Progression (basse → haute)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- FILTRE TYPE -->
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-info text-white border-0">
+                            <i class="fas fa-tag"></i>
+                        </span>
+                        <select name="type" class="form-select form-select-lg border-0 shadow-none">
+                            <option value="">🎯 Tous les types</option>
+                            {% for type in types|default([]) %}
+                                <option value="{{ type }}" {{ filterType|default('') == type ? 'selected' : '' }}>{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- FILTRE STATUT -->
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white border-0">
+                            <i class="fas fa-check-circle"></i>
+                        </span>
+                        <select name="statut" class="form-select form-select-lg border-0 shadow-none">
+                            <option value="">📊 Tous les statuts</option>
+                            {% for statut in statuts|default([]) %}
+                                <option value="{{ statut }}" {{ filterStatus|default('') == statut ? 'selected' : '' }}>{{ statut }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- FILTRE DIFFICULTÉ -->
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-danger text-white border-0">
+                            <i class="fas fa-star"></i>
+                        </span>
+                        <select name="difficulte" class="form-select form-select-lg border-0 shadow-none">
+                            <option value="">⚡ Toutes difficultés</option>
+                            {% for i in 1..5 %}
+                                <option value="{{ i }}" {{ filterDifficulte|default('') == i ? 'selected' : '' }}>
+                                    {{ '⭐' ~ i }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- BOUTONS ACTIONS -->
+                <div class="col-12 text-end mt-3">
+                    <button type="submit" class="btn btn-primary px-5">
+                        <i class="fas fa-filter me-2"></i>Appliquer les filtres
+                    </button>
+                    <a href="{{ path('app_front_defi_index') }}" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-undo me-2"></i>Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- RÉSULTATS DE LA RECHERCHE -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">
+            <span class="badge bg-primary bg-opacity-10 text-primary p-3">
+                <i class="fas fa-trophy me-2"></i>
+                {{ defis|length }} défi{% if defis|length > 1 %}s{% endif %} trouvé{% if defis|length > 1 %}s{% endif %}
+            </span>
+        </h5>
+        {% if search|default('') or filterType|default('') or filterStatus|default('') or filterDifficulte|default('') %}
+            <div class="d-flex gap-2">
+                <span class="badge bg-light text-dark p-2">
+                    <i class="fas fa-filter me-1"></i>Filtres actifs:
+                    {% if search|default('') %} "{{ search }}" {% endif %}
+                    {% if filterType|default('') %} 🎯 {{ filterType }} {% endif %}
+                    {% if filterStatus|default('') %} 📊 {{ filterStatus }} {% endif %}
+                    {% if filterDifficulte|default('') %} ⭐ {{ filterDifficulte }}/5 {% endif %}
+                </span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ======================================== -->
+<!-- 💬 MESSAGES FLASH -->
+<!-- ======================================== -->
+<div class="container mt-4">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="fas fa-check-circle fa-2x"></i>
+                </div>
+                <div>
+                    <strong>Bravo !</strong> {{ message }}
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- ======================================== -->
+<!-- 🔥 SECTION DÉFIS ACTIFS -->
+<!-- ======================================== -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-danger bg-opacity-10 p-3 rounded-3 me-3">
+                <i class="fas fa-fire fa-2x text-danger"></i>
+            </div>
+            <div>
+                <h2 class="h1 mb-0 fw-bold">🔥 DÉFIS ACTIFS</h2>
+                <p class="text-muted mb-0">{{ defis_actifs|length }} défi{% if defis_actifs|length > 1 %}s{% endif %} en cours</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for defi in defis_actifs %}
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-lg h-100" style="border-radius: 20px; background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);">
+                        <div class="card-body p-4">
+                            <!-- EN-TÊTE -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-2">
+                                        <i class="fas fa-hourglass-half me-1"></i> En cours
+                                    </span>
+                                    <h3 class="h4 fw-bold mb-1">{{ defi.titre }}</h3>
+                                    <p class="text-muted mb-0">{{ defi.description|slice(0, 80) }}...</p>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-light btn-sm rounded-circle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ path('app_front_defi_show', {'id': defi.id}) }}">
+                                                <i class="fas fa-eye text-primary me-2"></i>Voir détails
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ path('app_front_defi_edit', {'id': defi.id}) }}">
+                                                <i class="fas fa-edit text-warning me-2"></i>Modifier
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <form method="post" action="{{ path('app_front_defi_delete', {'id': defi.id}) }}" 
+                                                  onsubmit="return confirm('❌ Abandonner ce défi ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ defi.id) }}">
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="fas fa-trash-alt me-2"></i>Abandonner
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- STATS -->
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary bg-opacity-10 rounded-3 p-2 me-3">
+                                    <i class="fas fa-chart-line text-primary"></i>
+                                </div>
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="h2 mb-0 fw-bold text-primary">{{ defi.progression|round }}/{{ defi.objectif }}</span>
+                                        <span class="ms-2 text-muted">{{ defi.unite }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress" style="width: 200px; height: 8px;">
+                                            {% set pourcentage = (defi.progression / defi.objectif * 100)|round %}
+                                            <div class="progress-bar bg-primary" 
+                                                 role="progressbar" 
+                                                 style="width: {{ pourcentage > 100 ? 100 : pourcentage }}%;"
+                                                 aria-valuenow="{{ pourcentage }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <span class="ms-3 fw-bold text-primary">{{ pourcentage }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DATE & DIFFICULTÉ -->
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-alt text-muted me-2"></i>
+                                    <span class="fw-bold">⏳ Termine le {{ defi.dateFin|date('d/m/Y') }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    {% for i in 1..5 %}
+                                        {% if i <= defi.difficulte %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-2 text-muted">Difficulté</span>
+                                </div>
+                            </div>
+
+                            <!-- BOUTONS ACTIONS -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                                <a href="{{ path('app_front_defi_show', {'id': defi.id}) }}" class="btn btn-primary px-4">
+                                    <i class="fas fa-eye me-2"></i>Voir détails
+                                </a>
+                                <a href="{{ path('app_front_defi_edit', {'id': defi.id}) }}" class="btn btn-outline-warning px-4">
+                                    <i class="fas fa-edit me-2"></i>Modifier
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- AUCUN DÉFI ACTIF -->
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                        <div class="card-body text-center py-5">
+                            <div class="bg-white rounded-circle d-inline-flex p-4 mb-4 shadow">
+                                <i class="fas fa-trophy fa-4x text-warning"></i>
+                            </div>
+                            <h3 class="fw-bold mb-3">Aucun défi actif</h3>
+                            <p class="text-muted mb-4">Commencez votre aventure de lecture maintenant !</p>
+                            <a href="{{ path('app_front_defi_new') }}" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-plus-circle me-2"></i>Créer mon premier défi
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ======================================== -->
+<!-- ✅ SECTION DÉFIS TERMINÉS -->
+<!-- ======================================== -->
+{% if defis_termines|length > 0 %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3">
+                <i class="fas fa-check-circle fa-2x text-success"></i>
+            </div>
+            <div>
+                <h2 class="h1 mb-0 fw-bold">✅ DÉFIS TERMINÉS</h2>
+                <p class="text-muted mb-0">{{ defis_termines|length }} défi{% if defis_termines|length > 1 %}s{% endif %} réussi{% if defis_termines|length > 1 %}s{% endif %}</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for defi in defis_termines %}
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm bg-success bg-opacity-5">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-success text-white px-3 py-2 mb-2">
+                                        <i class="fas fa-check-circle me-1"></i> Réussi ✓
+                                    </span>
+                                    <h4 class="h5 fw-bold mb-1">{{ defi.titre }}</h4>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-trophy text-warning me-2"></i>
+                                        <span class="fw-bold">{{ defi.progression|round }}/{{ defi.objectif }} {{ defi.unite }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="bg-white rounded-3 p-2">
+                                        <span class="small text-muted">🏆 Réussi le</span>
+                                        <span class="fw-bold d-block">{{ defi.dateFin|date('d/m/Y') }}</span>
+                                    </div>
+                                    <a href="{{ path('app_front_defi_show', {'id': defi.id}) }}" class="btn btn-sm btn-outline-success mt-2">
+                                        Voir <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
