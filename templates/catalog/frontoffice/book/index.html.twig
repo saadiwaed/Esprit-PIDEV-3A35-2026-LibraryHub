@@ -1,45 +1,719 @@
 {% extends 'frontoffice/base.html.twig' %}
-{% block title %}Livres – Catalogue{% endblock %}
+{% block title %}Bibliothèque{% endblock %}
+
 {% block main_content %}
-<section class="py-5">
-    <div class="container">
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ path(area ~ '_catalog_index') }}">Catalogue</a></li>
-                <li class="breadcrumb-item active">Livres</li>
-            </ol>
-        </nav>
-        <h1 class="mb-4">Livres</h1>
-        {% if books|length > 0 %}
-        <div class="row g-4">
-            {% for book in books %}
-            <div class="col-sm-6 col-lg-4 col-xl-3">
-                <a href="{{ path(area ~ '_book_show', { id: book.id }) }}" class="card border-0 shadow-sm h-100 text-decoration-none text-dark card-hover overflow-hidden">
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center overflow-hidden" style="height: 280px;">
-                        {% if book.coverImage %}
-                            <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="w-100 h-100 object-fit-cover">
-                        {% else %}
-                            <div class="text-muted text-center p-3">
-                                <i class="bi bi-journal-bookmark display-3"></i>
-                                <p class="small mb-0 mt-2">Sans couverture</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="card-body">
-                        <span class="badge bg-primary bg-opacity-10 text-primary mb-2">{{ book.category.name }}</span>
-                        <h5 class="card-title mb-1">{{ (book.title)|length > 45 ? (book.title)|slice(0, 45) ~ '…' : book.title }}</h5>
-                        <p class="text-muted small mb-0">{{ book.author.fullName }}</p>
-                        {% if book.publicationYear %}
-                            <p class="small text-muted mb-0">{{ book.publicationYear }}</p>
-                        {% endif %}
-                    </div>
-                </a>
+
+<style>
+
+/* ===== LAYOUT GLOBAL ===== */
+.library-wrapper{
+    padding:30px;
+}
+
+/* ===== HEADER ===== */
+.library-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:28px;
+}
+
+.library-title{
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:.3px;
+}
+
+.library-sub{
+    color:#6c757d;
+    font-size:14px;
+    margin-top:4px;
+}
+
+/* ===== STATISTICS ===== */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:20px;
+    margin-bottom:28px;
+}
+
+.stat-card{
+    background:linear-gradient(145deg,#ffffff,#f5f7fb);
+    border-radius:20px;
+    padding:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,.05);
+    display:flex;
+    align-items:center;
+    gap:16px;
+    transition:.25s;
+}
+
+.stat-card:hover{
+    transform:translateY(-4px);
+}
+
+.stat-icon{
+    width:52px;
+    height:52px;
+    border-radius:15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    color:white;
+}
+
+.bg-books{ background:linear-gradient(135deg,#3a8bfd,#6ea8fe);}
+.bg-authors{ background:linear-gradient(135deg,#20c997,#5dd5b5);}
+.bg-cat{ background:linear-gradient(135deg,#ff922b,#ffc078);}
+
+.stat-title{
+    font-weight:600;
+    font-size:15px;
+}
+
+.stat-desc{
+    font-size:13px;
+    color:#6c757d;
+}
+
+/* ===== TOOLBAR ===== */
+.toolbar{
+    background:white;
+    padding:16px;
+    border-radius:20px;
+    box-shadow:0 8px 30px rgba(0,0,0,.05);
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+/* SEARCH */
+.search-box{
+    position:relative;
+    flex:1;
+    min-width:220px;
+}
+
+.search-box i{
+    position:absolute;
+    left:14px;
+    top:12px;
+    color:#adb5bd;
+}
+
+.search-box input{
+    padding-left:38px;
+    height:44px;
+    border-radius:12px;
+    border:1px solid #e6e9ef;
+}
+
+.form-select{
+    height:44px;
+    border-radius:12px;
+    border:1px solid #e6e9ef;
+}
+
+/* ADD BUTTON */
+.add-btn{
+    border-radius:12px;
+    padding:10px 18px;
+    font-weight:600;
+    box-shadow:0 5px 15px rgba(13,110,253,.25);
+}
+
+/* GRID */
+.book-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:24px;
+}
+/* ================= AI LIBRARIAN ================= */
+
+.ai-librarian{
+    background: linear-gradient(135deg,#f5f9ff,#eef3ff);
+    border-radius:24px;
+    padding:24px;
+    box-shadow:0 15px 40px rgba(0,0,0,.08);
+    border:1px solid #e6edff;
+}
+
+.ai-header{
+    display:flex;
+    gap:16px;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.ai-avatar{
+    width:56px;
+    height:56px;
+    border-radius:18px;
+    background:linear-gradient(135deg,#3a8bfd,#7ea9ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    color:white;
+    box-shadow:0 6px 20px rgba(58,139,253,.35);
+}
+
+.ai-title{
+    font-weight:700;
+    font-size:18px;
+}
+
+.ai-sub{
+    font-size:13px;
+    color:#6c757d;
+}
+
+.ai-input-wrapper{
+    display:flex;
+    gap:12px;
+    margin-top:10px;
+}
+
+.ai-input{
+    flex:1;
+    border-radius:16px;
+    border:1px solid #dfe6ff;
+    padding:14px 16px;
+    resize:none;
+    font-size:14px;
+    transition:.2s;
+}
+
+.ai-input:focus{
+    outline:none;
+    border-color:#3a8bfd;
+    box-shadow:0 0 0 3px rgba(58,139,253,.15);
+}
+
+.ai-send{
+    background:linear-gradient(135deg,#3a8bfd,#5f9cff);
+    border:none;
+    color:white;
+    padding:12px 18px;
+    border-radius:16px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:.2s;
+}
+
+.ai-send:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 18px rgba(58,139,253,.35);
+}
+
+.ai-suggestions{
+    margin-top:14px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.ai-suggestions span{
+    background:white;
+    border:1px solid #dfe6ff;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:13px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.ai-suggestions span:hover{
+    background:#3a8bfd;
+    color:white;
+}
+
+.ai-loader{
+    text-align:center;
+    padding:30px;
+}
+
+.ai-thinking p{
+    margin-top:10px;
+    color:#6c757d;
+    font-size:14px;
+}
+/* ===== AI LAB ===== */
+
+.ai-lab{
+    position:relative;
+    padding:28px;
+    border-radius:28px;
+    background:rgba(255,255,255,.55);
+    backdrop-filter: blur(16px);
+    border:1px solid rgba(255,255,255,.4);
+    box-shadow:0 25px 60px rgba(0,0,0,.12);
+    overflow:hidden;
+}
+
+.ai-glow{
+    position:absolute;
+    width:420px;
+    height:420px;
+    background:radial-gradient(circle,#3a8bfd55,transparent 70%);
+    top:-120px;
+    right:-120px;
+    animation: floatGlow 8s infinite ease-in-out;
+}
+
+@keyframes floatGlow{
+    0%,100%{ transform:translateY(0px);}
+    50%{ transform:translateY(40px);}
+}
+
+.ai-head{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:20px;
+}
+
+.ai-orb{
+    width:64px;
+    height:64px;
+    border-radius:20px;
+    background:linear-gradient(135deg,#3a8bfd,#7ea9ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:26px;
+    position:relative;
+}
+
+.pulse{
+    position:absolute;
+    width:100%;
+    height:100%;
+    border-radius:20px;
+    background:#3a8bfd;
+    opacity:.3;
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);opacity:.4;}
+    100%{transform:scale(1.6);opacity:0;}
+}
+
+.ai-name{font-weight:700;font-size:18px;}
+.ai-status{font-size:13px;color:#6c757d;}
+
+.ai-chat{
+    display:flex;
+    gap:14px;
+}
+
+.ai-input{
+    flex:1;
+    border-radius:18px;
+    border:1px solid #dfe6ff;
+    padding:16px;
+    resize:none;
+    height:80px;
+    font-size:14px;
+    transition:.2s;
+}
+
+.ai-input:focus{
+    outline:none;
+    border-color:#3a8bfd;
+    box-shadow:0 0 0 4px rgba(58,139,253,.15);
+}
+
+.ai-button{
+    background:linear-gradient(135deg,#3a8bfd,#5f9cff);
+    border:none;
+    color:white;
+    border-radius:18px;
+    padding:0 22px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:.25s;
+}
+
+.ai-button:hover{
+    transform:translateY(-3px) scale(1.03);
+    box-shadow:0 10px 24px rgba(58,139,253,.35);
+}
+
+.ai-hints{
+    margin-top:14px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.ai-hints span{
+    padding:7px 14px;
+    border-radius:30px;
+    background:#ffffff;
+    border:1px solid #e1e7ff;
+    cursor:pointer;
+    font-size:13px;
+    transition:.2s;
+}
+
+.ai-hints span:hover{
+    background:#3a8bfd;
+    color:white;
+}
+
+/* ===== BOOK RESULTS ===== */
+
+.ai-books{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:26px;
+    margin-top:30px;
+}
+
+.ai-card{
+    background:white;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.12);
+    transition:.3s;
+    cursor:pointer;
+    position:relative;
+}
+
+.ai-card:hover{
+    transform:translateY(-8px) rotateX(3deg) rotateY(-3deg);
+}
+
+.ai-cover{
+    height:280px;
+    overflow:hidden;
+}
+
+.ai-cover img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:.4s;
+}
+
+.ai-card:hover img{
+    transform:scale(1.08);
+}
+
+.ai-info{
+    padding:16px;
+}
+
+.ai-title{
+    font-weight:700;
+    font-size:15px;
+}
+
+.ai-author{
+    font-size:13px;
+    color:#6c757d;
+}
+
+.ai-badge{
+    position:absolute;
+    top:12px;
+    right:12px;
+    background:#3a8bfd;
+    color:white;
+    padding:4px 10px;
+    border-radius:12px;
+    font-size:11px;
+}
+</style>
+
+<div class="library-wrapper">
+
+    <!-- ===== HEADER ===== -->
+    <div class="library-header">
+
+        <div>
+            <div class="library-title">
+                <i class="bi bi-journal-richtext me-2 text-primary"></i>
+                Gestion de la Bibliothèque
             </div>
-            {% endfor %}
+
+            <div class="library-sub">
+                Consultation et gestion des livres, auteurs et catégories
+            </div>
         </div>
-        {% else %}
-        <p class="text-muted">Aucun livre pour le moment.</p>
-        {% endif %}
+
+ 
+
     </div>
-</section>
+
+    <!-- ===== STATS ===== -->
+    <div class="stats">
+
+        <div class="stat-card">
+            <div class="stat-icon bg-books">
+                <i class="bi bi-book"></i>
+            </div>
+            <div>
+                <div class="stat-title">Livres</div>
+                <div class="stat-desc">Collection disponible</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-authors">
+                <i class="bi bi-people"></i>
+            </div>
+            <div>
+                <div class="stat-title">Auteurs</div>
+                <div class="stat-desc">Base des écrivains</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-cat">
+                <i class="bi bi-tags"></i>
+            </div>
+            <div>
+                <div class="stat-title">Catégories</div>
+                <div class="stat-desc">Genres littéraires</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== FILTER BAR ===== -->
+    <div class="toolbar">
+
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input id="search" class="form-control" placeholder="Rechercher un titre de livre...">
+        </div>
+
+        <select id="category" class="form-select">
+            <option value="">Toutes les catégories</option>
+            {% for c in categories %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+
+        <select id="author" class="form-select">
+            <option value="">Tous les auteurs</option>
+            {% for a in authors %}
+                <option value="{{ a.id }}">{{ a.fullName }}</option>
+            {% endfor %}
+        </select>
+
+        <select id="sort" class="form-select">
+            <option value="new">Plus récents</option>
+            <option value="title">Titre A → Z</option>
+        </select>
+
+    </div>
+
+
+
+
+
+
+<!-- ================= AI LIBRARIAN PRO ================= -->
+<div class="ai-lab mb-5">
+
+ 
+    <div class="ai-head">
+        <div class="ai-orb">
+            <div class="pulse"></div>
+            <i class="bi bi-stars"></i>
+        </div>
+
+        <div>
+            <div class="ai-name">AI Bibliothécaire</div>
+            <div class="ai-status" id="aiStatus">Prêt à te conseiller…</div>
+        </div>
+    </div>
+
+    <div class="ai-chat">
+
+        <textarea id="aiPrompt"
+                  placeholder="Ex: Un roman fantastique avec magie et dragons, ou un livre pour rester motivé..."
+                  class="ai-input"></textarea>
+
+        <button class="ai-button" onclick="askAI()">
+            <i class="bi bi-lightning-charge"></i>
+            Rechercher
+        </button>
+
+    </div>
+
+    <div class="ai-hints">
+        <span onclick="quickPrompt(this)">amour tragique</span>
+        <span onclick="quickPrompt(this)">fantasy magie dragons</span>
+        <span onclick="quickPrompt(this)">motivation réussite</span>
+        <span onclick="quickPrompt(this)">psychologie solitude</span>
+    </div>
+
+</div>
+
+  
+<div id="aiLoader" class="ai-loader d-none">
+    <div class="ai-thinking">
+        <div class="spinner-border text-primary"></div>
+        <p>Le bibliothécaire cherche dans les rayons...</p>
+    </div>
+</div>
+
+<div id="aiResults" class="ai-books"></div>
+<script>
+
+function quickPrompt(el){
+    document.getElementById('aiPrompt').value = el.innerText;
+    askAI();
+}
+
+async function askAI(){
+
+    const status = document.getElementById('aiStatus');
+    const results = document.getElementById('aiResults');
+
+    const prompt = document.getElementById('aiPrompt').value.trim();
+    if(!prompt) return;
+
+    status.innerText = "Je réfléchis…";
+
+    results.innerHTML = `
+        <div class="text-center w-100 py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-3 text-muted">Analyse des livres en cours...</p>
+        </div>`;
+
+    const res = await fetch('/ai/recommend',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({prompt})
+    });
+
+    const data = await res.json();
+
+    status.innerText = "Voici mes recommandations";
+     if(!data.books || data.books.length === 0){
+        results.innerHTML = `
+        <div class="text-center w-100 py-5">
+            <i class="bi bi-emoji-frown display-4 text-secondary"></i>
+            <h5>Aucun livre trouvé</h5>
+        </div>`;
+        return;
+    }
+
+    let html='';
+
+    data.books.forEach(book=>{
+
+const img = book.cover_image
+    ? window.location.origin + '/' + book.cover_image
+    : 'https://placehold.co/300x420?text=No+Cover';
+
+        html+=`
+        
+<a href="/biblio/books/front/${book.id}" class="ai-card">
+<div class="ai-badge">${book.confidence}% match</div>
+            <div class="ai-cover">
+                <img src="${img}">
+            </div>
+
+            <div class="ai-info">
+                <div class="ai-title">${book.title}</div>
+                <div class="ai-author">${book.author}</div>
+                <small class="text-primary">${book.category}</small>
+            </div>
+
+        </a>`;
+    });
+
+    results.innerHTML = html;
+}
+
+</script>
+
+
+
+
+
+    <!-- ===== GRID ===== -->
+    <div id="grid">
+        {% include 'catalog/frontoffice/book/_grid.html.twig' with { pagination: pagination } %}
+    </div>
+
+</div>
+
+<script>
+
+let grid = null;
+let searchInput = null;
+let categoryInput = null;
+let authorInput = null;
+let sortInput = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    grid = document.getElementById('grid');
+    searchInput = document.getElementById('search');
+    categoryInput = document.getElementById('category');
+    authorInput = document.getElementById('author');
+    sortInput = document.getElementById('sort');
+    initFilters();
+});
+
+async function loadBooks(url=null){
+
+    if(!grid) return;
+
+    const params = new URLSearchParams({
+        q: searchInput.value || '',
+        category: categoryInput.value || '',
+        author: authorInput.value || '',
+        order: sortInput.value || ''
+    });
+
+    const finalUrl = url ?? ('/biblio/books?' + params.toString());
+
+    const response = await fetch(finalUrl,{
+        headers:{'X-Requested-With':'XMLHttpRequest'}
+    });
+
+    const html = await response.text();
+    grid.innerHTML = html;
+}
+
+function initFilters(){
+
+    let timer;
+
+    searchInput.addEventListener('keyup',()=>{
+        clearTimeout(timer);
+        timer = setTimeout(()=>loadBooks(),400);
+    });
+
+    categoryInput.addEventListener('change',()=>loadBooks());
+    authorInput.addEventListener('change',()=>loadBooks());
+    sortInput.addEventListener('change',()=>loadBooks());
+}
+
+document.addEventListener('click',function(e){
+    const link = e.target.closest('.pagination a');
+    if(!link) return;
+    e.preventDefault();
+    loadBooks(link.href);
+});
+
+</script>
+
 {% endblock %}

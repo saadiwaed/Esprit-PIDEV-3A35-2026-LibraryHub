@@ -20,7 +20,9 @@ use Endroid\QrCode\ErrorCorrectionLevel as QrCodeErrorCorrectionLevel;
 use Endroid\QrCode\Writer\PngWriter;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -41,6 +43,44 @@ final class BiblioCatalogController extends AbstractController
             'area' => 'biblio',
         ]);
     }
+    #[Route("/catalog/index" , name: 'biblio_catalog_index_client', methods: ['GET'])]
+    public function client_index(
+        Request $request,
+        BookRepository $repo,
+        CategoryRepository $categoryRepository,
+        AuthorRepository $authorRepository,
+        PaginatorInterface $paginator
+    ): Response {
+    
+        $q = $request->query->get('q');
+        $category = $request->query->get('category');
+        $author = $request->query->get('author');
+        $order = $request->query->get('order');
+    
+        $query = $repo->createFilteredQuery($q,$category,$author,$order);
+    
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page',1),
+            4 // nobmbre de elements par page
+        );
+    
+        // AJAX request -> return only grid
+        if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            return $this->render('catalog/frontoffice/book/_grid.html.twig', [
+                'pagination'=>$pagination,
+                'area'=>'biblio'
+            ]);
+        }
+    
+        return $this->render('catalog/frontoffice/book/index.html.twig', [
+            'pagination'=>$pagination,
+            'categories'=>$categoryRepository->findAll(),
+            'authors'=>$authorRepository->findAll(),
+            'area'=>'biblio'
+        ]);
+    }
+   
 
     #[Route('/categories', name: 'biblio_category_index', methods: ['GET'])]
     public function categoryIndex(CategoryRepository $repository): Response
@@ -124,6 +164,23 @@ final class BiblioCatalogController extends AbstractController
         ]);
     }
 
+
+
+
+
+    #[Route('/authors/client', name: 'biblio_author_index_client', methods: ['GET'])]
+    public function authorIndexclient(AuthorRepository $repository): Response
+    {
+        return $this->render('catalog/frontoffice/author/index.html.twig', [
+            'authors' => $repository->findBy([], ['lastname' => 'ASC', 'firstname' => 'ASC']),
+            'area' => 'biblio',
+        ]);
+    }
+
+
+
+
+
     #[Route('/authors/new', name: 'biblio_author_new', methods: ['GET', 'POST'])]
     public function authorNew(Request $request, EntityManagerInterface $em, FileUploader $fileUploader): Response
     {
@@ -155,6 +212,17 @@ final class BiblioCatalogController extends AbstractController
             'area' => 'biblio',
         ]);
     }
+
+
+    #[Route('/authors/show/{id}', name: 'biblio_author_show_client', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function authorShow_show(Author $author): Response
+    {
+        return $this->render('catalog/frontoffice/author/show.html.twig', [
+            'author' => $author,
+            'area' => 'biblio',
+        ]);
+    }
+
 
     #[Route('/authors/{id}/edit', name: 'biblio_author_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function authorEdit(Request $request, Author $author, EntityManagerInterface $em, FileUploader $fileUploader): Response
@@ -208,7 +276,7 @@ final class BiblioCatalogController extends AbstractController
         $pagination = $paginator->paginate(
             $query,
             $request->query->getInt('page',1),
-            3
+            4 // nobmbre de elements par page
         );
     
         // AJAX request -> return only grid
@@ -322,6 +390,80 @@ final class BiblioCatalogController extends AbstractController
             'qr' => $qr
         ]);
     }
+
+
+
+
+    #[Route('/books/front/{id}', name: 'biblio_book_show_client', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function bookShowclient(Book $book): Response
+    {
+        // construction du texte du QR
+        $status = match ($book->getStatus()) {
+            'available' => 'Disponible',
+            'borrowed' => 'Emprunté',
+            'reserved' => 'Réservé',
+            default => 'Maintenance'
+        };
+    
+        $qrText =
+            "===== BIBLIOTHEQUE =====\n".
+            "Titre : ".$book->getTitle()."\n".
+            "Auteur : ".$book->getAuthor()->getFullName()."\n".
+            "Categorie : ".$book->getCategory()->getName()."\n".
+            "Editeur : ".($book->getPublisher() ?? '—')."\n".
+            "Annee : ".($book->getPublicationYear() ?? '—')."\n".
+            "Pages : ".($book->getPageCount() ?? '—')."\n".
+            "Langue : ".($book->getLanguage() ?? '—')."\n".
+            "Statut : ".$status."\n".
+            "Ajoute le : ".$book->getCreatedAt()->format('d/m/Y');
+    
+            $status = match ($book->getStatus()) {
+                'available' => 'Disponible',
+                'borrowed' => 'Emprunté',
+                'reserved' => 'Réservé',
+                default => 'Maintenance'
+            };
+            
+            $qrText =
+                "===== BIBLIOTHEQUE =====\n".
+                "ID Livre : ".$book->getId()."\n".
+                "Titre : ".$book->getTitle()."\n".
+                "Auteur : ".$book->getAuthor()->getFullName()."\n".
+                "Categorie : ".$book->getCategory()->getName()."\n".
+                "Editeur : ".($book->getPublisher() ?? '—')."\n".
+                "Annee : ".($book->getPublicationYear() ?? '—')."\n".
+                "Pages : ".($book->getPageCount() ?? '—')."\n".
+                "Langue : ".($book->getLanguage() ?? '—')."\n".
+                "Statut : ".$status."\n".
+                "Ajoute le : ".$book->getCreatedAt()->format('d/m/Y');
+            
+            
+            $builder = new Builder(
+                writer: new PngWriter(),
+                data: $qrText,
+                encoding: new Encoding('UTF-8'),
+              //  errorCorrectionLevel: QrCodeErrorCorrectionLevel::h(),
+                size: 350,
+                margin: 10
+            );
+            
+            $result = $builder->build();
+            $qr = $result->getDataUri();
+            
+    
+        return $this->render('catalog/frontoffice/book/show.html.twig', [
+            'book' => $book,
+            'area' => 'biblio',
+            'qr' => $qr
+        ]);
+    }
+
+
+
+
+
+
+
     #[Route('/books/{id}/edit', name: 'biblio_book_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function bookEdit(Request $request, Book $book, EntityManagerInterface $em, FileUploader $fileUploader): Response
     {
