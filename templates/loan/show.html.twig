@@ -109,6 +109,23 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
+                                <label class="form-label"><strong>Adhérent</strong></label>
+                                <p>
+                                    {% if loan.member %}
+                                        {{ loan.member.firstName }} {{ loan.member.lastName }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Téléphone</strong></label>
+                                <p>{{ loan.phoneNumber ?: (loan.member ? (loan.member.phoneNumber ?? loan.member.phone ?? '-') : '-') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
                                 <label class="form-label"><strong>Return Date</strong></label>
                                 <p>
                                     {% if loan.returnDate %}
@@ -155,6 +172,12 @@
                             <label class="form-label"><strong>Email</strong></label>
                             <p><a href="mailto:{{ loan.member.email }}">{{ loan.member.email }}</a></p>
                         </div>
+                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_LIBRARIAN') %}
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Téléphone</strong></label>
+                                <p>{{ loan.phoneNumber ?: (loan.member.phone ?? '—') }}</p>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

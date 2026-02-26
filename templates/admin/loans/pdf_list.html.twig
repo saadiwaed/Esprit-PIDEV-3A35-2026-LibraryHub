@@ -98,6 +98,7 @@
             <th>Livre</th>
             <th>Emprunté le</th>
             <th>Limite</th>
+            <th>Retour</th>
             <th>Statut</th>
             <th class="text-end">Retard</th>
             <th class="text-end">Pénalités</th>
@@ -123,6 +124,7 @@
                 </td>
                 <td>{{ loan.checkoutTime ? loan.checkoutTime|date('d/m/Y') : '—' }}</td>
                 <td>{{ loan.dueDate ? loan.dueDate|date('d/m/Y') : '—' }}</td>
+                <td>{{ loan.returnDate ? loan.returnDate|date('d/m/Y') : '—' }}</td>
                 <td>
                     {% if loan.status.value == 'returned' %}
                         <span class="badge badge-success">Rendu</span>
@@ -150,7 +152,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="8" class="wrap">Aucun emprunt à exporter.</td>
+                <td colspan="9" class="wrap">Aucun emprunt à exporter.</td>
             </tr>
         {% endfor %}
         </tbody>

@@ -43,6 +43,7 @@ class LoanType extends AbstractType
                 'widget' => 'single_text',
                 'html5' => true,
                 'required' => true,
+                'help' => 'La date de retour doit être après ou égale à la date d\'emprunt',
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Selectionnez la date limite',

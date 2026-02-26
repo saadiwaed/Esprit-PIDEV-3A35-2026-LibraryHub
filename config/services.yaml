@@ -137,3 +137,11 @@ services:
             $dueSoonDays: '%app.reminder.due_soon_days%'
             $smsOverdueDaysThreshold: '%app.reminder.sms_overdue_days_threshold%'
             $smsPenaltyThreshold: '%app.reminder.sms_penalty_threshold%'
+
+    App\Service\SmsReminderService:
+        arguments:
+            $fromPhoneNumber: '%app.twilio.phone_number%'
+
+    App\Service\SmsNotifier:
+        arguments:
+            $fromPhoneNumber: '%app.twilio.phone_number%'

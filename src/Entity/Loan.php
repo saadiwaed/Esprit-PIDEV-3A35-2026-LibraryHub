@@ -32,6 +32,10 @@ class Loan
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotNull(message: 'La date limite est obligatoire.')]
+    #[Assert\Expression(
+        expression: "value === null or this.getCheckoutTime() === null or value.format('Y-m-d') >= this.getCheckoutTime().format('Y-m-d')",
+        message: "La date limite de retour doit être égale ou postérieure à la date d'emprunt."
+    )]
     private ?\DateTimeInterface $dueDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -65,17 +69,36 @@ class Loan
     #[Assert\NotNull(message: 'L\'adherent est obligatoire.')]
     private ?User $member = null;
 
+    #[ORM\Column(type: Types::STRING, length: 15, nullable: true)]
+    #[Assert\Regex(
+        pattern: '/^\+216\d{8}$/',
+        message: 'Le numéro doit contenir exactement 8 chiffres après +216'
+    )]
+    private ?string $phoneNumber = null;
+
     #[ORM\OneToMany(targetEntity: Penalty::class, mappedBy: 'loan', cascade: ['remove'])]
     private Collection $penalties;
 
     #[ORM\OneToMany(targetEntity: Renewal::class, mappedBy: 'loan', cascade: ['remove'])]
     private Collection $renewals;
 
+    #[ORM\OneToMany(targetEntity: RenewalRequest::class, mappedBy: 'loan', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $renewalRequests;
+
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $lastEmailReminderSentAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $lastSmsReminderSentAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lastReminderSentAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lastSmsSentAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $penaltyLastNotifiedAt = null;
 
     /**
      * Non persisted snapshot used to detect dueDate changes after return.
@@ -86,6 +109,7 @@ class Loan
     {
         $this->penalties = new ArrayCollection();
         $this->renewals = new ArrayCollection();
+        $this->renewalRequests = new ArrayCollection();
     }
 
     /**
@@ -216,6 +240,74 @@ class Loan
     }
 
     /**
+     * @return Collection<int, RenewalRequest>
+     */
+    public function getRenewalRequests(): Collection
+    {
+        return $this->renewalRequests;
+    }
+
+    public function addRenewalRequest(RenewalRequest $renewalRequest): static
+    {
+        if (!$this->renewalRequests->contains($renewalRequest)) {
+            $this->renewalRequests->add($renewalRequest);
+            $renewalRequest->setLoan($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRenewalRequest(RenewalRequest $renewalRequest): static
+    {
+        if ($this->renewalRequests->removeElement($renewalRequest)) {
+            if ($renewalRequest->getLoan() === $this) {
+                $renewalRequest->setLoan(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): static
+    {
+        $value = preg_replace('/\s+/', '', trim((string) ($phoneNumber ?? '')));
+        $value = str_replace(['-', '(', ')', '.'], '', $value);
+
+        if ($value === '') {
+            $this->phoneNumber = null;
+
+            return $this;
+        }
+
+        if (preg_match('/^\+216\d{8}$/', $value) === 1) {
+            $this->phoneNumber = $value;
+
+            return $this;
+        }
+
+        if (preg_match('/^216(\d{8})$/', $value, $m) === 1) {
+            $this->phoneNumber = '+216' . $m[1];
+
+            return $this;
+        }
+
+        if (preg_match('/^(\d{8})$/', $value, $m) === 1) {
+            $this->phoneNumber = '+216' . $m[1];
+
+            return $this;
+        }
+
+        $this->phoneNumber = $value;
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, Penalty>
      */
     public function getPenalties(): Collection
@@ -264,6 +356,42 @@ class Loan
     public function setLastSmsReminderSentAt(?\DateTimeImmutable $lastSmsReminderSentAt): static
     {
         $this->lastSmsReminderSentAt = $lastSmsReminderSentAt;
+
+        return $this;
+    }
+
+    public function getLastReminderSentAt(): ?\DateTimeImmutable
+    {
+        return $this->lastReminderSentAt;
+    }
+
+    public function setLastReminderSentAt(?\DateTimeImmutable $lastReminderSentAt): static
+    {
+        $this->lastReminderSentAt = $lastReminderSentAt;
+
+        return $this;
+    }
+
+    public function getLastSmsSentAt(): ?\DateTimeImmutable
+    {
+        return $this->lastSmsSentAt;
+    }
+
+    public function setLastSmsSentAt(?\DateTimeImmutable $lastSmsSentAt): static
+    {
+        $this->lastSmsSentAt = $lastSmsSentAt;
+
+        return $this;
+    }
+
+    public function getPenaltyLastNotifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->penaltyLastNotifiedAt;
+    }
+
+    public function setPenaltyLastNotifiedAt(?\DateTimeImmutable $penaltyLastNotifiedAt): static
+    {
+        $this->penaltyLastNotifiedAt = $penaltyLastNotifiedAt;
 
         return $this;
     }
@@ -574,15 +702,6 @@ class Loan
         $returnDate = $this->returnDate instanceof \DateTimeInterface
             ? \DateTimeImmutable::createFromInterface($this->returnDate)
             : null;
-
-        if ($checkout && $dueDate) {
-            $checkoutDate = self::toDateOnly($checkout);
-            if ($dueDate < $checkoutDate) {
-                $context->buildViolation('La date limite doit etre posterieure ou egale a la date de sortie.')
-                    ->atPath('dueDate')
-                    ->addViolation();
-            }
-        }
 
         if ($this->id === null && $dueDate && $returnDate === null) {
             $today = self::toDateOnly(new \DateTimeImmutable('today'));

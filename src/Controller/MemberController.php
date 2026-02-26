@@ -106,7 +106,10 @@ final class MemberController extends AbstractController
             $entityManager->persist($loanRequest);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Votre demande d\'emprunt a été envoyée avec succès !');
+            $this->addFlash('success', sprintf(
+                'Demande envoyée avec votre numéro %s',
+                (string) $loanRequest->getPhoneNumber()
+            ));
 
             return $this->redirectToRoute('member_loans', ['tab' => 'request']);
         }

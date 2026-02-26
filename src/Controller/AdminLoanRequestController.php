@@ -9,6 +9,7 @@ use App\Enum\LoanStatus;
 use App\Repository\BookCopyRepository;
 use App\Repository\LoanRequestRepository;
 use App\Service\LoanReminderService;
+use App\Service\SmsNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Log\LoggerInterface;
@@ -72,6 +73,7 @@ final class AdminLoanRequestController extends AbstractController
         BookCopyRepository $bookCopyRepository,
         EntityManagerInterface $entityManager,
         LoanReminderService $loanReminderService,
+        SmsNotifier $smsNotifier,
         LoggerInterface $logger,
     ): Response {
         $this->assertAdminOrLibrarian();
@@ -132,6 +134,7 @@ final class AdminLoanRequestController extends AbstractController
         $loan = (new Loan())
             ->setMember($member)
             ->setBookCopy($bookCopy)
+            ->setPhoneNumber($loanRequest->getPhoneNumber())
             ->setCheckoutTime(\DateTime::createFromImmutable($checkoutTime))
             ->setDueDate(\DateTime::createFromImmutable($dueDate))
             ->setStatus(LoanStatus::ACTIVE)
@@ -140,6 +143,7 @@ final class AdminLoanRequestController extends AbstractController
 
         $connection = $entityManager->getConnection();
         $connection->beginTransaction();
+        $approvalSucceeded = false;
         try {
             $loanRequest->setStatus(LoanRequest::STATUS_APPROVED);
 
@@ -148,6 +152,7 @@ final class AdminLoanRequestController extends AbstractController
             $entityManager->flush();
 
             $connection->commit();
+            $approvalSucceeded = true;
 
             $this->addFlash('success', 'Demande approuvée – emprunt créé');
         } catch (\Throwable $exception) {
@@ -158,14 +163,25 @@ final class AdminLoanRequestController extends AbstractController
             $this->addFlash('error', sprintf('Impossible de créer l\'emprunt : %s', $exception->getMessage()));
         }
 
-        try {
-            $reminder = $loanReminderService->sendRequestStatusUpdate($loanRequest);
-            if (($reminder['should_update_email_sent_at'] ?? false) === true) {
-                $loanRequest->setLastEmailReminderSentAt(new \DateTimeImmutable());
-                $entityManager->flush();
+        if ($approvalSucceeded) {
+            try {
+                $reminder = $loanReminderService->sendRequestStatusUpdate($loanRequest);
+                if (($reminder['should_update_email_sent_at'] ?? false) === true) {
+                    $loanRequest->setLastEmailReminderSentAt(new \DateTimeImmutable());
+                    $entityManager->flush();
+                }
+            } catch (\Throwable $e) {
+                $logger->error('LoanRequest reminder failed after approval.', ['loan_request_id' => $loanRequest->getId(), 'exception' => $e]);
             }
-        } catch (\Throwable $e) {
-            $logger->error('LoanRequest reminder failed after approval.', ['loan_request_id' => $loanRequest->getId(), 'exception' => $e]);
+
+            try {
+                $smsNotifier->sendLoanRequestStatusUpdate($loanRequest);
+                if ($loanRequest->getLastSmsReminderSentAt() instanceof \DateTimeImmutable) {
+                    $entityManager->flush();
+                }
+            } catch (\Throwable $e) {
+                $logger->error('LoanRequest SMS notifier failed after approval.', ['loan_request_id' => $loanRequest->getId(), 'exception' => $e]);
+            }
         }
 
         return $this->redirectToRoute('admin_loan_requests');
@@ -177,6 +193,7 @@ final class AdminLoanRequestController extends AbstractController
         LoanRequest $loanRequest,
         EntityManagerInterface $entityManager,
         LoanReminderService $loanReminderService,
+        SmsNotifier $smsNotifier,
         LoggerInterface $logger,
     ): Response {
         $this->assertAdminOrLibrarian();
@@ -214,6 +231,15 @@ final class AdminLoanRequestController extends AbstractController
             }
         } catch (\Throwable $e) {
             $logger->error('LoanRequest reminder failed after rejection.', ['loan_request_id' => $loanRequest->getId(), 'exception' => $e]);
+        }
+
+        try {
+            $smsNotifier->sendLoanRequestStatusUpdate($loanRequest);
+            if ($loanRequest->getLastSmsReminderSentAt() instanceof \DateTimeImmutable) {
+                $entityManager->flush();
+            }
+        } catch (\Throwable $e) {
+            $logger->error('LoanRequest SMS notifier failed after rejection.', ['loan_request_id' => $loanRequest->getId(), 'exception' => $e]);
         }
 
         return $this->redirectToRoute('admin_loan_requests');

@@ -14,9 +14,26 @@
             </div>
 
             <div class="mb-3">
-                {{ form_row(form.dueDate, {
+                {% set dueDateInputClass = (form.dueDate.vars.attr.class|default('') ~ (form.dueDate.vars.errors|length > 0 ? ' is-invalid' : ''))|trim %}
+
+                {{ form_label(form.dueDate, null, {
                     label_attr: {class: form.dueDate.vars.errors|length > 0 ? 'has-error-label' : ''}
                 }) }}
+                {{ form_widget(form.dueDate, {
+                    attr: form.dueDate.vars.attr|merge({ class: dueDateInputClass })
+                }) }}
+
+                {% if form.dueDate.vars.help is not empty %}
+                    <div class="form-text">{{ form.dueDate.vars.help }}</div>
+                {% endif %}
+
+                {% if form.dueDate.vars.errors|length > 0 %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.dueDate.vars.errors %}
+                            {{ error.message }}{% if not loop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
 
             <div class="mb-3">

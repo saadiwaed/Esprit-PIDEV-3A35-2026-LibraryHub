@@ -101,7 +101,7 @@ final class AdminLoanController extends AbstractController
         $loans = $queryBuilder->getQuery()->getResult();
 
         $generatedAt = new \DateTimeImmutable();
-        $fileName = sprintf('emprunts-%s.pdf', $generatedAt->format('Y-m-d'));
+        $fileName = sprintf('loans-%s.pdf', $generatedAt->format('Y-m-d'));
         $isRtl = $request->query->getBoolean('rtl', false) || $request->query->getString('dir', '') === 'rtl';
 
         $html = $this->renderView('admin/loans/pdf_list.html.twig', [

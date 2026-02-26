@@ -156,17 +156,25 @@
                                     attr: {'class': 'row g-3'}
                                 }) }}
                                     {{ form_errors(loanRequestForm) }}
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         {{ form_label(loanRequestForm.bookId) }}
                                         {{ form_widget(loanRequestForm.bookId) }}
                                         {{ form_errors(loanRequestForm.bookId) }}
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
+                                        {{ form_label(loanRequestForm.phoneNumber) }}
+                                        {{ form_widget(loanRequestForm.phoneNumber) }}
+                                        <div class="text-danger small mt-1 d-none" data-tn-phone-error>
+                                            Le numéro doit contenir exactement 8 chiffres après +216
+                                        </div>
+                                        {{ form_errors(loanRequestForm.phoneNumber) }}
+                                    </div>
+                                    <div class="col-md-3">
                                         {{ form_label(loanRequestForm.desiredLoanDate) }}
                                         {{ form_widget(loanRequestForm.desiredLoanDate) }}
                                         {{ form_errors(loanRequestForm.desiredLoanDate) }}
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         {{ form_label(loanRequestForm.desiredReturnDate) }}
                                         {{ form_widget(loanRequestForm.desiredReturnDate) }}
                                         {{ form_errors(loanRequestForm.desiredReturnDate) }}
@@ -278,4 +286,94 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('#loanRequestCollapse form');
+            if (!form) return;
+
+            const input = form.querySelector('[data-tn-phone="1"]');
+            if (!input) return;
+
+            const errorEl = form.querySelector('[data-tn-phone-error]');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            let touched = false;
+
+            const sanitize = function (value) {
+                let v = String(value || '').replace(/\s+/g, '').replace(/[().-]/g, '');
+                v = v.replace(/[^\d+]/g, '');
+                if (v.includes('+') && !v.startsWith('+')) {
+                    v = v.replace(/\+/g, '');
+                }
+                return v;
+            };
+
+            const isValid = function (value) {
+                const v = sanitize(value);
+                return /^\d{8}$/.test(v) || /^\+216\d{8}$/.test(v) || /^216\d{8}$/.test(v);
+            };
+
+            const normalizeForDisplay = function () {
+                const v = sanitize(input.value);
+                if (/^\d{8}$/.test(v)) {
+                    input.value = '+216' + v;
+                } else if (/^216\d{8}$/.test(v)) {
+                    input.value = '+' + v;
+                } else {
+                    input.value = v;
+                }
+            };
+
+            const refresh = function (showErrors) {
+                const v = sanitize(input.value);
+                const valid = isValid(v);
+                const empty = v === '';
+                const ok = valid && !empty;
+
+                if (submitBtn) submitBtn.disabled = !ok;
+
+                if (!showErrors) {
+                    input.classList.remove('is-invalid');
+                    if (errorEl) errorEl.classList.add('d-none');
+                    return;
+                }
+
+                if (ok) {
+                    input.classList.remove('is-invalid');
+                    if (errorEl) errorEl.classList.add('d-none');
+                    return;
+                }
+
+                input.classList.add('is-invalid');
+                if (errorEl) {
+                    errorEl.textContent = empty
+                        ? 'Le numéro de téléphone est obligatoire.'
+                        : 'Le numéro doit contenir exactement 8 chiffres après +216';
+                    errorEl.classList.remove('d-none');
+                }
+            };
+
+            input.addEventListener('input', function () {
+                touched = true;
+                input.value = sanitize(input.value);
+                refresh(true);
+            });
+            input.addEventListener('blur', function () {
+                touched = true;
+                normalizeForDisplay();
+                refresh(true);
+            });
+
+            form.addEventListener('submit', function (e) {
+                normalizeForDisplay();
+                refresh(true);
+                if (submitBtn && submitBtn.disabled) {
+                    e.preventDefault();
+                    input.focus();
+                }
+            });
+
+            refresh(touched);
+        });
+    </script>
 {% endblock %}

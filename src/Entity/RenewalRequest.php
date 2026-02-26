@@ -26,8 +26,8 @@ class RenewalRequest
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(inversedBy: 'renewalRequests')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: 'L\'emprunt est obligatoire.')]
     private ?Loan $loan = null;
 

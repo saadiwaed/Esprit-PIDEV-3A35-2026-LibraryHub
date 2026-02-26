@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des pénalités - LIBRARYHUB</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: dejavusans, DejaVu Sans, Arial, sans-serif;
+            font-size: 11px;
+            color: #212529;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 4px 0;
+        }
+
+        .meta {
+            color: #6c757d;
+            font-size: 10px;
+            margin-bottom: 12px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            border: 1px solid #dee2e6;
+            padding: 6px 8px;
+            vertical-align: top;
+        }
+
+        .table thead th {
+            background: #f8f9fa;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+
+        .table td {
+            white-space: nowrap;
+        }
+
+        .table td.wrap {
+            white-space: normal;
+        }
+
+        .text-end { text-align: right; }
+
+        tr.row-attention td {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            line-height: 1.2;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .badge-success { background: #198754; }
+        .badge-danger { background: #dc3545; }
+        .badge-warning { background: #ffc107; color: #212529; }
+
+        .note {
+            margin-top: 10px;
+            font-size: 10px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Liste des pénalités au {{ generatedAt|date('d/m/Y') }}</h1>
+    <div class="meta">
+        Généré le {{ generatedAt|date('d/m/Y H:i') }} —
+        Page {{ page }} ({{ exportedCount }} résultat(s) affiché(s) / {{ totalResults }} au total)
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Emprunt #</th>
+            <th>Adhérent</th>
+            <th class="text-end">Montant</th>
+            <th>Raison</th>
+            <th>Date émission</th>
+            <th>Statut</th>
+            <th>Exonérée</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for penalty in penalties %}
+            {% set isUnpaid = penalty.status.value in ['unpaid', 'partial'] %}
+            {% set needsAttention = isUnpaid and (not penalty.waived) %}
+
+            <tr class="{% if needsAttention %}row-attention{% endif %}">
+                <td><strong>#{{ penalty.id }}</strong></td>
+                <td>{{ penalty.loan ? ('#' ~ penalty.loan.id) : '—' }}</td>
+                <td class="wrap">
+                    {% set member = penalty.loan ? penalty.loan.member : null %}
+                    {{ member ? (member.fullName ?? '—') : '—' }}
+                </td>
+                <td class="text-end">{{ penalty.amount|number_format(2, ',', ' ') }} TND</td>
+                <td class="wrap">{{ penalty.reasonLabel ?? penalty.reason }}</td>
+                <td>{{ penalty.issueDate ? penalty.issueDate|date('d/m/Y') : '—' }}</td>
+                <td>
+                    {% if penalty.status.value == 'paid' %}
+                        <span class="badge badge-success">Payée</span>
+                    {% elseif penalty.status.value == 'partial' %}
+                        <span class="badge badge-warning">Partielle</span>
+                    {% else %}
+                        <span class="badge badge-danger">Impayée</span>
+                    {% endif %}
+                </td>
+                <td>{{ penalty.waived ? 'Oui' : 'Non' }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8" class="wrap">Aucune pénalité à exporter.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="note">
+        LIBRARYHUB — Export PDF des pénalités
+    </div>
+</body>
+</html>

@@ -43,6 +43,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Membre</th>
+                                <th>Téléphone</th>
                                 <th>Livre</th>
                                 <th>Date demandée</th>
                                 <th>Retour souhaité</th>
@@ -54,7 +55,7 @@
                         <tbody>
                         {% if requests is empty %}
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">Aucune demande trouvée.</td>
+                                <td colspan="9" class="text-center text-muted py-4">Aucune demande trouvée.</td>
                             </tr>
                         {% else %}
                             {% for lr in requests %}
@@ -66,6 +67,9 @@
                                             {{ lr.member ? (lr.member.fullName ?? (lr.member.firstName ~ ' ' ~ lr.member.lastName)) : '—' }}
                                         </div>
                                         <div class="text-muted small">{{ lr.member ? lr.member.email : '' }}</div>
+                                    </td>
+                                    <td class="text-nowrap">
+                                        {{ lr.phoneNumber ?? '—' }}
                                     </td>
                                     <td>
                                         <span class="badge bg-secondary">ID {{ lr.bookId }}</span>
@@ -141,4 +145,3 @@
         {% endfor %}
     </div>
 {% endblock %}
-

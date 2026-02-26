@@ -190,10 +190,20 @@ private Collection $clubs;
         return $this->phone;
     }
 
+    public function getPhoneNumber(): ?string
+    {
+        return $this->getPhone();
+    }
+
     public function setPhone(?string $phone): static
     {
         $this->phone = $phone;
         return $this;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): static
+    {
+        return $this->setPhone($phoneNumber);
     }
 
     public function getAddress(): ?string

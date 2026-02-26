@@ -92,7 +92,8 @@ final class SendLoanRemindersCommand extends Command
             }
 
             $skipEmail = !$this->canSendMemberEmailToday($member, $startOfDay, $memberLastEmailSentAtCache);
-            $skipSms = !$this->canSendMemberSmsToday($member, $startOfDay, $memberLastSmsSentAtCache);
+            // Les SMS sont gérés par la commande dédiée app:send-loan-sms-reminders (évite les doublons).
+            $skipSms = true;
             if ($skipEmail) {
                 $counters['email_skipped_daily_limit']++;
             }

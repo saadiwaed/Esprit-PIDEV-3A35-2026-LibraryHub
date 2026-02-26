@@ -33,10 +33,11 @@ final class CreateMemberUserCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('email', null, InputOption::VALUE_REQUIRED, 'Member email.', 'member1@libraryhub.local')
+            ->addOption('email', null, InputOption::VALUE_REQUIRED, 'Member email.', 'member2@libraryhub.local')
             ->addOption('password', null, InputOption::VALUE_OPTIONAL, 'Member password (generated if omitted).')
             ->addOption('first-name', null, InputOption::VALUE_REQUIRED, 'First name.', 'Member')
             ->addOption('last-name', null, InputOption::VALUE_REQUIRED, 'Last name.', 'One')
+            ->addOption('phone', null, InputOption::VALUE_OPTIONAL, 'Phone number (format: +216XXXXXXXX or 8 digits).')
             ->addOption('status', null, InputOption::VALUE_REQUIRED, 'User status (PENDING|ACTIVE|INACTIVE).', 'ACTIVE')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'If the email exists, update password and ensure ROLE_MEMBER.');
     }
@@ -49,11 +50,17 @@ final class CreateMemberUserCommand extends Command
         $plainPassword = $input->getOption('password');
         $firstName = (string) $input->getOption('first-name');
         $lastName = (string) $input->getOption('last-name');
+        $phoneNumber = $this->normalizeTnPhone($input->getOption('phone'));
         $status = strtoupper((string) $input->getOption('status'));
         $force = (bool) $input->getOption('force');
 
         if (!in_array($status, ['PENDING', 'ACTIVE', 'INACTIVE'], true)) {
             $io->error('Invalid status. Use PENDING, ACTIVE, or INACTIVE.');
+            return Command::INVALID;
+        }
+
+        if ($input->getOption('phone') !== null && $phoneNumber === null) {
+            $io->error('Invalid phone. Expected +216XXXXXXXX or 8 digits.');
             return Command::INVALID;
         }
 
@@ -84,6 +91,10 @@ final class CreateMemberUserCommand extends Command
             $this->entityManager->persist($user);
         }
 
+        if ($phoneNumber !== null) {
+            $user->setPhoneNumber($phoneNumber);
+        }
+
         $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
         $user->addRole($roleMember);
 
@@ -92,6 +103,9 @@ final class CreateMemberUserCommand extends Command
         $io->success('Member user ready.');
         $io->writeln(sprintf('Email: %s', $email));
         $io->writeln(sprintf('Password: %s', $plainPassword));
+        if ($phoneNumber !== null) {
+            $io->writeln(sprintf('Phone: %s', $phoneNumber));
+        }
 
         return Command::SUCCESS;
     }
@@ -100,5 +114,32 @@ final class CreateMemberUserCommand extends Command
     {
         return 'M!' . bin2hex(random_bytes(8));
     }
-}
 
+    private function normalizeTnPhone(mixed $input): ?string
+    {
+        if ($input === null) {
+            return null;
+        }
+
+        $value = preg_replace('/\s+/', '', trim((string) $input));
+        $value = str_replace(['-', '(', ')', '.'], '', $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (preg_match('/^\+216\d{8}$/', $value) === 1) {
+            return $value;
+        }
+
+        if (preg_match('/^216(\d{8})$/', $value, $m) === 1) {
+            return '+216' . $m[1];
+        }
+
+        if (preg_match('/^(\d{8})$/', $value, $m) === 1) {
+            return '+216' . $m[1];
+        }
+
+        return null;
+    }
+}

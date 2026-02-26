@@ -2,6 +2,11 @@
 
 namespace App\Entity;
 
+// Guard against accidental double-inclusion (e.g. PSR-4 case mismatch on Windows).
+if (class_exists(__NAMESPACE__ . '\\LoanRequest', false)) {
+    return;
+}
+
 use App\Repository\LoanRequestRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -53,6 +58,14 @@ class LoanRequest
     #[Assert\NotBlank(message: 'Le statut est obligatoire.')]
     #[Assert\Choice(choices: self::ALLOWED_STATUSES, message: 'Statut invalide.')]
     private string $status = self::STATUS_PENDING;
+
+    #[ORM\Column(type: Types::STRING, length: 15)]
+    #[Assert\NotBlank(message: 'Le numéro de téléphone est obligatoire.')]
+    #[Assert\Regex(
+        pattern: '/^\+216\d{8}$/',
+        message: 'Le numéro doit contenir exactement 8 chiffres après +216'
+    )]
+    private ?string $phoneNumber = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
@@ -141,6 +154,45 @@ class LoanRequest
     {
         $status = strtoupper(trim($status));
         $this->status = \in_array($status, self::ALLOWED_STATUSES, true) ? $status : self::STATUS_PENDING;
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): static
+    {
+        $value = preg_replace('/\s+/', '', trim((string) ($phoneNumber ?? '')));
+        $value = str_replace(['-', '(', ')', '.'], '', $value);
+
+        if ($value === '') {
+            $this->phoneNumber = null;
+
+            return $this;
+        }
+
+        if (preg_match('/^\+216\d{8}$/', $value) === 1) {
+            $this->phoneNumber = $value;
+
+            return $this;
+        }
+
+        if (preg_match('/^216(\d{8})$/', $value, $m) === 1) {
+            $this->phoneNumber = '+216' . $m[1];
+
+            return $this;
+        }
+
+        if (preg_match('/^(\d{8})$/', $value, $m) === 1) {
+            $this->phoneNumber = '+216' . $m[1];
+
+            return $this;
+        }
+
+        $this->phoneNumber = $value;
 
         return $this;
     }
