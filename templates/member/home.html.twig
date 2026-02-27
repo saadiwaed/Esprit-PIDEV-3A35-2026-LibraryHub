@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <div class="container-fluid p-4">
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+            </div>
+        {% endfor %}
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="h3 mb-1">Accueil</h1>
+                <p class="text-muted mb-0">Bienvenue sur votre espace membre.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-lg-5">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="card-header-title mb-0">Actions rapides</h5>
+                    </div>
+                    <div class="card-body">
+                        <button type="button" class="btn btn-lg btn-primary w-100" data-bs-toggle="modal" data-bs-target="#loanRequestModal">
+                            <i class="bi bi-journal-plus me-2"></i>Faire une demande d'emprunt
+                        </button>
+
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="{{ path('member_my_loans') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-journal-bookmark me-2"></i>Mes emprunts
+                            </a>
+                            <a href="{{ path('member_my_penalties') }}" class="btn btn-outline-danger">
+                                <i class="bi bi-exclamation-triangle me-2"></i>Mes pénalités
+                            </a>
+                            <a href="{{ path('member_renewal_request') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-repeat me-2"></i>Demander un renouvellement
+                            </a>
+                        </div>
+                        <div class="text-muted small mt-2">
+                            Vous pouvez indiquer un titre, un auteur, une référence ou un ISBN.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-7">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="card-header-title mb-0">Mes dernières demandes</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if loanRequests is empty %}
+                            <div class="text-muted">Vous n'avez aucune demande d'emprunt pour le moment.</div>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Livre</th>
+                                            <th>Date</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for loanRequest in loanRequests %}
+                                            {% set statusValue = loanRequest.status.value %}
+                                            <tr>
+                                                <td>#{{ loanRequest.id }}</td>
+                                                <td>Livre #{{ loanRequest.book.id }}</td>
+                                                <td>{{ loanRequest.requestedAt|date('d/m/Y H:i') }}</td>
+                                                <td>
+                                                    {% if statusValue == 'pending' %}
+                                                        <span class="badge bg-warning text-dark">En attente</span>
+                                                    {% elseif statusValue == 'approved' %}
+                                                        <span class="badge bg-success">Approuvée</span>
+                                                    {% elseif statusValue == 'rejected' %}
+                                                        <span class="badge bg-danger">Refusée</span>
+                                                    {% elseif statusValue == 'cancelled' %}
+                                                        <span class="badge bg-secondary">Annulée</span>
+                                                    {% else %}
+                                                        <span class="badge bg-light text-dark">{{ statusValue }}</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if loanRequestForm is defined %}
+        {% include 'partials/_loan_request_modal.html.twig' with {form: loanRequestForm} %}
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var shouldOpen = {{ openLoanRequestModal is defined and openLoanRequestModal ? 'true' : 'false' }};
+            if (window.location.hash === '#loanRequestModal') {
+                shouldOpen = true;
+            }
+
+            if (!shouldOpen) {
+                return;
+            }
+
+            var modalEl = document.getElementById('loanRequestModal');
+            if (!modalEl || typeof bootstrap === 'undefined') {
+                return;
+            }
+
+            var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        });
+    </script>
+{% endblock %}

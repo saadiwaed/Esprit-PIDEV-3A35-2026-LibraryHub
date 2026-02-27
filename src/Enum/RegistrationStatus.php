@@ -14,10 +14,10 @@ enum RegistrationStatus: string
     {
         return match($this) {
             self::PENDING => 'En attente',
-            self::CONFIRMED => 'Confirmé',
+            self::CONFIRMED => 'Confirme',
             self::WAITLISTED => 'Liste d\'attente',
-            self::CANCELLED => 'Annulé',
-            self::ATTENDED => 'A participé',
+            self::CANCELLED => 'Annule',
+            self::ATTENDED => 'A participe',
             self::NO_SHOW => 'Absent',
         };
     }

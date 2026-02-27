@@ -65,7 +65,7 @@ class Loan
     #[Assert\NotNull(message: 'L\'adherent est obligatoire.')]
     private ?User $member = null;
 
-    #[ORM\OneToMany(targetEntity: Penalty::class, mappedBy: 'loan', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: Penalty::class, mappedBy: 'loan', cascade: ['remove'], fetch: 'EXTRA_LAZY')]
     private Collection $penalties;
 
     #[ORM\OneToMany(targetEntity: Renewal::class, mappedBy: 'loan', cascade: ['remove'])]
@@ -110,7 +110,7 @@ class Loan
 
     public function setCheckoutTime(\DateTimeInterface $checkoutTime): static
     {
-        $this->checkoutTime = $checkoutTime;
+        $this->checkoutTime = self::toMutableDateTime($checkoutTime);
 
         return $this;
     }
@@ -122,7 +122,7 @@ class Loan
 
     public function setDueDate(\DateTimeInterface $dueDate): static
     {
-        $this->dueDate = $dueDate;
+        $this->dueDate = self::toMutableDateTime($dueDate);
 
         return $this;
     }
@@ -134,7 +134,9 @@ class Loan
 
     public function setReturnDate(?\DateTimeInterface $returnDate): static
     {
-        $this->returnDate = $returnDate;
+        $this->returnDate = $returnDate instanceof \DateTimeInterface
+            ? self::toMutableDateTime($returnDate)
+            : null;
 
         return $this;
     }
@@ -215,6 +217,16 @@ class Loan
     public function getPenalties(): Collection
     {
         return $this->penalties;
+    }
+
+    public function hasPenalty(): bool
+    {
+        return $this->penalties->count() > 0;
+    }
+
+    public function getPenaltiesCount(): int
+    {
+        return $this->penalties->count();
     }
 
     public function addPenalty(Penalty $penalty): static
@@ -596,5 +608,14 @@ class Loan
     private static function toDateOnly(\DateTimeInterface $date): \DateTimeImmutable
     {
         return \DateTimeImmutable::createFromInterface($date)->setTime(0, 0, 0);
+    }
+
+    private static function toMutableDateTime(\DateTimeInterface $dateTime): \DateTime
+    {
+        if ($dateTime instanceof \DateTime) {
+            return clone $dateTime;
+        }
+
+        return new \DateTime($dateTime->format('Y-m-d H:i:s.u'), $dateTime->getTimezone());
     }
 }

@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # Service IA
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: libraryhub-ai
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      # Monter les dossiers de données et modèles pour persistance
+      - ./ai-service/models:/app/models
+      - ./ai-service/data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - libraryhub-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Service Symfony (optionnel - si tu veux tout dockeriser)
+  symfony:
+    image: php:8.2-apache
+    container_name: libraryhub-symfony
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      ai-service:
+        condition: service_healthy
+    networks:
+      - libraryhub-network
+    environment:
+      - AI_SERVICE_URL=http://ai-service:8001
+
+networks:
+  libraryhub-network:
+    driver: bridge

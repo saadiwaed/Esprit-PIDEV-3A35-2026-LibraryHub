@@ -61,7 +61,8 @@
 
             <li class="nav-item"> <a class="nav-link" href="{{ path('loan_index') }}">Tous les prêts</a></li>
             <li class="nav-item"> <a class="nav-link" href="{{ path('loan_renewal_index') }}">Renouvellements</a></li>
-            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_new') }}">Nouveau prêt</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('loan_new') }}">Nouveau pret</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('admin_loan_request_pending') }}">Demandes d'emprunt</a></li>
             <li class="nav-item"> <a class="nav-link" href="{{ path('penalty_index') }}">Amendes</a></li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ path('app_stats_index') }}">
@@ -133,7 +134,11 @@
     <ul class="nav collapse flex-column" id="collapseEvenementsAdmin" data-bs-parent="#navbar-sidebar">
         <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_index') }}">Liste des événements</a></li>
         <li class="nav-item"> <a class="nav-link" href="{{ path('app_event_new') }}">Créer un événement</a></li>
-
+<li class="nav-item"> 
+        <a class="nav-link" href="{{ path('admin_dashboard') }}">
+            <i class="fas fa-chart-line"></i> Dashboard N8N
+        </a>
+    </li>
     </ul>
 </li>
 
@@ -143,9 +148,18 @@
         <i class="bi bi-people fa-fw me-2"></i>Gestion Clubs
     </a>
     <ul class="nav collapse flex-column" id="collapseClubsAdmin" data-bs-parent="#navbar-sidebar">
-        <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_index') }}">Liste des clubs</a></li>
-        <li class="nav-item"> <a class="nav-link" href="{{ path('app_club_new') }}">Creer un club</a></li>
-    </ul>
+    <li class="nav-item"> 
+        <a class="nav-link" href="{{ path('app_club_index') }}">Liste des clubs</a>
+    </li>
+    <li class="nav-item"> 
+        <a class="nav-link" href="{{ path('app_club_new') }}">Creer un club</a>
+    </li>
+    <li class="nav-item"> 
+        <a class="nav-link" href="{{ path('admin_dashboard') }}">
+            <i class="fas fa-chart-line"></i> Dashboard N8N
+        </a>
+    </li>
+</ul>
 </li>
 
 
@@ -230,10 +244,10 @@
         <a class="h5 mb-0 text-body" href="index.html" data-bs-toggle="tooltip" data-bs-placement="top" title="Home">
             <i class="bi bi-globe"></i>
         </a>
-        <a class="h5 mb-0 text-body" href="sign-in.html" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
-            <i class="bi bi-power"></i>
-        </a>
+        {# Authentification desactivee #}
     </div>
 </div>
 </nav>
 <!-- Sidebar footer END -->
+
+

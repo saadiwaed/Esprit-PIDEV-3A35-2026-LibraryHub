@@ -1,0 +1,4 @@
+RMSE: 2.4700
+MAE: 2.3424
+Best n_factors: 5
+Variance expliquée: 30.12%

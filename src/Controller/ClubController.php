@@ -1,4 +1,5 @@
 <?php
+// src/Controller/ClubController.php
 
 namespace App\Controller;
 
@@ -14,12 +15,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Event;
 use App\Form\EventType;
+use App\Service\MailerService;
+use Symfony\Component\Mailer\Transport\TransportInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mime\Email; 
 
 #[Route('/club')]
 final class ClubController extends AbstractController
 {
-
+    private $mailerService;
     
+    public function __construct(MailerService $mailerService)
+    {
+        $this->mailerService = $mailerService;
+    }
+
     #[Route('/', name: 'app_club_index', methods: ['GET'])]
     public function index(Request $request, ClubRepository $clubRepository): Response
     {
@@ -53,6 +63,7 @@ final class ClubController extends AbstractController
     #[Route('/addformember', name: 'app_club_addformember', methods: ['GET', 'POST'])]
     public function addForMember(Request $request, EntityManagerInterface $entityManager): Response
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         if (!$user) {
             $this->addFlash('error', 'Vous devez être connecté pour créer un club.');
@@ -72,6 +83,16 @@ final class ClubController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($club);
             $entityManager->flush();
+
+            // 📧 ENVOI EMAIL: Confirmation de création
+            $emailSent = $this->mailerService->sendClubCreationConfirmation($user, $club);
+            
+            // ✅ SNACKBAR pour l'email
+            if ($emailSent) {
+                $this->addFlash('success', '📧 Email de confirmation envoyé à ' . $user->getEmail());
+            } else {
+                $this->addFlash('warning', '📧 L\'email de confirmation n\'a pas pu être envoyé (vérifiez votre configuration mail)');
+            }
 
             $this->addFlash('success', 'Félicitations ! Votre club "' . $club->getTitle() . '" a été créé avec succès.');
             
@@ -87,6 +108,7 @@ final class ClubController extends AbstractController
     #[Route('/new', name: 'app_club_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         if (!$user) {
             $this->addFlash('error', 'Vous devez être connecté pour créer un club.');
@@ -106,6 +128,16 @@ final class ClubController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($club);
             $entityManager->flush();
+
+            // 📧 ENVOI EMAIL: Confirmation de création
+            $emailSent = $this->mailerService->sendClubCreationConfirmation($user, $club);
+            
+            // ✅ SNACKBAR pour l'email
+            if ($emailSent) {
+                $this->addFlash('success', '📧 Email de confirmation envoyé à ' . $user->getEmail());
+            } else {
+                $this->addFlash('warning', '📧 L\'email de confirmation n\'a pas pu être envoyé');
+            }
 
             $this->addFlash('success', 'Félicitations ! Votre club "' . $club->getTitle() . '" a été créé avec succès.');
             
@@ -139,7 +171,6 @@ final class ClubController extends AbstractController
         ]);
     }
 
-
     #[Route('/member-view/{id}', name: 'app_showformember', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function showForMember(Club $club): Response
     {
@@ -157,30 +188,56 @@ final class ClubController extends AbstractController
         ]);
     }
 
+#[Route('/{id}/edit', name: 'app_club_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+public function edit(Request $request, Club $club, EntityManagerInterface $entityManager): Response
+{
+    // Vérifier si l'utilisateur est admin ou le fondateur
+    $isAdmin = $this->isGranted('ROLE_ADMIN');
+    $isFounder = $club->getFounder() === $this->getUser();
+    
+    if (!$isFounder && !$isAdmin) {
+        $this->addFlash('error', 'Seul le fondateur ou un administrateur peut modifier le club.');
+        return $this->redirectToRoute('app_showformember', ['id' => $club->getId()]);
+    }
 
-    #[Route('/{id}/edit', name: 'app_club_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Request $request, Club $club, EntityManagerInterface $entityManager): Response
-    {
-        if ($club->getFounder() !== $this->getUser()) {
-            $this->addFlash('error', 'Seul le fondateur peut modifier le club.');
-            return $this->redirectToRoute('app_showformember', ['id' => $club->getId()]);
+    $form = $this->createForm(ClubType::class, $club);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->flush();
+
+        // 📧 ENVOI EMAIL: Notification de modification à tous les membres
+        $results = $this->mailerService->sendClubUpdateNotification($club);
+        
+        // ✅ SNACKBAR pour les emails
+        $sentCount = count(array_filter($results));
+        if ($sentCount > 0) {
+            $this->addFlash('info', "📧 Notification envoyée à $sentCount membre(s)");
         }
 
-        $form = $this->createForm(ClubType::class, $club);
-        $form->handleRequest($request);
+        $this->addFlash('success', 'Le club a été modifié avec succès.');
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-            $this->addFlash('success', 'Le club a été modifié avec succès.');
-
+        // 🔄 REDIRECTION CONDITIONNELLE
+        if ($isAdmin) {
+            return $this->redirectToRoute('app_club_show', ['id' => $club->getId()]);
+        } else {
             return $this->redirectToRoute('app_showformember', ['id' => $club->getId()]);
         }
+    }
 
+    // ✅ RENDU CONDITIONNEL DU TEMPLATE
+    if ($isAdmin) {
         return $this->render('club/edit.html.twig', [
             'club' => $club,
             'form' => $form,
         ]);
+    } else {
+        return $this->render('club/editformember.html.twig', [
+            'club' => $club,
+            'form' => $form,
+        ]);
     }
+}
 
     #[Route('/{id}/event/new', name: 'app_club_event_create', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function createClubEvent(Request $request, Club $club, EntityManagerInterface $entityManager): Response
@@ -200,6 +257,15 @@ final class ClubController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($event);
             $entityManager->flush();
+            
+            // 📧 ENVOI EMAIL: Notification de nouvel événement à tous les membres
+            $results = $this->mailerService->sendNewEventNotification($club, $event);
+            
+            // ✅ SNACKBAR pour les emails
+            $sentCount = count(array_filter($results));
+            if ($sentCount > 0) {
+                $this->addFlash('info', "📧 Annonce envoyée à $sentCount membre(s)");
+            }
             
             $this->addFlash('success', 'Événement créé pour le club ' . $club->getTitle());
             return $this->redirectToRoute('app_showformember', ['id' => $club->getId()]);
@@ -227,9 +293,21 @@ final class ClubController extends AbstractController
             throw $this->createAccessDeniedException('Le nouveau fondateur doit être membre du club.');
         }
         
+        $oldFounder = $club->getFounder();
         $club->setFounder($newFounder);
         
         $entityManager->flush();
+        
+        // 📧 ENVOI EMAIL: Notification de transfert de propriété
+        $results = $this->mailerService->sendOwnershipTransferNotification($oldFounder, $newFounder, $club);
+        
+        // ✅ SNACKBAR pour les emails
+        if ($results['old'] ?? false) {
+            $this->addFlash('info', '📧 Notification envoyée à l\'ancien fondateur');
+        }
+        if ($results['new'] ?? false) {
+            $this->addFlash('info', '📧 Notification envoyée au nouveau fondateur');
+        }
         
         $this->addFlash('success', 'La propriété du club a été transférée à ' . $newFounder->getFirstName());
         
@@ -258,6 +336,13 @@ final class ClubController extends AbstractController
         $club->setFounder($newFounder);
         $entityManager->flush();
         
+        
+        
+        // ✅ SNACKBAR pour les emails
+        if (!empty($results)) {
+            $this->addFlash('info', '📧 Notifications envoyées aux fondateurs');
+        }
+        
         $this->addFlash('success', 'Admin: Fondateur changé de ' . ($oldFounder?->getEmail() ?? 'Personne') . ' → ' . $newFounder->getEmail());
         
         return $this->redirectToRoute('app_showformember', ['id' => $club->getId()]);
@@ -266,6 +351,7 @@ final class ClubController extends AbstractController
     #[Route('/{id}/join', name: 'app_club_join', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function join(Request $request, Club $club, EntityManagerInterface $entityManager): Response
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -289,6 +375,20 @@ final class ClubController extends AbstractController
         
         $club->addMember($user);
         $entityManager->flush();
+        
+        // 📧 ENVOI EMAIL: Bienvenue au nouveau membre
+        $welcomeSent = $this->mailerService->sendWelcomeToNewMember($user, $club);
+        
+        // 📧 ENVOI EMAIL: Notification au fondateur
+        $notifSent = $this->mailerService->sendNewMemberNotificationToFounder($user, $club);
+        
+        // ✅ SNACKBAR pour les emails
+        if ($welcomeSent) {
+            $this->addFlash('success', '📧 Email de bienvenue envoyé à ' . $user->getEmail());
+        }
+        if ($notifSent) {
+            $this->addFlash('info', '📧 Notification envoyée au fondateur du club');
+        }
         
         $this->addFlash('success', 'Vous avez rejoint le club "' . $club->getTitle() . '" !');
         
@@ -322,6 +422,14 @@ final class ClubController extends AbstractController
         $club->removeMember($user);
         $entityManager->flush();
         
+        // 📧 ENVOI EMAIL: Notification au fondateur qu'un membre a quitté
+        $notifSent = $this->mailerService->sendMemberLeftNotificationToFounder($user, $club);
+        
+        // ✅ SNACKBAR pour l'email
+        if ($notifSent) {
+            $this->addFlash('info', '📧 Notification envoyée au fondateur');
+        }
+        
         $this->addFlash('success', 'Vous avez quitté le club "' . $club->getTitle() . '".');
         
         return $this->redirectToRoute('app_club_discover');
@@ -330,7 +438,6 @@ final class ClubController extends AbstractController
     #[Route('/{id}', name: 'app_club_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(Club $club): Response
     {
-
         $isMember = false;
         $user = $this->getUser();
         if ($user) {
@@ -346,14 +453,22 @@ final class ClubController extends AbstractController
     #[Route('/{id}', name: 'app_club_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(Request $request, Club $club, EntityManagerInterface $entityManager): Response
     {
-  
         if ($club->getFounder() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
             $this->addFlash('error', 'Vous n\'avez pas les droits pour supprimer ce club.');
-
             return $this->redirectToRoute('app_showformember', ['id' => $club->getId()]);
         }
 
         if ($this->isCsrfTokenValid('delete'.$club->getId(), $request->getPayload()->getString('_token'))) {
+            
+            // 📧 ENVOI EMAIL: Notification de suppression à tous les membres
+            $results = $this->mailerService->sendClubDeletionNotification($club);
+            
+            // ✅ SNACKBAR pour les emails
+            $sentCount = count(array_filter($results));
+            if ($sentCount > 0) {
+                $this->addFlash('info', "📧 Notification de suppression envoyée à $sentCount membre(s)");
+            }
+            
             $entityManager->remove($club);
             $entityManager->flush();
             $this->addFlash('success', 'Le club a été supprimé avec succès.');
@@ -365,19 +480,15 @@ final class ClubController extends AbstractController
     #[Route('/decouvrir', name: 'app_club_discover', methods: ['GET'])]
     public function discover(Request $request, ClubRepository $clubRepository): Response
     {
-        
         $search = $request->query->get('search', '');
         $category = $request->query->get('category', '');
         $status = $request->query->get('status', 'active');
         $sort = $request->query->get('sort', 'createdDate');
         $order = $request->query->get('order', 'desc');
         
-       
         $clubs = $clubRepository->findByFilters($search, $status, $category, $sort, $order);
         
-       
         $categories = $clubRepository->findAllCategories();
-        
         
         $userClubs = [];
         $user = $this->getUser();
@@ -402,4 +513,75 @@ final class ClubController extends AbstractController
             'all_status' => ClubStatus::cases(),
         ]);
     }
+
+    /**
+     * Route de test pour vérifier les emails
+     */
+    #[Route('/test-email', name: 'app_test_email')]
+    public function testEmail(): Response
+    {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour tester les emails.');
+            return $this->redirectToRoute('app_login');
+        }
+        
+        $result = $this->mailerService->sendTestEmail($user->getEmail());
+        
+        if ($result) {
+            $this->addFlash('success', '✅ Email de test envoyé à ' . $user->getEmail());
+        } else {
+            $this->addFlash('error', '❌ Échec de l\'envoi de l\'email de test. Vérifiez votre configuration.');
+        }
+        
+        return $this->redirectToRoute('app_club_index');
+    }
+    #[Route('/debug-mail', name: 'app_debug_mail')]
+public function debugMail(TransportInterface $transport): Response
+{
+    /** @var \App\Entity\User $user */
+    $user = $this->getUser();
+    if (!$user) {
+        return $this->redirectToRoute('app_login');
+    }
+    
+    try {
+        $email = (new Email())
+            ->from('azizarfaoui0987@gmail.com') // Keep this hardcoded for testing
+            ->to($user->getEmail())
+            ->subject('🔴 TEST DEBUG')
+            ->text('Ceci est un test de debug');
+        
+        $transport->send($email);
+        
+        $this->addFlash('success', '✅ Email de debug envoyé!');
+        
+    } catch (TransportExceptionInterface $e) {
+        $this->addFlash('error', '❌ ERREUR: ' . $e->getMessage());
+    }
+    
+    return $this->redirectToRoute('app_club_index');
+}
+#[Route('/test-mailer-service', name: 'app_test_mailer_service')]
+public function testMailerService(MailerService $mailerService): Response
+{
+    /** @var \App\Entity\User $user */
+    $user = $this->getUser();
+    if (!$user) {
+        $this->addFlash('error', 'Vous devez être connecté');
+        return $this->redirectToRoute('app_login');
+    }
+    
+    // Test the MailerService's sendTestEmail method
+    $result = $mailerService->sendTestEmail($user->getEmail());
+    
+    if ($result) {
+        $this->addFlash('success', '✅ Email de test envoyé avec succès via MailerService à ' . $user->getEmail());
+    } else {
+        $this->addFlash('error', '❌ Échec de l\'envoi via MailerService. Vérifiez les logs.');
+    }
+    
+    return $this->redirectToRoute('app_club_index');
+}
 }

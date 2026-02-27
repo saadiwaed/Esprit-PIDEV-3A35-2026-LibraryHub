@@ -1,0 +1,97 @@
+{% extends 'frontoffice/navbar.html.twig' %}
+
+{% block title %}Clubs recommandés pour vous{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5">
+                🎯 Clubs recommandés pour vous
+                {% if not ai_available %}
+                    <span class="badge bg-warning ms-2">Mode secours</span>
+                {% endif %}
+            </h1>
+            <p class="lead text-muted">
+                {% if ai_available %}
+                    Basé sur vos interactions et les préférences similaires
+                {% else %}
+                    Clubs populaires (service IA temporairement indisponible)
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    {% if clubs is empty %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Aucune recommandation disponible pour le moment. 
+            Rejoignez plus de clubs pour obtenir des suggestions personnalisées !
+        </div>
+    {% else %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for club in clubs %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        {# Image du club #}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                             style="height: 150px;">
+                            {% if club.image %}
+                                <img src="{{ asset('uploads/clubs/' ~ club.image) }}" 
+                                     class="h-100 w-100 object-fit-cover" 
+                                     alt="{{ club.title }}">
+                            {% else %}
+                                <span class="display-3">📚</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">{{ club.title }}</h5>
+                                <span class="badge bg-info">{{ club.category }}</span>
+                            </div>
+                            
+                            <p class="card-text text-muted small">
+                                {{ club.description|slice(0, 120) }}...
+                            </p>
+                            
+                            {# Statistiques #}
+                            <div class="d-flex justify-content-between mt-3">
+                                <div class="text-center">
+                                    <small class="text-muted d-block">Membres</small>
+                                    <span class="fw-bold">{{ club.members|length }}</span>
+                                </div>
+                                <div class="text-center">
+                                    <small class="text-muted d-block">Événements</small>
+                                    <span class="fw-bold">{{ club.eventCount }}</span>
+                                </div>
+                                <div class="text-center">
+                                    <small class="text-muted d-block">Places</small>
+                                    <span class="fw-bold">{{ club.availableSpots }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex gap-2">
+                               {% if club.canJoin %}
+     <form method="post" action="{{ path('app_club_join', {'id': club.id}) }}" class="d-inline w-100">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('join' ~ club.id) }}">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-plus-circle me-1"></i> Rejoindre le club
+                                    </button>
+                                </form>
+{% else %}
+    <button class="btn btn-secondary flex-grow-1" disabled>
+        {% if club.isFull %}Complet{% else %}Indisponible{% endif %}
+    </button>
+{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

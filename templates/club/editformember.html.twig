@@ -1,0 +1,67 @@
+{% extends 'frontoffice/navbar.html.twig' %}
+
+{% block title %}Modifier Club{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid py-5 px-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Modifier le Club</h2>
+            <p class="text-muted mb-0">Mettre à jour les informations du club</p>
+        </div>
+
+        <a href="{{ path('app_club_index') }}" class="btn btn-outline-secondary">
+            ← Retour à la liste
+        </a>
+    </div>
+
+    {{ include('club/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+
+</div>
+
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+
+.container-fluid {
+    min-height: 100vh;
+}
+
+.card {
+    background: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.15rem rgba(78, 115, 223, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border: none;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8f9fc;
+}
+
+.club-form label {
+    margin-bottom: 6px;
+}
+
+</style>
+{% endblock %}

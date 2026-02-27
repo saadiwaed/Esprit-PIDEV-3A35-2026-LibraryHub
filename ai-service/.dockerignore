@@ -1,0 +1,47 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+libraryhub-ai/
+libraryhub-ai.*
+condaenv.*
+*.egg-info/
+dist/
+build/
+
+# Données et modèles (ne pas copier, seront montés en volume)
+models/*
+data/*
+!models/.gitkeep
+!data/.gitkeep
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Tests
+tests/
+*.test
+*.spec
+
+# Logs
+*.log

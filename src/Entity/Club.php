@@ -27,18 +27,18 @@ class Club
     #[Assert\Length(
         min: 3,
         max: 255,
-        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères',
-        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères'
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caracteres',
+        maxMessage: 'Le titre ne peut pas depasser {{ limit }} caracteres'
     )]
     private ?string $title = null;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'La description est obligatoire')]
-    #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caractères')]
+    #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caracteres')]
     private ?string $description = null;
 
     #[ORM\Column(type: 'string', length: 100)]
-    #[Assert\NotBlank(message: 'La catégorie est obligatoire')]
+    #[Assert\NotBlank(message: 'La categorie est obligatoire')]
     private ?string $category = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'foundedClubs')]
@@ -50,18 +50,18 @@ class Club
     private Collection $members;
 
     #[ORM\Column(type: 'datetime')]
-    #[Assert\NotBlank(message: 'La date de réunion est obligatoire')]
-    #[Assert\GreaterThan('today', message: 'La date de réunion doit être future')]
+    #[Assert\NotBlank(message: 'La date de reunion est obligatoire')]
+    #[Assert\GreaterThan('today', message: 'La date de reunion doit Ãªtre future')]
     private ?\DateTimeInterface $meetingDate = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\NotBlank(message: 'Le lieu de réunion est obligatoire')]
+    #[Assert\NotBlank(message: 'Le lieu de reunion est obligatoire')]
     private ?string $meetingLocation = null;
 
     #[ORM\Column(type: 'integer')]
-    #[Assert\NotBlank(message: 'La capacité est obligatoire')]
-    #[Assert\Positive(message: 'La capacité doit être un nombre positif')]
-    #[Assert\LessThanOrEqual(value: 500, message: 'La capacité ne peut pas dépasser 500 membres')]
+    #[Assert\NotBlank(message: 'La capacite est obligatoire')]
+    #[Assert\Positive(message: 'La capacite doit Ãªtre un nombre positif')]
+    #[Assert\LessThanOrEqual(value: 500, message: 'La capacite ne peut pas depasser 500 membres')]
     private ?int $capacity = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
