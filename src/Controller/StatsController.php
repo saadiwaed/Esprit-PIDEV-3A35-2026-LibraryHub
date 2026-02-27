@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Repository\AuthorRepository;
+use App\Repository\BookRepository;
 use App\Enum\PaymentStatus;
 use App\Repository\LoanRepository;
 use App\Repository\PenaltyRepository;
@@ -13,11 +15,101 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class StatsController extends AbstractController
+final class StatsController extends AbstractController
 {
+    /*
+    |--------------------------------------------------------------------------
+    | BOOK & AUTHOR STATS (FRONT + ADMIN)
+    |--------------------------------------------------------------------------
+    */
+
+    #[Route('/stats', name: 'app_stats')]
+    public function index(
+        BookRepository $bookRepository,
+        AuthorRepository $authorRepository
+    ): Response {
+        // BOOK STATS
+        $booksByCategory = $bookRepository->countBooksByCategory();
+        $booksByStatus = $bookRepository->countBooksByStatus();
+
+        // MONTHS
+        $books = $bookRepository->findAllBooksForStats();
+        $months = [];
+
+        foreach ($books as $book) {
+            $date = $book['createdAt'];
+            if ($date instanceof \DateTimeInterface) {
+                $month = $date->format('Y-m');
+                if (!isset($months[$month])) {
+                    $months[$month] = 0;
+                }
+                $months[$month]++;
+            }
+        }
+        ksort($months);
+
+        // AUTHOR STATS
+        $booksByAuthor = $authorRepository->countBooksByAuthor();
+        $authorsByNationality = $authorRepository->countAuthorsByNationality();
+
+        return $this->render('stats/index2.html.twig', [
+            'booksByCategory' => $booksByCategory,
+            'booksByStatus' => $booksByStatus,
+            'monthsLabels' => array_keys($months),
+            'monthsData' => array_values($months),
+            'booksByAuthor' => $booksByAuthor,
+            'authorsByNationality' => $authorsByNationality,
+        ]);
+    }
+
+    #[Route('/stats/admin', name: 'app_stats_admin')]
+    public function index_admin(
+        BookRepository $bookRepository,
+        AuthorRepository $authorRepository
+    ): Response {
+        // BOOK STATS
+        $booksByCategory = $bookRepository->countBooksByCategory();
+        $booksByStatus = $bookRepository->countBooksByStatus();
+
+        // MONTHS
+        $books = $bookRepository->findAllBooksForStats();
+        $months = [];
+
+        foreach ($books as $book) {
+            $date = $book['createdAt'];
+            if ($date instanceof \DateTimeInterface) {
+                $month = $date->format('Y-m');
+                if (!isset($months[$month])) {
+                    $months[$month] = 0;
+                }
+                $months[$month]++;
+            }
+        }
+        ksort($months);
+
+        // AUTHOR STATS
+        $booksByAuthor = $authorRepository->countBooksByAuthor();
+        $authorsByNationality = $authorRepository->countAuthorsByNationality();
+
+        return $this->render('stats/index_admin.html.twig', [
+            'booksByCategory' => $booksByCategory,
+            'booksByStatus' => $booksByStatus,
+            'monthsLabels' => array_keys($months),
+            'monthsData' => array_values($months),
+            'booksByAuthor' => $booksByAuthor,
+            'authorsByNationality' => $authorsByNationality,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAN / RENEWAL / PENALTY STATS (ADMIN + GESTION)
+    |--------------------------------------------------------------------------
+    */
+
     #[Route('/admin/stats', name: 'app_stats_index', methods: ['GET'])]
     #[Route('/gestion/stats', name: 'app_stats_index_alt', methods: ['GET'])]
-    public function index(
+    public function indexLoanStats(
         Request $request,
         LoanRepository $loanRepository,
         RenewalRepository $renewalRepository,
@@ -63,15 +155,6 @@ class StatsController extends AbstractController
 
         $totalRenewals = (int) $renewalRepository->createQueryBuilder('r')
             ->select('COUNT(r.id)')
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        $renewalsThisPeriod = (int) $renewalRepository->createQueryBuilder('r')
-            ->select('COUNT(r.id)')
-            ->andWhere('r.renewedAt >= :from')
-            ->andWhere('r.renewedAt <= :to')
-            ->setParameter('from', ($dateFrom ?: new \DateTimeImmutable('first day of this month 00:00:00'))->setTime(0, 0, 0))
-            ->setParameter('to', ($dateTo ?: new \DateTimeImmutable('last day of this month 23:59:59'))->setTime(23, 59, 59))
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -186,17 +269,7 @@ class StatsController extends AbstractController
             'averageRenewals' => $averageRenewals,
             'mostRenewedLoan' => $mostRenewedLoan,
             'totalRenewals' => $totalRenewals,
-            'renewalsThisPeriod' => $renewalsThisPeriod,
             'totalPenalties' => $totalPenalties,
-            'totalDue' => $totalDue,
-            'totalPaid' => $totalPaid,
-            'totalWaived' => $totalWaived,
-            'averagePenalty' => $averagePenalty,
-            'penaltiesThisPeriod' => $penaltiesThisPeriod,
-            'chartLoansStatusData' => $chartLoansStatusData,
-            'chartLoansMonthlyData' => $chartLoansMonthlyData,
-            'chartPenaltiesMonthlyData' => $chartPenaltiesMonthlyData,
-            'chartPenaltyAmountsData' => $chartPenaltyAmountsData,
             'lastUpdate' => new \DateTimeImmutable(),
         ]);
     }
@@ -267,4 +340,5 @@ class StatsController extends AbstractController
         return $counts;
     }
 }
+
 

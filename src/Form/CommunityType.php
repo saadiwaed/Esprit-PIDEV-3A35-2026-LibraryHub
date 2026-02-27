@@ -84,7 +84,14 @@ class CommunityType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-check-input'],
             ])
-            ->add('status', ChoiceType::class, [
+            ->add('save', SubmitType::class, [
+                'label' => 'Enregistrer',
+                'attr' => ['class' => 'btn btn-primary'],
+            ])
+        ;
+
+        if ($options['allow_status_change']) {
+            $builder->add('status', ChoiceType::class, [
                 'label' => 'Statut',
                 'choices' => CommunityStatus::cases(),
                 'choice_value' => 'value',
@@ -92,18 +99,17 @@ class CommunityType extends AbstractType
                     return $status->getLabel();
                 },
                 'attr' => ['class' => 'form-select'],
-            ])
-            ->add('save', SubmitType::class, [
-                'label' => 'Enregistrer',
-                'attr' => ['class' => 'btn btn-primary'],
-            ])
-        ;
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Community::class,
+            'allow_status_change' => false,
         ]);
+
+        $resolver->setAllowedTypes('allow_status_change', 'bool');
     }
 }

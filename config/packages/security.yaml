@@ -19,6 +19,7 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            user_checker: App\Security\AdminFaceUserChecker
             
             # Form login configuration
             form_login:
@@ -51,6 +52,18 @@ security:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: PUBLIC_ACCESS }
         
+        - { path: ^/admin/face-login, roles: PUBLIC_ACCESS }
+        - { path: ^/assistant, roles: PUBLIC_ACCESS }
+
+        # Forum member actions
+        - { path: ^/forum/communities/new, roles: ROLE_MEMBER }
+        - { path: ^/forum/communities/\d+/posts/new, roles: ROLE_MEMBER }
+        - { path: ^/forum/communities/\d+/(join|leave)$, roles: ROLE_MEMBER }
+        - { path: ^/forum/posts/\d+/comments/new$, roles: ROLE_MEMBER }
+        - { path: ^/forum/posts/\d+/react/(like|dislike)$, roles: ROLE_MEMBER }
+        - { path: ^/forum/posts/\d+/comments/\d+/react/(like|dislike)$, roles: ROLE_MEMBER }
+        - { path: ^/forum/posts/\d+/report$, roles: ROLE_MEMBER }
+
         # User CRUD operations - Admin ONLY
         - { path: ^/user/new, roles: ROLE_ADMIN }
         - { path: ^/user/\d+/edit, roles: ROLE_ADMIN }
@@ -61,6 +74,10 @@ security:
         
         # Role management - Admin ONLY
         - { path: ^/role, roles: ROLE_ADMIN }
+
+        # Community/Post management - Admin and Librarian only
+        - { path: ^/community, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
+        - { path: ^/post, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }
         
         # Admin and Librarian routes (other management features)
         - { path: ^/reading-profile, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }

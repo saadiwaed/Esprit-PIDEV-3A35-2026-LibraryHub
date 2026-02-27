@@ -21,63 +21,72 @@ class RegistrationFormType extends AbstractType
     {
         $builder
             ->add('firstName', TextType::class, [
-                'label' => 'First Name',
+                'label' => 'Prénom',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter your first name'
-                ]
+                    'placeholder' => 'Jean'
+                ],
+                'constraints' => [
+                    new NotBlank(['message' => 'Ce champ est obligatoire.']),
+                ],
             ])
             ->add('lastName', TextType::class, [
-                'label' => 'Last Name',
+                'label' => 'Nom',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter your last name'
-                ]
+                    'placeholder' => 'Dupont'
+                ],
+                'constraints' => [
+                    new NotBlank(['message' => 'Ce champ est obligatoire.']),
+                ],
             ])
             ->add('email', EmailType::class, [
-                'label' => 'Email Address',
+                'label' => 'Adresse e-mail',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'your.email@example.com'
-                ]
+                    'placeholder' => 'email@exemple.com'
+                ],
+                'constraints' => [
+                    new NotBlank(['message' => 'Ce champ est obligatoire.']),
+                ],
             ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
                 'first_options' => [
-                    'label' => 'Password',
+                    'label' => 'Mot de passe',
                     'attr' => [
                         'class' => 'form-control',
                         'autocomplete' => 'new-password',
-                        'placeholder' => 'Enter your password'
+                        'placeholder' => ' '
                     ]
                 ],
                 'second_options' => [
-                    'label' => 'Confirm Password',
+                    'label' => 'Confirmer le mot de passe',
                     'attr' => [
                         'class' => 'form-control',
                         'autocomplete' => 'new-password',
-                        'placeholder' => 'Confirm your password'
+                        'placeholder' => ' '
                     ]
                 ],
-                'invalid_message' => 'The password fields must match.',
+                'invalid_message' => 'Les deux mots de passe ne correspondent pas.',
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Please enter a password',
+                        'message' => 'Veuillez saisir un mot de passe',
                     ]),
                     new Length([
                         'min' => 6,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters',
+                        'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères',
                         'max' => 4096,
                     ]),
                 ],
             ])
             ->add('agreeTerms', CheckboxType::class, [
-                'label' => 'I agree to the terms and conditions',
+                'label' => "J'accepte les conditions d'utilisation",
                 'mapped' => false,
                 'constraints' => [
                     new IsTrue([
-                        'message' => 'You must agree to the terms and conditions.',
+                        'message' => "Vous devez accepter les conditions.",
                     ]),
                 ],
                 'attr' => ['class' => 'form-check-input']

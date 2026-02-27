@@ -1,163 +1,255 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <title>Sign In - LibraryHub</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
-    
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
-    
-    <!-- Plugins CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    
-    <!-- Theme CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Connexion - LibraryHub</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1754cf",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                        "gold-accent": "#D4AF37",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .floating-label-input:focus-within label,
+        .floating-label-input input:not(:placeholder-shown) + label,
+        .floating-label-input input:not([value=""]) + label {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: #1754cf;
+        }
+        .gold-gradient-icon {
+            background: linear-gradient(135deg, #D4AF37 0%, #F9E498 50%, #B8860B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+    </style>
 </head>
-
-<body>
-<main>
-    <section class="p-0 d-flex align-items-center position-relative overflow-hidden">
-        <div class="container-fluid">
-            <div class="row">
-                <!-- Left: Image -->
-                <div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
-                    <div class="p-3 p-lg-5">
-                        <!-- Title -->
-                        <div class="text-center">
-                            <h2 class="fw-bold">Welcome Back!</h2>
-                            <p class="mb-0 h6 fw-light">Sign in to access your library account</p>
-                        </div>
-                        <!-- SVG Image -->
-                        <img src="{{ asset('assets/images/element/02.svg') }}" class="mt-5" alt="">
-                        <!-- Info -->
-                        <div class="d-sm-flex mt-5 align-items-center justify-content-center">
-                            <ul class="avatar-group mb-2 mb-sm-0">
-                                <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar"></li>
-                                <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/02.jpg') }}" alt="avatar"></li>
-                                <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar"></li>
-                                <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/04.jpg') }}" alt="avatar"></li>
-                            </ul>
-                            <p class="mb-0 h6 fw-light ms-0 ms-sm-3">4k+ active members</p>
-                        </div>
+<body class="font-display bg-[#f6f6f8] text-slate-800 min-h-screen overflow-hidden">
+<main class="flex min-h-screen w-full">
+    <!-- Left: Immersive Visual -->
+    <section class="hidden lg:flex lg:w-3/5 relative overflow-hidden group">
+        <div class="absolute inset-0 bg-primary/10 mix-blend-multiply z-10"></div>
+        <img alt="Personne lisant un livre dans une bibliothèque ensoleillée" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9c7i4qUbOvgA4ynjyf3SAnMr88ZQG3udniFnNW8QXapZYQJEzAuSnB7Ffi7cWnyY816EJN8ezpn-zSPrMTod4IxvwfaNf_Olrn5jlM5RtmPseVvgfU-v00_kC-l5EsOWuYDPz61P71ke5X3G8VNMoB8wik0Ao4N-5faNw6EXr703RZr4vGa-ecc4stkP1BAl6Abkx034BsUJNN2MMkwRxdZB5bituTe34A-3ISQRflFIWKLf7iveGMpvPf05cIJq3PujwHJrZclo" />
+        <div class="relative z-20 flex flex-col justify-between p-16 h-full text-white">
+            <div>
+                <a href="{{ path('app_frontoffice') }}" class="inline-flex items-center gap-2 mb-8 no-underline text-white hover:opacity-90 transition-opacity">
+                    <i class="fas fa-book-open text-2xl" style="color: #1754cf;"></i>
+                    <span class="text-2xl font-bold tracking-tight"><span class="text-white">LIBRARY</span><span class="text-amber-300">HUB</span></span>
+                </a>
+                <h1 class="text-6xl font-serif max-w-xl leading-tight">
+                    La collection la plus <br/><span class="italic text-blue-200">distinguée</span> au monde.
+                </h1>
+            </div>
+            <div class="max-w-md">
+                <p class="text-lg text-white/80 font-light leading-relaxed mb-6">
+                    Accédez à plus de 4 millions de manuscrits rares, journaux contemporains et artefacts numériques pour le chercheur moderne.
+                </p>
+                <div class="flex items-center gap-4">
+                    <div class="flex -space-x-3">
+                        <img class="w-10 h-10 rounded-full border-2 border-white/30 object-cover" alt="" src="{{ asset('assets/images/avatar/01.jpg') }}"/>
+                        <img class="w-10 h-10 rounded-full border-2 border-white/30 object-cover" alt="" src="{{ asset('assets/images/avatar/02.jpg') }}"/>
+                        <img class="w-10 h-10 rounded-full border-2 border-white/30 object-cover" alt="" src="{{ asset('assets/images/avatar/03.jpg') }}"/>
                     </div>
+                    <span class="text-sm font-medium">Rejoint par plus de 12 000 chercheurs ce mois-ci</span>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+    </section>
+
+    <!-- Right: Login Form -->
+    <section class="w-full lg:w-2/5 flex flex-col items-center justify-center p-8 bg-[#f6f6f8] relative min-h-screen">
+        <div class="absolute top-20 right-20 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 left-20 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+        <div class="w-full max-w-md z-10">
+            <!-- Login Card -->
+            <div class="glass-effect p-10 rounded-xl shadow-2xl border border-white/40">
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-inner mb-4">
+                        <span class="material-icons-round text-3xl gold-gradient-icon">lock</span>
+                    </div>
+                    <h2 class="text-3xl font-serif font-bold text-slate-900 mb-2">Connexion sécurisée</h2>
+                    <p class="text-slate-500 font-medium">Veuillez entrer vos identifiants pour continuer</p>
                 </div>
 
-                <!-- Right: Login Form -->
-                <div class="col-12 col-lg-6 m-auto">
-                    <div class="row my-5">
-                        <div class="col-sm-10 col-xl-8 m-auto">
-                            <!-- Logo -->
-                            <div class="text-center mb-4">
-                                <a href="{{ path('app_frontoffice') }}" class="text-decoration-none">
-                                    <h1 class="fs-2">
-                                        <i class="fas fa-book-open text-primary me-2"></i>
-                                        LIBRARY<span class="text-warning">HUB</span>
-                                    </h1>
-                                </a>
-                            </div>
-
-                            <!-- Flash messages -->
-                            {% for label, messages in app.flashes %}
-                                {% for message in messages %}
-                                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endfor %}
-
-                            <!-- Error message -->
-                            {% if error %}
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    {{ error.messageKey|trans(error.messageData, 'security') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endif %}
-
-                            <!-- Title -->
-                            <h2 class="mb-2">Sign In</h2>
-                            <p class="mb-0">Don't have an account? <a href="{{ path('app_register') }}">Register here</a></p>
-                            
-                            <!-- Back to home button -->
-                            <div class="mt-2">
-                                <a href="{{ path('app_frontoffice') }}" class="text-muted small">
-                                    <i class="bi bi-arrow-left me-1"></i>Retour à l'accueil
-                                </a>
-                            </div>
-
-                            <!-- Form START -->
-                            <form method="post" class="mt-4">
-                                <!-- Email -->
-                                <div class="mb-3">
-                                    <label for="inputEmail" class="form-label">Email Address</label>
-                                    <input type="email" 
-                                           name="_username" 
-                                           id="inputEmail" 
-                                           class="form-control" 
-                                           value="{{ last_username }}" 
-                                           required 
-                                           placeholder="your.email@example.com">
-                                </div>
-
-                                <!-- Password -->
-                                <div class="mb-3 position-relative">
-                                    <label for="inputPassword" class="form-label">Password</label>
-                                    <input type="password" 
-                                           name="_password" 
-                                           id="inputPassword" 
-                                           class="form-control" 
-                                           required 
-                                           placeholder="Enter your password">
-                                </div>
-
-                                <!-- Remember me -->
-                                <div class="mb-3 d-sm-flex justify-content-between">
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="rememberMe" name="_remember_me">
-                                        <label class="form-check-label" for="rememberMe">Remember me</label>
-                                    </div>
-                                    <a href="#">Forgot password?</a>
-                                </div>
-
-                                <!-- CSRF Token -->
-                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-                                <!-- Button -->
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-                                    </button>
-                                </div>
-
-                                <!-- Divider -->
-                                <div class="position-relative my-4">
-                                    <hr>
-                                    <p class="small bg-body position-absolute top-50 start-50 translate-middle px-2">Or</p>
-                                </div>
-
-                                <!-- Register link -->
-                                <div class="text-center">
-                                    <p class="mb-0">Don't have an account? <a href="{{ path('app_register') }}" class="text-primary-hover">Register</a></p>
-                                </div>
-                            </form>
-                            <!-- Form END -->
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm" role="alert">
+                            {{ message }}
                         </div>
+                    {% endfor %}
+                {% endfor %}
+                {% if error %}
+                    <div class="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm" role="alert">
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
                     </div>
+                {% endif %}
+
+                <form method="post" action="{{ path('app_login') }}" class="space-y-6" id="loginForm" novalidate>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <div class="relative floating-label-input group">
+                        <input type="email"
+                               name="_username"
+                               id="inputEmail"
+                               class="peer w-full px-4 pt-6 pb-2 bg-white/50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                               placeholder=" "
+                               value="{{ last_username }}"
+                               autocomplete="email"
+                               required/>
+                        <label class="absolute left-4 top-4 text-slate-400 pointer-events-none transition-all duration-200 origin-left" for="inputEmail">Adresse e-mail</label>
+                        <span class="material-icons-round absolute right-4 top-4 text-slate-300 group-focus-within:text-primary transition-colors">alternate_email</span>
+                        <div id="inputEmailError" class="mt-1 text-sm text-red-600" style="display: none;"></div>
+                    </div>
+
+                    <div class="relative floating-label-input group">
+                        <input type="password"
+                               name="_password"
+                               id="inputPassword"
+                               class="peer w-full px-4 pt-6 pb-2 bg-white/50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                               placeholder=" "
+                               autocomplete="current-password"
+                               required/>
+                        <label class="absolute left-4 top-4 text-slate-400 pointer-events-none transition-all duration-200 origin-left" for="inputPassword">Mot de passe</label>
+                        <button type="button" class="absolute right-4 top-4 text-slate-300 hover:text-slate-500 transition-colors focus:outline-none" id="togglePassword" aria-label="Afficher le mot de passe">
+                            <span class="material-icons-round text-xl">visibility</span>
+                        </button>
+                        <div id="inputPasswordError" class="mt-1 text-sm text-red-600" style="display: none;"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-sm">
+                        <label class="flex items-center cursor-pointer group">
+                            <input type="checkbox" name="_remember_me" class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 bg-white transition-colors"/>
+                            <span class="ml-2 text-slate-600 group-hover:text-slate-900 transition-colors">Se souvenir de moi</span>
+                        </label>
+                        <a class="text-primary font-semibold hover:underline decoration-2 underline-offset-4" href="#">Mot de passe oublié ?</a>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg shadow-lg transition-all transform active:scale-[0.98]">
+                        Se connecter à la bibliothèque
+                    </button>
+                </form>
+
+                <div class="relative my-8 text-center">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-slate-200"></div>
+                    </div>
+                    <span class="relative px-4 bg-transparent text-xs font-bold uppercase tracking-widest text-slate-400">Accès administrateur</span>
                 </div>
+                <a href="{{ path('admin_face_login_page') }}" class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-slate-900 text-white rounded-lg font-bold hover:bg-slate-800 transition-all shadow-md group no-underline">
+                    <span class="material-icons-round text-primary group-hover:scale-110 transition-transform">face_retouching_natural</span>
+                    Connexion administrateur par reconnaissance faciale
+                </a>
+            </div>
+
+            <!-- Footer Links -->
+            <div class="mt-8 text-center">
+                <p class="text-slate-500">
+                    Nouveau sur la plateforme ?
+                    <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4 ml-1" href="{{ path('app_register') }}">S'inscrire</a>
+                </p>
+                <div class="mt-12 flex items-center justify-center gap-6">
+                    <a class="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors" href="#">Mentions légales</a>
+                    <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                    <a class="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors" href="#">Confidentialité</a>
+                    <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                    <a class="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors" href="#">Support</a>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-8 right-8 hidden xl:block">
+            <div class="flex items-center gap-2 text-slate-300 font-serif italic text-sm">
+                <span>LibraryHub</span>
             </div>
         </div>
     </section>
 </main>
 
-<!-- Bootstrap JS -->
-<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/js/functions.js') }}"></script>
+<script>
+(function() {
+    var form = document.getElementById('loginForm');
+    var emailInput = document.getElementById('inputEmail');
+    var passwordInput = document.getElementById('inputPassword');
+    var emailError = document.getElementById('inputEmailError');
+    var passwordError = document.getElementById('inputPasswordError');
+    var toggleBtn = document.getElementById('togglePassword');
+
+    function showError(inputEl, errorEl, message) {
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+        inputEl.classList.add('border-red-500');
+    }
+    function clearError(inputEl, errorEl) {
+        errorEl.textContent = '';
+        errorEl.style.display = 'none';
+        inputEl.classList.remove('border-red-500');
+    }
+    function isEmailValid(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+    }
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            toggleBtn.querySelector('.material-icons-round').textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+    }
+
+    form.addEventListener('submit', function(e) {
+        var ok = true;
+        clearError(emailInput, emailError);
+        clearError(passwordInput, passwordError);
+        var email = (emailInput.value || '').trim();
+        if (email === '') {
+            showError(emailInput, emailError, 'Ce champ est obligatoire.');
+            ok = false;
+        } else if (!isEmailValid(email)) {
+            showError(emailInput, emailError, 'Veuillez saisir une adresse e-mail valide.');
+            ok = false;
+        }
+        var password = (passwordInput.value || '');
+        if (password === '') {
+            showError(passwordInput, passwordError, 'Ce champ est obligatoire.');
+            ok = false;
+        }
+        if (!ok) e.preventDefault();
+    });
+    emailInput.addEventListener('input', function() { clearError(emailInput, emailError); });
+    passwordInput.addEventListener('input', function() { clearError(passwordInput, passwordError); });
+})();
+</script>
 </body>
 </html>

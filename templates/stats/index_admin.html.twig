@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Statistics{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5">
+
+    <h1 class="mb-4 text-center fw-bold">📊 Tableau de Bord - Bibliothèque</h1>
+
+    <div class="row">
+    <!-- AUTHOR CHARTS -->
+<div class="row">
+
+    <!-- TOP AUTHORS -->
+    <div class="col-md-6 mb-5">
+        <div class="card shadow-lg p-4">
+                <h4 class="text-center">Top Auteurs</h4>
+            <canvas id="authorChart"></canvas>
+        </div>
+    </div>
+
+    <!-- NATIONALITY -->
+    <div class="col-md-6 mb-5">
+        <div class="card shadow-lg p-4">
+                <h4 class="text-center">Auteurs par Nationalité</h4>
+            <canvas id="nationalityChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+
+        <!-- BAR CHART -->
+        <div class="col-md-6 mb-5">
+            <div class="card shadow-lg p-3">
+                <h4 class="text-center">Livres par Catégorie</h4>
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- PIE CHART -->
+        <div class="col-md-6 mb-5">
+            <div class="card shadow-lg p-3">
+                <h4 class="text-center">Statut des Livres</h4>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- LINE CHART -->
+        <div class="col-12 mb-5">
+            <div class="card shadow-lg p-4">
+                <h4 class="text-center">Livres ajoutés par mois</h4>
+                <canvas id="monthChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ChartJS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* ================= BAR CHART ================= */
+const categoryLabels = {{ booksByCategory|map(b => b.category)|json_encode|raw }};
+const categoryData   = {{ booksByCategory|map(b => b.total)|json_encode|raw }};
+
+new Chart(document.getElementById('categoryChart'), {
+    type: 'bar',
+    data: {
+        labels: categoryLabels,
+        datasets: [{
+            label: 'Books',
+            data: categoryData,
+            backgroundColor: '#4e73df',
+            borderRadius: 8
+        }]
+    },
+    options: {
+        plugins: { legend: { display:false } },
+        scales: { y: { beginAtZero:true } }
+    }
+});
+
+/* ================= PIE CHART ================= */
+const statusLabels = {{ booksByStatus|map(b => b.status)|json_encode|raw }};
+const statusData   = {{ booksByStatus|map(b => b.total)|json_encode|raw }};
+
+new Chart(document.getElementById('statusChart'), {
+    type: 'pie',
+    data: {
+        labels: statusLabels,
+        datasets: [{
+            data: statusData,
+            backgroundColor: [
+                '#1cc88a',
+                '#e74a3b',
+                '#f6c23e',
+                '#36b9cc'
+            ]
+        }]
+    }
+});
+
+/* ================= LINE CHART ================= */
+/* ================= LINE CHART ================= */
+const monthLabels = {{ monthsLabels|json_encode|raw }};
+const monthData   = {{ monthsData|json_encode|raw }};
+
+new Chart(document.getElementById('monthChart'), {
+    type: 'line',
+    data: {
+        labels: monthLabels,
+        datasets: [{
+            label: 'Books Added',
+            data: monthData,
+            borderColor: '#6610f2',
+            backgroundColor: 'rgba(102,16,242,0.15)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: '#6610f2'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+/* ================= AUTHORS BAR ================= */
+const authorLabels = {{ booksByAuthor|map(a => a.author)|json_encode|raw }};
+const authorData   = {{ booksByAuthor|map(a => a.total)|json_encode|raw }};
+
+new Chart(document.getElementById('authorChart'), {
+    type: 'bar',
+    data: {
+        labels: authorLabels,
+        datasets: [{
+            label: 'Books written',
+            data: authorData,
+            backgroundColor: '#fd7e14',
+            borderRadius: 8
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        scales: {
+            x: { beginAtZero: true }
+        }
+    }
+});
+
+/* ================= NATIONALITY PIE ================= */
+const natLabels = {{ authorsByNationality|map(a => a.nationality)|json_encode|raw }};
+const natData   = {{ authorsByNationality|map(a => a.total)|json_encode|raw }};
+
+new Chart(document.getElementById('nationalityChart'), {
+    type: 'doughnut',
+    data: {
+        labels: natLabels,
+        datasets: [{
+            data: natData,
+            backgroundColor: [
+                '#20c997',
+                '#0dcaf0',
+                '#ffc107',
+                '#dc3545',
+                '#6f42c1',
+                '#198754'
+            ]
+        }]
+    }
+});
+
+</script>
+
+{% endblock %}

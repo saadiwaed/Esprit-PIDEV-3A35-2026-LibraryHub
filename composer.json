@@ -11,11 +11,14 @@
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
+        "dompdf/dompdf": "^3.1",
         "endroid/qr-code": "5.0",
         "knplabs/knp-paginator-bundle": "*",
         "knplabs/knp-snappy-bundle": "^1.10",
+        "knplabs/knp-time-bundle": "*",
         "phpdocumentor/reflection-docblock": "5.3.0",
         "phpstan/phpdoc-parser": "^2.3",
+        "stripe/stripe-php": "*",
         "symfony/asset": "6.4.*",
         "symfony/asset-mapper": "6.4.*",
         "symfony/console": "6.4.*",
@@ -49,7 +52,8 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/string-extra": "^3.23",
         "twig/twig": "^2.12|^3.0",
-        "vich/uploader-bundle": "^2.9"
+        "vich/uploader-bundle": "^2.9",
+        "yippy/toast-ui-editor-bundle": "^1.0"
     },
     "config": {
         "allow-plugins": {

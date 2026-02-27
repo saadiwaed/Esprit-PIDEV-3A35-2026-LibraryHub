@@ -23,7 +23,9 @@ class CommunityRepository extends ServiceEntityRepository
      */
     public function findForAdmin(?string $search = null, string $sort = 'newest'): array
     {
-        $qb = $this->createQueryBuilder('c');
+        $qb = $this->createQueryBuilder('c')
+            ->leftJoin('c.createdBy', 'creator')
+            ->addSelect('creator');
 
         $this->applySearch($qb, $search);
         $this->applySort($qb, $sort);
@@ -45,6 +47,8 @@ class CommunityRepository extends ServiceEntityRepository
     public function findPublicApprovedByFilters(?string $search = null, string $sort = 'newest'): array
     {
         $qb = $this->createQueryBuilder('c')
+            ->leftJoin('c.createdBy', 'creator')
+            ->addSelect('creator')
             ->andWhere('c.isPublic = :isPublic')
             ->andWhere('c.status = :status')
             ->setParameter('isPublic', true)

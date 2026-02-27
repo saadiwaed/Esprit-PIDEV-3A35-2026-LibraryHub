@@ -135,12 +135,22 @@ class Community
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdCommunities')]
+    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?User $createdBy = null;
+
+    /** @var Collection<int, User> */
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'communities')]
+    #[ORM\JoinTable(name: 'community_members')]
+    private Collection $members;
+
     /** @var Collection<int, Post> */
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'community', cascade: ['remove'])]
     private Collection $posts;
 
     public function __construct()
     {
+        $this->members = new ArrayCollection();
         $this->posts = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
@@ -340,6 +350,47 @@ class Community
     {
         $this->createdAt = $createdAt;
         return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): self
+    {
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    /** @return Collection<int, User> */
+    public function getMembers(): Collection
+    {
+        return $this->members;
+    }
+
+    public function addMember(User $member): self
+    {
+        if (!$this->members->contains($member)) {
+            $this->members->add($member);
+            $this->memberCount = $this->members->count();
+        }
+
+        return $this;
+    }
+
+    public function removeMember(User $member): self
+    {
+        if ($this->members->removeElement($member)) {
+            $this->memberCount = $this->members->count();
+        }
+
+        return $this;
+    }
+
+    public function hasMember(User $member): bool
+    {
+        return $this->members->contains($member);
     }
 
     /** @return Collection<int, Post> */

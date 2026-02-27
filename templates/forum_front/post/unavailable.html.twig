@@ -1,0 +1,85 @@
+{% extends 'forum_front/layout.html.twig' %}
+
+{% block title %}Post indisponible - Forum{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .post-unavailable-v1 .status-panel {
+            max-width: 760px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .post-unavailable-v1 .status-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #0d6efd;
+            background: #ecf4ff;
+            border: 1px solid #d8e7fb;
+        }
+
+        .post-unavailable-v1 .status-message {
+            color: #5f7388;
+            max-width: 58ch;
+            margin: 0 auto;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<section class="forum-ui-page post-unavailable-v1">
+    <div class="container forum-ui-section">
+        {% for label in ['success', 'warning', 'error'] %}
+            {% for message in app.flashes(label) %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <article class="forum-ui-surface status-panel p-4 p-md-5">
+            <div class="status-icon">
+                <i class="bi bi-eye-slash"></i>
+            </div>
+            <h1 class="forum-ui-title h3 mb-2">Ce post n est plus disponible</h1>
+            <p class="status-message mb-0">
+                Le contenu a peut-etre ete masque par moderation, supprime ou rendu inaccessible.
+            </p>
+
+            {% if post and post.title %}
+                <div class="forum-ui-chip mt-3">
+                    <i class="bi bi-file-earmark-text"></i>{{ post.title }}
+                </div>
+            {% endif %}
+
+            <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
+                <a
+                    href="{{ canNavigateToCommunity and community ? path('app_front_community_show', {'id': community.id}) : path('app_front_community_index') }}"
+                    class="btn btn-light forum-ui-btn"
+                    onclick="if (window.history.length > 1) { window.history.back(); return false; } return true;"
+                >
+                    <i class="bi bi-arrow-left me-1"></i>Page precedente
+                </a>
+
+                {% if canNavigateToCommunity and community %}
+                    <a href="{{ path('app_front_community_show', {'id': community.id}) }}" class="btn btn-outline-primary forum-ui-btn">
+                        <i class="bi bi-people me-1"></i>Retour a {{ community.name }}
+                    </a>
+                {% endif %}
+
+                <a href="{{ path('app_front_community_index') }}" class="btn btn-primary forum-ui-btn">
+                    <i class="bi bi-grid me-1"></i>Voir les communautes
+                </a>
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}

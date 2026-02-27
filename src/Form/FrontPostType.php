@@ -7,13 +7,13 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
+use Yippy\ToastUiEditorBundle\Form\Type\ToastUiEditorType;
 
 class FrontPostType extends AbstractType
 {
@@ -27,12 +27,25 @@ class FrontPostType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
-            ->add('content', TextareaType::class, [
+            ->add('content', ToastUiEditorType::class, [
                 'label' => 'Contenu',
+                'jquery' => [
+                    'enable' => false,
+                ],
+                'editor' => [
+                    'options' => [
+                        'initial_edit_type' => 'wysiwyg',
+                        'preview_style' => 'tab',
+                    ],
+                ],
+                'extensions' => [
+                    'codeSyntaxHighlight' => [],
+                    'tableMergedCell' => [],
+                ],
                 'attr' => [
                     'placeholder' => 'Partagez votre message avec la communaute',
-                    'class' => 'form-control',
-                    'rows' => 7,
+                    'class' => 'form-control forum-markdown-source',
+                    'rows' => 10,
                 ],
             ])
             ->add('externalUrl', UrlType::class, [

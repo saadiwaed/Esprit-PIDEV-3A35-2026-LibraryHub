@@ -1,36 +1,78 @@
-﻿{% extends 'forum_front/layout.html.twig' %}
+{% extends 'forum_front/layout.html.twig' %}
 
 {% block title %}Nouveau post - {{ community.name }}{% endblock %}
 
 {% block body %}
-<section class="py-5">
-    <div class="container">
+<section class="forum-ui-page">
+    <div class="container forum-ui-section">
         <div class="row justify-content-center">
-            <div class="col-lg-9 col-xl-8">
-                <a href="{{ path('app_front_community_show', {'id': community.id}) }}" class="text-decoration-none small">&larr; Retour a {{ community.name }}</a>
-                <h1 class="h3 mt-2 mb-1">Creer un post</h1>
-                <p class="text-muted mb-4">Vous publiez dans la communaute <strong>{{ community.name }}</strong>.</p>
-
-                {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
-                <div class="card border shadow-sm">
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-12">{{ form_row(form.title) }}</div>
-                            <div class="col-12">{{ form_row(form.content) }}</div>
-                            <div class="col-12">{{ form_row(form.externalUrl) }}</div>
-                            <div class="col-12">{{ form_row(form.attachmentFiles) }}</div>
-                            <div class="col-md-6">{{ form_row(form.spoilerWarning) }}</div>
-                            <div class="col-md-6">{{ form_row(form.allowComments) }}</div>
-                        </div>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between">
-                        <a href="{{ path('app_front_community_show', {'id': community.id}) }}" class="btn btn-light">Annuler</a>
-                        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+            <div class="col-xl-10">
+                <div class="forum-ui-hero mb-4">
+                    <a href="{{ path('app_front_community_show', {'id': community.id}) }}" class="forum-ui-back-link mb-2"><i class="bi bi-arrow-left"></i> Retour a {{ community.name }}</a>
+                    <h1 class="forum-ui-title h3 mb-2">Creer un post</h1>
+                    <p class="forum-ui-subtitle">Vous publiez dans la communaute <strong>{{ community.name }}</strong>. Structurez votre idee pour faciliter la discussion.</p>
+                    <div class="forum-ui-chip-row mt-3">
+                        <span class="forum-ui-chip"><i class="bi bi-chat-square-text"></i>Discussion publique</span>
+                        <span class="forum-ui-chip"><i class="bi bi-paperclip"></i>Pieces jointes autorisees</span>
                     </div>
                 </div>
-                {{ form_end(form) }}
+
+                <div class="row g-4 align-items-start">
+                    <div class="col-lg-8">
+                        {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+                        <div class="forum-ui-surface forum-ui-form-shell">
+                            <div
+                                class="alert alert-info py-2 mb-3"
+                                data-forum-ai-post
+                                data-endpoint="{{ path('app_forum_ai_post_draft') }}"
+                                data-title-id="{{ form.title.vars.id }}"
+                                data-content-id="{{ form.content.vars.id }}"
+                                data-community-id=""
+                            >
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <span><i class="bi bi-stars me-1"></i>Assistant IA: reformulation et structuration de votre brouillon.</span>
+                                    <button type="button" class="btn btn-sm btn-outline-primary forum-ui-btn" data-ai-action="post-generate">
+                                        Ameliorer avec IA
+                                    </button>
+                                </div>
+                                <div class="small mt-2 text-muted" data-ai-status></div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12">{{ form_row(form.title) }}</div>
+                                <div class="col-12">{{ form_row(form.content) }}</div>
+                                <div class="col-12">{{ form_row(form.externalUrl) }}</div>
+                                <div class="col-12">{{ form_row(form.attachmentFiles) }}</div>
+                                <div class="col-md-6">{{ form_row(form.spoilerWarning) }}</div>
+                                <div class="col-md-6">{{ form_row(form.allowComments) }}</div>
+                            </div>
+                            <div class="d-flex justify-content-between pt-3 mt-3 border-top">
+                                <a href="{{ path('app_front_community_show', {'id': community.id}) }}" class="btn btn-light forum-ui-btn">Annuler</a>
+                                {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary forum-ui-btn'}}) }}
+                            </div>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                    <div class="col-lg-4">
+                        <aside class="forum-ui-card p-3">
+                            <h2 class="h5 forum-ui-title mb-3">Avant de publier</h2>
+                            <ul class="list-unstyled mb-0 text-muted">
+                                <li class="mb-2"><i class="bi bi-lightbulb text-primary me-1"></i>Donnez un titre precis.</li>
+                                <li class="mb-2"><i class="bi bi-lightbulb text-primary me-1"></i>Structurez le contenu en paragraphes courts.</li>
+                                <li class="mb-2"><i class="bi bi-lightbulb text-primary me-1"></i>Utilisez la barre d'outils pour mettre en forme le contenu.</li>
+                                <li class="mb-2"><i class="bi bi-stars text-primary me-1"></i>Utilisez l assistant IA pour reformuler et structurer votre brouillon.</li>
+                                <li class="mb-2"><i class="bi bi-lightbulb text-primary me-1"></i>Ajoutez un lien externe seulement si utile.</li>
+                                <li class="mb-0"><i class="bi bi-lightbulb text-primary me-1"></i>Activez ou non les commentaires selon le type de post.</li>
+                            </ul>
+                        </aside>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/forum-ai-assistant.js') }}?v=20260223-5"></script>
 {% endblock %}

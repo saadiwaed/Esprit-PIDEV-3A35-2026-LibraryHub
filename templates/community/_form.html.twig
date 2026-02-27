@@ -1,6 +1,25 @@
 ﻿{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+{% set cancelPath = cancel_path|default(path('app_community_index')) %}
 <div class="card shadow-sm">
     <div class="card-body">
+        <div
+            class="alert alert-info py-2 mb-3"
+            data-forum-ai-community
+            data-endpoint="{{ path('app_forum_ai_community_draft') }}"
+            data-name-id="{{ form.name.vars.id }}"
+            data-purpose-id="{{ form.purpose.vars.id }}"
+            data-description-id="{{ form.description.vars.id }}"
+            data-rules-id="{{ form.rules.vars.id }}"
+            data-welcome-id="{{ form.welcomeMessage.vars.id }}"
+        >
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span><i class="bi bi-stars me-1"></i>Assistant IA: generer objectif, description, regles et message de bienvenue.</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-ai-action="community-generate">
+                    Generer avec IA
+                </button>
+            </div>
+            <div class="small mt-2 text-muted" data-ai-status></div>
+        </div>
         <div class="row g-3">
             <div class="col-md-6">
                 {{ form_label(form.name) }}
@@ -81,14 +100,16 @@
                     Apercu: <i id="{{ iconPreviewId }}" class="{{ currentIcon }} me-1"></i><code id="{{ iconCodeId }}">{{ currentIcon }}</code>
                 </small>
             </div>
-            <div class="col-md-6">{{ form_row(form.status) }}</div>
+            {% if form.status is defined %}
+                <div class="col-md-6">{{ form_row(form.status) }}</div>
+            {% endif %}
             <div class="col-12">{{ form_row(form.rules) }}</div>
             <div class="col-12">{{ form_row(form.welcomeMessage) }}</div>
             <div class="col-12">{{ form_row(form.isPublic) }}</div>
         </div>
     </div>
     <div class="card-footer d-flex justify-content-between">
-        <a href="{{ path('app_community_index') }}" class="btn btn-light">Annuler</a>
+        <a href="{{ cancelPath }}" class="btn btn-light">Annuler</a>
         {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
     </div>
 </div>
