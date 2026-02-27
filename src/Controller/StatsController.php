@@ -50,7 +50,7 @@ class StatsController extends AbstractController
         $mostBorrowed = $loanRepository->getMostBorrowedBookCopy($dateFrom, $dateTo);
         $topMembers = $loanRepository->getTopMembersByLoans(5, $dateFrom, $dateTo);
 
-        $periodLabel = ($dateFrom || $dateTo) ? 'Prêts sur la période' : 'Prêts ce mois';
+        $periodLabel = ($dateFrom || $dateTo) ? 'PrÃªts sur la periode' : 'PrÃªts ce mois';
         $periodCount = ($dateFrom || $dateTo)
             ? $loanRepository->countLoansBetween($dateFrom, $dateTo)
             : $loanRepository->countLoansBetween(
@@ -150,7 +150,7 @@ class StatsController extends AbstractController
         $chartLoansMonthlyData = [
             'labels' => $monthLabels,
             'datasets' => [[
-                'label' => 'Nombre de prêts',
+                'label' => 'Nombre de prÃªts',
                 'data' => $loanMonthlyData,
                 'backgroundColor' => '#0d6efd',
             ]],
@@ -159,7 +159,7 @@ class StatsController extends AbstractController
         $chartPenaltiesMonthlyData = [
             'labels' => $penaltyMonthLabels,
             'datasets' => [[
-                'label' => 'Amendes émises',
+                'label' => 'Amendes emises',
                 'data' => $penaltyMonthlyData,
                 'borderColor' => '#dc3545',
                 'backgroundColor' => 'rgba(220,53,69,0.2)',
@@ -168,7 +168,7 @@ class StatsController extends AbstractController
         ];
 
         $chartPenaltyAmountsData = [
-            'labels' => ['Payé', 'Impayé/Partiel', 'Annulé'],
+            'labels' => ['Paye', 'Impaye/Partiel', 'Annule'],
             'datasets' => [[
                 'data' => [$totalPaid, $totalDue, $totalWaived],
                 'backgroundColor' => ['#198754', '#ffc107', '#6c757d'],
@@ -267,3 +267,4 @@ class StatsController extends AbstractController
         return $counts;
     }
 }
+

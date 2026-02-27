@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Loan;
 use App\Entity\Penalty;
+use App\Entity\User;
 use App\Enum\PaymentStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -50,6 +51,36 @@ class PenaltyRepository extends ServiceEntityRepository
             ->where('p.loan = :loanId')
             ->setParameter('loanId', $loanId)
             ->orderBy('p.issueDate', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Penalty[]
+     */
+    public function findForMember(User $member, int $limit = 200): array
+    {
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.loan', 'l')
+            ->addSelect('l')
+            ->andWhere('l.member = :member')
+            ->setParameter('member', $member)
+            ->addSelect(
+                'CASE
+                    WHEN p.status = :statusUnpaid THEN 0
+                    WHEN p.status = :statusPartial THEN 1
+                    WHEN p.status = :statusPaid THEN 2
+                    ELSE 3
+                END AS HIDDEN penaltyStatusPriority'
+            )
+            ->setParameter('statusUnpaid', PaymentStatus::UNPAID)
+            ->setParameter('statusPartial', PaymentStatus::PARTIAL)
+            ->setParameter('statusPaid', PaymentStatus::PAID)
+            ->orderBy('penaltyStatusPriority', 'ASC')
+            ->addOrderBy('p.waived', 'ASC')
+            ->addOrderBy('p.issueDate', 'DESC')
+            ->addOrderBy('p.id', 'DESC')
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }

@@ -14,11 +14,11 @@ enum ChallengeType: string
     {
         return match($this) {
             self::READING => 'Lecture',
-            self::WRITING => 'Écriture',
+            self::WRITING => 'Ecriture',
             self::REVIEW => 'Critique',
             self::ATTENDANCE => 'Participation',
-            self::COMMUNITY => 'Communauté',
-            self::CREATIVE => 'Créatif',
+            self::COMMUNITY => 'Communaute',
+            self::CREATIVE => 'Creatif',
         };
     }
     

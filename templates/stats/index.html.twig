@@ -9,7 +9,7 @@
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
             <div>
                 <h2 class="mb-1"><i class="bi bi-graph-up"></i> Statistiques Globales</h2>
-                <div class="text-muted">Dernière mise à jour : {{ lastUpdate|date('d/m/Y H:i') }}</div>
+                <div class="text-muted">Derniere mise Ã  jour : {{ lastUpdate|date('d/m/Y H:i') }}</div>
             </div>
             <div class="card shadow-sm">
                 <div class="card-body py-2">
@@ -25,7 +25,7 @@
                             <button class="btn btn-primary">Filtrer</button>
                         </div>
                         <div>
-                            <a href="{{ path('app_stats_index') }}" class="btn btn-outline-secondary">Réinitialiser</a>
+                            <a href="{{ path('app_stats_index') }}" class="btn btn-outline-secondary">Reinitialiser</a>
                         </div>
                     </div>
                     {{ form_end(filterForm) }}
@@ -38,7 +38,7 @@
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="text-muted">Total des prêts</div>
+                            <div class="text-muted">Total des prets</div>
                             <i class="bi bi-book fs-4 text-primary"></i>
                         </div>
                         <div class="display-6 fw-semibold">{{ loanCounts.total }}</div>
@@ -49,7 +49,7 @@
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="text-muted">Prêts actifs</div>
+                            <div class="text-muted">Prets actifs</div>
                             <i class="bi bi-hourglass-split fs-4 text-primary"></i>
                         </div>
                         <div class="display-6 fw-semibold">{{ loanCounts.active }}</div>
@@ -60,7 +60,7 @@
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="text-muted">Prêts en retard</div>
+                            <div class="text-muted">Prets en retard</div>
                             <i class="bi bi-exclamation-triangle fs-4 text-warning"></i>
                         </div>
                         <div class="display-6 fw-semibold">{{ loanCounts.overdue }}</div>
@@ -71,7 +71,7 @@
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="text-muted">Prêts rendus</div>
+                            <div class="text-muted">Prets rendus</div>
                             <i class="bi bi-check-circle fs-4 text-success"></i>
                         </div>
                         <div class="display-6 fw-semibold">{{ loanCounts.returned }}</div>
@@ -84,7 +84,7 @@
             <div class="col-12 col-lg-6">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-pie-chart me-2"></i>Répartition des prêts</h5>
+                        <h5 class="card-title"><i class="bi bi-pie-chart me-2"></i>Repartition des prets</h5>
                         <div class="chart-box">
                             <canvas id="chart-loans-status"></canvas>
                         </div>
@@ -94,7 +94,7 @@
             <div class="col-12 col-lg-6">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>Prêts par mois</h5>
+                        <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>Prets par mois</h5>
                         <div class="chart-box">
                             <canvas id="chart-loans-monthly"></canvas>
                         </div>
@@ -114,21 +114,21 @@
                                 <div class="fs-4 fw-semibold">{{ totalRenewals }}</div>
                             </div>
                             <div class="col-6">
-                                <div class="text-muted">Ce mois / période</div>
+                                <div class="text-muted">Ce mois / periode</div>
                                 <div class="fs-4 fw-semibold">{{ renewalsThisPeriod }}</div>
                             </div>
                             <div class="col-12">
-                                <div class="text-muted">Moyenne par prêt</div>
+                                <div class="text-muted">Moyenne par prÃªt</div>
                                 <div class="fs-4 fw-semibold">{{ averageRenewals|number_format(2, ',', ' ') }}</div>
                             </div>
                             <div class="col-12">
-                                <div class="text-muted">Prêt le plus renouvelé</div>
+                                <div class="text-muted">PrÃªt le plus renouvele</div>
                                 {% if mostRenewedLoan %}
                                     <div class="fw-semibold">
                                         #{{ mostRenewedLoan.id }} - {{ mostRenewedLoan.member.fullName }} ({{ mostRenewedLoan.renewalCount }} renouv.)
                                     </div>
                                 {% else %}
-                                    <div class="text-muted">Aucun prêt renouvelé.</div>
+                                    <div class="text-muted">Aucun prÃªt renouvele.</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -145,24 +145,24 @@
                                 <div class="fs-4 fw-semibold">{{ totalPenalties }}</div>
                             </div>
                             <div class="col-6">
-                                <div class="text-muted">Ce mois / période</div>
+                                <div class="text-muted">Ce mois / periode</div>
                                 <div class="fs-4 fw-semibold">{{ penaltiesThisPeriod }}</div>
                             </div>
                             <div class="col-6">
-                                <div class="text-muted">Montant impayé</div>
-                                <div class="fs-4 fw-semibold">{{ totalDue|number_format(2, ',', ' ') }} €</div>
+                                <div class="text-muted">Montant impaye</div>
+                                <div class="fs-4 fw-semibold">{{ totalDue|number_format(2, ',', ' ') }} â‚¬</div>
                             </div>
                             <div class="col-6">
-                                <div class="text-muted">Montant payé</div>
-                                <div class="fs-4 fw-semibold">{{ totalPaid|number_format(2, ',', ' ') }} €</div>
+                                <div class="text-muted">Montant paye</div>
+                                <div class="fs-4 fw-semibold">{{ totalPaid|number_format(2, ',', ' ') }} â‚¬</div>
                             </div>
                             <div class="col-6">
-                                <div class="text-muted">Montant annulé</div>
-                                <div class="fs-4 fw-semibold">{{ totalWaived|number_format(2, ',', ' ') }} €</div>
+                                <div class="text-muted">Montant annule</div>
+                                <div class="fs-4 fw-semibold">{{ totalWaived|number_format(2, ',', ' ') }} â‚¬</div>
                             </div>
                             <div class="col-6">
                                 <div class="text-muted">Montant moyen</div>
-                                <div class="fs-4 fw-semibold">{{ averagePenalty|number_format(2, ',', ' ') }} €</div>
+                                <div class="fs-4 fw-semibold">{{ averagePenalty|number_format(2, ',', ' ') }} â‚¬</div>
                             </div>
                         </div>
                         <div class="mt-3 chart-box">
@@ -177,7 +177,7 @@
             <div class="col-12 col-lg-7">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-graph-up-arrow me-2"></i>Évolution des amendes</h5>
+                        <h5 class="card-title"><i class="bi bi-graph-up-arrow me-2"></i>Evolution des amendes</h5>
                         <div class="chart-box">
                             <canvas id="chart-penalties-monthly"></canvas>
                         </div>
@@ -187,21 +187,21 @@
             <div class="col-12 col-lg-5">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-info-circle me-2"></i>Indicateurs prêts</h5>
+                        <h5 class="card-title"><i class="bi bi-info-circle me-2"></i>Indicateurs prets</h5>
                         <div class="mb-3">
                             <div class="text-muted">{{ periodLabel }}</div>
                             <div class="fs-4 fw-semibold">{{ periodCount }}</div>
                         </div>
                         <div class="mb-3">
-                            <div class="text-muted">Durée moyenne (jours)</div>
+                            <div class="text-muted">Duree moyenne (jours)</div>
                             <div class="fs-4 fw-semibold">{{ averageDuration|number_format(1, ',', ' ') }}</div>
                         </div>
                         <div class="mb-3">
-                            <div class="text-muted">Livre le plus emprunté</div>
+                            <div class="text-muted">Livre le plus emprunte</div>
                             {% if mostBorrowed %}
-                                <div class="fw-semibold">Exemplaire #{{ mostBorrowed.bookCopyId }} ({{ mostBorrowed.loanCount }} prêts)</div>
+                                <div class="fw-semibold">Exemplaire #{{ mostBorrowed.bookCopyId }} ({{ mostBorrowed.loanCount }} prets)</div>
                             {% else %}
-                                <div class="text-muted">Aucune donnée disponible.</div>
+                                <div class="text-muted">Aucune donnee disponible.</div>
                             {% endif %}
                         </div>
                         <div>
@@ -216,7 +216,7 @@
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                                <div class="text-muted">Aucune donnée disponible.</div>
+                                <div class="text-muted">Aucune donnee disponible.</div>
                             {% endif %}
                         </div>
                     </div>
@@ -288,3 +288,4 @@
         }
     </style>
 {% endblock %}
+

@@ -131,18 +131,29 @@
                         </a>
                     </li>
 
-                    <!-- Nav item 3 -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_event_discover') }}">
-                            <i class="bi bi-calendar-event me-1"></i>Mes Événements
+                                        <!-- Nav item 3 - Clubs et Événements combinés -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-people-fill me-1"></i>Mes Clubs & Événements
                         </a>
-                    </li>
-
-                    <!-- Nav item 4 -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_club_discover') }}">
-                            <i class="bi bi-people-fill me-1"></i>Clubs de Lecture
-                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_club_discover') }}">
+                                    <i class="bi bi-people-fill me-2"></i>Clubs de Lecture
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_event_discover') }}">
+                                    <i class="bi bi-calendar-event me-2"></i>Mes Événements
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_recommendations') }}">
+                                    <i class="bi bi-star-fill me-2 text-warning"></i>Recommandations
+                                </a>
+                            </li>
+                        </ul>
                     </li>
 
                     <!-- Nav item 5 -->

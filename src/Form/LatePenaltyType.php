@@ -54,3 +54,4 @@ class LatePenaltyType extends AbstractType
         ]);
     }
 }
+

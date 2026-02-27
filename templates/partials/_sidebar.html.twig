@@ -53,11 +53,45 @@
 
             {# Accueil #}
             <div class="nav-item">
-                <a href="{{ path('app_frontoffice') }}" class="nav-link d-flex align-items-center gap-2 px-3 py-3 text-white-50" style="text-decoration: none;">
+                <a href="{{ path('member_home') }}" class="nav-link d-flex align-items-center gap-2 px-3 py-3 text-white-50" style="text-decoration: none;">
                     <i class="bi bi-house-door"></i>
                     <span>Accueil</span>
                 </a>
             </div>
+
+            <div class="nav-item">
+                <a
+                    href="{{ path('member_home') }}#loanRequestModal"
+                    class="nav-link d-flex align-items-center gap-2 px-3 py-3 text-white-50"
+                    style="text-decoration: none;"
+                    data-bs-toggle="modal"
+                    data-bs-target="#loanRequestModal"
+                >
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Demander un emprunt</span>
+                </a>
+            </div>
+
+            {% if app.user %}
+                <div class="nav-item">
+                    <a href="{{ path('member_my_loans') }}" class="nav-link d-flex align-items-center gap-2 px-3 py-3 text-white-50" style="text-decoration: none;">
+                        <i class="bi bi-journal-bookmark"></i>
+                        <span>Mes emprunts</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ path('member_my_penalties') }}" class="nav-link d-flex align-items-center gap-2 px-3 py-3 text-white-50" style="text-decoration: none;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>Mes penalites</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ path('member_renewal_request') }}" class="nav-link d-flex align-items-center gap-2 px-3 py-3 text-white-50" style="text-decoration: none;">
+                        <i class="bi bi-arrow-repeat"></i>
+                        <span>Demander un renouvellement</span>
+                    </a>
+                </div>
+            {% endif %}
 
 
             {# Mon Profil Accordion #}
@@ -94,71 +128,56 @@
             </div>
 
             {# Admin/Librarian Section #}
-            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_LIBRARIAN') %}
-                <hr class="border-secondary my-3">
+            <hr class="border-secondary my-3">
 
-                {# Gestion Bibliotheque Title #}
-                <div class="px-3 mb-2">
-                    <small class="text-uppercase text-secondary fw-bold">Gestion Bibliotheque</small>
-                </div>
+            {# Gestion Bibliotheque Title #}
+            <div class="px-3 mb-2">
+                <small class="text-uppercase text-secondary fw-bold">Gestion Bibliotheque</small>
+            </div>
 
-                {# Gestion Prets Accordion #}
-                <div class="accordion accordion-flush" id="loanManagementAccordion">
-                    <div class="accordion-item border-0 bg-dark">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button accordion-button-dark px-3 py-3 gap-2 {% if app.request.attributes.get('_route') starts with 'loan' or app.request.attributes.get('_route') starts with 'penalty' or app.request.attributes.get('_route') starts with 'renewal' or app.request.attributes.get('_route') starts with 'app_stats' %}bg-primary text-white{% else %}bg-dark text-white-50{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#loanManagementCollapse" aria-expanded="{% if app.request.attributes.get('_route') starts with 'loan' or app.request.attributes.get('_route') starts with 'penalty' or app.request.attributes.get('_route') starts with 'renewal' or app.request.attributes.get('_route') starts with 'app_stats' %}true{% else %}false{% endif %}" aria-controls="loanManagementCollapse" style="text-decoration: none;">
-                                <i class="bi bi-gear"></i>
-                                <span>Gestion prets</span>
-                            </button>
-                        </h2>
-                        <div id="loanManagementCollapse" class="accordion-collapse collapse {% if app.request.attributes.get('_route') starts with 'loan' or app.request.attributes.get('_route') starts with 'penalty' or app.request.attributes.get('_route') starts with 'renewal' or app.request.attributes.get('_route') starts with 'app_stats' %}show{% endif %}" data-bs-parent="#loanManagementAccordion">
-                            <div class="accordion-body p-0">
-                                <nav class="nav flex-column">
-                                    {# Prets en cours #}
-                                    <a href="{{ path('loan_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small {% if app.request.attributes.get('_route') == 'loan_index' %}bg-primary-subtle text-primary fw-semibold{% else %}text-white-50{% endif %}" style="text-decoration: none;">
-                                        <i class="bi bi-chevron-right"></i> Prets en cours
-                                    </a>
+            {# Gestion Prets Accordion #}
+            <div class="accordion accordion-flush" id="loanManagementAccordion">
+                <div class="accordion-item border-0 bg-dark">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button accordion-button-dark px-3 py-3 gap-2 {% if app.request.attributes.get('_route') starts with 'loan' or app.request.attributes.get('_route') starts with 'penalty' or app.request.attributes.get('_route') starts with 'renewal' or app.request.attributes.get('_route') starts with 'app_stats' %}bg-primary text-white{% else %}bg-dark text-white-50{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#loanManagementCollapse" aria-expanded="{% if app.request.attributes.get('_route') starts with 'loan' or app.request.attributes.get('_route') starts with 'penalty' or app.request.attributes.get('_route') starts with 'renewal' or app.request.attributes.get('_route') starts with 'app_stats' %}true{% else %}false{% endif %}" aria-controls="loanManagementCollapse" style="text-decoration: none;">
+                            <i class="bi bi-gear"></i>
+                            <span>Gestion prets</span>
+                        </button>
+                    </h2>
+                    <div id="loanManagementCollapse" class="accordion-collapse collapse {% if app.request.attributes.get('_route') starts with 'loan' or app.request.attributes.get('_route') starts with 'penalty' or app.request.attributes.get('_route') starts with 'renewal' or app.request.attributes.get('_route') starts with 'app_stats' %}show{% endif %}" data-bs-parent="#loanManagementAccordion">
+                        <div class="accordion-body p-0">
+                            <nav class="nav flex-column">
+                                {# Prets en cours #}
+                                <a href="{{ path('loan_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small {% if app.request.attributes.get('_route') == 'loan_index' %}bg-primary-subtle text-primary fw-semibold{% else %}text-white-50{% endif %}" style="text-decoration: none;">
+                                    <i class="bi bi-chevron-right"></i> Prets en cours
+                                </a>
 
-                                    {# Tous les prets #}
-                                    <a href="{{ path('loan_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small text-white-50" style="text-decoration: none;">
-                                        <i class="bi bi-chevron-right"></i> Tous les prets
-                                    </a>
+                                {# Tous les prets #}
+                                <a href="{{ path('loan_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small text-white-50" style="text-decoration: none;">
+                                    <i class="bi bi-chevron-right"></i> Tous les prets
+                                </a>
 
-                                    {# Amendes / Penalties #}
-                                    <a href="{{ path('penalty_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small {% if app.request.attributes.get('_route') == 'penalty_index' %}bg-primary-subtle text-primary fw-semibold{% else %}text-white-50{% endif %}" style="text-decoration: none;">
-                                        <i class="bi bi-chevron-right"></i> Amendes / Penalties
-                                    </a>
+                                {# Amendes / Penalties #}
+                                <a href="{{ path('penalty_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small {% if app.request.attributes.get('_route') == 'penalty_index' %}bg-primary-subtle text-primary fw-semibold{% else %}text-white-50{% endif %}" style="text-decoration: none;">
+                                    <i class="bi bi-chevron-right"></i> Amendes / Penalties
+                                </a>
 
-                                    <a href="{{ path('app_stats_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small {% if app.request.attributes.get('_route') == 'app_stats_index' or app.request.attributes.get('_route') == 'app_stats_index_alt' %}bg-primary-subtle text-primary fw-semibold{% else %}text-white-50{% endif %}" style="text-decoration: none;">
-                                        <i class="bi bi-graph-up"></i> Statistiques
-                                    </a>
-                                </nav>
-                            </div>
+                                <a href="{{ path('app_stats_index') }}" class="nav-link d-flex align-items-center gap-2 px-4 py-2 small {% if app.request.attributes.get('_route') == 'app_stats_index' or app.request.attributes.get('_route') == 'app_stats_index_alt' %}bg-primary-subtle text-primary fw-semibold{% else %}text-white-50{% endif %}" style="text-decoration: none;">
+                                    <i class="bi bi-graph-up"></i> Statistiques
+                                </a>
+                            </nav>
                         </div>
                     </div>
                 </div>
-            {% endif %}
+            </div>
 
         </nav>
 
         {# Footer Section (Logout) #}
         <div class="sidebar-footer border-top border-secondary p-3">
-            {% if app.user %}
-                <div class="d-flex align-items-center gap-2 mb-3 text-white-50">
-                    <i class="bi bi-person-fill"></i>
-                    <small>{{ app.user.firstName }} {{ app.user.lastName }}</small>
-                </div>
-                {# Note: Add app_logout route in security.yaml when implemented #}
-                <a href="#" onclick="alert('Logout route not configured')" class="btn btn-sm btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration: none;">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Deconnexion</span>
-                </a>
-            {% else %}
-                <div class="text-center text-white-50 small">
-                    <p class="mb-2">Not logged in</p>
-                    {# Note: Configure login route when implementing authentication #}
-                </div>
-            {% endif %}
+            <div class="text-center text-white-50 small">
+                <p class="mb-0">Mode public (authentification desactivee)</p>
+            </div>
         </div>
 
     </div>
@@ -231,3 +250,4 @@
         background: rgba(255, 255, 255, 0.3);
     }
 </style>
+

@@ -23,9 +23,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
-    #[Assert\NotBlank(message: 'Email is required.')]
-    #[Assert\Email(message: 'Please enter a valid email address.')]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Assert\NotBlank(message: 'L\'email est obligatoire.')]
+    #[Assert\Email(message: 'L\'email {{ value }} n\'est pas valide.')]
+    #[Assert\Length(max: 180, maxMessage: 'L\'email ne peut pas depasser {{ limit }} caracteres.')]
     private ?string $email = null;
 
     /**
@@ -34,13 +35,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
-    #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'First name is required.')]
+    #[ORM\Column(type: 'string', length: 100)]
+    #[Assert\NotBlank(message: 'Le prenom est obligatoire.')]
     #[Assert\Length(
         min: 2,
         max: 100,
-        minMessage: 'First name must be at least {{ limit }} characters.',
-        maxMessage: 'First name cannot exceed {{ limit }} characters.'
+        minMessage: 'Le prenom doit contenir au moins {{ limit }} caracteres.',
+        maxMessage: 'Le prenom ne peut pas depasser {{ limit }} caracteres.'
     )]
     private ?string $firstName = null;
 
@@ -49,8 +50,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(
         min: 2,
         max: 100,
-        minMessage: 'Last name must be at least {{ limit }} characters.',
-        maxMessage: 'Last name cannot exceed {{ limit }} characters.'
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caracteres.',
+        maxMessage: 'Le nom ne peut pas depasser {{ limit }} caracteres.'
     )]
     private ?string $lastName = null;
 

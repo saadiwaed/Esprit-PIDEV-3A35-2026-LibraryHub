@@ -1,67 +1,84 @@
-{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'club-form'}}) }}
 
-<table class="table table-bordered">
-    <tr>
-        <td>{{ form_label(form.title, "Titre") }}</td>
-        <td>{{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.title) }}</td>
-    </tr>
+<div class="card shadow-lg border-0 rounded-4 p-4">
 
-    <tr>
-        <td>{{ form_label(form.description, "Description") }}</td>
-        <td>{{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}</td>
-        <td>{{ form_errors(form.description) }}</td>
-    </tr>
+    <div class="row g-4">
 
-    <tr>
-        <td>{{ form_label(form.category, "Catégorie") }}</td>
-        <td>{{ form_widget(form.category, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.category) }}</td>
-    </tr>
+        <div class="col-md-6">
+            {{ form_label(form.title, "Titre", {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.title, {'attr': {'class': 'form-control form-control-lg'}}) }}
+            <div class="text-danger small mt-1">
+                {{ form_errors(form.title) }}
+            </div>
+        </div>
 
-    <tr>
-        <td>{{ form_label(form.meetingDate, "Date de réunion") }}</td>
-        <td>{{ form_widget(form.meetingDate, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.meetingDate) }}</td>
-    </tr>
+        <div class="col-md-6">
+            {{ form_label(form.category, "Catégorie", {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.category, {'attr': {'class': 'form-select form-select-lg'}}) }}
+            <div class="text-danger small mt-1">
+                {{ form_errors(form.category) }}
+            </div>
+        </div>
 
-    <tr>
-        <td>{{ form_label(form.meetingLocation, "Lieu de réunion") }}</td>
-        <td>{{ form_widget(form.meetingLocation, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.meetingLocation) }}</td>
-    </tr>
+        <div class="col-12">
+            {{ form_label(form.description, "Description", {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+            <div class="text-danger small mt-1">
+                {{ form_errors(form.description) }}
+            </div>
+        </div>
 
-    <tr>
-        <td>{{ form_label(form.capacity, "Capacité") }}</td>
-        <td>{{ form_widget(form.capacity, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.capacity) }}</td>
-    </tr>
+        <div class="col-md-6">
+            {{ form_label(form.meetingDate, "Date de réunion", {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.meetingDate, {'attr': {'class': 'form-control'}}) }}
+            <div class="text-danger small mt-1">
+                {{ form_errors(form.meetingDate) }}
+            </div>
+        </div>
 
-    <tr>
-        <td>{{ form_label(form.isPrivate, "Privé") }}</td>
-        <td>{{ form_widget(form.isPrivate, {'attr': {'class': 'form-check-input'}}) }}</td>
-        <td>{{ form_errors(form.isPrivate) }}</td>
-    </tr>
+        <div class="col-md-6">
+            {{ form_label(form.meetingLocation, "Lieu de réunion", {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.meetingLocation, {'attr': {'class': 'form-control'}}) }}
+            <div class="text-danger small mt-1">
+                {{ form_errors(form.meetingLocation) }}
+            </div>
+        </div>
 
+        <div class="col-md-6">
+            {{ form_label(form.capacity, "Capacité", {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.capacity, {'attr': {'class': 'form-control'}}) }}
+            <div class="text-danger small mt-1">
+                {{ form_errors(form.capacity) }}
+            </div>
+        </div>
 
+        <div class="col-md-6 d-flex align-items-center mt-4">
+            <div class="form-check form-switch">
+                {{ form_widget(form.isPrivate, {'attr': {'class': 'form-check-input'}}) }}
+                {{ form_label(form.isPrivate, "Club privé", {'label_attr': {'class': 'form-check-label ms-2'}}) }}
+            </div>
+        </div>
 
-    
+        <div class="col-md-6 mx-auto">
+    {{ form_label(form.imageFile, "Image du club", {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+    {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+    <div class="text-danger small mt-1">
+        {{ form_errors(form.imageFile) }}
+    </div>
+</div>
 
-    <tr>
-        <td>{{ form_label(form.imageFile, "Image") }}</td>
-        <td>{{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}</td>
-        <td>{{ form_errors(form.imageFile) }}</td>
-    </tr>
+    </div>
 
+    <div class="d-flex justify-content-end gap-3 mt-5">
+        <a href="{{ path('app_club_index') }}" class="btn btn-outline-secondary px-4">
+            Annuler
+        </a>
 
-   
+        <button type="submit" class="btn btn-primary px-4 shadow-sm">
+            {{ button_label|default('Enregistrer') }}
+        </button>
+    </div>
 
-   
-</table>
-
-<div class="mt-3">
-    <button type="submit" class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
-    <a href="{{ path('app_club_index') }}" class="btn btn-secondary">Annuler</a>
 </div>
 
 {{ form_end(form) }}

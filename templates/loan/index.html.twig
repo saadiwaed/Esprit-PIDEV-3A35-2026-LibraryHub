@@ -57,13 +57,13 @@
                     <div class="col-12 col-md-4">
                         <label class="form-label" for="loan-sort-by">Trier par</label>
                         <select id="loan-sort-by" name="sortBy" class="form-select">
-                            <option value="">-- Ordre par défaut --</option>
-                            <option value="member_name_asc" {{ app.request.query.get('sortBy') == 'member_name_asc' ? 'selected' : '' }}>Adhérent (A ↑)</option>
-                            <option value="checkout_desc" {{ app.request.query.get('sortBy') == 'checkout_desc' ? 'selected' : '' }}>Date de sortie (récent ↓)</option>
-                            <option value="due_asc" {{ app.request.query.get('sortBy') == 'due_asc' ? 'selected' : '' }}>Date limite (proche ↑)</option>
-                            <option value="return_desc" {{ app.request.query.get('sortBy') == 'return_desc' ? 'selected' : '' }}>Date de retour (récent ↓)</option>
+                            <option value="">-- Ordre par defaut --</option>
+                            <option value="member_name_asc" {{ app.request.query.get('sortBy') == 'member_name_asc' ? 'selected' : '' }}>Adherent (A â†‘)</option>
+                            <option value="checkout_desc" {{ app.request.query.get('sortBy') == 'checkout_desc' ? 'selected' : '' }}>Date de sortie (recent â†“)</option>
+                            <option value="due_asc" {{ app.request.query.get('sortBy') == 'due_asc' ? 'selected' : '' }}>Date limite (proche â†‘)</option>
+                            <option value="return_desc" {{ app.request.query.get('sortBy') == 'return_desc' ? 'selected' : '' }}>Date de retour (recent â†“)</option>
                             <option value="status_priority" {{ app.request.query.get('sortBy') == 'status_priority' ? 'selected' : '' }}>Statut (retard > actif > rendu)</option>
-                            <option value="id_desc" {{ app.request.query.get('sortBy') == 'id_desc' ? 'selected' : '' }}>ID (plus récent ↓)</option>
+                            <option value="id_desc" {{ app.request.query.get('sortBy') == 'id_desc' ? 'selected' : '' }}>ID (plus recent â†“)</option>
                         </select>
                     </div>
                     <div class="col-12 col-md-2 d-flex gap-2">
@@ -98,7 +98,7 @@
                                     {% set dir = sort == 'bookCopy' and direction == 'asc' ? 'desc' : 'asc' %}
                                     <th><a href="{{ path('loan_index', queryParams|merge({'sort': 'bookCopy', 'direction': dir})) }}">Exemplaire</a></th>
                                     {% set dir = sort == 'member' and direction == 'asc' ? 'desc' : 'asc' %}
-                                    <th><a href="{{ path('loan_index', queryParams|merge({'sort': 'member', 'direction': dir})) }}">Adhérent</a></th>
+                                    <th><a href="{{ path('loan_index', queryParams|merge({'sort': 'member', 'direction': dir})) }}">Adherent</a></th>
                                     {% set dir = sort == 'checkout' and direction == 'asc' ? 'desc' : 'asc' %}
                                     <th><a href="{{ path('loan_index', queryParams|merge({'sort': 'checkout', 'direction': dir})) }}">Date de sortie</a></th>
                                     {% set dir = sort == 'due' and direction == 'asc' ? 'desc' : 'asc' %}
@@ -184,10 +184,10 @@
                             <ul class="pagination justify-content-center">
                                 {% if currentPage > 1 %}
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ path('loan_index', queryParams|merge({'page': 1})) }}">Première</a>
+                                        <a class="page-link" href="{{ path('loan_index', queryParams|merge({'page': 1})) }}">Premiere</a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ path('loan_index', queryParams|merge({'page': currentPage - 1})) }}">Précédente</a>
+                                        <a class="page-link" href="{{ path('loan_index', queryParams|merge({'page': currentPage - 1})) }}">Precedente</a>
                                     </li>
                                 {% endif %}
 
@@ -208,7 +208,7 @@
                                         <a class="page-link" href="{{ path('loan_index', queryParams|merge({'page': currentPage + 1})) }}">Suivante</a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ path('loan_index', queryParams|merge({'page': maxPage})) }}">Dernière</a>
+                                        <a class="page-link" href="{{ path('loan_index', queryParams|merge({'page': maxPage})) }}">Derniere</a>
                                     </li>
                                 {% endif %}
                             </ul>
@@ -254,3 +254,4 @@
         });
     </script>
 {% endblock %}
+

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  ai-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: libraryhub-ai-dev
+    ports:
+      - "8001:8001"
+    volumes:
+      # En développement, monter le code pour hot-reload
+      - ./app:/app/app
+      - ./scripts:/app/scripts
+      - ./models:/app/models
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload

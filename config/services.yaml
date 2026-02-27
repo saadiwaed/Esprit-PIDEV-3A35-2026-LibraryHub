@@ -10,6 +10,8 @@ parameters:
     app.loan.max_renewals: 3
     app.loan.daily_penalty_rate: 0.50
     app.loan.daily_late_fee_rate: 0.50
+    mailer.sender_email: '%env(MAILER_SENDER_EMAIL)%'
+    mailer.sender_name: '%env(MAILER_SENDER_NAME)%'
 
 services:
     # default configuration for services in *this* file
@@ -48,6 +50,7 @@ services:
     App\Service\FileUploadService:
         arguments:
             $attachmentsDirectory: '%attachments_directory%'
+
     App\Service\LoanService:
         arguments:
             $defaultLoanDays: '%app.loan.default_loan_days%'
@@ -63,3 +66,22 @@ services:
     App\Command\AccrueDailyLateFeesCommand:
         arguments:
             $dailyLateFeeRate: '%app.loan.daily_late_fee_rate%'
+
+    App\Service\MailerService:
+        arguments:
+            $senderEmail: '%mailer.sender_email%'
+            $senderName: '%mailer.sender_name%'
+
+    # Commande d'export
+    App\Command\ExportInteractionsCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+    
+    # Service IA
+    App\Service\AIRecommendationService:
+        arguments:
+            $aiServiceUrl: '%env(AI_SERVICE_URL)%'
+    
+    App\Service\ClubSimilarityService:
+        arguments:
+            $huggingfaceToken: '%env(HUGGINGFACE_TOKEN)%'

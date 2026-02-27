@@ -35,7 +35,7 @@ class RenewalController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/renew', name: 'renew', methods: ['GET', 'POST'])]
+    #[Route('/{id<\\d+>}/renew', name: 'renew', methods: ['GET', 'POST'])]
     public function renew(Request $request, Loan $loan): Response
     {
         if ($loan->getRenewalCount() >= 3) {

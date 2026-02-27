@@ -1,50 +1,49 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Club{% endblock %}
+{% block title %}Modifier Club{% endblock %}
 
 {% block body %}
-    <h1>Edit Club</h1>
 
-    {{ include('club/_form.html.twig', {'button_label': 'Update'}) }}
+<div class="container py-5">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Modifier le Club</h2>
+        <p class="text-muted">Mettre à jour les informations du club</p>
+    </div>
 
-    <a href="{{ path('app_club_index') }}" class="btn btn-secondary">back to list</a>
+    {{ include('club/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+</div>
 
-    {{ include('club/_delete_form.html.twig') }}
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            vertical-align: top;
-        }
-        td:first-child {
-            width: 200px;
-            font-weight: bold;
-            background-color: #f8f9fa;
-        }
-        .form-control {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-        }
-        .form-check-input {
-            margin-top: 5px;
-        }
-        .alert-danger {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 5px;
-            margin-top: 5px;
-            font-size: 0.9em;
-        }
+        .card {
+    background: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.15rem rgba(78, 115, 223, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border: none;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.club-form label {
+    margin-bottom: 6px;
+}
     </style>
 {% endblock %}
