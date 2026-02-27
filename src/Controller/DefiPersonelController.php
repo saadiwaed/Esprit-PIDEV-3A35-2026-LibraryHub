@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\CitationService;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Service\EmailServiceDefi;
+
 
 #[Route('/defis')]
 final class DefiPersonelController extends AbstractController
@@ -126,11 +128,11 @@ final class DefiPersonelController extends AbstractController
             default: $queryBuilder->orderBy('d.date_fin', 'ASC');
         }
         
-        // ✅ PAGINATION
+         // ✅ PAGINATION - 6 DÉFIS PAR PAGE (2 colonnes x 3 lignes)
         $pagination = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1),
-            6
+            4 
         );
         
         $defisFiltres = $pagination->getItems();
@@ -238,7 +240,9 @@ final class DefiPersonelController extends AbstractController
     public function frontShow(
         DefiPersonel $defiPersonel,
         JournalLectureRepository $journalLectureRepository,
-        CitationService $citationService
+        CitationService $citationService,
+        EmailServiceDefi $emailServiceDefi
+
     ): Response {
         $user = $this->getUser();
         
@@ -269,6 +273,26 @@ final class DefiPersonelController extends AbstractController
         $aujourdhui = new \DateTime();
         $joursRestants = $aujourdhui->diff($dateFin)->days;
         $rythmeRecommande = $joursRestants > 0 ? round($reste / $joursRestants, 1) : 0;
+
+           // ✅ VÉRIFIER SI LE DÉFI VIENT D'ÊTRE TERMINÉ
+    $statutAvant = $defiPersonel->getStatut();
+    $estTermineMaintenant = ($progression >= $defiPersonel->getObjectif());
+    
+    if ($estTermineMaintenant && $statutAvant !== 'Terminé') {
+        // Marquer comme terminé
+        $defiPersonel->setStatut('Terminé');
+        $this->doctrine->getManager()->flush();
+        
+        // 🎉 ENVOYER L'EMAIL DE FÉLICITATIONS
+        try {
+            $emailServiceDefi->envoyerFelicitationsDefi($user, $defiPersonel);
+            $this->addFlash('success', '🎉 Félicitations ! Un email de confirmation a été envoyé à ' . $user->getEmail());
+        } catch (\Exception $e) {
+            $this->addFlash('success', '🎉 Félicitations ! Vous avez terminé le défi !');
+            // Log l'erreur pour déboguer
+            error_log('Erreur envoi email: ' . $e->getMessage());
+        }
+    }
 
         if ($defiPersonel->getStatut() === 'Terminé') {
             $citation = $citationService->getCitationMotivation();
@@ -348,4 +372,89 @@ final class DefiPersonelController extends AbstractController
 
         return $this->redirectToRoute('app_front_defi_index');
     }
+
+    // ===========================================
+// API DE RECHERCHE DYNAMIQUE POUR LES DÉFIS
+// ===========================================
+#[Route('/api/search', name: 'app_defi_api_search', methods: ['GET'])]
+public function apiSearch(Request $request, DefiPersonelRepository $defiPersonelRepository): Response
+{
+    $user = $this->getUser();
+    
+    if (!$user) {
+        return $this->json(['error' => 'Non authentifié'], 401);
+    }
+    
+    $query = $request->query->get('q', '');
+    $sortBy = $request->query->get('sort', 'date_fin_asc');
+    $filterType = $request->query->get('type', '');
+    $filterStatus = $request->query->get('statut', '');
+    $filterDifficulte = $request->query->get('difficulte', '');
+    
+    if (strlen($query) < 2) {
+        return $this->json([]);
+    }
+    
+    // 🔍 RECHERCHE PAR TITRE OU DESCRIPTION
+    $queryBuilder = $defiPersonelRepository->createQueryBuilder('d')
+        ->where('d.user_id = :userId')
+        ->setParameter('userId', $user->getId())
+        ->andWhere('d.titre LIKE :query OR d.description LIKE :query')
+        ->setParameter('query', '%' . $query . '%');
+    
+    // 🎯 FILTRE PAR TYPE
+    if (!empty($filterType)) {
+        $queryBuilder->andWhere('d.type_defi = :type')
+            ->setParameter('type', $filterType);
+    }
+    
+    // 📊 FILTRE PAR STATUT
+    if (!empty($filterStatus)) {
+        $queryBuilder->andWhere('d.statut = :statut')
+            ->setParameter('statut', $filterStatus);
+    }
+    
+    // ⚡ FILTRE PAR DIFFICULTÉ
+    if (!empty($filterDifficulte)) {
+        $queryBuilder->andWhere('d.difficulte = :difficulte')
+            ->setParameter('difficulte', $filterDifficulte);
+    }
+    
+    // 📊 TRI (copié de ton code)
+    switch ($sortBy) {
+        case 'titre_asc': $queryBuilder->orderBy('d.titre', 'ASC'); break;
+        case 'titre_desc': $queryBuilder->orderBy('d.titre', 'DESC'); break;
+        case 'date_fin_asc': $queryBuilder->orderBy('d.date_fin', 'ASC'); break;
+        case 'date_fin_desc': $queryBuilder->orderBy('d.date_fin', 'DESC'); break;
+        case 'difficulte_desc': $queryBuilder->orderBy('d.difficulte', 'DESC'); break;
+        case 'difficulte_asc': $queryBuilder->orderBy('d.difficulte', 'ASC'); break;
+        case 'progression_desc': $queryBuilder->orderBy('d.progression', 'DESC'); break;
+        case 'progression_asc': $queryBuilder->orderBy('d.progression', 'ASC'); break;
+        default: $queryBuilder->orderBy('d.date_fin', 'ASC');
+    }
+    
+    $results = $queryBuilder->setMaxResults(20)->getQuery()->getResult();
+    
+    $data = array_map(function($defi) {
+        $pourcentage = $defi->getObjectif() > 0 ? 
+            min(100, round(($defi->getProgression() / $defi->getObjectif()) * 100)) : 0;
+            
+        return [
+            'id' => $defi->getId(),
+            'titre' => $defi->getTitre(),
+            'description' => substr($defi->getDescription(), 0, 80) . '...',
+            'type' => $defi->getTypeDefi(),
+            'statut' => $defi->getStatut(),
+            'date_fin' => $defi->getDateFin()->format('d/m/Y'),
+            'objectif' => $defi->getObjectif(),
+            'progression' => round($defi->getProgression(), 1),
+            'unite' => $defi->getUnite(),
+            'difficulte' => $defi->getDifficulte(),
+            'pourcentage' => $pourcentage,
+            'recompense' => $defi->getRecompense(),
+        ];
+    }, $results);
+    
+    return $this->json($data);
+}
 }

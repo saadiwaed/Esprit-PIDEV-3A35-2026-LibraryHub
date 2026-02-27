@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\CitationService;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Service\EmailServiceDefi; // ✅ À AJOUTER
 
 #[Route('/journal')]
 final class JournalLectureController extends AbstractController
@@ -34,7 +35,8 @@ final class JournalLectureController extends AbstractController
         Request $request,
         JournalLectureRepository $journalLectureRepository,
         CitationService $citationService,
-        PaginatorInterface $paginator
+        PaginatorInterface $paginator // ✅ AJOUTER
+
     ): Response {
         // ✅ UTILISATEUR CONNECTÉ
         $user = $this->getUser();
@@ -103,11 +105,11 @@ final class JournalLectureController extends AbstractController
         }
         
         // ✅ PAGINATION
-        $pagination = $paginator->paginate(
-            $queryBuilder,
-            $request->query->getInt('page', 1),
-            9
-        );
+       $pagination = $paginator->paginate(
+    $queryBuilder,
+    $request->query->getInt('page', 1),
+    3
+);
         
         // 📊 STATISTIQUES POUR TOUTES LES LECTURES
         $allLectures = $journalLectureRepository->findBy(['user' => $user]);
@@ -146,84 +148,185 @@ foreach ($allLectures as $lecture) {
         ]);
     }
 
+
+    // ===========================================
+// API DE RECHERCHE DYNAMIQUE (NOUVEAU - À AJOUTER)
+// ===========================================
+#[Route('/api/search', name: 'app_journal_api_search', methods: ['GET'])]
+public function apiSearch(Request $request, JournalLectureRepository $journalLectureRepository): Response
+{
+    $user = $this->getUser();
+    
+    if (!$user) {
+        return $this->json(['error' => 'Non authentifié'], 401);
+    }
+    
+    $query = $request->query->get('q', '');
+    $sortBy = $request->query->get('sort', 'date_desc');
+    $filterLieu = $request->query->get('lieu', '');
+    $filterNote = $request->query->get('note', '');
+    
+    if (strlen($query) < 2) {
+        return $this->json([]);
+    }
+    
+    // 🔍 RECHERCHE PAR TITRE OU RÉSUMÉ (copié de ton code)
+    $queryBuilder = $journalLectureRepository->createQueryBuilder('j')
+        ->where('j.user = :user')
+        ->setParameter('user', $user)
+        ->andWhere('j.titre LIKE :query OR j.resume LIKE :query')
+        ->setParameter('query', '%' . $query . '%');
+    
+    // 📍 FILTRE PAR LIEU
+    if (!empty($filterLieu)) {
+        $queryBuilder->andWhere('j.lieu = :lieu')
+            ->setParameter('lieu', $filterLieu);
+    }
+    
+    // ⭐ FILTRE PAR NOTE
+    if (!empty($filterNote)) {
+        $queryBuilder->andWhere('j.note_perso = :note')
+            ->setParameter('note', $filterNote);
+    }
+    
+    // 📊 TRI (copié de ton code)
+    switch ($sortBy) {
+        case 'date_asc':
+            $queryBuilder->orderBy('j.date_lecture', 'ASC');
+            break;
+        case 'date_desc':
+            $queryBuilder->orderBy('j.date_lecture', 'DESC');
+            break;
+        case 'duree_asc':
+            $queryBuilder->orderBy('j.duree_minutes', 'ASC');
+            break;
+        case 'duree_desc':
+            $queryBuilder->orderBy('j.duree_minutes', 'DESC');
+            break;
+        case 'note_asc':
+            $queryBuilder->orderBy('j.note_perso', 'ASC');
+            break;
+        case 'note_desc':
+            $queryBuilder->orderBy('j.note_perso', 'DESC');
+            break;
+        case 'pages_asc':
+            $queryBuilder->orderBy('j.page_lues', 'ASC');
+            break;
+        case 'pages_desc':
+            $queryBuilder->orderBy('j.page_lues', 'DESC');
+            break;
+        default:
+            $queryBuilder->orderBy('j.date_lecture', 'DESC');
+    }
+    
+    $results = $queryBuilder->setMaxResults(20)->getQuery()->getResult();
+    
+    $data = array_map(function($journal) {
+        return [
+            'id' => $journal->getId(),
+            'titre' => $journal->getTitre(),
+            'date' => $journal->getDateLecture()->format('d/m/Y'),
+            'duree' => $journal->getDureeMinutes(),
+            'pages' => $journal->getPageLues(),
+            'note' => $journal->getNotePerso(),
+            'lieu' => $journal->getLieu(),
+            'resume' => substr($journal->getResume(), 0, 100) . '...',
+        ];
+    }, $results);
+    
+    return $this->json($data);
+}
+
     // ===========================================
     // FRONT OFFICE - Nouvelle entrée
     // ===========================================
-    #[Route('/new', name: 'app_front_journal_new', methods: ['GET', 'POST'])]
-    public function frontNew(
-        Request $request,
-        EntityManagerInterface $entityManager,
-        DefiPersonelRepository $defiRepository
-    ): Response {
-        // ✅ UTILISATEUR CONNECTÉ
-        $user = $this->getUser();
-        
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $journalLecture = new JournalLecture();
-        $form = $this->createForm(JournalLectureType::class, $journalLecture);
-        
-        // PRÉ-SÉLECTIONNER UN DÉFI DEPUIS L'URL
-        $defiId = $request->query->get('defi');
-        if ($defiId) {
-            $defi = $defiRepository->find($defiId);
-            if ($defi && $defi->getUserId() == $user->getId()) {
-                $journalLecture->setDefi($defi);
-            }
-        }
-        
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $journalLecture->setUser($user);
-            $journalLecture->setCreatedAt(new \DateTimeImmutable());
-            
-            $entityManager->persist($journalLecture);
-            $entityManager->flush();
-            
-            // MISE À JOUR DE LA PROGRESSION DU DÉFI ASSOCIÉ
-            if ($journalLecture->getDefi()) {
-                $defi = $journalLecture->getDefi();
-                $lecturesAssociees = $defiRepository->find($defi->getId())->getJournaux();
-                $nombreLectures = count($lecturesAssociees);
-                
-                if ($defi->getUnite() === 'Livres') {
-                    $defi->setProgression($nombreLectures);
-                } elseif ($defi->getUnite() === 'Pages') {
-                    $totalPages = array_sum(array_column($lecturesAssociees, 'page_lues'));
-                    $defi->setProgression($totalPages);
-                } elseif ($defi->getUnite() === 'Heures') {
-                    $totalMinutes = array_sum(array_column($lecturesAssociees, 'duree_minutes'));
-                    $defi->setProgression($totalMinutes / 60);
-                }
-                
-                if ($defi->getProgression() >= $defi->getObjectif()) {
-                    $defi->setStatut('Terminé');
-                    $this->addFlash('success', '🎉 FÉLICITATIONS ! Vous avez terminé le défi : ' . $defi->getTitre());
-                }
-                
-                $entityManager->flush();
-            }
-
-            $this->addFlash('success', '✅ Lecture ajoutée avec succès !');
-            return $this->redirectToRoute('app_front_journal_index');
-        }
-
-        // RÉCUPÉRER LES DÉFIS EN COURS DE L'UTILISATEUR CONNECTÉ
-        $defisEnCours = $defiRepository->findBy(
-            ['user_id' => $user->getId(), 'statut' => 'En cours'],
-            ['date_fin' => 'ASC']
-        );
-
-        return $this->render('frontoffice/journal/new.html.twig', [
-            'journal_lecture' => $journalLecture,
-            'form' => $form,
-            'defis' => $defisEnCours
-        ]);
+    // ===========================================
+// FRONT OFFICE - Nouvelle entrée
+// ===========================================
+#[Route('/new', name: 'app_front_journal_new', methods: ['GET', 'POST'])]
+public function frontNew(
+    Request $request,
+    EntityManagerInterface $entityManager,
+    DefiPersonelRepository $defiRepository,
+    EmailServiceDefi $emailServiceDefi // ✅ Garder ici
+): Response {
+    // ✅ UTILISATEUR CONNECTÉ
+    $user = $this->getUser();
+    
+    if (!$user) {
+        return $this->redirectToRoute('app_login');
     }
 
+    $journalLecture = new JournalLecture();
+    $form = $this->createForm(JournalLectureType::class, $journalLecture);
+    
+    // PRÉ-SÉLECTIONNER UN DÉFI DEPUIS L'URL
+    $defiId = $request->query->get('defi');
+    if ($defiId) {
+        $defi = $defiRepository->find($defiId);
+        if ($defi && $defi->getUserId() == $user->getId()) {
+            $journalLecture->setDefi($defi);
+        }
+    }
+    
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $journalLecture->setUser($user);
+        $journalLecture->setCreatedAt(new \DateTimeImmutable());
+        
+        $entityManager->persist($journalLecture);
+        $entityManager->flush();
+        
+        // MISE À JOUR DE LA PROGRESSION DU DÉFI ASSOCIÉ
+        if ($journalLecture->getDefi()) {
+            $defi = $journalLecture->getDefi();
+            $lecturesAssociees = $defiRepository->find($defi->getId())->getJournaux();
+            $nombreLectures = count($lecturesAssociees);
+            
+            if ($defi->getUnite() === 'Livres') {
+                $defi->setProgression($nombreLectures);
+            } elseif ($defi->getUnite() === 'Pages') {
+                $totalPages = array_sum(array_column($lecturesAssociees, 'page_lues'));
+                $defi->setProgression($totalPages);
+            } elseif ($defi->getUnite() === 'Heures') {
+                $totalMinutes = array_sum(array_column($lecturesAssociees, 'duree_minutes'));
+                $defi->setProgression($totalMinutes / 60);
+            }
+            
+            // 🏆 VÉRIFIER SI LE DÉFI EST TERMINÉ
+            if ($defi->getProgression() >= $defi->getObjectif() && $defi->getStatut() !== 'Terminé') {
+                $defi->setStatut('Terminé');
+                
+                // 🎉 ENVOYER L'EMAIL DE FÉLICITATIONS
+                try {
+                    $emailServiceDefi->envoyerFelicitationsDefi($user, $defi);
+                    $this->addFlash('success', '🎉 FÉLICITATIONS ! Vous avez terminé le défi "' . $defi->getTitre() . '". Un email a été envoyé à ' . $user->getEmail());
+                } catch (\Exception $e) {
+                    $this->addFlash('success', '🎉 FÉLICITATIONS ! Vous avez terminé le défi "' . $defi->getTitre() . '" !');
+                    error_log('❌ Erreur email: ' . $e->getMessage());
+                }
+            }
+            
+            $entityManager->flush();
+        }
+
+        $this->addFlash('success', '✅ Lecture ajoutée avec succès !');
+        return $this->redirectToRoute('app_front_journal_index');
+    }
+
+    // RÉCUPÉRER LES DÉFIS EN COURS DE L'UTILISATEUR CONNECTÉ
+    $defisEnCours = $defiRepository->findBy(
+        ['user_id' => $user->getId(), 'statut' => 'En cours'],
+        ['date_fin' => 'ASC']
+    );
+
+    return $this->render('frontoffice/journal/new.html.twig', [
+        'journal_lecture' => $journalLecture,
+        'form' => $form,
+        'defis' => $defisEnCours
+    ]);
+}
     // ===========================================
     // FRONT OFFICE - Détail
     // ===========================================

@@ -19,6 +19,8 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
+
+    
     App\:
         resource: '../src/'
         exclude:
@@ -32,6 +34,16 @@ services:
     App\Service\GoogleBooksService:
         arguments:
             $googleBooksApiKey: '%env(GOOGLE_BOOKS_API_KEY)%'
+    App\Service\IAService:
+        arguments:
+            $openAiApiKey: '%env(OPENAI_API_KEY_waed)%'
+            # ✅ NOUVEAU SERVICE IA (Pollinations) - SANS CLÉ API !
+    App\Service\PollinationsService:
+        arguments:
+            $httpClient: '@http_client'
+            $journalRepository: '@App\Repository\JournalLectureRepository'
+            $defiRepository: '@App\Repository\DefiPersonelRepository'
+            $cache: '@cache.app'
     # --- File Upload Service Configuration ---
     App\Service\FileUploadService:
         arguments:
