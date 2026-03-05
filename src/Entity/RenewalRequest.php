@@ -2,6 +2,10 @@
 
 namespace App\Entity;
 
+if (class_exists(__NAMESPACE__ . '\\RenewalRequest', false)) {
+    return;
+}
+
 use App\Repository\RenewalRequestRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

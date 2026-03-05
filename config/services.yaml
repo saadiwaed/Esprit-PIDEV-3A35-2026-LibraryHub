@@ -145,3 +145,7 @@ services:
     App\Service\SmsNotifier:
         arguments:
             $fromPhoneNumber: '%app.twilio.phone_number%'
+
+    App\Command\SendLoanAcceptedSmsCommand:
+        arguments:
+            $fromPhoneNumber: '%app.twilio.phone_number%'

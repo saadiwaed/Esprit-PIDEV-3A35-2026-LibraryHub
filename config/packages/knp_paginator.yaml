@@ -1,5 +1,5 @@
 knp_paginator:
-    page_range: 5
+    page_range: 2
     default_options:
         sort_field_name: null
         sort_direction_name: null

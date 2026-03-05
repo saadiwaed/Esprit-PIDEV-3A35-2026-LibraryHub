@@ -113,7 +113,7 @@ class LoanController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'show', methods: ['GET'])]
+    #[Route('/{id<\\d+>}', name: 'show', methods: ['GET'])]
     public function show(
         Loan $loan,
         #[Autowire('%app.loan.daily_late_fee_rate%')] float $dailyLateFeeRate,
@@ -152,7 +152,7 @@ class LoanController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/create-late-penalty', name: 'create_late_penalty', methods: ['GET'])]
+    #[Route('/{id<\\d+>}/create-late-penalty', name: 'create_late_penalty', methods: ['GET'])]
     public function createLatePenalty(
         Loan $loan,
         #[Autowire('%app.loan.daily_late_fee_rate%')] float $dailyLateFeeRate,
@@ -184,7 +184,7 @@ class LoanController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/create-late-penalty', name: 'create_late_penalty_submit', methods: ['POST'])]
+    #[Route('/{id<\\d+>}/create-late-penalty', name: 'create_late_penalty_submit', methods: ['POST'])]
     public function createLatePenaltySubmit(
         Loan $loan,
         Request $request,
@@ -278,7 +278,7 @@ class LoanController extends AbstractController
         throw $this->createAccessDeniedException('Accès réservé aux administrateurs/bibliothécaires.');
     }
 
-    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
+    #[Route('/{id<\\d+>}/edit', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Loan $loan, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(LoanType::class, $loan, [
@@ -300,7 +300,7 @@ class LoanController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'delete', methods: ['POST'])]
+    #[Route('/{id<\\d+>}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Loan $loan, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $loan->getId(), $request->request->get('_token'))) {
@@ -313,7 +313,7 @@ class LoanController extends AbstractController
         return $this->redirectToRoute('loan_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/return', name: 'return', methods: ['POST'])]
+    #[Route('/{id<\\d+>}/return', name: 'return', methods: ['POST'])]
     public function returnLoan(Request $request, Loan $loan, LoanService $loanService): Response
     {
         if (!$this->isCsrfTokenValid('return' . $loan->getId(), $request->request->get('_token'))) {

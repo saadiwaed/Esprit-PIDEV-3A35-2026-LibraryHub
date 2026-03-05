@@ -4,7 +4,7 @@
 use App\Kernel;
 use App\Entity\RenewalRequest;
 
-require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 // Load environment (.env) like front controller
 // Minimal .env loader fallback (parses KEY=VALUE lines) if bootstrap.php is not available
 if (file_exists(__DIR__ . '/../config/bootstrap.php')) {
