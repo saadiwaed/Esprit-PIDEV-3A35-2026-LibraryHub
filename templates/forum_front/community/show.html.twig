@@ -1,56 +1,360 @@
-﻿{% extends 'forum_front/layout.html.twig' %}
+{% extends 'forum_front/layout.html.twig' %}
 
 {% block title %}Forum - {{ community.name }}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .community-show-v2 {
+            --cs-primary: #0d6efd;
+            --cs-secondary: #0ea5a1;
+            --cs-surface: #ffffff;
+            --cs-border: #dfe8f3;
+            --cs-muted: #6f7f93;
+            --cs-text: #1b2736;
+            background:
+                radial-gradient(1200px 380px at 5% -10%, #dff0ff 0%, transparent 60%),
+                radial-gradient(900px 340px at 95% 0%, #e7faf6 0%, transparent 55%);
+        }
+
+        .community-show-v2 .hero-shell {
+            background: linear-gradient(130deg, #0d6efd 0%, #0ea5a1 100%);
+            border-radius: 22px;
+            color: #fff;
+            padding: 1.6rem;
+            box-shadow: 0 18px 40px -28px rgba(13, 110, 253, 0.95);
+        }
+
+        .community-show-v2 .hero-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.86rem;
+            text-decoration: none;
+        }
+
+        .community-show-v2 .hero-back-link:hover {
+            color: #fff;
+        }
+
+        .community-show-v2 .hero-title {
+            font-family: "Heebo", sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .community-show-v2 .hero-description {
+            color: rgba(255, 255, 255, 0.88);
+            max-width: 72ch;
+        }
+
+        .community-show-v2 .hero-chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+        }
+
+        .community-show-v2 .hero-chip {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #fff;
+            border-radius: 999px;
+            padding: 0.35rem 0.72rem;
+            font-size: 0.82rem;
+        }
+
+        .community-show-v2 .hero-actions .btn {
+            border-radius: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .community-show-v2 .hero-actions .btn-light {
+            color: #0c4fb2;
+        }
+
+        .community-show-v2 .detail-tile {
+            border: 1px solid var(--cs-border);
+            border-radius: 16px;
+            background: var(--cs-surface);
+            box-shadow: 0 10px 26px -24px rgba(11, 22, 37, 0.8);
+            height: 100%;
+        }
+
+        .community-show-v2 .detail-tile .card-body {
+            padding: 1rem 1.1rem;
+        }
+
+        .community-show-v2 .detail-title {
+            color: var(--cs-text);
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+        }
+
+        .community-show-v2 .posts-shell {
+            border: 1px solid var(--cs-border);
+            border-radius: 18px;
+            background: var(--cs-surface);
+            box-shadow: 0 22px 36px -32px rgba(13, 24, 40, 0.85);
+            overflow: hidden;
+        }
+
+        .community-show-v2 .posts-head {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border-bottom: 1px solid var(--cs-border);
+        }
+
+        .community-show-v2 .posts-head h2 {
+            font-family: "Heebo", sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .community-show-v2 .posts-count {
+            background: #0b63e6;
+            color: #fff;
+            border-radius: 999px;
+            padding: 0.42rem 0.68rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .community-show-v2 .filter-shell {
+            border: 1px solid var(--cs-border);
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .community-show-v2 .filter-shell .form-label {
+            color: #32465a;
+            font-size: 0.86rem;
+            font-weight: 600;
+        }
+
+        .community-show-v2 .filter-shell .form-control,
+        .community-show-v2 .filter-shell .form-select {
+            border-radius: 10px;
+            border-color: #d5e0ed;
+        }
+
+        .community-show-v2 .post-card {
+            border: 1px solid #deebf7;
+            border-radius: 14px;
+            background: #fff;
+            padding: 1rem 1rem 0.9rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            opacity: 0;
+            animation: post-rise 0.45s ease forwards;
+        }
+
+        .community-show-v2 .post-card:hover {
+            transform: translateY(-2px);
+            border-color: #bfd5ee;
+            box-shadow: 0 16px 30px -28px rgba(3, 18, 34, 0.95);
+        }
+
+        .community-show-v2 .post-title a {
+            color: #172638;
+            text-decoration: none;
+            font-weight: 700;
+            font-family: "Heebo", sans-serif;
+        }
+
+        .community-show-v2 .post-title a:hover {
+            color: var(--cs-primary);
+        }
+
+        .community-show-v2 .pin-pill {
+            background: #fff4d1;
+            color: #7a5c00;
+            border: 1px solid #f6e2a2;
+            border-radius: 999px;
+            padding: 0.18rem 0.54rem;
+            font-size: 0.74rem;
+            font-weight: 700;
+        }
+
+        .community-show-v2 .post-excerpt {
+            color: var(--cs-muted);
+            margin-bottom: 0.78rem;
+        }
+
+        .community-show-v2 .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .community-show-v2 .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.34rem;
+            padding: 0.24rem 0.58rem;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            color: #496077;
+            background: #f2f7fc;
+            border: 1px solid #dce8f4;
+        }
+
+        .community-show-v2 .meta-pill i {
+            color: var(--cs-primary);
+        }
+
+        .community-show-v2 .meta-pill.score {
+            background: #edf8f4;
+            border-color: #ccebdd;
+            color: #1f6a4e;
+            font-weight: 700;
+        }
+
+        .community-show-v2 .meta-pill.score.negative {
+            background: #fff1f1;
+            border-color: #f5d1d1;
+            color: #b14343;
+        }
+
+        .community-show-v2 .empty-posts {
+            border-radius: 12px;
+            border: 1px dashed #cbd9e8;
+            background: #f8fbff;
+            color: #526983;
+            padding: 1.1rem;
+            margin: 0;
+        }
+
+        @keyframes post-rise {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .community-show-v2 .hero-shell {
+                padding: 1.2rem;
+            }
+
+            .community-show-v2 .hero-actions {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .community-show-v2 .hero-title {
+                font-size: 1.55rem;
+            }
+
+            .community-show-v2 .hero-actions .btn {
+                width: 100%;
+            }
+
+            .community-show-v2 .posts-head {
+                gap: 0.6rem;
+            }
+
+            .community-show-v2 .meta-row {
+                gap: 0.35rem;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-<section class="py-5">
+<section class="community-show-v2 py-5">
     <div class="container">
-        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-            <div>
-                <a href="{{ path('app_front_community_index') }}" class="text-decoration-none small">&larr; Retour aux communautes</a>
-                <h1 class="h2 mt-2 mb-1"><i class="{{ community.iconClass }} me-2 text-primary"></i>{{ community.name }}</h1>
-                <p class="text-muted mb-0">{{ community.description }}</p>
+        {% for label in ['success', 'warning', 'error'] %}
+            {% for message in app.flashes(label) %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="hero-shell mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
+                    <a href="{{ path('app_front_community_index') }}" class="hero-back-link"><i class="bi bi-arrow-left"></i> Retour aux communautes</a>
+                    <h1 class="hero-title h2 mt-2 mb-2"><i class="{{ community.iconClass }} me-2"></i>{{ community.name }}</h1>
+                    <p class="hero-description mb-3">{{ community.description }}</p>
+                    <div class="hero-chip-row">
+                        <span class="hero-chip"><i class="bi bi-people me-1"></i>{{ community.memberCount }} membres</span>
+                        <span class="hero-chip"><i class="bi bi-chat-square-text me-1"></i>{{ posts|length }} posts visibles</span>
+                        <span class="hero-chip"><i class="bi bi-person-badge me-1"></i>Creee par {{ community.createdBy ? community.createdBy.fullName : 'Utilisateur inconnu' }}</span>
+                    </div>
+                </div>
+                <div class="hero-actions d-flex flex-wrap gap-2">
+                    {% if is_granted('ROLE_MEMBER') and isSubscribed %}
+                        <a href="{{ path('app_front_post_new', {'id': community.id}) }}" class="btn btn-light">
+                            <i class="fas fa-pen me-1"></i> Ajouter un post
+                        </a>
+                        <form method="post" action="{{ path('app_front_community_leave', {'id': community.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('leave' ~ community.id) }}">
+                            <button type="submit" class="btn btn-outline-light">Quitter</button>
+                        </form>
+                    {% elseif app.user and is_granted('ROLE_MEMBER') %}
+                        <form method="post" action="{{ path('app_front_community_join', {'id': community.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('join' ~ community.id) }}">
+                            <button type="submit" class="btn btn-light">
+                                <i class="fas fa-user-plus me-1"></i> Rejoindre
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-outline-light" disabled>Rejoignez avant de publier</button>
+                    {% elseif not app.user %}
+                        <a href="{{ path('app_login') }}" class="btn btn-light">
+                            <i class="fas fa-sign-in-alt me-1"></i> Se connecter pour rejoindre
+                        </a>
+                    {% endif %}
+                </div>
             </div>
-            <a href="{{ path('app_front_post_new', {'id': community.id}) }}" class="btn btn-primary">
-                <i class="fas fa-pen me-1"></i> Ajouter un post
-            </a>
         </div>
 
         <div class="row g-4 mb-4">
             <div class="col-md-4">
-                <div class="card border shadow-sm h-100">
+                <div class="card detail-tile h-100">
                     <div class="card-body">
-                        <h2 class="h6">Objectif</h2>
+                        <h2 class="h6 detail-title"><i class="bi bi-bullseye me-1"></i>Objectif</h2>
                         <p class="mb-0">{{ community.purpose }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card border shadow-sm h-100">
+                <div class="card detail-tile h-100">
                     <div class="card-body">
-                        <h2 class="h6">Regles</h2>
+                        <h2 class="h6 detail-title"><i class="bi bi-shield-check me-1"></i>Regles</h2>
                         <p class="mb-0">{{ community.rules ?: 'Aucune regle specifique.' }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card border shadow-sm h-100">
+                <div class="card detail-tile h-100">
                     <div class="card-body">
-                        <h2 class="h6">Statistiques</h2>
+                        <h2 class="h6 detail-title"><i class="bi bi-graph-up-arrow me-1"></i>Statistiques</h2>
                         <p class="mb-1"><strong>{{ community.memberCount }}</strong> membres</p>
-                        <p class="mb-0"><strong>{{ posts|length }}</strong> posts visibles</p>
+                        <p class="mb-1"><strong>{{ posts|length }}</strong> posts visibles</p>
+                        <p class="mb-0 small text-muted">
+                            Creee par {{ community.createdBy ? community.createdBy.fullName : 'Utilisateur inconnu' }}
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card border shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="posts-shell">
+            <div class="posts-head d-flex justify-content-between align-items-center p-3">
                 <h2 class="h5 mb-0">Posts de la communaute</h2>
-                <span class="badge bg-secondary">{{ posts|length }}</span>
+                <span class="posts-count">{{ posts|length }}</span>
             </div>
             <div class="card-body">
-                <form method="get" action="{{ path('app_front_community_show', {'id': community.id}) }}" class="border rounded p-3 mb-3">
+                <form method="get" action="{{ path('app_front_community_show', {'id': community.id}) }}" class="filter-shell">
                     <div class="row g-3 align-items-end">
                         <div class="col-12 col-lg-7">
                             <label for="front-post-search" class="form-label mb-1">Rechercher un post</label>
@@ -69,6 +373,8 @@
                                 <option value="newest" {{ postFilters.sort == 'newest' ? 'selected' : '' }}>Plus recents</option>
                                 <option value="oldest" {{ postFilters.sort == 'oldest' ? 'selected' : '' }}>Plus anciens</option>
                                 <option value="most_commented" {{ postFilters.sort == 'most_commented' ? 'selected' : '' }}>Plus commentes</option>
+                                <option value="most_liked" {{ postFilters.sort == 'most_liked' ? 'selected' : '' }}>Plus de likes</option>
+                                <option value="best_score" {{ postFilters.sort == 'best_score' ? 'selected' : '' }}>Meilleur score (likes - dislikes)</option>
                                 <option value="title_asc" {{ postFilters.sort == 'title_asc' ? 'selected' : '' }}>Titre A-Z</option>
                                 <option value="title_desc" {{ postFilters.sort == 'title_desc' ? 'selected' : '' }}>Titre Z-A</option>
                             </select>
@@ -83,25 +389,39 @@
                 </form>
 
                 {% for post in posts %}
-                    <article class="border rounded p-3 mb-3">
+                    {% set postScore = post.likeCount - post.dislikeCount %}
+                    <article class="post-card mb-3" style="animation-delay: {{ loop.index0 * 70 }}ms;">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h3 class="h6 mb-0">
-                                <a class="text-decoration-none" href="{{ path('app_front_post_show', {'id': post.id}) }}">{{ post.title }}</a>
+                            <h3 class="h6 mb-0 post-title">
+                                <a href="{{ path('app_front_post_show', {'id': post.id}) }}">{{ post.title }}</a>
                             </h3>
                             {% if post.isPinned %}
-                                <span class="badge bg-warning text-dark">Pinned</span>
+                                <span class="pin-pill">Pinned</span>
                             {% endif %}
                         </div>
-                        <p class="text-muted mb-2">
+                        <p class="post-excerpt mb-2">
                             {{ post.content|striptags|length > 180 ? post.content|striptags|slice(0, 180) ~ '...' : post.content|striptags }}
                         </p>
-                        <div class="small text-muted d-flex gap-3">
-                            <span>{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</span>
-                            <span>{{ post.commentCount }} commentaire(s)</span>
+                        <div class="meta-row">
+                            <span class="meta-pill">
+                                <i class="bi bi-calendar-event"></i>
+                                {% if post.createdAt %}
+                                    <time datetime="{{ post.createdAt|date('c') }}" title="{{ post.createdAt|date('d/m/Y H:i') }}">
+                                        {{ post.createdAt|ago(null, 'fr') }}
+                                    </time>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
+                            <span class="meta-pill"><i class="bi bi-person"></i>{{ post.createdBy ? post.createdBy.fullName : 'Utilisateur inconnu' }}</span>
+                            <span class="meta-pill"><i class="bi bi-chat-left-text"></i>{{ post.commentCount }} commentaire(s)</span>
+                            <span class="meta-pill"><i class="bi bi-hand-thumbs-up"></i>{{ post.likeCount }} like(s)</span>
+                            <span class="meta-pill"><i class="bi bi-hand-thumbs-down"></i>{{ post.dislikeCount }} dislike(s)</span>
+                            <span class="meta-pill score {{ postScore < 0 ? 'negative' : '' }}"><i class="bi bi-bar-chart-line"></i>Score {{ postScore }}</span>
                         </div>
                     </article>
                 {% else %}
-                    <div class="alert alert-light border mb-0">Aucun post publie dans cette communaute. Soyez le premier a publier.</div>
+                    <div class="empty-posts">Aucun post publie dans cette communaute. Soyez le premier a publier.</div>
                 {% endfor %}
             </div>
         </div>

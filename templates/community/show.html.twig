@@ -38,6 +38,9 @@
                         <dt class="col-sm-5">Nom</dt>
                         <dd class="col-sm-7">{{ community.name }}</dd>
 
+                        <dt class="col-sm-5">Createur</dt>
+                        <dd class="col-sm-7">{{ community.createdBy ? community.createdBy.fullName : '-' }}</dd>
+
                         <dt class="col-sm-5">Icone</dt>
                         <dd class="col-sm-7"><i class="{{ community.iconClass }} me-2"></i><code>{{ community.iconClass }}</code></dd>
 
@@ -96,6 +99,8 @@
                                         <option value="newest" {{ postFilters.sort == 'newest' ? 'selected' : '' }}>Plus recents</option>
                                         <option value="oldest" {{ postFilters.sort == 'oldest' ? 'selected' : '' }}>Plus anciens</option>
                                         <option value="most_commented" {{ postFilters.sort == 'most_commented' ? 'selected' : '' }}>Plus commentes</option>
+                                        <option value="most_liked" {{ postFilters.sort == 'most_liked' ? 'selected' : '' }}>Plus de likes</option>
+                                        <option value="best_score" {{ postFilters.sort == 'best_score' ? 'selected' : '' }}>Meilleur score (likes - dislikes)</option>
                                         <option value="title_asc" {{ postFilters.sort == 'title_asc' ? 'selected' : '' }}>Titre A-Z</option>
                                         <option value="title_desc" {{ postFilters.sort == 'title_desc' ? 'selected' : '' }}>Titre Z-A</option>
                                     </select>
@@ -124,7 +129,9 @@
                                 <tr>
                                     <td>
                                         <div class="fw-semibold">{{ post.title }}</div>
-                                        <small class="text-muted">{{ post.commentCount }} commentaire(s)</small>
+                                        <small class="text-muted">
+                                            {{ post.commentCount }} commentaire(s) - {{ post.likeCount }} like(s) - {{ post.dislikeCount }} dislike(s) - {{ post.createdBy ? post.createdBy.fullName : 'Auteur inconnu' }}
+                                        </small>
                                     </td>
                                     <td><span class="badge {{ post.status.getBadgeClass() }}">{{ post.status.getLabel() }}</span></td>
                                     <td>{{ post.createdAt ? post.createdAt|date('d/m/Y H:i') : '-' }}</td>

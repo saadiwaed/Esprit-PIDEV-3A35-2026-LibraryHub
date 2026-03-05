@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<!-- Mirrored from eduport.webestica.com/index-11.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 07 Nov 2023 13:13:10 GMT -->
 <head>
-	<title>LibraryHub</title>
+	<title>{% block title %}LibraryHub{% endblock %}</title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="author" content="Webestica.com">
 	<meta name="description" content="Eduport- LMS, Education and Course Theme">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 	<!-- Dark mode -->
 	<script>
@@ -36,399 +35,346 @@
 		    var el = document.querySelector('.theme-icon-active');
 			if(el != 'undefined' && el != null) {
 				const showActiveTheme = theme => {
-				const activeThemeIcon = document.querySelector('.theme-icon-active use')
-				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+					const activeThemeIcon = document.querySelector('.theme-icon-active use')
+					const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+					const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
 
-				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-					element.classList.remove('active')
-				})
-
-				btnToActive.classList.add('active')
-				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
-			}
-
-			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-				if (storedTheme !== 'light' || storedTheme !== 'dark') {
-					setTheme(getPreferredTheme())
-				}
-			})
-
-			showActiveTheme(getPreferredTheme())
-
-			document.querySelectorAll('[data-bs-theme-value]')
-				.forEach(toggle => {
-					toggle.addEventListener('click', () => {
-						const theme = toggle.getAttribute('data-bs-theme-value')
-						localStorage.setItem('theme', theme)
-						setTheme(theme)
-						showActiveTheme(theme)
+					document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+						element.classList.remove('active')
 					})
+
+					btnToActive.classList.add('active')
+					activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+				}
+
+				window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+					if (storedTheme !== 'light' || storedTheme !== 'dark') {
+						setTheme(getPreferredTheme())
+					}
 				})
 
+				showActiveTheme(getPreferredTheme())
+
+				document.querySelectorAll('[data-bs-theme-value]')
+					.forEach(toggle => {
+						toggle.addEventListener('click', () => {
+							const theme = toggle.getAttribute('data-bs-theme-value')
+							localStorage.setItem('theme', theme)
+							setTheme(theme)
+							showActiveTheme(theme)
+						})
+					})
 			}
 		})
-
-            {% block stylesheets %}
-
-		
 	</script>
 
 	<!-- Favicon -->
-<link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
+	<link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
 
-<!-- Google Font -->
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap">
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap">
 
-<!-- Plugins CSS -->
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/tiny-slider/tiny-slider.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/tiny-slider/tiny-slider.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
 
-<!-- Theme CSS -->
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-    {% endblock %}
-
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+    
+    {% block stylesheets %}{% endblock %}
 </head>
 
 <body>
-
-
-
-<!-- Header START -->
-<header class="navbar-light navbar-sticky">
-	<!-- Logo Nav START -->
-	<nav class="navbar navbar-expand-xl">
-		<div class="container">
-			<!-- Logo START -->
-			<a class="navbar-brand" href="{{ path('app_frontoffice') }}">
-				<h3 class="mb-0 text-primary">
-					<i class="fas fa-book-open me-2"></i>
-					<span class="text-dark">LIBRARY</span><span class="text-warning">HUB</span>
-				</h3>
-			</a>
-			<!-- Logo END -->
-	
-			<!-- Responsive navbar toggler -->
-			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-				aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-animation">
-					<span></span>
-					<span></span>
-					<span></span>
-				</span>
-			</button>
-	
-			<!-- Main navbar START -->
-			<div class="navbar-collapse collapse" id="navbarCollapse">
-				<!-- Nav Main menu START -->
-				<ul class="navbar-nav navbar-nav-scroll ms-auto align-items-center">
-					<!-- Nav item 1 -->
-					<li class="nav-item">
-						<a class="nav-link" href="{{ path('app_frontoffice') }}">
-							<i class="bi bi-house-door me-1"></i>Accueil
-						</a>
-					</li>
-
-					<!-- Nav item 2 -->
-					<li class="nav-item">
-						<a class="nav-link" href="#">
-							<i class="bi bi-book me-1"></i>Livres
-						</a>
-					</li>
-
-					<li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-people-fill me-1"></i>Mes Clubs & Événements
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item" href="{{ path('app_club_discover') }}">
-                                    <i class="bi bi-people-fill me-2"></i>Clubs de Lecture
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ path('app_event_discover') }}">
-                                    <i class="bi bi-calendar-event me-2"></i>Mes Événements
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="{{ path('app_recommendations') }}">
-                                    <i class="bi bi-star-fill me-2 text-warning"></i>Recommandations
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-<!-- Nav item avec dropdown pour Journal/Défi -->
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-journal-bookmark-fill me-1"></i>Journal et Defi
-    </a>
-    <ul class="dropdown-menu">
-        <li>
-            <a class="dropdown-item" href="{{ path('app_front_journal_index') }}">
-                <i class="bi bi-journal me-2"></i>Journal
-            </a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{{ path('app_front_defi_index') }}">
-                <i class="bi bi-trophy me-2"></i>Défi
-            </a>
-        </li>
-		                                          <li class="nav-item">
-    <a class="nav-link" href="{{ path('app_ia_analyse') }}">
-        <i class="fas fa-robot me-1"></i>Analyse IA
-    </a>
-</li>
-    </ul>
-</li>
-
-					<!-- Nav item 4 -->
-					<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-        <i class="bi bi-chat-dots me-1"></i>Forum
-    </a>
-    <ul class="dropdown-menu">
-        <li>
-            <a class="dropdown-item" href="{{ path('app_front_community_index') }}">
-                <i class="bi bi-people me-2"></i> Toutes les communautés
-            </a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{{ path('app_community_new') }}">
-                <i class="bi bi-plus-circle me-2"></i> Créer une communauté
-            </a>
-        </li>
-        <li><hr class="dropdown-divider"></li>
-        <li>
-            <a class="dropdown-item" href="#">
-                <i class="bi bi-bookmark me-2"></i> Mes communautés
-            </a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="#">
-                <i class="bi bi-file-text me-2"></i> Mes posts
-            </a>
-        </li>
-    </ul>
-</li>
-					
-					<!-- Show login/register buttons for guests -->
-					{% if not app.user %}
-						<li class="nav-item ms-3">
-							<a class="btn btn-sm btn-outline-primary" href="{{ path('app_login') }}">
-								<i class="bi bi-box-arrow-in-right me-1"></i>Connexion
-							</a>
-						</li>
-						<li class="nav-item ms-2">
-							<a class="btn btn-sm btn-primary" href="{{ path('app_register') }}">
-								<i class="bi bi-person-plus me-1"></i>S'inscrire
-							</a>
-						</li>
-					{% endif %}
-				</ul>
-				<!-- Nav Main menu END -->
-			</div>
-			<!-- Main navbar END -->
-
-			<!-- Profile and notification START (only for logged-in users) -->
-			{% if app.user %}
-			<ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-				<!-- Notification dropdown START -->
-				<li class="nav-item ms-0 ms-md-3 dropdown">
-					<!-- Notification button -->
-					<a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-						<i class="bi bi-bell fa-fw"></i>
-					</a>
-					<!-- Notification dote -->
-					<span class="notif-badge animation-blink"></span>
-
-					<!-- Notification dropdown menu START -->
-					<div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
-						<div class="card bg-transparent">
-							<div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
-								<h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
-								<a class="small" href="#">Supprimer Tous</a>
-							</div>
-							<div class="card-body p-0">
-								<ul class="list-group list-unstyled list-group-flush">
-									<!-- Notif item -->
-									<li>
-										<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-											<div class="me-3">
-												<div class="avatar avatar-md">
-													<img class="avatar-img rounded-circle" src="assets/images/avatar/08.jpg" alt="avatar">
-												</div>
-											</div>
-											<div>
-												<p class="text-body small m-0">Congratulate <b>Joan Wallace</b> for graduating from <b>Microverse university</b></p>
-												<u class="small">Feliciter</u>
-											</div>
-										</a>
-									</li>
-	
-									<!-- Notif item -->
-									<li>
-										<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-											<div class="me-3">
-												<div class="avatar avatar-md">
-													<img class="avatar-img rounded-circle" src="assets/images/avatar/02.jpg" alt="avatar">
-												</div>
-											</div>
-											<div>
-												<h6 class="mb-1">Larry Lawson Added a new course</h6>
-												<p class="small text-body m-0">What's new! Find out about new features</p>
-												<u class="small">Voir Detaille</u>
-											</div>
-										</a>
-									</li>
-	
-									<!-- Notif item -->
-									<li>
-										<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-											<div class="me-3">
-												<div class="avatar avatar-md">
-													<img class="avatar-img rounded-circle" src="assets/images/avatar/05.jpg" alt="avatar">
-												</div>
-											</div>
-											<div>
-												<h6 class="mb-1">New request to apply for Instructor</h6>
-												<u class="small">Voir Detaille</u>
-											</div>
-										</a>
-									</li>
-	
-									<!-- Notif item -->
-									<li>
-										<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-											<div class="me-3">
-												<div class="avatar avatar-md">
-													<img class="avatar-img rounded-circle" src="assets/images/avatar/03.jpg" alt="avatar">
-												</div>
-											</div>
-											<div>
-												<h6 class="mb-1">Update v2.3 completed successfully</h6>
-												<p class="small text-body m-0">What's new! Find out about new features</p>
-												<small class="text-body">il y a 5 minutes</small>
-											</div>
-										</a>
-									</li>
-								</ul>
-							</div>
-							<!-- Button -->
-							<div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
-								<a href="#" class="stretched-link">Voir toute lâ€™activite entrante</a>
-							</div>
-						</div>
-					</div>
-					<!-- Notification dropdown menu END -->
-				</li>
-				<!-- Notification dropdown END -->
-
-				<!-- Profile dropdown START -->
-				<li class="nav-item ms-3 dropdown">
-					<!-- Avatar -->
-					<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
-						{% if app.user %}
-							{% if app.user.avatar %}
-								<img class="avatar-img rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
-							{% else %}
-								<div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-									{{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
-								</div>
-							{% endif %}
-						{% else %}
-							<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/zaiminhobaltinhocotinho.jfif') }}" alt="avatar">
-						{% endif %}
-					</a>
-
-					<!-- Profile dropdown START -->
-					<ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
-						<!-- Profile info -->
-						<li class="px-3 mb-3">
-							<div class="d-flex align-items-center">
-								<!-- Avatar -->
-								<div class="avatar me-3">
-									{% if app.user %}
-										{% if app.user.avatar %}
-											<img class="avatar-img rounded-circle shadow" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
-										{% else %}
-											<div class="avatar-img rounded-circle shadow bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-												{{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
-											</div>
-										{% endif %}
-									{% else %}
-										<img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/zaiminhobaltinhocotinho.jfif') }}" alt="avatar">
-									{% endif %}
-								</div>
-								<div>
-									{% if app.user %}
-										<a class="h6" href="#">{{ app.user.fullName }}</a>
-										<p class="small m-0">{{ app.user.email }}</p>
-									{% else %}
-										<a class="h6" href="#">Invité</a>
-										<p class="small m-0">Non connecté</p>
-									{% endif %}
-								</div>
-							</div>
-						</li>
-						<!-- Links -->
-						<li> <hr class="dropdown-divider"></li>
-						<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Modifier Profile</a></li>
-						<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Parametres Compte</a></li>
-						<li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Aider</a></li>
-						{% if app.user %}
-							<li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Se déconnecter</a></li>
-						{% else %}
-							<li><a class="dropdown-item" href="{{ path('app_login') }}"><i class="bi bi-box-arrow-in-right fa-fw me-2"></i>Se connecter</a></li>
-						{% endif %}
-						<li> <hr class="dropdown-divider"></li>
-						<!-- Dark mode options START -->
-						<li>
-							<div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center p-1 rounded mt-2">
-								<button type="button" class="btn btn-sm mb-0" data-bs-theme-value="light">
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sun fa-fw mode-switch" viewBox="0 0 16 16">
-										<path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
-										<use href="#"></use>
-									</svg> Light
-								</button>
-								<button type="button" class="btn btn-sm mb-0" data-bs-theme-value="dark">
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon-stars fa-fw mode-switch" viewBox="0 0 16 16">
-										<path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
-										<path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
-										<use href="#"></use>
-									</svg> Dark
-								</button>
-								<button type="button" class="btn btn-sm mb-0 active" data-bs-theme-value="auto">
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-half fa-fw mode-switch" viewBox="0 0 16 16">
-										<path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
-										<use href="#"></use>
-									</svg> Auto
-								</button>
-							</div>
-						</li> 
-						<!-- Dark mode options END-->
-					</ul>
-					<!-- Profile dropdown END -->
-				</li>
-				<!-- Profile dropdown END -->
-			</ul>
-			<!-- Profile and notification END -->
-			{% endif %}
+	<!-- Header START -->
+	<header class="navbar-light navbar-sticky">
+		<!-- Logo Nav START -->
+		<nav class="navbar navbar-expand-xl">
+			<div class="container">
+				<!-- Logo START -->
+				<a class="navbar-brand" href="{{ path('app_frontoffice') }}">
+					<h3 class="mb-0 text-primary">
+						<i class="fas fa-book-open me-2"></i>
+						<span class="text-dark">LIBRARY</span><span class="text-warning">HUB</span>
+					</h3>
+				</a>
+				<!-- Logo END -->
 		
-		</div>
-	</nav>
-	<!-- Logo Nav END -->
-</header>
+				<!-- Responsive navbar toggler -->
+				<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+					aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-animation">
+						<span></span>
+						<span></span>
+						<span></span>
+					</span>
+				</button>
+		
+				<!-- Main navbar START -->
+				<div class="navbar-collapse collapse" id="navbarCollapse">
+					<!-- Nav Main menu START -->
+					<ul class="navbar-nav navbar-nav-scroll ms-auto align-items-center">
+
+						<!-- Parcourir Dropdown (catalog branch) -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								Parcourir
+							</a>
+							<ul class="dropdown-menu" aria-labelledby="demoMenu">
+								<li><a class="dropdown-item" href="index.html">Home Default</a></li>
+								<li><a class="dropdown-item" href="index-2.html">Forum et discussions</a></li>
+								<li><a class="dropdown-item" href="index-3.html">Catalogue et inventaire</a></li>
+								<li><a class="dropdown-item" href="index-4.html">Emprunts et Retours</a></li>
+								<li><a class="dropdown-item" href="index-5.html">Journal et Defi</a></li>
+								<li><a class="dropdown-item" href="index-6.html">Événements et activités</a></li>
+								<li><a class="dropdown-item" href="index-7.html">Forum et discussions</a></li>
+							</ul>
+						</li>
+
+						<!-- Clubs & Événements Dropdown -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+								<i class="bi bi-people-fill me-1"></i>Mes Clubs & Événements
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="{{ path('app_club_discover') }}">
+										<i class="bi bi-people-fill me-2"></i>Clubs de Lecture
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_event_discover') }}">
+										<i class="bi bi-calendar-event me-2"></i>Mes Événements
+									</a>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_recommendations') }}">
+										<i class="bi bi-star-fill me-2 text-warning"></i>Recommandations
+									</a>
+								</li>
+							</ul>
+						</li>
+
+						<!-- Journal et Défi Dropdown -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="bi bi-journal-bookmark-fill me-1"></i>Journal et Defi
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="{{ path('app_front_journal_index') }}">
+										<i class="bi bi-journal me-2"></i>Journal
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_front_defi_index') }}">
+										<i class="bi bi-trophy me-2"></i>Défi
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_ia_analyse') }}">
+										<i class="fas fa-robot me-2"></i>Analyse IA
+									</a>
+								</li>
+							</ul>
+						</li>
+
+						<!-- Bibliothèque Dropdown -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="bi bi-book me-1"></i>Bibliothèque
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="{{ path('biblio_catalog_index_client') }}">
+										<i class="bi bi-book me-2"></i>Livres
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('biblio_catalog_index_client') }}">
+										<i class="bi bi-person me-2"></i>Auteurs
+									</a>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_stats') }}">
+										<i class="bi bi-bar-chart me-2"></i>Statistiques
+									</a>
+								</li>
+							</ul>
+						</li>
+
+						<!-- Forum Dropdown -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+								<i class="bi bi-chat-dots me-1"></i>Forum
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="{{ path('app_front_community_index') }}">
+										<i class="bi bi-people me-2"></i>Toutes les communautés
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_front_community_new') }}">
+										<i class="bi bi-plus-circle me-2"></i>Créer une communauté
+									</a>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								<li>
+									<a class="dropdown-item" href="#">
+										<i class="bi bi-bookmark me-2"></i>Mes communautés
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="#">
+										<i class="bi bi-file-text me-2"></i>Mes posts
+									</a>
+								</li>
+							</ul>
+						</li>
+
+						<!-- Abonnement -->
+						<li class="nav-item">
+							<a class="nav-link" href="{{ path('app_membership_index') }}">
+								<i class="bi bi-credit-card me-1"></i>Abonnement
+							</a>
+						</li>
+
+						
+
+						<!-- Auth Buttons -->
+						{% if not app.user %}
+							<li class="nav-item ms-3">
+								<a class="btn btn-sm btn-outline-primary" href="{{ path('app_login') }}">
+									<i class="bi bi-box-arrow-in-right me-1"></i>Connexion
+								</a>
+							</li>
+							<li class="nav-item ms-2">
+								<a class="btn btn-sm btn-primary" href="{{ path('app_register') }}">
+									<i class="bi bi-person-plus me-1"></i>S'inscrire
+								</a>
+							</li>
+						{% endif %}
+					</ul>
+					<!-- Nav Main menu END -->
+				</div>
+				<!-- Main navbar END -->
+
+				<!-- Profile and notification START (only for logged-in users) -->
+				{% if app.user %}
+					<ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
+						<!-- Notification dropdown START -->
+						<li class="nav-item ms-0 ms-md-3 dropdown">
+							<!-- Notification button -->
+							<a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+								<i class="bi bi-bell fa-fw"></i>
+							</a>
+							<!-- Notification dote -->
+							<span class="notif-badge animation-blink"></span>
+
+							<!-- Notification dropdown menu START -->
+							<div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
+								<div class="card bg-transparent">
+									<div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
+										<h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
+										<a class="small" href="#">Supprimer Tous</a>
+									</div>
+									<div class="card-body p-0">
+										<ul class="list-group list-unstyled list-group-flush">
+											<!-- Notif items -->
+											<li>
+												<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
+													<div class="me-3">
+														<div class="avatar avatar-md">
+															<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/08.jpg') }}" alt="avatar">
+														</div>
+													</div>
+													<div>
+														<p class="text-body small m-0">Congratulate <b>Joan Wallace</b> for graduating from <b>Microverse university</b></p>
+														<u class="small">Feliciter</u>
+													</div>
+												</a>
+											</li>
+											<!-- Autres notifications... -->
+										</ul>
+									</div>
+									<div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
+										<a href="#" class="stretched-link">Voir toute l'activité entrante</a>
+									</div>
+								</div>
+							</div>
+							<!-- Notification dropdown menu END -->
+						</li>
+						<!-- Notification dropdown END -->
+
+						<!-- Profile dropdown START -->
+						<li class="nav-item ms-3 dropdown">
+							<!-- Avatar -->
+							<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
+								{% if app.user.avatar %}
+									<img class="avatar-img rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+								{% else %}
+									<div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+										{{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
+									</div>
+								{% endif %}
+							</a>
+
+							<!-- Profile dropdown START -->
+							<ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
+								<!-- Profile info -->
+								<li class="px-3 mb-3">
+									<div class="d-flex align-items-center">
+										<div class="avatar me-3">
+											{% if app.user.avatar %}
+												<img class="avatar-img rounded-circle shadow" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+											{% else %}
+												<div class="avatar-img rounded-circle shadow bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+													{{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
+												</div>
+											{% endif %}
+										</div>
+										<div>
+											<a class="h6" href="#">{{ app.user.fullName }}</a>
+											<p class="small m-0">{{ app.user.email }}</p>
+										</div>
+									</div>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Modifier Profile</a></li>
+								<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Parametres Compte</a></li>
+								<li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Aider</a></li>
+								<li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Se déconnecter</a></li>
+								<li><hr class="dropdown-divider"></li>
+								<!-- Dark mode options -->
+								<li>
+									<div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center p-1 rounded mt-2">
+										<button type="button" class="btn btn-sm mb-0" data-bs-theme-value="light">Light</button>
+										<button type="button" class="btn btn-sm mb-0" data-bs-theme-value="dark">Dark</button>
+										<button type="button" class="btn btn-sm mb-0 active" data-bs-theme-value="auto">Auto</button>
+									</div>
+								</li>
+							</ul>
+							<!-- Profile dropdown END -->
+						</li>
+						<!-- Profile dropdown END -->
+					</ul>
+				{% endif %}
+				<!-- Profile and notification END -->
+			</div>
+		</nav>
+		<!-- Logo Nav END -->
+	</header>
 <!-- Header END -->
 
 <!-- **************** MAIN CONTENT START **************** -->
 <main>
+{% block body %}
 <!-- =======================
 Main Banner START -->
 <section class="overflow-hidden pt-6 pt-xxl-0">
@@ -1145,6 +1091,7 @@ Ces services sont conÃ§us pour rendre votre experience de bibliotheque en lign
 <!-- =======================
 Faq END -->
 
+{% endblock %}
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
 
@@ -1244,11 +1191,73 @@ Footer START -->
 <!-- =======================
 Footer END -->
 
+<!-- Widget de chat du bibliothécaire virtuel -->
+<button id="vh-chat-launcher" type="button"
+        class="position-fixed bottom-0 end-0 m-4 btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+        style="width: 56px; height: 56px; z-index: 1080;">
+    <i class="bi bi-chat-dots-fill"></i>
+</button>
+
+<style>
+    /* Styles du widget Bibliothécaire virtuel */
+    #vh-chat-messages {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .vh-msg {
+        max-width: 85%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        line-height: 1.35;
+        white-space: pre-wrap; /* garde les retours à la ligne */
+        word-break: break-word;
+    }
+    .vh-msg-bot {
+        align-self: flex-start;
+        background: #f1f5f9;
+        color: #0f172a;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+    .vh-msg-user {
+        align-self: flex-end;
+        background: #0d6efd;
+        color: #fff;
+    }
+</style>
+
+<div id="vh-chat-panel"
+     class="position-fixed bottom-0 end-0 m-4 bg-white shadow-lg rounded-3 border vh-chat-panel"
+     data-endpoint="{{ path('app_virtual_assistant_ask') }}"
+     style="width: 360px; max-width: 90vw; height: 440px; max-height: 70vh; z-index: 1079; display: none;">
+    <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+        <div>
+            <div class="fw-bold">Bibliothécaire virtuel</div>
+            <small class="text-muted">Posez une question sur LibraryHub</small>
+        </div>
+        <button type="button" class="btn btn-sm btn-light border-0"
+                onclick="document.getElementById('vh-chat-panel').style.display='none'">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div id="vh-chat-messages" class="px-3 py-2" style="height: 310px; overflow-y: auto; font-size: 0.9rem;">
+        <div class="vh-msg vh-msg-bot">
+            Bonjour, je suis le bibliothécaire virtuel. Comment puis-je vous aider aujourd'hui ?
+        </div>
+    </div>
+    <form id="vh-chat-form" class="border-top px-2 py-2 d-flex gap-2">
+        <input id="vh-chat-input" type="text" class="form-control form-control-sm"
+               placeholder="Ex: Comment prolonger un prêt ?" autocomplete="off">
+        <button class="btn btn-sm btn-primary" type="submit">
+            <i class="bi bi-send"></i>
+        </button>
+    </form>
+</div>
+
 <!-- Back to top -->
 <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 
 {% block javascripts %}
-
 
 <!-- Bootstrap JS -->
 <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
@@ -1259,8 +1268,9 @@ Footer END -->
 
 <!-- Template Functions -->
 <script src="{{ asset('assets/js/functions.js') }}"></script>
+<script src="{{ asset('js/virtual-librarian.js') }}"></script>
 
-    {% endblock %}
+{% endblock %}
 
 
 

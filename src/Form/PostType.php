@@ -10,7 +10,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -18,6 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
+use Yippy\ToastUiEditorBundle\Form\Type\ToastUiEditorType;
 
 class PostType extends AbstractType
 {
@@ -31,12 +31,25 @@ class PostType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
-            ->add('content', TextareaType::class, [
+            ->add('content', ToastUiEditorType::class, [
                 'label' => 'Contenu',
+                'jquery' => [
+                    'enable' => false,
+                ],
+                'editor' => [
+                    'options' => [
+                        'initial_edit_type' => 'wysiwyg',
+                        'preview_style' => 'tab',
+                    ],
+                ],
+                'extensions' => [
+                    'codeSyntaxHighlight' => [],
+                    'tableMergedCell' => [],
+                ],
                 'attr' => [
-                    'placeholder' => 'Rédigez votre post...',
+                    'placeholder' => 'Redigez votre post...',
                     'class' => 'form-control',
-                    'rows' => 6,
+                    'rows' => 10,
                 ],
             ])
             ->add('community', EntityType::class, [

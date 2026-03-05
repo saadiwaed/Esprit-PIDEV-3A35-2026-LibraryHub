@@ -16,11 +16,13 @@
         "intervention/image": "^3.11",
         "knplabs/knp-paginator-bundle": "*",
         "knplabs/knp-snappy-bundle": "^1.10",
+        "knplabs/knp-time-bundle": "^2.5",
         "nyholm/psr7": "^1.8",
         "openai-php/client": "^0.19.0",
         "phpdocumentor/reflection-docblock": "5.3.0",
         "phpstan/phpdoc-parser": "^2.3",
         "ramsey/uuid": "^4.9",
+        "stripe/stripe-php": "*",
         "symfony/asset": "6.4.*",
         "symfony/asset-mapper": "6.4.*",
         "symfony/console": "6.4.*",
@@ -54,7 +56,8 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/string-extra": "^3.23",
         "twig/twig": "^2.12|^3.0",
-        "vich/uploader-bundle": "^2.9"
+        "vich/uploader-bundle": "^2.9",
+        "yippy/toast-ui-editor-bundle": "^1.0"
     },
     "config": {
         "allow-plugins": {

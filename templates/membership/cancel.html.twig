@@ -1,0 +1,23 @@
+{% extends 'frontoffice/base.html.twig' %}
+
+{% block title %}Paiement annulé - LibraryHub{% endblock %}
+
+{% block body %}
+<section class="py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-x-circle text-muted display-1"></i>
+                </div>
+                <h1 class="mb-3">Paiement annulé</h1>
+                <p class="lead text-muted mb-4">
+                    Vous avez annulé le paiement. Aucun prélèvement n'a été effectué.
+                </p>
+                <a href="{{ path('app_membership_index') }}" class="btn btn-primary rounded-3">Choisir un abonnement</a>
+                <a href="{{ path('app_frontoffice') }}" class="btn btn-outline-secondary rounded-3 ms-2">Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -26,7 +26,9 @@ class PostRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('p')
             ->leftJoin('p.community', 'c')
-            ->addSelect('c');
+            ->addSelect('c')
+            ->leftJoin('p.createdBy', 'author')
+            ->addSelect('author');
 
         $this->applySearch($qb, $search, true);
         $this->applySort($qb, $sort);
@@ -40,6 +42,8 @@ class PostRepository extends ServiceEntityRepository
     public function findByCommunityForAdmin(Community $community, ?string $search = null, string $sort = 'newest'): array
     {
         $qb = $this->createQueryBuilder('p')
+            ->leftJoin('p.createdBy', 'author')
+            ->addSelect('author')
             ->andWhere('p.community = :community')
             ->setParameter('community', $community)
         ;
@@ -56,6 +60,8 @@ class PostRepository extends ServiceEntityRepository
     public function findVisibleByCommunity(Community $community, ?string $search = null, string $sort = 'newest'): array
     {
         $qb = $this->createQueryBuilder('p')
+            ->leftJoin('p.createdBy', 'author')
+            ->addSelect('author')
             ->andWhere('p.community = :community')
             ->andWhere('p.status = :status')
             ->setParameter('community', $community)
@@ -100,6 +106,21 @@ class PostRepository extends ServiceEntityRepository
             case 'most_commented':
                 $qb->orderBy('p.isPinned', 'DESC')
                     ->addOrderBy('p.commentCount', 'DESC')
+                    ->addOrderBy('p.createdAt', 'DESC');
+                break;
+
+            case 'most_liked':
+                $qb->orderBy('p.isPinned', 'DESC')
+                    ->addOrderBy('p.likeCount', 'DESC')
+                    ->addOrderBy('p.dislikeCount', 'ASC')
+                    ->addOrderBy('p.createdAt', 'DESC');
+                break;
+
+            case 'best_score':
+                $qb->addSelect('(p.likeCount - p.dislikeCount) AS HIDDEN postScore')
+                    ->orderBy('p.isPinned', 'DESC')
+                    ->addOrderBy('postScore', 'DESC')
+                    ->addOrderBy('p.likeCount', 'DESC')
                     ->addOrderBy('p.createdAt', 'DESC');
                 break;
 

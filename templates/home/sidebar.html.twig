@@ -32,6 +32,19 @@
     <!-- Title -->
     <li class="nav-item ms-2 my-2">Navigation Principale</li>
 
+    <!-- Catalogue -->
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseCatalogue" role="button" aria-expanded="false" aria-controls="collapseCatalogue">
+            <i class="bi bi-book fa-fw me-2"></i>Catalogue
+        </a>
+        <ul class="nav collapse flex-column" id="collapseCatalogue" data-bs-parent="#navbar-sidebar">
+            <li class="nav-item"> <a class="nav-link" href="{{ path('biblio_book_index') }}">Tous les livres</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('biblio_category_index') }}">Catégories</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('biblio_author_index') }}">Auteurs</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('app_stats_admin') }}">stats</a></li>
+        </ul>
+    </li>
+ 
     <!-- Mon profil -->
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="collapse" href="#collapseProfil" role="button" aria-expanded="false" aria-controls="collapseProfil">
@@ -40,7 +53,13 @@
         <ul class="nav collapse flex-column" id="collapseProfil" data-bs-parent="#navbar-sidebar">
             <li class="nav-item"> <a class="nav-link" href="#">Informations</a></li>
             <li class="nav-item"> <a class="nav-link" href="#">Parametres</a></li>
-
+            {% if is_granted('ROLE_ADMIN') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_face_register') }}">
+                        <i class="bi bi-person-bounding-box me-2"></i> Reconnaissance faciale (admin)
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     </li>
 
@@ -244,7 +263,13 @@
         <a class="h5 mb-0 text-body" href="index.html" data-bs-toggle="tooltip" data-bs-placement="top" title="Home">
             <i class="bi bi-globe"></i>
         </a>
+<<<<<<< HEAD
         {# Authentification desactivee #}
+=======
+        <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Se déconnecter">
+            <i class="bi bi-power"></i>
+        </a>
+>>>>>>> origin/user-auth
     </div>
 </div>
 </nav>

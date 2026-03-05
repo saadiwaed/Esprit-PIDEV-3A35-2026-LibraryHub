@@ -38,7 +38,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 100)]
     #[Assert\NotBlank(message: 'Le prenom est obligatoire.')]
     #[Assert\Length(
-        min: 2,
+        min: 3,
         max: 100,
         minMessage: 'Le prenom doit contenir au moins {{ limit }} caracteres.',
         maxMessage: 'Le prenom ne peut pas depasser {{ limit }} caracteres.'
@@ -48,7 +48,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'Last name is required.')]
     #[Assert\Length(
-        min: 2,
+        min: 3,
         max: 100,
         minMessage: 'Le nom doit contenir au moins {{ limit }} caracteres.',
         maxMessage: 'Le nom ne peut pas depasser {{ limit }} caracteres.'
@@ -84,6 +84,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeInterface $emailVerifiedAt = null;
 
     /**
+     * Abonnement premium (Stripe) : accès complet après paiement réussi.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $isPremium = false;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $faceDescriptor = null;
+
+    /**
      * RELATION ManyToMany: A User can have many Roles, and a Role can belong to many Users.
      * Example: User "Ali" can be both MEMBER and LIBRARIAN.
      */
@@ -102,8 +111,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      #[ORM\OneToMany(targetEntity: JournalLecture::class, mappedBy: 'user')]
     private Collection $journalLectures;
     #[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
+    private Collection $clubs;
 
-private Collection $clubs;
+    /** @var Collection<int, Community> */
+    #[ORM\ManyToMany(targetEntity: Community::class, mappedBy: 'members')]
+    private Collection $communities;
+
+    /** @var Collection<int, Community> */
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Community::class)]
+    private Collection $createdCommunities;
+
+    /** @var Collection<int, Post> */
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Post::class)]
+    private Collection $createdPosts;
+
+    /** @var Collection<int, EventRegistration> */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: EventRegistration::class)]
+    private Collection $eventRegistrations;
+
+    /** @var Collection<int, Event> */
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Event::class)]
+    private Collection $createdEvents;
+
+    /** @var Collection<int, Club> */
+    #[ORM\OneToMany(mappedBy: 'founder', targetEntity: Club::class)]
+    private Collection $foundedClubs;
 
     public function __construct()
     {
@@ -114,7 +146,14 @@ private Collection $clubs;
 
     
 
-        $this->clubs = new ArrayCollection(); // Add this line
+        
+        $this->clubs = new ArrayCollection();
+        $this->communities = new ArrayCollection();
+        $this->createdCommunities = new ArrayCollection();
+        $this->createdPosts = new ArrayCollection();
+        $this->eventRegistrations = new ArrayCollection();
+        $this->createdEvents = new ArrayCollection();
+        $this->foundedClubs = new ArrayCollection();
 
         $this->createdAt = new \DateTime();
         $this->status = 'PENDING';
@@ -263,6 +302,36 @@ private Collection $clubs;
         return $this;
     }
 
+    public function isPremium(): bool
+    {
+        return $this->isPremium;
+    }
+
+    public function setIsPremium(bool $isPremium): static
+    {
+        $this->isPremium = $isPremium;
+        return $this;
+    }
+
+    public function getFaceDescriptor(): ?string
+    {
+        return $this->faceDescriptor;
+    }
+
+    /**
+     * @param array<string|float>|string|null $descriptor
+     */
+    public function setFaceDescriptor($descriptor): static
+    {
+        if (is_array($descriptor)) {
+            $descriptor = implode(',', array_map('strval', $descriptor));
+        }
+
+        $this->faceDescriptor = $descriptor;
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, Role>
      */
@@ -379,24 +448,132 @@ private Collection $clubs;
     }
 
     public function getClubs(): Collection
-{
-    return $this->clubs;
-}
-
-public function addClub(Club $club): static
-{
-    if (!$this->clubs->contains($club)) {
-        $this->clubs->add($club);
-        $club->addMember($this);
+    {
+        return $this->clubs;
     }
-    return $this;
-}
 
-public function removeClub(Club $club): static
-{
-    if ($this->clubs->removeElement($club)) {
-        $club->removeMember($this);
+    public function addClub(Club $club): static
+    {
+        if (!$this->clubs->contains($club)) {
+            $this->clubs->add($club);
+            $club->addMember($this);
+        }
+
+        return $this;
     }
-    return $this;
-}
+
+    public function removeClub(Club $club): static
+    {
+        if ($this->clubs->removeElement($club)) {
+            $club->removeMember($this);
+        }
+
+        return $this;
+    }
+
+    /** @return Collection<int, Community> */
+    public function getCommunities(): Collection
+    {
+        return $this->communities;
+    }
+
+    public function addCommunity(Community $community): static
+    {
+        if (!$this->communities->contains($community)) {
+            $this->communities->add($community);
+            $community->addMember($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommunity(Community $community): static
+    {
+        if ($this->communities->removeElement($community)) {
+            $community->removeMember($this);
+        }
+
+        return $this;
+    }
+
+    /** @return Collection<int, Community> */
+    public function getCreatedCommunities(): Collection
+    {
+        return $this->createdCommunities;
+    }
+
+    /** @return Collection<int, Post> */
+    public function getCreatedPosts(): Collection
+    {
+        return $this->createdPosts;
+    }
+
+    /** @return Collection<int, EventRegistration> */
+    public function getEventRegistrations(): Collection
+    {
+        return $this->eventRegistrations;
+    }
+
+    public function addEventRegistration(EventRegistration $eventRegistration): static
+    {
+        if (!$this->eventRegistrations->contains($eventRegistration)) {
+            $this->eventRegistrations->add($eventRegistration);
+            $eventRegistration->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeEventRegistration(EventRegistration $eventRegistration): static
+    {
+        if ($this->eventRegistrations->removeElement($eventRegistration) && $eventRegistration->getUser() === $this) {
+            $eventRegistration->setUser(null);
+        }
+        return $this;
+    }
+
+    /** @return Collection<int, Event> */
+    public function getCreatedEvents(): Collection
+    {
+        return $this->createdEvents;
+    }
+
+    public function addCreatedEvent(Event $event): static
+    {
+        if (!$this->createdEvents->contains($event)) {
+            $this->createdEvents->add($event);
+            $event->setCreatedBy($this);
+        }
+        return $this;
+    }
+
+    public function removeCreatedEvent(Event $event): static
+    {
+        if ($this->createdEvents->removeElement($event) && $event->getCreatedBy() === $this) {
+            $event->setCreatedBy(null);
+        }
+        return $this;
+    }
+
+    /** @return Collection<int, Club> */
+    public function getFoundedClubs(): Collection
+    {
+        return $this->foundedClubs;
+    }
+
+    public function addFoundedClub(Club $club): static
+    {
+        if (!$this->foundedClubs->contains($club)) {
+            $this->foundedClubs->add($club);
+            $club->setFounder($this);
+        }
+        return $this;
+    }
+
+    public function removeFoundedClub(Club $club): static
+    {
+        if ($this->foundedClubs->removeElement($club) && $club->getFounder() === $this) {
+            $club->setFounder(null);
+        }
+        return $this;
+    }
 }

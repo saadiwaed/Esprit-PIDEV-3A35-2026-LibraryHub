@@ -64,7 +64,7 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Inscription réussie ! Bienvenue sur LibraryHub. En attente d\'approbation administrateur.');
+            $this->addFlash('success', 'Inscription réussie ! Bienvenue sur LibraryHub.');
 
             return $this->redirectToRoute('app_login');
         }

@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Moderation des signalements{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1">Moderation des signalements</h1>
+            <p class="text-muted mb-0">Posts avec au moins un signalement en attente.</p>
+        </div>
+        <a href="{{ path('app_post_index') }}" class="btn btn-outline-secondary">Retour aux posts</a>
+    </div>
+
+    {% for label in ['success', 'warning', 'error'] %}
+        {% for message in app.flashes(label) %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {% for item in queue %}
+        <article class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <h2 class="h5 mb-1">{{ item.post.title }}</h2>
+                    <div class="small text-muted">
+                        Auteur: {{ item.post.createdBy ? item.post.createdBy.fullName : '-' }} |
+                        Communaute: {{ item.post.community ? item.post.community.name : '-' }} |
+                        Statut: <span class="badge {{ item.post.status.getBadgeClass() }}">{{ item.post.status.getLabel() }}</span>
+                    </div>
+                </div>
+                <span class="badge bg-warning text-dark">{{ item.pendingCount }} signalement(s) en attente</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 d-flex flex-wrap gap-2">
+                    <a href="{{ path('app_post_show', {'id': item.post.id}) }}" class="btn btn-sm btn-outline-primary">Voir en back-office</a>
+                    <a href="{{ path('app_front_post_show', {'id': item.post.id}) }}" class="btn btn-sm btn-outline-secondary">Voir en front-office</a>
+                </div>
+
+                <ul class="list-group list-group-flush">
+                    {% for report in item.reports %}
+                        <li class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="fw-semibold">{{ report.reporter ? report.reporter.fullName : 'Utilisateur supprime' }}</div>
+                                    <div class="small text-muted">{{ report.reporter ? report.reporter.email : '-' }}</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="small text-muted">{{ report.createdAt ? report.createdAt|date('d/m/Y H:i') : '-' }}</div>
+                                    <span class="badge {{ report.status.getBadgeClass() }}">{{ report.status.getLabel() }}</span>
+                                </div>
+                            </div>
+                            <p class="mb-0 mt-2">{{ report.reason|nl2br }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <form method="post" action="{{ path('app_post_moderate', {'id': item.post.id}) }}" class="border rounded p-3 mt-3">
+                    <input type="hidden" name="_token" value="{{ csrf_token('moderate_post_' ~ item.post.id) }}">
+                    <div class="row g-2">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1">Decision</label>
+                            <select name="decision" class="form-select" required>
+                                <option value="hide_post">Accepter le signalement et masquer le post</option>
+                                <option value="reject_report">Rejeter le signalement et conserver le post</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label mb-1">Motif de moderation (optionnel)</label>
+                            <input type="text" name="decision_reason" class="form-control" maxlength="1000" placeholder="Ex: contenu non conforme / signalement abusif">
+                        </div>
+                        <div class="col-12 col-md-2 d-grid">
+                            <label class="form-label mb-1 d-none d-md-block">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary">Appliquer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </article>
+    {% else %}
+        <div class="card shadow-sm">
+            <div class="card-body text-center text-muted py-5">
+                Aucun signalement en attente.
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -59,6 +59,9 @@
             "./config/packages/http_discovery.yaml"
         ]
     },
+    "knplabs/knp-time-bundle": {
+        "version": "2.5.0"
+    },
     "phpunit/phpunit": {
         "version": "11.5",
         "recipe": {
@@ -73,6 +76,15 @@
             "./tests/bootstrap.php",
             "./bin/phpunit"
         ]
+    },
+    "stripe/stripe-php": {
+        "version": "19.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "19.0",
+            "ref": "d6829c693e3927a8972c7671d74a1a5c505712b0"
+        }
     },
     "symfony/asset-mapper": {
         "version": "6.4",
@@ -337,5 +349,8 @@
         "files": [
             "./config/packages/vich_uploader.yaml"
         ]
+    },
+    "yippy/toast-ui-editor-bundle": {
+        "version": "v1.0.3"
     }
 }

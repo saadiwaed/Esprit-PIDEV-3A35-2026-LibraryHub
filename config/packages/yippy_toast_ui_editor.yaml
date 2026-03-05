@@ -1,0 +1,35 @@
+yippy_toast_ui_editor:
+    # Keep frontend payload small: do not load jQuery for the editor.
+    jquery:
+        enable: false
+    editor:
+        options:
+            initial_edit_type: wysiwyg
+            preview_style: tab
+
+    # Custom forum profile used by post creation and post rendering.
+    default_config: forum_markdown
+    configs:
+        forum_markdown:
+            to_html: false
+            jquery:
+                enable: false
+            extensions:
+                codeSyntaxHighlight: { }
+                tableMergedCell: { }
+            editor:
+                options:
+                    height: '360px'
+                    initial_edit_type: wysiwyg
+                    preview_style: vertical
+                    theme: light
+                    toolbar_items:
+                        - ['heading', 'bold', 'italic', 'strike']
+                        - ['ul', 'ol', 'task']
+                        - ['quote', 'link']
+                        - ['code', 'codeblock']
+                    widget_rules: [ ]
+            viewer:
+                options:
+                    height: 'auto'
+                    widget_rules: [ ]

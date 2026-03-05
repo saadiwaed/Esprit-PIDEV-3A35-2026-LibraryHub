@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<style>
+
+/* -------- PAGE -------- */
+@page {
+    margin: 50px 45px 70px 45px;
+}
+
+body{
+    font-family: DejaVu Sans;
+    color:#1a1a1a;
+    font-size:13px;
+}
+
+/* -------- HEADER -------- */
+.header{
+    border-bottom:3px solid #2c6ed5;
+    padding-bottom:12px;
+    margin-bottom:25px;
+}
+
+.library-name{
+    font-size:22px;
+    font-weight:700;
+    color:#2c6ed5;
+}
+
+.subtitle{
+    font-size:12px;
+    color:#666;
+}
+
+/* -------- BOOK TITLE -------- */
+.book-title{
+    font-size:24px;
+    font-weight:700;
+    margin-top:15px;
+}
+
+.book-author{
+    font-size:15px;
+    color:#555;
+    margin-top:4px;
+}
+
+/* -------- LAYOUT -------- */
+.main-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+.left{
+    width:240px;
+    vertical-align:top;
+}
+
+.right{
+    vertical-align:top;
+    padding-left:25px;
+}
+
+/* -------- COVER -------- */
+.cover-box{
+    border:1px solid #d9d9d9;
+    padding:10px;
+    text-align:center;
+    background:#fafafa;
+}
+
+.cover-box img{
+    width:200px;
+    height:300px;
+    object-fit:cover;
+}
+
+/* -------- INFO TABLE -------- */
+.info-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.info-table td{
+    padding:7px 6px;
+    border-bottom:1px solid #e6e6e6;
+}
+
+.label{
+    font-weight:700;
+    color:#333;
+    width:150px;
+}
+
+.value{
+    color:#111;
+}
+
+/* -------- STATUS BADGE -------- */
+.status{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:14px;
+    font-weight:700;
+    font-size:12px;
+}
+
+.available{ background:#d1f7dc; color:#157a34; }
+.borrowed{ background:#ffe0e0; color:#b02121; }
+.reserved{ background:#fff2cc; color:#9c7a00; }
+.maintenance{ background:#e6e6e6; color:#555; }
+
+/* -------- DESCRIPTION -------- */
+.section-title{
+    margin-top:28px;
+    font-size:17px;
+    font-weight:700;
+    border-bottom:2px solid #2c6ed5;
+    padding-bottom:6px;
+    margin-bottom:10px;
+}
+
+.description{
+    line-height:1.7;
+    text-align:justify;
+}
+
+/* -------- FOOTER -------- */
+.footer{
+    position:fixed;
+    bottom:20px;
+    left:0;
+    right:0;
+    border-top:1px solid #cccccc;
+    padding-top:8px;
+    text-align:center;
+    font-size:11px;
+    color:#777;
+}
+
+.page-number:after {
+    content: counter(page);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="library-name">📚 Bibliothèque Centrale</div>
+    <div class="subtitle">Fiche descriptive du livre</div>
+</div>
+
+<!-- TITLE -->
+<div class="book-title">{{ book.title }}</div>
+<div class="book-author">par {{ book.author.fullName }}</div>
+
+<!-- MAIN CONTENT -->
+<table class="main-table">
+<tr>
+
+<td class="left">
+    <div class="cover-box">
+        {% if book.coverImage %}
+            <img src="{{ absolute_url(asset(book.coverImage)) }}">
+        {% else %}
+            <div style="height:300px; line-height:300px; color:#999;">
+                Pas de couverture
+            </div>
+        {% endif %}
+    </div>
+</td>
+
+<td class="right">
+
+<table class="info-table">
+
+<tr>
+    <td class="label">Catégorie</td>
+    <td class="value">{{ book.category.name }}</td>
+</tr>
+
+<tr>
+    <td class="label">Langue</td>
+    <td class="value">{{ book.language|default('—') }}</td>
+</tr>
+
+<tr>
+    <td class="label">Nombre de pages</td>
+    <td class="value">{{ book.pageCount|default('—') }}</td>
+</tr>
+
+<tr>
+    <td class="label">Éditeur</td>
+    <td class="value">{{ book.publisher|default('—') }}</td>
+</tr>
+
+<tr>
+    <td class="label">Année</td>
+    <td class="value">{{ book.publicationYear|default('—') }}</td>
+</tr>
+
+<tr>
+    <td class="label">Date d’ajout</td>
+    <td class="value">{{ book.createdAt|date('d/m/Y') }}</td>
+</tr>
+
+<tr>
+    <td class="label">Statut</td>
+    <td class="value">
+
+        {% if book.status == 'available' %}
+            <span class="status available">Disponible</span>
+        {% elseif book.status == 'borrowed' %}
+            <span class="status borrowed">Emprunté</span>
+        {% elseif book.status == 'reserved' %}
+            <span class="status reserved">Réservé</span>
+        {% else %}
+            <span class="status maintenance">Maintenance</span>
+        {% endif %}
+
+    </td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+<!-- DESCRIPTION -->
+{% if book.description %}
+<div class="section-title">Résumé</div>
+
+<div class="description">
+    {{ book.description|nl2br }}
+</div>
+{% endif %}
+
+<!-- FOOTER -->
+<div class="footer">
+    Document généré automatiquement • Bibliothèque • Page <span class="page-number"></span>
+</div>
+
+</body>
+</html>
