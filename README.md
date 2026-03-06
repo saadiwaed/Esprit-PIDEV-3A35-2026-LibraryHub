@@ -68,6 +68,14 @@ composer install
 
 symfony server:start
 
+## Screenshots
+
+### 🏠 Page d'accueil
+<img src="assets/screenshots/accueil.png" width="700" alt="Page d'accueil LibraryHub">
+
+### 🔐 Page de connexion
+<img src="assets/screenshots/login.png" width="700" alt="Page de connexion LibraryHub">
+
 ## Acknowledgments
 
 Thanks to Esprit School of Engineering for the academic guidance and supervision.
