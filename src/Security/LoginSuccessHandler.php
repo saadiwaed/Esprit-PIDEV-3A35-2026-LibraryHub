@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
@@ -20,6 +21,11 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): RedirectResponse
     {
         $user = $token->getUser();
+
+        if (!$user instanceof User) {
+            return new RedirectResponse('/');
+        }
+        
         $roles = $user->getRoles();
 
         // Check if user has admin or librarian role -> redirect to dashboard

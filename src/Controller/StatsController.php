@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use App\Repository\AuthorRepository;
-use App\Repository\BookRepository;
 use App\Enum\PaymentStatus;
 use App\Repository\LoanRepository;
 use App\Repository\PenaltyRepository;
@@ -15,101 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class StatsController extends AbstractController
+class StatsController extends AbstractController
 {
-    /*
-    |--------------------------------------------------------------------------
-    | BOOK & AUTHOR STATS (FRONT + ADMIN)
-    |--------------------------------------------------------------------------
-    */
-
-    #[Route('/stats', name: 'app_stats')]
-    public function index(
-        BookRepository $bookRepository,
-        AuthorRepository $authorRepository
-    ): Response {
-        // BOOK STATS
-        $booksByCategory = $bookRepository->countBooksByCategory();
-        $booksByStatus = $bookRepository->countBooksByStatus();
-
-        // MONTHS
-        $books = $bookRepository->findAllBooksForStats();
-        $months = [];
-
-        foreach ($books as $book) {
-            $date = $book['createdAt'];
-            if ($date instanceof \DateTimeInterface) {
-                $month = $date->format('Y-m');
-                if (!isset($months[$month])) {
-                    $months[$month] = 0;
-                }
-                $months[$month]++;
-            }
-        }
-        ksort($months);
-
-        // AUTHOR STATS
-        $booksByAuthor = $authorRepository->countBooksByAuthor();
-        $authorsByNationality = $authorRepository->countAuthorsByNationality();
-
-        return $this->render('stats/index2.html.twig', [
-            'booksByCategory' => $booksByCategory,
-            'booksByStatus' => $booksByStatus,
-            'monthsLabels' => array_keys($months),
-            'monthsData' => array_values($months),
-            'booksByAuthor' => $booksByAuthor,
-            'authorsByNationality' => $authorsByNationality,
-        ]);
-    }
-
-    #[Route('/stats/admin', name: 'app_stats_admin')]
-    public function index_admin(
-        BookRepository $bookRepository,
-        AuthorRepository $authorRepository
-    ): Response {
-        // BOOK STATS
-        $booksByCategory = $bookRepository->countBooksByCategory();
-        $booksByStatus = $bookRepository->countBooksByStatus();
-
-        // MONTHS
-        $books = $bookRepository->findAllBooksForStats();
-        $months = [];
-
-        foreach ($books as $book) {
-            $date = $book['createdAt'];
-            if ($date instanceof \DateTimeInterface) {
-                $month = $date->format('Y-m');
-                if (!isset($months[$month])) {
-                    $months[$month] = 0;
-                }
-                $months[$month]++;
-            }
-        }
-        ksort($months);
-
-        // AUTHOR STATS
-        $booksByAuthor = $authorRepository->countBooksByAuthor();
-        $authorsByNationality = $authorRepository->countAuthorsByNationality();
-
-        return $this->render('stats/index_admin.html.twig', [
-            'booksByCategory' => $booksByCategory,
-            'booksByStatus' => $booksByStatus,
-            'monthsLabels' => array_keys($months),
-            'monthsData' => array_values($months),
-            'booksByAuthor' => $booksByAuthor,
-            'authorsByNationality' => $authorsByNationality,
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAN / RENEWAL / PENALTY STATS (ADMIN + GESTION)
-    |--------------------------------------------------------------------------
-    */
-
     #[Route('/admin/stats', name: 'app_stats_index', methods: ['GET'])]
     #[Route('/gestion/stats', name: 'app_stats_index_alt', methods: ['GET'])]
-    public function indexLoanStats(
+    public function index(
         Request $request,
         LoanRepository $loanRepository,
         RenewalRepository $renewalRepository,
@@ -158,10 +66,114 @@ final class StatsController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
+        $renewalsThisPeriod = (int) $renewalRepository->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->andWhere('r.renewedAt >= :from')
+            ->andWhere('r.renewedAt <= :to')
+            ->setParameter('from', ($dateFrom ?: new \DateTimeImmutable('first day of this month 00:00:00'))->setTime(0, 0, 0))
+            ->setParameter('to', ($dateTo ?: new \DateTimeImmutable('last day of this month 23:59:59'))->setTime(23, 59, 59))
+            ->getQuery()
+            ->getSingleScalarResult();
+
         $totalPenalties = (int) $penaltyRepository->createQueryBuilder('p')
             ->select('COUNT(p.id)')
             ->getQuery()
             ->getSingleScalarResult();
+
+        $totalDue = (float) $penaltyRepository->createQueryBuilder('p')
+            ->select('COALESCE(SUM(p.amount), 0)')
+            ->andWhere('p.status IN (:statuses)')
+            ->setParameter('statuses', [PaymentStatus::UNPAID, PaymentStatus::PARTIAL])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalPaid = (float) $penaltyRepository->createQueryBuilder('p')
+            ->select('COALESCE(SUM(p.amount), 0)')
+            ->andWhere('p.status = :status')
+            ->setParameter('status', PaymentStatus::PAID)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalWaived = (float) $penaltyRepository->createQueryBuilder('p')
+            ->select('COALESCE(SUM(p.amount), 0)')
+            ->andWhere('p.waived = :waived')
+            ->setParameter('waived', true)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $averagePenalty = (float) $penaltyRepository->createQueryBuilder('p')
+            ->select('COALESCE(AVG(p.amount), 0)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $penaltiesThisPeriod = (int) $penaltyRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.issueDate >= :from')
+            ->andWhere('p.issueDate <= :to')
+            ->setParameter('from', ($dateFrom ?: new \DateTimeImmutable('first day of this month 00:00:00'))->setTime(0, 0, 0))
+            ->setParameter('to', ($dateTo ?: new \DateTimeImmutable('last day of this month 23:59:59'))->setTime(23, 59, 59))
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        [$monthLabels, $loanMonthlyData] = $this->buildMonthlySeries(
+            $loanRepository->getMonthlyLoanCounts(
+                $this->getChartStart($dateFrom, $dateTo),
+                $this->getChartEnd($dateFrom, $dateTo)
+            ),
+            $this->getChartStart($dateFrom, $dateTo),
+            $this->getChartEnd($dateFrom, $dateTo)
+        );
+
+        $penaltyMonthlyCounts = $this->getMonthlyPenaltyCounts(
+            $entityManager,
+            $this->getChartStart($dateFrom, $dateTo),
+            $this->getChartEnd($dateFrom, $dateTo)
+        );
+        [$penaltyMonthLabels, $penaltyMonthlyData] = $this->buildMonthlySeries(
+            $penaltyMonthlyCounts,
+            $this->getChartStart($dateFrom, $dateTo),
+            $this->getChartEnd($dateFrom, $dateTo)
+        );
+
+        $chartLoansStatusData = [
+            'labels' => ['Actifs', 'En retard', 'Rendus'],
+            'datasets' => [[
+                'data' => [
+                    $loanCounts['active'],
+                    $loanCounts['overdue'],
+                    $loanCounts['returned'],
+                ],
+                'backgroundColor' => ['#0d6efd', '#ffc107', '#198754'],
+            ]],
+        ];
+
+        $chartLoansMonthlyData = [
+            'labels' => $monthLabels,
+            'datasets' => [[
+                'label' => 'Nombre de prêts',
+                'data' => $loanMonthlyData,
+                'backgroundColor' => '#0d6efd',
+            ]],
+        ];
+
+        $chartPenaltiesMonthlyData = [
+            'labels' => $penaltyMonthLabels,
+            'datasets' => [[
+                'label' => 'Amendes émises',
+                'data' => $penaltyMonthlyData,
+                'borderColor' => '#dc3545',
+                'backgroundColor' => 'rgba(220,53,69,0.2)',
+                'fill' => true,
+            ]],
+        ];
+
+        $chartPenaltyAmountsData = [
+            'labels' => ['Payé', 'Impayé/Partiel', 'Annulé'],
+            'datasets' => [[
+                'data' => [$totalPaid, $totalDue, $totalWaived],
+                'backgroundColor' => ['#198754', '#ffc107', '#6c757d'],
+            ]],
+        ];
 
         return $this->render('stats/index.html.twig', [
             'filterForm' => $filterForm->createView(),
@@ -174,8 +186,84 @@ final class StatsController extends AbstractController
             'averageRenewals' => $averageRenewals,
             'mostRenewedLoan' => $mostRenewedLoan,
             'totalRenewals' => $totalRenewals,
+            'renewalsThisPeriod' => $renewalsThisPeriod,
             'totalPenalties' => $totalPenalties,
+            'totalDue' => $totalDue,
+            'totalPaid' => $totalPaid,
+            'totalWaived' => $totalWaived,
+            'averagePenalty' => $averagePenalty,
+            'penaltiesThisPeriod' => $penaltiesThisPeriod,
+            'chartLoansStatusData' => $chartLoansStatusData,
+            'chartLoansMonthlyData' => $chartLoansMonthlyData,
+            'chartPenaltiesMonthlyData' => $chartPenaltiesMonthlyData,
+            'chartPenaltyAmountsData' => $chartPenaltyAmountsData,
             'lastUpdate' => new \DateTimeImmutable(),
         ]);
+    }
+
+    private function getChartStart(?\DateTimeInterface $from, ?\DateTimeInterface $to): \DateTimeImmutable
+    {
+        if ($from instanceof \DateTimeInterface) {
+            return \DateTimeImmutable::createFromInterface($from)->modify('first day of this month')->setTime(0, 0, 0);
+        }
+
+        if ($to instanceof \DateTimeInterface) {
+            return \DateTimeImmutable::createFromInterface($to)->modify('-11 months')->modify('first day of this month')->setTime(0, 0, 0);
+        }
+
+        return (new \DateTimeImmutable('first day of this month 00:00:00'))->modify('-11 months');
+    }
+
+    private function getChartEnd(?\DateTimeInterface $from, ?\DateTimeInterface $to): \DateTimeImmutable
+    {
+        if ($to instanceof \DateTimeInterface) {
+            return \DateTimeImmutable::createFromInterface($to)->modify('last day of this month')->setTime(23, 59, 59);
+        }
+
+        return new \DateTimeImmutable('last day of this month 23:59:59');
+    }
+
+    private function buildMonthlySeries(array $counts, \DateTimeImmutable $start, \DateTimeImmutable $end): array
+    {
+        $labels = [];
+        $data = [];
+        $cursor = $start->modify('first day of this month');
+        $endCursor = $end->modify('first day of this month');
+
+        while ($cursor <= $endCursor) {
+            $key = $cursor->format('Y-m');
+            $labels[] = $cursor->format('M Y');
+            $data[] = $counts[$key] ?? 0;
+            $cursor = $cursor->modify('+1 month');
+        }
+
+        return [$labels, $data];
+    }
+
+    private function getMonthlyPenaltyCounts(
+        EntityManagerInterface $entityManager,
+        \DateTimeImmutable $start,
+        \DateTimeImmutable $end
+    ): array {
+        $rows = $entityManager->createQueryBuilder()
+            ->select('p.issueDate AS issueDate')
+            ->from('App\\Entity\\Penalty', 'p')
+            ->andWhere('p.issueDate >= :start')
+            ->andWhere('p.issueDate <= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            if (!isset($row['issueDate']) || !$row['issueDate'] instanceof \DateTimeInterface) {
+                continue;
+            }
+            $key = $row['issueDate']->format('Y-m');
+            $counts[$key] = ($counts[$key] ?? 0) + 1;
+        }
+
+        return $counts;
     }
 }

@@ -19,8 +19,7 @@ final class FaceLoginController extends AbstractController
 {
     public function __construct(
         private FaceRecognitionService $faceRecognition,
-        private EntityManagerInterface $entityManager,
-    ) {
+     ) {
     }
 
     #[Route('', name: 'page', methods: ['GET'])]
@@ -46,13 +45,20 @@ final class FaceLoginController extends AbstractController
     {
         $descriptor = $request->request->get('descriptor');
 
-        if ($descriptor === null || $descriptor === '') {
-            return new JsonResponse(['isSuccessful' => false, 'message' => 'Descripteur manquant.'], 400);
+        if (!is_string($descriptor) || $descriptor === '') {
+            return new JsonResponse([
+                'isSuccessful' => false,
+                'message' => 'Descripteur manquant.'
+            ], 400);
         }
 
-        $decoded = is_string($descriptor) ? json_decode($descriptor, true) : $descriptor;
+        $decoded = json_decode($descriptor, true);
+
         if (!is_array($decoded) || count($decoded) === 0) {
-            return new JsonResponse(['isSuccessful' => false, 'message' => 'Descripteur invalide.'], 400);
+            return new JsonResponse([
+                'isSuccessful' => false,
+                'message' => 'Descripteur invalide.'
+            ], 400);
         }
 
         $probe = array_map('floatval', $decoded);

@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,23 +17,16 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/user')]
 class UserController extends AbstractController
 {
-    private const USERS_PER_PAGE = 4;
-
     #[Route('/', name: 'app_user_index', methods: ['GET'])]
-    public function index(Request $request, UserRepository $userRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request, UserRepository $userRepository): Response
     {
-        $search = $request->query->get('search', '');
-        $page = $request->query->getInt('page', 1);
-        $perPage = $request->query->getInt('per_page', self::USERS_PER_PAGE);
-        $perPage = max(1, min(self::USERS_PER_PAGE, $perPage)); // max 4 users per page
-
-        $queryBuilder = $userRepository->getQueryBuilderForList($search ?: null);
-
-        $users = $paginator->paginate($queryBuilder, $page, $perPage, [
-            'distinct' => true,
-            'pageParameterName' => 'page',
-        ]);
-
+        $search = (string) $request->query->get('search', '');        
+        if ($search) {
+            $users = $userRepository->searchByNameOrEmail($search);
+        } else {
+            $users = $userRepository->findAll();
+        }
+        
         return $this->render('user/index.html.twig', [
             'users' => $users,
         ]);
@@ -43,8 +35,7 @@ class UserController extends AbstractController
     #[Route('/search', name: 'app_user_search', methods: ['GET'])]
     public function search(Request $request, UserRepository $userRepository): Response
     {
-        $query = $request->query->get('q', '');
-        
+        $query = (string) $request->query->get('q', '');        
         if (strlen($query) < 2) {
             return $this->json([]);
         }
@@ -52,12 +43,15 @@ class UserController extends AbstractController
         $users = $userRepository->searchByNameOrEmail($query);
         
         $results = array_map(function($user) {
+            $first = $user->getFirstName() ?? '';
+$last = $user->getLastName() ?? '';
+
             return [
                 'id' => $user->getId(),
                 'fullName' => $user->getFullName(),
                 'email' => $user->getEmail(),
                 'avatar' => $user->getAvatar(),
-                'initials' => substr($user->getFirstName(), 0, 1) . substr($user->getLastName(), 0, 1),
+'initials' => substr($first,0,1) . substr($last,0,1),
             ];
         }, $users);
         
@@ -72,6 +66,10 @@ class UserController extends AbstractController
         SluggerInterface $slugger
     ): Response
     {
+    
+     
+
+
         $user = new User();
         $form = $this->createForm(UserType::class, $user, ['is_edit' => false]);
         $form->handleRequest($request);
@@ -92,8 +90,15 @@ class UserController extends AbstractController
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$avatarFile->guessExtension();
 
                 try {
+                    $projectDir = $this->getParameter('kernel.project_dir');
+
+                    if (!is_string($projectDir)) {
+                        throw new \RuntimeException('Invalid project directory');
+                    }
+                    
+                    
                     $avatarFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads/avatars',
+                        $projectDir . '/public/uploads/avatars',
                         $newFilename
                     );
                     $user->setAvatar($newFilename);
@@ -133,7 +138,12 @@ class UserController extends AbstractController
         SluggerInterface $slugger
     ): Response
     {
-        $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
+        $projectDir = $this->getParameter('kernel.project_dir');
+
+        if (!is_string($projectDir)) {
+            throw new \RuntimeException('Invalid project directory');
+        }
+       $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -149,8 +159,8 @@ class UserController extends AbstractController
             if ($avatarFile) {
                 // Delete old avatar if exists
                 if ($user->getAvatar()) {
-                    $oldAvatarPath = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars/' . $user->getAvatar();
-                    if (file_exists($oldAvatarPath)) {
+                    $oldAvatarPath = $projectDir . '/public/uploads/avatars/' . $user->getAvatar();
+                                        if (file_exists($oldAvatarPath)) {
                         unlink($oldAvatarPath);
                     }
                 }
@@ -160,8 +170,10 @@ class UserController extends AbstractController
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$avatarFile->guessExtension();
 
                 try {
+                   
+                    
                     $avatarFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads/avatars',
+                        $projectDir . '/public/uploads/avatars',
                         $newFilename
                     );
                     $user->setAvatar($newFilename);
@@ -186,15 +198,14 @@ class UserController extends AbstractController
     #[Route('/{id}/delete', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
+        
+      
+ 
+
+        $token = (string) $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete'.$user->getId(), $token)) {
             try {
-                // Delete avatar if exists
-                if ($user->getAvatar()) {
-                    $avatarPath = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars/' . $user->getAvatar();
-                    if (file_exists($avatarPath)) {
-                        unlink($avatarPath);
-                    }
-                }
+            
 
                 $entityManager->remove($user);
                 $entityManager->flush();

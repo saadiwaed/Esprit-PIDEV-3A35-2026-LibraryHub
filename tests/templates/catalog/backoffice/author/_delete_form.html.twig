@@ -1,4 +1,0 @@
-<form method="post" action="{{ path(area ~ '_author_delete', { id: author.id }) }}" class="d-inline" onsubmit="return confirm('Supprimer cet auteur ?');">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ author.id) }}">
-    <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
-</form>

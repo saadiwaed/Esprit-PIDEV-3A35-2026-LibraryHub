@@ -33,8 +33,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    // Méthodes personnalisées
-    public function findByRole(string $role): array
+/**
+ * @return User[]
+ */    public function findByRole(string $role): array
     {
         return $this->createQueryBuilder('u')
             ->andWhere('u.roles LIKE :role')
@@ -43,6 +44,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getResult();
     }
 
+    /**
+ * @return User[]
+ */
     public function findActiveUsers(): array
     {
         return $this->createQueryBuilder('u')
@@ -52,7 +56,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getResult();
     }
-
+/**
+ * @return User[]
+ */
     public function findPremiumMembers(): array
     {
         return $this->createQueryBuilder('u')
@@ -63,7 +69,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getResult();
     }
-
+/**
+ * @return User[]
+ */
     public function findUsersWithOverdueLoans(): array
     {
         return $this->createQueryBuilder('u')
@@ -73,7 +81,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getResult();
     }
-
+/**
+ * @return User[]
+ */
     public function searchUsers(string $query): array
     {
         return $this->createQueryBuilder('u')
@@ -87,8 +97,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Search users by name or email with limit for suggestions
-     */
+ * @return User[]
+ */
     public function searchByNameOrEmail(string $query, int $limit = 10): array
     {
         return $this->createQueryBuilder('u')
@@ -102,26 +112,5 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
-    }
-
-    /**
-     * QueryBuilder for user list (with optional search) for pagination.
-     */
-    public function getQueryBuilderForList(?string $search = null): \Doctrine\ORM\QueryBuilder
-    {
-        $qb = $this->createQueryBuilder('u')
-            ->orderBy('u.firstName', 'ASC')
-            ->addOrderBy('u.lastName', 'ASC');
-
-        if ($search !== null && $search !== '') {
-            $qb
-                ->where('LOWER(u.firstName) LIKE LOWER(:search)')
-                ->orWhere('LOWER(u.lastName) LIKE LOWER(:search)')
-                ->orWhere('LOWER(u.email) LIKE LOWER(:search)')
-                ->orWhere("LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(:search)")
-                ->setParameter('search', '%' . $search . '%');
-        }
-
-        return $qb;
     }
 }
