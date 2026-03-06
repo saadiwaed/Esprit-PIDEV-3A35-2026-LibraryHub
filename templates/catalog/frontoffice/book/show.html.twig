@@ -1,60 +1,315 @@
 {% extends 'frontoffice/base.html.twig' %}
 {% block title %}{{ book.title }} – Livre{% endblock %}
-{% block main_content %}
-<section class="py-5">
-    <div class="container">
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ path(area ~ '_catalog_index') }}">Catalogue</a></li>
-                <li class="breadcrumb-item"><a href="{{ path(area ~ '_book_index') }}">Livres</a></li>
-                <li class="breadcrumb-item active">{{ (book.title)|length > 40 ? (book.title)|slice(0, 40) ~ '…' : book.title }}</li>
-            </ol>
-        </nav>
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <div class="card border-0 shadow-sm overflow-hidden sticky-top">
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="min-height: 400px;">
-                        {% if book.coverImage %}
-                            <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="w-100 h-100 object-fit-cover">
-                        {% else %}
-                            <div class="text-muted text-center p-4">
-                                <i class="bi bi-journal-bookmark display-1"></i>
-                                <p class="mb-0 mt-2">Sans couverture</p>
-                            </div>
-                        {% endif %}
+
+{% block body %}
+
+<style>
+
+    :root{
+        --primary:#3b82f6;
+        --bg-soft:#f3f6fb;
+        --text-muted:#6b7280;
+        --glass:rgba(255,255,255,.65);
+    }
+
+    body{
+        background:var(--bg-soft);
+    }
+
+    /* HERO HEADER */
+    .book-hero{
+        border-radius:22px;
+        background:linear-gradient(135deg,#eef4ff,#f8fbff);
+        padding:30px;
+        box-shadow:0 20px 45px rgba(0,0,0,.06);
+        margin-bottom:30px;
+    }
+
+    .book-cover{
+        width:260px;
+        height:380px;
+        object-fit:cover;
+        border-radius:18px;
+        box-shadow:0 18px 40px rgba(0,0,0,.18);
+    }
+
+    /* TITLE AREA */
+    .book-title{
+        font-size:32px;
+        font-weight:700;
+        line-height:1.2;
+    }
+
+    .book-author{
+        font-size:18px;
+        color:var(--text-muted);
+        margin-top:6px;
+    }
+
+    .meta-chip{
+        background:white;
+        border-radius:12px;
+        padding:10px 14px;
+        font-weight:600;
+        font-size:14px;
+        box-shadow:0 6px 18px rgba(0,0,0,.05);
+    }
+
+    /* STATUS */
+    .status{
+        padding:10px 18px;
+        border-radius:999px;
+        font-weight:600;
+        font-size:14px;
+    }
+
+    .available{background:#dcfce7;color:#15803d;}
+    .borrowed{background:#fee2e2;color:#b91c1c;}
+    .reserved{background:#fef3c7;color:#92400e;}
+    .maintenance{background:#e5e7eb;color:#374151;}
+
+    /* INFO PANEL */
+    .info-panel{
+        background:var(--glass);
+        backdrop-filter:blur(10px);
+        border-radius:20px;
+        padding:24px;
+        box-shadow:0 12px 30px rgba(0,0,0,.08);
+    }
+
+    .info-row{
+        display:flex;
+        justify-content:space-between;
+        padding:12px 0;
+        border-bottom:1px solid #eef1f4;
+        font-size:15px;
+    }
+
+    .info-row:last-child{
+        border:none;
+    }
+
+    .info-label{
+        color:var(--text-muted);
+        font-weight:600;
+    }
+
+    .info-value{
+        font-weight:700;
+        color:#111827;
+    }
+
+    /* DESCRIPTION */
+    .description{
+        background:white;
+        border-radius:20px;
+        padding:28px;
+        box-shadow:0 12px 30px rgba(0,0,0,.06);
+        line-height:1.8;
+        font-size:16px;
+    }
+
+    /* QR PANEL */
+    .qr-panel{
+        position:sticky;
+        top:100px;
+        border-radius:20px;
+        background:white;
+        padding:22px;
+        text-align:center;
+        box-shadow:0 12px 35px rgba(0,0,0,.12);
+    }
+
+    .qr-panel img{
+        width:190px;
+    }
+
+    .action-btn{
+        border-radius:999px;
+        padding:10px 18px;
+        font-weight:600;
+    }
+
+</style>
+
+<div class="container py-4">
+
+    <!-- BREADCRUMB -->
+    <nav class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ path(area ~ '_book_index') }}">Livres</a>
+            </li>
+            <li class="breadcrumb-item active">
+                {{ book.title }}
+            </li>
+        </ol>
+    </nav>
+
+    <!-- HERO -->
+    <div class="book-hero">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-3 text-center">
+                {% if book.coverImage %}
+                    <img src="{{ asset(book.coverImage) }}" class="book-cover">
+                {% else %}
+                    <div class="book-cover d-flex align-items-center justify-content-center bg-white">
+                        <i class="bi bi-journal-bookmark display-1 text-secondary"></i>
                     </div>
-                </div>
-            </div>
-            <div class="col-lg-8">
-                <span class="badge bg-primary mb-2">{{ book.category.name }}</span>
-                <h1 class="h2 mb-2">{{ book.title }}</h1>
-                <p class="text-muted mb-4">
-                    <a href="{{ path(area ~ '_author_show', { id: book.author.id }) }}" class="text-decoration-none">{{ book.author.fullName }}</a>
-                </p>
-                <ul class="list-unstyled mb-4">
-                    {% if book.publisher %}<li class="mb-2"><strong>Éditeur :</strong> {{ book.publisher }}</li>{% endif %}
-                    {% if book.publicationYear %}<li class="mb-2"><strong>Année :</strong> {{ book.publicationYear }}</li>{% endif %}
-                    {% if book.pageCount %}<li class="mb-2"><strong>Pages :</strong> {{ book.pageCount }}</li>{% endif %}
-                    {% if book.language %}<li class="mb-2"><strong>Langue :</strong> {{ book.language }}</li>{% endif %}
-                    <li class="mb-2"><strong>Statut :</strong>
-                        {% if book.status == 'available' %}Disponible
-                        {% elseif book.status == 'borrowed' %}Emprunté
-                        {% elseif book.status == 'reserved' %}Réservé
-                        {% else %}En maintenance{% endif %}
-                    </li>
-                </ul>
-                {% if book.description %}
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-transparent border-0 py-3">
-                        <h2 class="h5 mb-0">Description</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="prose">{{ book.description|nl2br }}</div>
-                    </div>
-                </div>
                 {% endif %}
+            </div>
+
+            <div class="col-lg-9">
+
+                <div class="book-title">{{ book.title }}</div>
+
+                <div class="book-author">
+                    <i class="bi bi-person"></i>
+                    <a href="{{ path('biblio_author_index_client', { id: book.author.id }) }}" class="text-decoration-none">
+                        {{ book.author.fullName }}
+                    </a>
+                </div>
+
+                <div class="d-flex flex-wrap gap-3 mt-3">
+
+                    <div class="meta-chip">{{ book.category.name }}</div>
+                    <div class="meta-chip">{{ book.language|default('—') }}</div>
+                    <div class="meta-chip">{{ book.pageCount|default('—') }} pages</div>
+
+                    {% if book.status == 'available' %}
+                        <span class="status available">Disponible</span>
+                    {% elseif book.status == 'borrowed' %}
+                        <span class="status borrowed">Emprunté</span>
+                    {% elseif book.status == 'reserved' %}
+                        <span class="status reserved">Réservé</span>
+                    {% else %}
+                        <span class="status maintenance">Maintenance</span>
+                    {% endif %}
+
+                </div>
+
+            
+
             </div>
         </div>
     </div>
-</section>
+
+    <!-- CONTENT -->
+    <div class="row g-4">
+
+        <!-- DETAILS -->
+        <div class="col-lg-8">
+
+            <div class="info-panel mb-4">
+
+                <div class="info-row">
+                    <span class="info-label">Éditeur</span>
+                    <span class="info-value">{{ book.publisher|default('—') }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Année</span>
+                    <span class="info-value">{{ book.publicationYear|default('—') }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Date d’ajout</span>
+                    <span class="info-value">{{ book.createdAt|date('d/m/Y') }}</span>
+                </div>
+
+            </div>
+
+            {% if book.description %}
+          <div class="description">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0">Description</h4>
+
+        <div class="btn-group">
+            <button class="btn btn-sm btn-outline-primary" onclick="translateDesc('fr')">
+                🇫🇷 Français
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="translateDesc('en')">
+                🇬🇧 English
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="translateDesc('ar')">
+                🇸🇦 العربية
+            </button>
+        </div>
+    </div>
+
+    <div id="bookDescription">
+        {{ book.description|nl2br }}
+    </div>
+
+</div>
+            {% endif %}
+<div class="mt-4">
+    <a href="{{ path('book_pdf', {id: book.id}) }}" class="btn btn-primary action-btn">
+        <i class="bi bi-file-earmark-pdf"></i>
+        Télécharger la fiche PDF
+    </a>
+</div>
+        </div>
+
+        <!-- QR CODE -->
+        <div class="col-lg-4">
+
+            <div class="qr-panel">
+
+                <h5 class="fw-bold mb-2">QR Code du livre</h5>
+
+                <img src="{{ qr }}" class="mb-3">
+
+                <div class="text-muted small">
+                    Scannez ce code pour afficher les informations du livre directement sur votre téléphone.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+let originalDescription = `{{ book.description|e('js') }}`;
+
+async function translateDesc(lang){
+
+    const container = document.getElementById('bookDescription');
+
+    container.innerHTML =
+        '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Traduction...</p></div>';
+
+    try{
+        const res = await fetch('/api/translate',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+                text: originalDescription,
+                to:lang
+            })
+        });
+
+        const data = await res.json();
+
+        if(!data || !data.translated){
+            container.innerHTML = originalDescription;
+            return;
+        }
+
+        container.innerHTML = data.translated
+            .toString()
+            .replace(/\n/g,'<br>');
+
+    }catch(e){
+        container.innerHTML = originalDescription;
+    }
+}
+
+</script>
 {% endblock %}

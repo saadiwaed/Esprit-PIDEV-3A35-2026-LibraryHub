@@ -3,16 +3,15 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class HomeController extends AbstractController
 {
-    #[Route('/dashboard', name: 'app_home')]
-    public function index(): Response
+    #[Route('/', name: 'app_home')]
+    public function index(): RedirectResponse|Response
     {
-        return $this->render('base.html.twig', [
-            'controller_name' => 'HomeController',
-        ]);
+        return $this->redirectToRoute('biblio_catalog_index');
     }
 }

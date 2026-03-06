@@ -8,6 +8,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ahmed-bhs/doctrine-doctor": "1.0",
+        "dompdf/dompdf": "^3.1",
         "doctrine/dbal": "4.2",
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-migrations-bundle": "^3.7",

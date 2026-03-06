@@ -10,6 +10,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="author" content="Webestica.com">
 	<meta name="description" content="Eduport- LMS, Education and Course Theme">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 	<!-- Dark mode -->
 	<script>
@@ -122,90 +123,127 @@
 	
 			<!-- Main navbar START -->
 			<div class="navbar-collapse collapse" id="navbarCollapse">
-				<!-- Nav Main menu START -->
-				<ul class="navbar-nav navbar-nav-scroll ms-auto align-items-center">
-					<!-- Nav item 1 -->
-					<li class="nav-item">
-						<a class="nav-link" href="{{ path('app_frontoffice') }}">
-							<i class="bi bi-house-door me-1"></i>Accueil
-						</a>
-					</li>
+		<!-- Nav Main menu START -->
+<ul class="navbar-nav navbar-nav-scroll ms-auto align-items-center">
 
-					<!-- Nav item 2 -->
-					<li class="nav-item">
-						<a class="nav-link" href="#">
-							<i class="bi bi-book me-1"></i>Livres
-						</a>
-					</li>
+	<!-- Parcourir Dropdown (catalog branch) -->
+	<li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			Parcourir
+		</a>
+		<ul class="dropdown-menu" aria-labelledby="demoMenu">
+			<li><a class="dropdown-item" href="index.html">Home Default</a></li>
+			<li><a class="dropdown-item" href="index-2.html">Forum et discussions</a></li>
+			<li><a class="dropdown-item" href="index-3.html">Catalogue et inventaire</a></li>
+			<li><a class="dropdown-item" href="index-4.html">Emprunts et Retours</a></li>
+			<li><a class="dropdown-item" href="index-5.html">Journal et Defi</a></li>
+			<li><a class="dropdown-item" href="index-6.html">Événements et activités</a></li>
+			<li><a class="dropdown-item" href="index-7.html">Forum et discussions</a></li>
+		</ul>
+	</li>
 
-					<!-- Nav item 3 -->
-					<li class="nav-item">
-    <a class="nav-link" href="{{ path('app_event_my_events') }}">
-        <i class="bi bi-calendar-event me-1"></i>Mes Événements
-    </a>
-</li>
+	<!-- Accueil -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_frontoffice') }}">
+			<i class="bi bi-house-door me-1"></i>Accueil
+		</a>
+	</li>
 
-					<!-- Nav item 3 -->
-					<li class="nav-item">
-						<a class="nav-link" href="{{ path('app_my_clubs') }}">
-							<i class="bi bi-people-fill me-1"></i>Club de Lecture
-						</a>
-					</li>
+	<!-- Livres (client catalog) -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('biblio_catalog_index_client') }}">
+			<i class="bi bi-book me-1"></i>Livres
+		</a>
+	</li>
 
-					<!-- Nav item 4 -->
-					<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-        <i class="bi bi-chat-dots me-1"></i>Forum
-    </a>
-    <ul class="dropdown-menu">
-        <li>
-            <a class="dropdown-item" href="{{ path('app_front_community_index') }}">
-                <i class="bi bi-people me-2"></i> Toutes les communautés
-            </a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{{ path('app_front_community_new') }}">
-                <i class="bi bi-plus-circle me-2"></i> Créer une communauté
-            </a>
-        </li>
-        <li><hr class="dropdown-divider"></li>
-        <li>
-            <a class="dropdown-item" href="#">
-                <i class="bi bi-bookmark me-2"></i> Mes communautés
-            </a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="#">
-                <i class="bi bi-file-text me-2"></i> Mes posts
-            </a>
-        </li>
-    </ul>
-</li>
+	<!-- Auteurs -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('biblio_catalog_index_client') }}">
+			<i class="bi bi-person me-1"></i>Auteurs
+		</a>
+	</li>
 
-					<!-- Nav item Abonnement / Membership -->
-					<li class="nav-item">
-						<a class="nav-link" href="{{ path('app_membership_index') }}">
-							<i class="bi bi-credit-card me-1"></i>Abonnement
-						</a>
-					</li>
-					
-					<!-- Show login/register buttons for guests -->
-					{% if not app.user %}
-						<li class="nav-item ms-3">
-							<a class="btn btn-sm btn-outline-primary" href="{{ path('app_login') }}">
-								<i class="bi bi-box-arrow-in-right me-1"></i>Connexion
-							</a>
-						</li>
-						<li class="nav-item ms-2">
-							<a class="btn btn-sm btn-primary" href="{{ path('app_register') }}">
-								<i class="bi bi-person-plus me-1"></i>S'inscrire
-							</a>
-						</li>
-					{% endif %}
-				</ul>
-				<!-- Nav Main menu END -->
-			</div>
-			<!-- Main navbar END -->
+	<!-- Stats -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_stats') }}">
+			<i class="bi bi-bar-chart me-1"></i>Stats
+		</a>
+	</li>
+
+	<!-- Mes Événements -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_event_my_events') }}">
+			<i class="bi bi-calendar-event me-1"></i>Mes Événements
+		</a>
+	</li>
+
+	<!-- Club de Lecture -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_my_clubs') }}">
+			<i class="bi bi-people-fill me-1"></i>Club de Lecture
+		</a>
+	</li>
+
+	<!-- Forum Dropdown -->
+	<li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+			<i class="bi bi-chat-dots me-1"></i>Forum
+		</a>
+		<ul class="dropdown-menu">
+			<li>
+				<a class="dropdown-item" href="{{ path('app_front_community_index') }}">
+					<i class="bi bi-people me-2"></i>Toutes les communautés
+				</a>
+			</li>
+			<li>
+				<a class="dropdown-item" href="{{ path('app_front_community_new') }}">
+					<i class="bi bi-plus-circle me-2"></i>Créer une communauté
+				</a>
+			</li>
+			<li><hr class="dropdown-divider"></li>
+			<li>
+				<a class="dropdown-item" href="#">
+					<i class="bi bi-bookmark me-2"></i>Mes communautés
+				</a>
+			</li>
+			<li>
+				<a class="dropdown-item" href="#">
+					<i class="bi bi-file-text me-2"></i>Mes posts
+				</a>
+			</li>
+		</ul>
+	</li>
+
+	<!-- Abonnement -->
+	<li class="nav-item">
+		<a class="nav-link" href="{{ path('app_membership_index') }}">
+			<i class="bi bi-credit-card me-1"></i>Abonnement
+		</a>
+	</li>
+
+	<!-- Composants (catalog branch) -->
+	<li class="nav-item">
+		<a class="nav-link" href="docs/alerts.html">Composants</a>
+	</li>
+
+	<!-- Auth Buttons -->
+	{% if not app.user %}
+		<li class="nav-item ms-3">
+			<a class="btn btn-sm btn-outline-primary" href="{{ path('app_login') }}">
+				<i class="bi bi-box-arrow-in-right me-1"></i>Connexion
+			</a>
+		</li>
+		<li class="nav-item ms-2">
+			<a class="btn btn-sm btn-primary" href="{{ path('app_register') }}">
+				<i class="bi bi-person-plus me-1"></i>S'inscrire
+			</a>
+		</li>
+	{% endif %}
+
+</ul>
+<!-- Nav Main menu END -->
+</div>
+<!-- Main navbar END -->
 
 			<!-- Profile and notification START (only for logged-in users) -->
 			{% if app.user %}

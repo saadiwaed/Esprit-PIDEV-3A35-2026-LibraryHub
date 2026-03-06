@@ -32,6 +32,19 @@
     <!-- Title -->
     <li class="nav-item ms-2 my-2">Navigation Principale</li>
 
+    <!-- Catalogue -->
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseCatalogue" role="button" aria-expanded="false" aria-controls="collapseCatalogue">
+            <i class="bi bi-book fa-fw me-2"></i>Catalogue
+        </a>
+        <ul class="nav collapse flex-column" id="collapseCatalogue" data-bs-parent="#navbar-sidebar">
+            <li class="nav-item"> <a class="nav-link" href="{{ path('biblio_book_index') }}">Tous les livres</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('biblio_category_index') }}">Catégories</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('biblio_author_index') }}">Auteurs</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ path('app_stats_admin') }}">stats</a></li>
+        </ul>
+    </li>
+ 
     <!-- Mon profil -->
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="collapse" href="#collapseProfil" role="button" aria-expanded="false" aria-controls="collapseProfil">
