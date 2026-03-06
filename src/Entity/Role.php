@@ -30,10 +30,9 @@ class Role
     #[Assert\Length(max: 255, maxMessage: 'Description cannot exceed {{ limit }} characters.')]
     private ?string $description = null;
 
-    /**
-     * RELATION ManyToMany (inverse side): This is the "other side" of User's roles.
-     * inversedBy on User side + mappedBy here = they are connected.
-     */
+/**
+ * @var Collection<int, User>
+ */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'roles')]
     private Collection $users;
 

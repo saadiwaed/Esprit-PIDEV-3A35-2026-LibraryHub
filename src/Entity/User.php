@@ -12,11 +12,10 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Club;
-
+use SensitiveParameter;
+use Symfony\Component\Serializer\Annotation\Ignore;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-#[UniqueEntity(fields: ['email'], message: 'This email is already used by another account.')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+#[ORM\Table(name:"users")] class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -26,33 +25,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\NotBlank(message: 'Email is required.')]
     #[Assert\Email(message: 'Please enter a valid email address.')]
-    private ?string $email = null;
-
+private string $email;
     /**
      * The hashed password - validation is done on plainPassword in the form
      */
-    #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    #[ORM\Column]
+    #[Ignore]
+    private string $password;
 
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'First name is required.')]
     #[Assert\Length(
-        min: 3,
+        min: 2,
         max: 100,
         minMessage: 'First name must be at least {{ limit }} characters.',
         maxMessage: 'First name cannot exceed {{ limit }} characters.'
     )]
-    private ?string $firstName = null;
+    private string $firstName ;
 
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'Last name is required.')]
     #[Assert\Length(
-        min: 3,
+        min: 2,
         max: 100,
         minMessage: 'Last name must be at least {{ limit }} characters.',
         maxMessage: 'Last name cannot exceed {{ limit }} characters.'
     )]
-    private ?string $lastName = null;
+    private string $lastName ;
 
     #[ORM\Column(length: 20, nullable: true)]
     #[Assert\Length(max: 20, maxMessage: 'Phone number cannot exceed {{ limit }} characters.')]
@@ -71,11 +70,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         choices: ['PENDING', 'ACTIVE', 'INACTIVE'],
         message: 'Status must be PENDING, ACTIVE, or INACTIVE.'
     )]
-    private ?string $status = 'PENDING';
-
+    private string $status = 'PENDING';
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
-
+    private \DateTimeImmutable $createdAt;
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $lastLoginAt = null;
 
@@ -95,9 +92,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * RELATION ManyToMany: A User can have many Roles, and a Role can belong to many Users.
      * Example: User "Ali" can be both MEMBER and LIBRARIAN.
      */
-    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
-    #[ORM\JoinTable(name: 'user_role')]
-    private Collection $roles;
+/** @var Collection<int, Role> */
+#[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
+private Collection $roles;
 
     /**
      * RELATION OneToOne: Each User has exactly one ReadingProfile.
@@ -107,8 +104,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', targetEntity: ReadingProfile::class, cascade: ['persist', 'remove'])]
     private ?ReadingProfile $readingProfile = null;
 
-    #[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
-    private Collection $clubs;
+/** @var Collection<int, Club> */
+#[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
+private Collection $clubs;
 
     /** @var Collection<int, Community> */
     #[ORM\ManyToMany(targetEntity: Community::class, mappedBy: 'members')]
@@ -145,7 +143,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdEvents = new ArrayCollection();
         $this->foundedClubs = new ArrayCollection();
 
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
         $this->status = 'PENDING';
     }
 
@@ -179,12 +177,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function setPassword(#[SensitiveParameter] string $password): self
     {
         $this->password = $password;
         return $this;
     }
-
     /**
      * @see UserInterface
      */
@@ -264,11 +261,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
+  
 
     public function getLastLoginAt(): ?\DateTimeInterface
     {
@@ -333,26 +326,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * Set roles from a collection (used by forms)
      */
-    public function setUserRoles(Collection $roles): static
-    {
-        $this->roles = $roles;
-        return $this;
-    }
+/**
+ * @param Collection<int, Role> $roles
+ */
+public function setUserRoles(Collection $roles): static
+{
+    $this->roles = $roles;
+    return $this;
+}
 
     /**
      * @see UserInterface
      * Returns the roles granted to the user as an array of strings for Symfony Security.
      */
     public function getRoles(): array
-    {
-        $roleNames = [];
-        foreach ($this->roles as $role) {
-            $roleNames[] = $role->getName();
+{
+    $roles = [];
+
+    foreach ($this->roles as $role) {
+        $name = $role->getName();
+        if ($name !== null) {
+            $roles[] = $name;
         }
-        // Guarantee every user at least has ROLE_USER
-        $roleNames[] = 'ROLE_USER';
-        return array_unique($roleNames);
     }
+
+    $roles[] = 'ROLE_USER';
+
+    return array_values(array_unique($roles));
+}
 
     public function addRole(Role $role): static
     {

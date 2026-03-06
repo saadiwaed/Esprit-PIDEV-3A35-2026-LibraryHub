@@ -42,23 +42,34 @@ final class AdminFaceUserChecker implements UserCheckerInterface
 
         // Si aucun token n'est envoyé, on laisse passer : login classique email + mot de passe.
         $submittedToken = $request->request->get('face_login_token');
-        if (!$submittedToken) {
+        if ($submittedToken === null || $submittedToken === '') {
             return;
         }
-
+        
         $session = $request->getSession();
-        if (!$session) {
-            throw new CustomUserMessageAccountStatusException('Session invalide pour la connexion administrateur.');
-        }
+
+       
 
         $sessionToken = $session->get('face_login_token');
         $sessionUserId = $session->get('face_login_user_id');
-
-        if (!$sessionToken || $sessionToken !== $submittedToken || $sessionUserId !== $user->getId()) {
+        
+        if (
+            !is_string($sessionToken)
+            || !is_int($sessionUserId)
+            || $sessionToken !== $submittedToken
+            || $sessionUserId !== $user->getId()
+        ) {
             throw new CustomUserMessageAccountStatusException(
                 'La validation par reconnaissance faciale a expiré. Veuillez recommencer.'
             );
         }
+        $sessionCreated = $session->get('face_login_created');
+
+if (time() - $sessionCreated > 60) {
+    throw new CustomUserMessageAccountStatusException(
+        'Face validation expired.'
+    );
+}
 
         // Une fois vérifié, on invalide le token pour ce login
         $session->remove('face_login_token');

@@ -15,31 +15,6 @@ class AuthorRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Author::class);
     }
-// ================= AUTHOR STATS =================
-
-// Top authors by number of books
-public function countBooksByAuthor()
-{
-    return $this->createQueryBuilder('a')
-        ->select("CONCAT(a.firstname, ' ', a.lastname) as author, COUNT(b.id) as total")
-        ->leftJoin('a.books', 'b')
-        ->groupBy('a.id')
-        ->orderBy('total', 'DESC')
-        ->getQuery()
-        ->getResult();
-}
-
-// Authors nationality distribution
-public function countAuthorsByNationality()
-{
-    return $this->createQueryBuilder('a')
-        ->select('a.nationality as nationality, COUNT(a.id) as total')
-        ->where('a.nationality IS NOT NULL')
-        ->groupBy('a.nationality')
-        ->orderBy('total', 'DESC')
-        ->getQuery()
-        ->getResult();
-}
 
     //    /**
     //     * @return Author[] Returns an array of Author objects

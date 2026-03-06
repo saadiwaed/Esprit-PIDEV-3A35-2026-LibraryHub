@@ -32,21 +32,32 @@ final class FaceRegistrationController extends AbstractController
 
         $descriptor = $request->request->get('descriptor');
 
-        if ($descriptor === null || $descriptor === '') {
-            return new JsonResponse(['isSuccessful' => false, 'message' => 'Descripteur manquant.'], 400);
+        if (!is_string($descriptor) || $descriptor === '') {
+            return new JsonResponse([
+                'isSuccessful' => false,
+                'message' => 'Descripteur manquant.'
+            ], 400);
         }
-
-        // Si le front envoie un tableau JSON, on le convertit en chaîne
-        if (is_string($descriptor) && str_starts_with(trim($descriptor), '[')) {
+        
+        if (str_starts_with(trim($descriptor), '[')) {
             $decoded = json_decode($descriptor, true);
+        
             if (!is_array($decoded)) {
-                return new JsonResponse(['isSuccessful' => false, 'message' => 'Format de descripteur invalide.'], 400);
+                return new JsonResponse([
+                    'isSuccessful' => false,
+                    'message' => 'Format de descripteur invalide.'
+                ], 400);
             }
+        
             $descriptor = implode(',', array_map('strval', $decoded));
         }
-
+        
         $user->setFaceDescriptor($descriptor);
-        $entityManager->persist($user);
+ 
+
+        $descriptor = (string) $descriptor;
+        $user->setFaceDescriptor($descriptor);
+                $entityManager->persist($user);
         $entityManager->flush();
 
         return new JsonResponse([

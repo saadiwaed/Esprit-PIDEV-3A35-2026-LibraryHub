@@ -6,7 +6,6 @@ use App\Entity\ReadingProfile;
 use App\Form\ReadingProfileType;
 use App\Repository\ReadingProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,21 +14,17 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/reading/profile')]
 class ReadingProfileController extends AbstractController
 {
-    private const ITEMS_PER_PAGE = 4;
-
     #[Route('/', name: 'app_reading_profile_index', methods: ['GET'])]
-    public function index(Request $request, ReadingProfileRepository $readingProfileRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request, ReadingProfileRepository $readingProfileRepository): Response
     {
         $search = $request->query->get('search', '');
-        $page = $request->query->getInt('page', 1);
-
-        $queryBuilder = $readingProfileRepository->getQueryBuilderForList($search ?: null);
-
-        $readingProfiles = $paginator->paginate($queryBuilder, $page, self::ITEMS_PER_PAGE, [
-            'distinct' => true,
-            'pageParameterName' => 'page',
-        ]);
-
+        
+        if ($search) {
+            $readingProfiles = $readingProfileRepository->searchByUserNameOrEmail($search);
+        } else {
+            $readingProfiles = $readingProfileRepository->findAll();
+        }
+        
         return $this->render('reading_profile/index.html.twig', [
             'reading_profiles' => $readingProfiles,
         ]);
@@ -44,7 +39,7 @@ class ReadingProfileController extends AbstractController
             return $this->json([]);
         }
         
-        $profiles = $readingProfileRepository->searchByUserNameOrEmail($query, 10);
+        $profiles = $readingProfileRepository->searchByUserNameOrEmail($query);
         
         $results = array_map(function($profile) {
             return [
