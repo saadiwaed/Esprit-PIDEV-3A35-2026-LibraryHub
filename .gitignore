@@ -26,3 +26,7 @@
 
 /public/uploads/attachments/*
 !/public/uploads/attachments/.gitkeep
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###
