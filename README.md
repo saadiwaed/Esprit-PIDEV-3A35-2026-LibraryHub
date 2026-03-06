@@ -13,6 +13,9 @@ LibraryHub is a web platform that helps manage library resources such as books, 
 - Borrow and return books
 - Library catalog browsing
 - AI-based book recommendation system
+- journal and defi
+- post and forum 
+- club and events
 
 ## Tech Stack
 
@@ -39,7 +42,11 @@ The application follows the MVC architecture using Symfony framework.
 ## Contributors
 
 - Waed Saadi
-- Project team members
+- med aziz arfaoui
+- moetaz achour
+- fedi agerbaoui
+- sabrin jebali
+- tassnim tabassi
 
 ## Academic Context
 
