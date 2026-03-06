@@ -40,4 +40,39 @@ public function __construct(ManagerRegistry $registry)
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function searchByUserNameOrEmail(string $query, int $limit = 10): array
+    {
+        return $this->createQueryBuilder('rp')
+            ->innerJoin('rp.user', 'u')
+            ->where('LOWER(u.firstName) LIKE LOWER(:q)')
+            ->orWhere('LOWER(u.lastName) LIKE LOWER(:q)')
+            ->orWhere('LOWER(u.email) LIKE LOWER(:q)')
+            ->orWhere("LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(:q)")
+            ->setParameter('q', '%' . $query . '%')
+            ->orderBy('u.firstName', 'ASC')
+            ->addOrderBy('u.lastName', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getQueryBuilderForList(?string $search = null): \Doctrine\ORM\QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('rp')
+            ->innerJoin('rp.user', 'u')
+            ->addSelect('u')
+            ->orderBy('u.firstName', 'ASC')
+            ->addOrderBy('u.lastName', 'ASC');
+
+        if ($search !== null && $search !== '') {
+            $qb
+                ->andWhere(
+                    'LOWER(u.firstName) LIKE LOWER(:search) OR LOWER(u.lastName) LIKE LOWER(:search) OR LOWER(u.email) LIKE LOWER(:search) OR LOWER(CONCAT(u.firstName, \' \', u.lastName)) LIKE LOWER(:search)'
+                )
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        return $qb;
+    }
 }

@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,17 +18,23 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/user')]
 class UserController extends AbstractController
 {
+    private const USERS_PER_PAGE = 4;
+
     #[Route('/', name: 'app_user_index', methods: ['GET'])]
-    public function index(Request $request, UserRepository $userRepository): Response
+    public function index(Request $request, UserRepository $userRepository, PaginatorInterface $paginator): Response
     {
         $search = $request->query->get('search', '');
-        
-        if ($search) {
-            $users = $userRepository->searchByNameOrEmail($search);
-        } else {
-            $users = $userRepository->findAll();
-        }
-        
+        $page = $request->query->getInt('page', 1);
+        $perPage = $request->query->getInt('per_page', self::USERS_PER_PAGE);
+        $perPage = max(1, min(self::USERS_PER_PAGE, $perPage)); // max 4 users per page
+
+        $queryBuilder = $userRepository->getQueryBuilderForList($search ?: null);
+
+        $users = $paginator->paginate($queryBuilder, $page, $perPage, [
+            'distinct' => true,
+            'pageParameterName' => 'page',
+        ]);
+
         return $this->render('user/index.html.twig', [
             'users' => $users,
         ]);

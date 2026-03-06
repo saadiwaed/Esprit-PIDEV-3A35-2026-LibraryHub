@@ -6,6 +6,7 @@ use App\Entity\Role;
 use App\Form\RoleType;
 use App\Repository\RoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,17 +15,21 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/role')]
 class RoleController extends AbstractController
 {
+    private const ITEMS_PER_PAGE = 4;
+
     #[Route('/', name: 'app_role_index', methods: ['GET'])]
-    public function index(Request $request, RoleRepository $roleRepository): Response
+    public function index(Request $request, RoleRepository $roleRepository, PaginatorInterface $paginator): Response
     {
         $search = $request->query->get('search', '');
-        
-        if ($search) {
-            $roles = $roleRepository->searchByNameOrDescription($search);
-        } else {
-            $roles = $roleRepository->findAll();
-        }
-        
+        $page = $request->query->getInt('page', 1);
+
+        $queryBuilder = $roleRepository->getQueryBuilderForList($search ?: null);
+
+        $roles = $paginator->paginate($queryBuilder, $page, self::ITEMS_PER_PAGE, [
+            'distinct' => true,
+            'pageParameterName' => 'page',
+        ]);
+
         return $this->render('role/index.html.twig', [
             'roles' => $roles,
         ]);
@@ -39,7 +44,7 @@ class RoleController extends AbstractController
             return $this->json([]);
         }
         
-        $roles = $roleRepository->searchByNameOrDescription($query);
+        $roles = $roleRepository->searchByNameOrDescription($query, 10);
         
         $results = array_map(function($role) {
             return [

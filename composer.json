@@ -7,6 +7,7 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ahmed-bhs/doctrine-doctor": "1.0",
         "doctrine/dbal": "4.2",
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-migrations-bundle": "^3.7",
@@ -51,6 +52,7 @@
         "twig/string-extra": "^3.23",
         "twig/twig": "^2.12|^3.0",
         "vich/uploader-bundle": "^2.9",
+        "webmozart/assert": "1.11",
         "yippy/toast-ui-editor-bundle": "^1.0"
     },
     "config": {
@@ -103,6 +105,8 @@
         }
     },
     "require-dev": {
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
         "phpunit/phpunit": "^11.5",
         "symfony/browser-kit": "6.4.*",
         "symfony/css-selector": "6.4.*",

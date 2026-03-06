@@ -103,4 +103,25 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * QueryBuilder for user list (with optional search) for pagination.
+     */
+    public function getQueryBuilderForList(?string $search = null): \Doctrine\ORM\QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->orderBy('u.firstName', 'ASC')
+            ->addOrderBy('u.lastName', 'ASC');
+
+        if ($search !== null && $search !== '') {
+            $qb
+                ->where('LOWER(u.firstName) LIKE LOWER(:search)')
+                ->orWhere('LOWER(u.lastName) LIKE LOWER(:search)')
+                ->orWhere('LOWER(u.email) LIKE LOWER(:search)')
+                ->orWhere("LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(:search)")
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        return $qb;
+    }
 }

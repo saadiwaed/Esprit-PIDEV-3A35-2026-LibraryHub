@@ -118,6 +118,18 @@
                     </table>
                 </div>
                 <!-- Table END -->
+
+                <!-- Pagination -->
+                {% if roles is iterable and roles.getItemNumberPerPage is defined %}
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 mt-3 pt-3 border-top">
+                        <div class="text-muted small">
+                            Showing {{ roles.getItemNumberPerPage * (roles.getCurrentPageNumber - 1) + 1 }}–{{ min(roles.getItemNumberPerPage * roles.getCurrentPageNumber, roles.getTotalItemCount) }} of {{ roles.getTotalItemCount }} roles
+                        </div>
+                        <div class="nav-pagination">
+                            {{ knp_pagination_render(roles) }}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
             <!-- Card body END -->
         </div>

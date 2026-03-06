@@ -141,6 +141,18 @@
                     </table>
                 </div>
                 <!-- Table END -->
+
+                <!-- Pagination -->
+                {% if users is iterable and users.getItemNumberPerPage is defined %}
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 mt-3 pt-3 border-top">
+                        <div class="text-muted small">
+                            Showing {{ users.getItemNumberPerPage * (users.getCurrentPageNumber - 1) + 1 }}–{{ min(users.getItemNumberPerPage * users.getCurrentPageNumber, users.getTotalItemCount) }} of {{ users.getTotalItemCount }} users
+                        </div>
+                        <div class="nav-pagination">
+                            {{ knp_pagination_render(users) }}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
             <!-- Card body END -->
         </div>
@@ -182,17 +194,26 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('userSearch');
             const suggestionsDiv = document.getElementById('searchSuggestions');
+            const filterForm = searchInput ? searchInput.closest('form') : null;
             let timeoutId;
+            let fetchTimeoutId;
 
+            // Dynamic autocomplete (fetch suggestions)
             searchInput.addEventListener('input', function() {
                 clearTimeout(timeoutId);
+                clearTimeout(fetchTimeoutId);
                 const query = this.value.trim();
 
                 if (query.length < 2) {
                     suggestionsDiv.style.display = 'none';
+                    // Still submit form for live filtering when clearing (query empty)
+                    if (filterForm && query.length === 0) {
+                        fetchTimeoutId = setTimeout(function() { filterForm.submit(); }, 400);
+                    }
                     return;
                 }
 
+                // Fetch autocomplete suggestions
                 timeoutId = setTimeout(function() {
                     fetch('{{ path('app_user_search') }}?q=' + encodeURIComponent(query))
                         .then(response => response.json())
@@ -201,30 +222,29 @@
                                 suggestionsDiv.innerHTML = '<div class="p-2 text-muted">No results found</div>';
                                 suggestionsDiv.style.display = 'block';
                             } else {
-                                suggestionsDiv.innerHTML = data.map(user => `
-                                    <div class="suggestion-item p-2 border-bottom" style="cursor: pointer;" data-name="${user.fullName}" data-email="${user.email}">
+                                const uploadsBase = '{{ asset('uploads/avatars/') }}';
+                                suggestionsDiv.innerHTML = data.map(user => {
+                                    const avatarHtml = user.avatar
+                                        ? `<img class="avatar-img rounded-circle" src="${uploadsBase}${user.avatar}" alt="">`
+                                        : `<div class="avatar-img rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center">${(user.initials || '').substring(0, 2)}</div>`;
+                                    return `<div class="suggestion-item p-2 border-bottom" style="cursor: pointer;" data-name="${(user.fullName || '').replace(/"/g, '&quot;')}" data-email="${(user.email || '').replace(/"/g, '&quot;')}">
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-xs me-2">
-                                                ${user.avatar ? 
-                                                    <img class="avatar-img rounded-circle" src="/uploads/avatars/${user.avatar}" alt="${user.fullName}"> :
-                                                    <div class="avatar-img rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center">${user.initials}</div>
-                                                }
-                                            </div>
+                                            <div class="avatar avatar-xs me-2">${avatarHtml}</div>
                                             <div>
-                                                <div class="fw-bold">${user.fullName}</div>
-                                                <small class="text-muted">${user.email}</small>
+                                                <div class="fw-bold">${(user.fullName || '').replace(/</g, '&lt;')}</div>
+                                                <small class="text-muted">${(user.email || '').replace(/</g, '&lt;')}</small>
                                             </div>
                                         </div>
-                                    </div>
-                                `).join('');
+                                    </div>`;
+                                }).join('');
                                 suggestionsDiv.style.display = 'block';
 
                                 // Add click handlers to suggestions
                                 document.querySelectorAll('.suggestion-item').forEach(item => {
                                     item.addEventListener('click', function() {
-                                        searchInput.value = this.dataset.name;
+                                        searchInput.value = this.dataset.name || this.dataset.email || '';
                                         suggestionsDiv.style.display = 'none';
-                                        searchInput.form.submit();
+                                        if (filterForm) filterForm.submit();
                                     });
                                     
                                     item.addEventListener('mouseenter', function() {
@@ -242,6 +262,13 @@
                             suggestionsDiv.style.display = 'none';
                         });
                 }, 300);
+
+                // Live filter: auto-submit form after typing (debounced)
+                fetchTimeoutId = setTimeout(function() {
+                    if (filterForm && query.length >= 1) {
+                        filterForm.submit();
+                    }
+                }, 600);
             });
 
             // Hide suggestions when clicking outside

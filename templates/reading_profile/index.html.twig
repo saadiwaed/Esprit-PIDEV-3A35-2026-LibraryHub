@@ -148,6 +148,18 @@
                     </table>
                 </div>
                 <!-- Table END -->
+
+                <!-- Pagination -->
+                {% if reading_profiles is iterable and reading_profiles.getItemNumberPerPage is defined %}
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 mt-3 pt-3 border-top">
+                        <div class="text-muted small">
+                            Showing {{ reading_profiles.getItemNumberPerPage * (reading_profiles.getCurrentPageNumber - 1) + 1 }}–{{ min(reading_profiles.getItemNumberPerPage * reading_profiles.getCurrentPageNumber, reading_profiles.getTotalItemCount) }} of {{ reading_profiles.getTotalItemCount }} profiles
+                        </div>
+                        <div class="nav-pagination">
+                            {{ knp_pagination_render(reading_profiles) }}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
             <!-- Card body END -->
         </div>

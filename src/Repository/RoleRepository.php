@@ -40,4 +40,31 @@ class RoleRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function searchByNameOrDescription(string $query, int $limit = 10): array
+    {
+        return $this->createQueryBuilder('r')
+            ->where('LOWER(r.name) LIKE LOWER(:q)')
+            ->orWhere('LOWER(r.description) LIKE LOWER(:q)')
+            ->setParameter('q', '%' . $query . '%')
+            ->orderBy('r.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getQueryBuilderForList(?string $search = null): \Doctrine\ORM\QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->orderBy('r.name', 'ASC');
+
+        if ($search !== null && $search !== '') {
+            $qb
+                ->where('LOWER(r.name) LIKE LOWER(:search)')
+                ->orWhere('LOWER(r.description) LIKE LOWER(:search)')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        return $qb;
+    }
 }
