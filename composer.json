@@ -7,12 +7,12 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "dompdf/dompdf": "^3.1",
         "doctrine/dbal": "4.2",
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
-        "endroid/qr-code": "5.0",
+        "dompdf/dompdf": "^3.1",
+        "endroid/qr-code": "6",
         "knplabs/knp-paginator-bundle": "*",
         "knplabs/knp-snappy-bundle": "^1.10",
         "knplabs/knp-time-bundle": "^2.5",
@@ -104,6 +104,8 @@
         }
     },
     "require-dev": {
+        "phpstan/phpstan-doctrine": "*",
+        "phpstan/phpstan-symfony": "*",
         "phpunit/phpunit": "^11.5",
         "symfony/browser-kit": "6.4.*",
         "symfony/css-selector": "6.4.*",

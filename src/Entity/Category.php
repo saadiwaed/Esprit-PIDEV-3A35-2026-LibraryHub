@@ -26,8 +26,7 @@ class Category
         minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
     )]
-    private ?string $name = null;
-
+    private string $name;
     #[ORM\Column(name: 'description_cat', type: 'text', nullable: true)]
 
     #[Assert\NotBlank(message: 'Le description de la catégorie est obligatoire.')]
@@ -46,7 +45,12 @@ class Category
     )]
     private ?string $icon = null;
 
-    #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'category', cascade: ['remove'])]
+
+
+     /**
+     * @var Collection<int, Book>
+     */
+    #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'category')]
     private Collection $books;
 
     public function __construct()

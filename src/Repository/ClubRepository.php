@@ -16,75 +16,28 @@ class ClubRepository extends ServiceEntityRepository
         parent::__construct($registry, Club::class);
     }
 
-    public function findByFilters(
-        string $search = '',
-        string $status = '',
-        string $category = '',
-        string $sort = 'createdDate',
-        string $order = 'desc'
-    ): array {
-        $qb = $this->createQueryBuilder('c')
-            ->leftJoin('c.organizedEvents', 'e');
-        
-        // Recherche
-        if (!empty($search)) {
-            $qb->andWhere(
-                $qb->expr()->orX(
-                    $qb->expr()->like('c.title', ':search'),
-                    $qb->expr()->like('c.description', ':search'),
-                    $qb->expr()->like('c.category', ':search'),
-                    $qb->expr()->like('c.meetingLocation', ':search')
-                )
-            )
-            ->setParameter('search', '%' . $search . '%');
-        }
-        
-        // Filtre par statut
-        if (!empty($status)) {
-            $qb->andWhere('c.status = :status')
-               ->setParameter('status', $status);
-        }
-        
-        // Filtre par catégorie
-        if (!empty($category)) {
-            $qb->andWhere('c.category = :category')
-               ->setParameter('category', $category);
-        }
-        
-        // Tri
-        $validSortFields = ['title', 'createdDate', 'meetingDate', 'capacity'];
-        $sort = in_array($sort, $validSortFields) ? $sort : 'createdDate';
-        $order = strtolower($order) === 'asc' ? 'asc' : 'desc';
-        
-        $qb->orderBy('c.' . $sort, $order);
-        
-        return $qb->getQuery()->getResult();
-    }
-    
-    public function countByStatus(): array
-    {
-        $results = $this->createQueryBuilder('c')
-            ->select('c.status, COUNT(c.id) as count')
-            ->groupBy('c.status')
-            ->getQuery()
-            ->getResult();
-        
-        $stats = [];
-        foreach ($results as $result) {
-            $stats[$result['status']->value] = $result['count'];
-        }
-        
-        return $stats;
-    }
-    
-    public function findAllCategories(): array
-    {
-        $results = $this->createQueryBuilder('c')
-            ->select('DISTINCT c.category')
-            ->orderBy('c.category', 'ASC')
-            ->getQuery()
-            ->getResult();
-        
-        return array_column($results, 'category');
-    }
+    //    /**
+    //     * @return Club[] Returns an array of Club objects
+    //     */
+    //    public function findByExampleField($value): array
+    //    {
+    //        return $this->createQueryBuilder('c')
+    //            ->andWhere('c.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->orderBy('c.id', 'ASC')
+    //            ->setMaxResults(10)
+    //            ->getQuery()
+    //            ->getResult()
+    //        ;
+    //    }
+
+    //    public function findOneBySomeField($value): ?Club
+    //    {
+    //        return $this->createQueryBuilder('c')
+    //            ->andWhere('c.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->getQuery()
+    //            ->getOneOrNullResult()
+    //        ;
+    //    }
 }

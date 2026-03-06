@@ -52,10 +52,10 @@ final class BiblioCatalogController extends AbstractController
         PaginatorInterface $paginator
     ): Response {
     
-        $q = $request->query->get('q');
-        $category = $request->query->get('category');
-        $author = $request->query->get('author');
-        $order = $request->query->get('order');
+        $q = $request->query->getString('q') ?: null;
+        $category = $request->query->getInt('category') ?: null;
+        $author = $request->query->getInt('author') ?: null;
+        $order = $request->query->getString('order') ?: null;
     
         $query = $repo->createFilteredQuery($q,$category,$author,$order);
     
@@ -266,17 +266,16 @@ final class BiblioCatalogController extends AbstractController
         PaginatorInterface $paginator
     ): Response {
     
-        $q = $request->query->get('q');
-        $category = $request->query->get('category');
-        $author = $request->query->get('author');
-        $order = $request->query->get('order');
-    
+        $q = $request->query->getString('q') ?: null;
+        $category = $request->query->getInt('category') ?: null;
+        $author = $request->query->getInt('author') ?: null;
+        $order = $request->query->getString('order') ?: null;
         $query = $repo->createFilteredQuery($q,$category,$author,$order);
     
         $pagination = $paginator->paginate(
             $query,
             $request->query->getInt('page',1),
-            6 // nobmbre de elements par page
+            4 // nobmbre de elements par page
         );
     
         // AJAX request -> return only grid
@@ -298,12 +297,21 @@ final class BiblioCatalogController extends AbstractController
     #[Route('/books/{id}/qr', name:'biblio_book_qr')]
     public function bookQr(Book $book): Response
     {
-        $qr = Builder::create()
-        ->data($this->generateUrl('biblio_book_show',['id'=>$book->getId()],0))
-        ->size(300)
-            ->build();
+        $builder = new Builder(
+            writer: new PngWriter(),
+            data: $this->generateUrl('biblio_book_show', ['id' => $book->getId()], 0),
+            encoding: new Encoding('UTF-8'),
+            size: 300,
+            margin: 10
+        );
     
-        return new Response($qr->getString(),200,['Content-Type'=>'image/png']);
+        $result = $builder->build();
+    
+        return new Response(
+            $result->getString(),
+            200,
+            ['Content-Type' => 'image/png']
+        );
     }
     #[Route('/books/new', name: 'biblio_book_new', methods: ['GET', 'POST'])]
     public function bookNew(Request $request, EntityManagerInterface $em, FileUploader $fileUploader): Response
@@ -341,8 +349,8 @@ final class BiblioCatalogController extends AbstractController
         $qrText =
             "===== BIBLIOTHEQUE =====\n".
             "Titre : ".$book->getTitle()."\n".
-            "Auteur : ".$book->getAuthor()->getFullName()."\n".
-            "Categorie : ".$book->getCategory()->getName()."\n".
+            "Auteur : ".$book->getAuthor()?->getFullName()."\n".
+            "Categorie : ".$book->getCategory()?->getName()."\n".
             "Editeur : ".($book->getPublisher() ?? '—')."\n".
             "Annee : ".($book->getPublicationYear() ?? '—')."\n".
             "Pages : ".($book->getPageCount() ?? '—')."\n".
@@ -361,8 +369,8 @@ final class BiblioCatalogController extends AbstractController
                 "===== BIBLIOTHEQUE =====\n".
                 "ID Livre : ".$book->getId()."\n".
                 "Titre : ".$book->getTitle()."\n".
-                "Auteur : ".$book->getAuthor()->getFullName()."\n".
-                "Categorie : ".$book->getCategory()->getName()."\n".
+                "Auteur : ".$book->getAuthor()?->getFullName()."\n".
+                "Categorie : ".$book->getCategory()?->getName()."\n".
                 "Editeur : ".($book->getPublisher() ?? '—')."\n".
                 "Annee : ".($book->getPublicationYear() ?? '—')."\n".
                 "Pages : ".($book->getPageCount() ?? '—')."\n".
@@ -408,8 +416,8 @@ final class BiblioCatalogController extends AbstractController
         $qrText =
             "===== BIBLIOTHEQUE =====\n".
             "Titre : ".$book->getTitle()."\n".
-            "Auteur : ".$book->getAuthor()->getFullName()."\n".
-            "Categorie : ".$book->getCategory()->getName()."\n".
+            "Auteur : ".$book->getAuthor()?->getFullName()."\n".
+            "Categorie : ".($book->getCategory()?->getName() ?? '—')."\n".
             "Editeur : ".($book->getPublisher() ?? '—')."\n".
             "Annee : ".($book->getPublicationYear() ?? '—')."\n".
             "Pages : ".($book->getPageCount() ?? '—')."\n".
@@ -428,8 +436,8 @@ final class BiblioCatalogController extends AbstractController
                 "===== BIBLIOTHEQUE =====\n".
                 "ID Livre : ".$book->getId()."\n".
                 "Titre : ".$book->getTitle()."\n".
-                "Auteur : ".$book->getAuthor()->getFullName()."\n".
-                "Categorie : ".$book->getCategory()->getName()."\n".
+                "Auteur : ".$book->getAuthor()?->getFullName()."\n".
+                "Categorie : ".$book->getCategory()?->getName()."\n".
                 "Editeur : ".($book->getPublisher() ?? '—')."\n".
                 "Annee : ".($book->getPublicationYear() ?? '—')."\n".
                 "Pages : ".($book->getPageCount() ?? '—')."\n".

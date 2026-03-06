@@ -1,5 +1,7 @@
-{{ form_start(form, { attr: { novalidate: 'novalidate', class:'book-form' } }) }}
-
+{{ form_start(form, {
+    attr: { class:'book-form', novalidate:'novalidate' },
+    enctype: 'multipart/form-data'
+}) }}{{ form_errors(form) }}
 <style>
 
     .book-form-card{

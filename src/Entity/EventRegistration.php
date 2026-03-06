@@ -14,7 +14,7 @@ class EventRegistration
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventRegistrations')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
@@ -22,8 +22,8 @@ class EventRegistration
     #[ORM\JoinColumn(nullable: false)]
     private ?Event $event = null;
 
-    #[ORM\Column(type: 'datetime')]  // ✅ AJOUTE type: 'datetime'
-private ?\DateTimeInterface $registeredAt = null;
+    #[ORM\Column]
+    private ?\DateTimeInterface $registeredAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
@@ -31,7 +31,7 @@ private ?\DateTimeInterface $registeredAt = null;
     #[ORM\Column(enumType: RegistrationStatus::class)]
     private RegistrationStatus $status = RegistrationStatus::PENDING;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeInterface $attendedAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -42,6 +42,7 @@ private ?\DateTimeInterface $registeredAt = null;
 
     public function __construct()
     {
+        $this->registeredAt = new \DateTime();
     }
 
     // Getters/Setters...
@@ -184,5 +185,4 @@ private ?\DateTimeInterface $registeredAt = null;
         $this->status = RegistrationStatus::WAITLISTED;
         return $this;
     }
-    
 }

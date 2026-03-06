@@ -11,10 +11,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'book')]
 class Book
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
+/**
+ * @var int|null
+ */
+#[ORM\Id]
+#[ORM\GeneratedValue]
+#[ORM\Column(type: 'integer')]
+private ?int $id = null;
 
     #[ORM\Column(length: 500)]
     #[Assert\NotBlank(message: 'Le titre du livre est obligatoire.')]
@@ -24,7 +27,7 @@ class Book
         minMessage: 'Le titre doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères.'
     )]
-    private ?string $title = null;
+    private string $title ;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\NotBlank(message: 'La description est obligatoire.')]
@@ -88,7 +91,7 @@ class Book
 
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     #[Assert\NotNull(message: 'La date d\'ajout est obligatoire.')]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'books')]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id_cat', nullable: false)]
@@ -198,12 +201,11 @@ class Book
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
+    public function getCreatedAt(): \DateTimeInterface    {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    protected  function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
         return $this;

@@ -25,7 +25,7 @@ class Author
         minMessage: 'Le prénom doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères.'
     )]
-    private ?string $firstname = null;
+    private string $firstname ;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
@@ -35,7 +35,7 @@ class Author
         minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
     )]
-    private ?string $lastname = null;
+    private string      $lastname ;
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\NotBlank(message: 'Le biographie est obligatoire.')]
@@ -62,7 +62,11 @@ class Author
     )]
     private ?string $nationality = null;
 
-    #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'author')]
+
+        /**
+     * @var Collection<int, Book>
+     */
+    #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'author' )]
     private Collection $books;
 
     public function __construct()

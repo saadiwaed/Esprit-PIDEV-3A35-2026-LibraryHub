@@ -5,149 +5,219 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Entity\Club;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-#[UniqueEntity(fields: ['email'], message: 'This email is already used by another account.')]
+#[ORM\Table(name: 'users')]
+#[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(fields: ['email'], message: 'Un compte avec cet email existe déjà.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
-    #[Assert\NotBlank(message: 'Email is required.')]
-    #[Assert\Email(message: 'Please enter a valid email address.')]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Assert\NotBlank(message: 'L\'email est obligatoire.')]
+    #[Assert\Email(message: 'L\'email {{ value }} n\'est pas valide.')]
+    #[Assert\Length(max: 180, maxMessage: 'L\'email ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $email = null;
 
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
+
     /**
-     * The hashed password - validation is done on plainPassword in the form
+     * @var string The hashed password
      */
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string')]
     private ?string $password = null;
 
-    #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'First name is required.')]
+    #[ORM\Column(type: 'string', length: 100)]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
     #[Assert\Length(
         min: 3,
         max: 100,
-        minMessage: 'First name must be at least {{ limit }} characters.',
-        maxMessage: 'First name cannot exceed {{ limit }} characters.'
+        minMessage: 'Le prénom doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères.'
     )]
     private ?string $firstName = null;
 
-    #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'Last name is required.')]
+    #[ORM\Column(type: 'string', length: 100)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
     #[Assert\Length(
         min: 3,
         max: 100,
-        minMessage: 'Last name must be at least {{ limit }} characters.',
-        maxMessage: 'Last name cannot exceed {{ limit }} characters.'
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
     )]
     private ?string $lastName = null;
 
-    #[ORM\Column(length: 20, nullable: true)]
-    #[Assert\Length(max: 20, maxMessage: 'Phone number cannot exceed {{ limit }} characters.')]
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[Assert\Length(
+        max: 20,
+        maxMessage: 'Le téléphone ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $phone = null;
 
-    #[ORM\Column(length: 500, nullable: true)]
-    #[Assert\Length(max: 500, maxMessage: 'Address cannot exceed {{ limit }} characters.')]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'L\'adresse ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $address = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatar = null;
-
-    #[ORM\Column(length: 20)]
-    #[Assert\NotBlank(message: 'Status is required.')]
-    #[Assert\Choice(
-        choices: ['PENDING', 'ACTIVE', 'INACTIVE'],
-        message: 'Status must be PENDING, ACTIVE, or INACTIVE.'
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\Length(
+        max: 100,
+        maxMessage: 'La ville ne peut pas dépasser {{ limit }} caractères.'
     )]
-    private ?string $status = 'PENDING';
+    private ?string $city = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
+    #[Assert\Length(
+        max: 10,
+        maxMessage: 'Le code postal ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    private ?string $zipCode = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\Length(
+        max: 100,
+        maxMessage: 'Le pays ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    private ?string $country = null;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    #[Assert\LessThanOrEqual(
+        'today',
+        message: 'La date de naissance ne peut pas être dans le futur.'
+    )]
+    private ?\DateTimeInterface $birthDate = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le chemin de l\'image ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    private ?string $profileImage = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\Length(
+        max: 2000,
+        maxMessage: 'La biographie ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    private ?string $bio = null;
+
+    #[ORM\Column(type: 'string', length: 50)]
+    #[Assert\Choice(
+        choices: ['active', 'inactive', 'suspended', 'banned'],
+        message: 'Le statut doit être : active, inactive, suspended ou banned.'
+    )]
+    private string $status = 'active';
+
+    #[ORM\Column(type: 'string', length: 50)]
+    #[Assert\Choice(
+        choices: ['basic', 'premium', 'student', 'senior'],
+        message: 'Le type d\'adhésion doit être : basic, premium, student ou senior.'
+    )]
+    private string $membershipType = 'basic';
+
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $lastLoginAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $emailVerifiedAt = null;
+    #[ORM\Column(type: 'boolean')]
+    private bool $isVerified = false;
 
-    /**
-     * Abonnement premium (Stripe) : accès complet après paiement réussi.
-     */
-    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
-    private bool $isPremium = false;
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $verificationToken = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $faceDescriptor = null;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $verificationTokenExpiresAt = null;
 
-    /**
-     * RELATION ManyToMany: A User can have many Roles, and a Role can belong to many Users.
-     * Example: User "Ali" can be both MEMBER and LIBRARIAN.
-     */
-    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
-    #[ORM\JoinTable(name: 'user_role')]
-    private Collection $roles;
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $resetToken = null;
 
-    /**
-     * RELATION OneToOne: Each User has exactly one ReadingProfile.
-     * cascade persist = when we save a User, the ReadingProfile is saved too.
-     * cascade remove = when we delete a User, the ReadingProfile is deleted too.
-     */
-    #[ORM\OneToOne(mappedBy: 'user', targetEntity: ReadingProfile::class, cascade: ['persist', 'remove'])]
-    private ?ReadingProfile $readingProfile = null;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $resetTokenExpiresAt = null;
 
+    // =============== RELATIONS ===============
+
+    // Un utilisateur peut être membre de plusieurs clubs
     #[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
     private Collection $clubs;
 
-    /** @var Collection<int, Community> */
-    #[ORM\ManyToMany(targetEntity: Community::class, mappedBy: 'members')]
-    private Collection $communities;
+    // Un utilisateur peut être fondateur de plusieurs clubs
+    #[ORM\OneToMany(targetEntity: Club::class, mappedBy: 'founder')]
+    private Collection $foundedClubs;
 
-    /** @var Collection<int, Community> */
-    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Community::class)]
-    private Collection $createdCommunities;
-
-    /** @var Collection<int, Post> */
-    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Post::class)]
-    private Collection $createdPosts;
-
-    /** @var Collection<int, EventRegistration> */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: EventRegistration::class)]
-    private Collection $eventRegistrations;
-
-    /** @var Collection<int, Event> */
-    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Event::class)]
+    // Un utilisateur peut créer plusieurs événements
+    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'createdBy')]
     private Collection $createdEvents;
 
-    /** @var Collection<int, Club> */
-    #[ORM\OneToMany(mappedBy: 'founder', targetEntity: Club::class)]
-    private Collection $foundedClubs;
+    // Un utilisateur peut s'inscrire à plusieurs événements
+    #[ORM\OneToMany(targetEntity: EventRegistration::class, mappedBy: 'user')]
+    private Collection $eventRegistrations;
+
+    // Un utilisateur peut participer à plusieurs challenges
+    #[ORM\OneToMany(targetEntity: ChallengeParticipant::class, mappedBy: 'participant')]
+    private Collection $challengeParticipants;
+
+    // Un utilisateur peut créer plusieurs challenges
+    #[ORM\OneToMany(targetEntity: ReadingChallenge::class, mappedBy: 'createdBy')]
+    private Collection $createdChallenges;
+
+    // Un utilisateur peut avoir plusieurs avis (reviews)
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'user')]
+    private Collection $reviews;
+
+    // Un utilisateur peut avoir plusieurs prêts (loans)
+    #[ORM\OneToMany(targetEntity: Loan::class, mappedBy: 'member')]
+    private Collection $loans;
+
+    // Un utilisateur peut avoir plusieurs amendes (penalties)
+    #[ORM\OneToMany(targetEntity: Penalty::class, mappedBy: 'user')]
+    private Collection $penalties;
+
+
+
+    // Un utilisateur peut recevoir plusieurs notifications
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user')]
+    private Collection $notifications;
 
     public function __construct()
     {
-        $this->roles = new ArrayCollection();
         $this->clubs = new ArrayCollection();
-        $this->communities = new ArrayCollection();
-        $this->createdCommunities = new ArrayCollection();
-        $this->createdPosts = new ArrayCollection();
-        $this->eventRegistrations = new ArrayCollection();
-        $this->createdEvents = new ArrayCollection();
         $this->foundedClubs = new ArrayCollection();
-
+        $this->createdEvents = new ArrayCollection();
+        $this->eventRegistrations = new ArrayCollection();
+        $this->challengeParticipants = new ArrayCollection();
+        $this->createdChallenges = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
+        $this->loans = new ArrayCollection();
+        $this->penalties = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
         $this->createdAt = new \DateTime();
-        $this->status = 'PENDING';
+        $this->updatedAt = new \DateTime();
     }
+
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
+
+    // =============== GETTERS & SETTERS ===============
 
     public function getId(): ?int
     {
@@ -159,7 +229,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(string $email): self
     {
         $this->email = $email;
         return $this;
@@ -167,6 +237,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * A visual identifier that represents this user.
+     *
      * @see UserInterface
      */
     public function getUserIdentifier(): string
@@ -174,12 +245,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
-    public function getPassword(): ?string
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function setPassword(string $password): self
     {
         $this->password = $password;
         return $this;
@@ -191,6 +283,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 
     public function getFirstName(): ?string
@@ -198,7 +291,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->firstName;
     }
 
-    public function setFirstName(string $firstName): static
+    public function setFirstName(string $firstName): self
     {
         $this->firstName = $firstName;
         return $this;
@@ -209,10 +302,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->lastName;
     }
 
-    public function setLastName(string $lastName): static
+    public function setLastName(string $lastName): self
     {
         $this->lastName = $lastName;
         return $this;
+    }
+
+    public function getFullName(): string
+    {
+        return $this->firstName . ' ' . $this->lastName;
     }
 
     public function getPhone(): ?string
@@ -220,7 +318,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->phone;
     }
 
-    public function setPhone(?string $phone): static
+    public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
         return $this;
@@ -231,42 +329,118 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->address;
     }
 
-    public function setAddress(?string $address): static
+    public function setAddress(?string $address): self
     {
         $this->address = $address;
         return $this;
     }
 
-    public function getAvatar(): ?string
+    public function getCity(): ?string
     {
-        return $this->avatar;
+        return $this->city;
     }
 
-    public function setAvatar(?string $avatar): static
+    public function setCity(?string $city): self
     {
-        $this->avatar = $avatar;
+        $this->city = $city;
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getZipCode(): ?string
+    {
+        return $this->zipCode;
+    }
+
+    public function setZipCode(?string $zipCode): self
+    {
+        $this->zipCode = $zipCode;
+        return $this;
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(?string $country): self
+    {
+        $this->country = $country;
+        return $this;
+    }
+
+    public function getBirthDate(): ?\DateTimeInterface
+    {
+        return $this->birthDate;
+    }
+
+    public function setBirthDate(?\DateTimeInterface $birthDate): self
+    {
+        $this->birthDate = $birthDate;
+        return $this;
+    }
+
+    public function getProfileImage(): ?string
+    {
+        return $this->profileImage;
+    }
+
+    public function setProfileImage(?string $profileImage): self
+    {
+        $this->profileImage = $profileImage;
+        return $this;
+    }
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setBio(?string $bio): self
+    {
+        $this->bio = $bio;
+        return $this;
+    }
+
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(string $status): self
     {
         $this->status = $status;
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getMembershipType(): string
     {
-        return $this->createdAt;
+        return $this->membershipType;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    public function setMembershipType(string $membershipType): self
+    {
+        $this->membershipType = $membershipType;
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeInterface
+    {
+        return $this->createdAt ?? new \DateTime();
+    }
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 
@@ -275,271 +449,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->lastLoginAt;
     }
 
-    public function setLastLoginAt(?\DateTimeInterface $lastLoginAt): static
+    public function setLastLoginAt(?\DateTimeInterface $lastLoginAt): self
     {
         $this->lastLoginAt = $lastLoginAt;
         return $this;
     }
 
-    public function getEmailVerifiedAt(): ?\DateTimeInterface
+    public function isVerified(): bool
     {
-        return $this->emailVerifiedAt;
+        return $this->isVerified;
     }
 
-    public function setEmailVerifiedAt(?\DateTimeInterface $emailVerifiedAt): static
+    public function setIsVerified(bool $isVerified): self
     {
-        $this->emailVerifiedAt = $emailVerifiedAt;
+        $this->isVerified = $isVerified;
         return $this;
     }
 
-    public function isPremium(): bool
+    public function getVerificationToken(): ?string
     {
-        return $this->isPremium;
+        return $this->verificationToken;
     }
 
-    public function setIsPremium(bool $isPremium): static
+    public function setVerificationToken(?string $verificationToken): self
     {
-        $this->isPremium = $isPremium;
+        $this->verificationToken = $verificationToken;
         return $this;
     }
 
-    public function getFaceDescriptor(): ?string
+    public function getVerificationTokenExpiresAt(): ?\DateTimeInterface
     {
-        return $this->faceDescriptor;
+        return $this->verificationTokenExpiresAt;
     }
 
-    /**
-     * @param array<string|float>|string|null $descriptor
-     */
-    public function setFaceDescriptor($descriptor): static
+    public function setVerificationTokenExpiresAt(?\DateTimeInterface $verificationTokenExpiresAt): self
     {
-        if (is_array($descriptor)) {
-            $descriptor = implode(',', array_map('strval', $descriptor));
-        }
-
-        $this->faceDescriptor = $descriptor;
-
+        $this->verificationTokenExpiresAt = $verificationTokenExpiresAt;
         return $this;
     }
 
-    /**
-     * @return Collection<int, Role>
-     */
-    public function getUserRoles(): Collection
+    public function getResetToken(): ?string
     {
-        return $this->roles;
+        return $this->resetToken;
     }
 
-    /**
-     * Set roles from a collection (used by forms)
-     */
-    public function setUserRoles(Collection $roles): static
+    public function setResetToken(?string $resetToken): self
     {
-        $this->roles = $roles;
+        $this->resetToken = $resetToken;
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     * Returns the roles granted to the user as an array of strings for Symfony Security.
-     */
-    public function getRoles(): array
+    public function getResetTokenExpiresAt(): ?\DateTimeInterface
     {
-        $roleNames = [];
-        foreach ($this->roles as $role) {
-            $roleNames[] = $role->getName();
-        }
-        // Guarantee every user at least has ROLE_USER
-        $roleNames[] = 'ROLE_USER';
-        return array_unique($roleNames);
+        return $this->resetTokenExpiresAt;
     }
 
-    public function addRole(Role $role): static
+    public function setResetTokenExpiresAt(?\DateTimeInterface $resetTokenExpiresAt): self
     {
-        if (!$this->roles->contains($role)) {
-            $this->roles->add($role);
-        }
+        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
         return $this;
     }
 
-    public function removeRole(Role $role): static
-    {
-        $this->roles->removeElement($role);
-        return $this;
-    }
-
-    public function getReadingProfile(): ?ReadingProfile
-    {
-        return $this->readingProfile;
-    }
-
-    public function setReadingProfile(?ReadingProfile $readingProfile): static
-    {
-        if ($readingProfile !== null && $readingProfile->getUser() !== $this) {
-            $readingProfile->setUser($this);
-        }
-        $this->readingProfile = $readingProfile;
-        return $this;
-    }
-
-    /**
-     * Returns "FirstName LastName" - handy for displaying the user's name.
-     */
-    public function getFullName(): string
-    {
-        return $this->firstName . ' ' . $this->lastName;
-    }
-
-    /**
-     * Check if the user has a specific role by name.
-     */
-    public function hasRole(string $roleName): bool
-    {
-        foreach ($this->roles as $role) {
-            if ($role->getName() === $roleName) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * When Symfony needs to display this object as text (e.g. in a dropdown),
-     * it will show "FirstName LastName".
-     */
-    public function __toString(): string
-    {
-        return $this->getFullName();
-    }
-
-    /** @return Collection<int, Club> */
-    public function getClubs(): Collection
-    {
-        return $this->clubs;
-    }
-
-    public function addClub(Club $club): static
-    {
-        if (!$this->clubs->contains($club)) {
-            $this->clubs->add($club);
-            $club->addMember($this);
-        }
-
-        return $this;
-    }
-
-    public function removeClub(Club $club): static
-    {
-        if ($this->clubs->removeElement($club)) {
-            $club->removeMember($this);
-        }
-
-        return $this;
-    }
-
-    /** @return Collection<int, Community> */
-    public function getCommunities(): Collection
-    {
-        return $this->communities;
-    }
-
-    public function addCommunity(Community $community): static
-    {
-        if (!$this->communities->contains($community)) {
-            $this->communities->add($community);
-            $community->addMember($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCommunity(Community $community): static
-    {
-        if ($this->communities->removeElement($community)) {
-            $community->removeMember($this);
-        }
-
-        return $this;
-    }
-
-    /** @return Collection<int, Community> */
-    public function getCreatedCommunities(): Collection
-    {
-        return $this->createdCommunities;
-    }
-
-    /** @return Collection<int, Post> */
-    public function getCreatedPosts(): Collection
-    {
-        return $this->createdPosts;
-    }
-
-    /** @return Collection<int, EventRegistration> */
-    public function getEventRegistrations(): Collection
-    {
-        return $this->eventRegistrations;
-    }
-
-    public function addEventRegistration(EventRegistration $eventRegistration): static
-    {
-        if (!$this->eventRegistrations->contains($eventRegistration)) {
-            $this->eventRegistrations->add($eventRegistration);
-            $eventRegistration->setUser($this);
-        }
-        return $this;
-    }
-
-    public function removeEventRegistration(EventRegistration $eventRegistration): static
-    {
-        if ($this->eventRegistrations->removeElement($eventRegistration) && $eventRegistration->getUser() === $this) {
-            $eventRegistration->setUser(null);
-        }
-        return $this;
-    }
-
-    /** @return Collection<int, Event> */
-    public function getCreatedEvents(): Collection
-    {
-        return $this->createdEvents;
-    }
-
-    public function addCreatedEvent(Event $event): static
-    {
-        if (!$this->createdEvents->contains($event)) {
-            $this->createdEvents->add($event);
-            $event->setCreatedBy($this);
-        }
-        return $this;
-    }
-
-    public function removeCreatedEvent(Event $event): static
-    {
-        if ($this->createdEvents->removeElement($event) && $event->getCreatedBy() === $this) {
-            $event->setCreatedBy(null);
-        }
-        return $this;
-    }
-
-    /** @return Collection<int, Club> */
-    public function getFoundedClubs(): Collection
-    {
-        return $this->foundedClubs;
-    }
-
-    public function addFoundedClub(Club $club): static
-    {
-        if (!$this->foundedClubs->contains($club)) {
-            $this->foundedClubs->add($club);
-            $club->setFounder($this);
-        }
-        return $this;
-    }
-
-    public function removeFoundedClub(Club $club): static
-    {
-        if ($this->foundedClubs->removeElement($club) && $club->getFounder() === $this) {
-            $club->setFounder(null);
-        }
-        return $this;
-    }
+    
 }

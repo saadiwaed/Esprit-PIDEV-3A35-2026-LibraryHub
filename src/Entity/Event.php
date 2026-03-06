@@ -7,16 +7,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Enum\EventStatus;
-use App\Enum\EventTypes;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Enum\RegistrationStatus;
-use Symfony\Component\HttpFoundation\File\File;
-use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\Table(name: 'events')]
 #[ORM\HasLifecycleCallbacks]
-#[Vich\Uploadable]
 class Event
 {
     #[ORM\Id]
@@ -73,13 +69,19 @@ class Event
     #[ORM\Column(type: 'string', length: 20, enumType: EventStatus::class)]
     private EventStatus $status = EventStatus::UPCOMING;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdEvents')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: false)]
     private ?User $createdBy = null;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdDate = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le chemin de l\'image ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    private ?string $image = null;
 
     #[ORM\ManyToMany(
         targetEntity: Club::class, 
@@ -90,32 +92,13 @@ class Event
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: EventRegistration::class)]
     private Collection $registrations;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $image = null;
-
-    #[Vich\UploadableField(mapping: 'event_image', fileNameProperty: 'image')]
-    private ?File $imageFile = null;
-
     public function __construct()
     {
         $this->organizingClubs = new ArrayCollection();
         $this->createdDate = new \DateTime();
         $this->registrations = new ArrayCollection();
     }
-#[ORM\Column(type: 'string', length: 50, enumType: EventTypes::class)]
-    private EventTypes $type = EventTypes::READING; 
 
-
-    public function getType(): EventTypes
-    {
-        return $this->type;
-    }
-
-    public function setType(EventTypes $type): self
-    {
-        $this->type = $type;
-        return $this;
-    }
     #[ORM\PrePersist]
     public function setCreatedDateValue(): void
     {
@@ -275,47 +258,67 @@ class Event
         return $this;
     }
 
+    /**
+     * Vérifie si l'événement est à venir
+     */
     public function isUpcoming(): bool
     {
         return $this->startDateTime > new \DateTime();
     }
 
-   
+    /**
+     * Vérifie si l'événement est en cours
+     */
     public function isOngoing(): bool
     {
         $now = new \DateTime();
         return $this->startDateTime <= $now && $this->endDateTime >= $now;
     }
 
-  
+    /**
+     * Vérifie si l'événement est passé
+     */
     public function isPast(): bool
     {
         return $this->endDateTime < new \DateTime();
     }
 
 
-   
+    /**
+     * Retourne le club principal organisateur (premier de la liste)
+     */
     public function getMainOrganizer(): ?Club
     {
         return $this->organizingClubs->first() ?: null;
     }
 
- 
+    /**
+     * Vérifie si un club spécifique organise cet événement
+     */
     public function isOrganizedByClub(Club $club): bool
     {
         return $this->organizingClubs->contains($club);
     }
 
+    /**
+     * Vérifie si l'événement est organisé par plusieurs clubs
+     */
     public function isCollaborative(): bool
     {
         return $this->organizingClubs->count() > 1;
     }
 
+    /**
+     * Retourne le nombre de clubs organisateurs
+     */
     public function getOrganizerCount(): int
     {
         return $this->organizingClubs->count();
     }
 
+    /**
+     * Retourne la durée de l'événement en heures
+     */
     public function getDurationInHours(): float
     {
         if (!$this->startDateTime || !$this->endDateTime) {
@@ -329,7 +332,9 @@ class Event
         return round($hours, 1);
     }
 
-  
+    /**
+     * Vérifie si l'événement commence bientôt (dans moins de 24h)
+     */
     public function isStartingSoon(): bool
     {
         $now = new \DateTime();
@@ -338,6 +343,9 @@ class Event
         return $difference > 0 && $difference <= 86400; // 24h en secondes
     }
 
+    /**
+     * Retourne les membres de tous les clubs organisateurs (sans doublons)
+     */
     public function getAllOrganizersMembers(): Collection
     {
         $allMembers = new ArrayCollection();
@@ -353,6 +361,9 @@ class Event
         return $allMembers;
     }
 
+    /**
+     * Vérifie si un utilisateur est membre d'un club organisateur
+     */
     public function isUserInOrganizingClub(User $user): bool
     {
         foreach ($this->organizingClubs as $club) {
@@ -363,9 +374,12 @@ class Event
         return false;
     }
 
-
+    /**
+     * Vérifie si l'événement est complet
+     */
     public function isFull(): bool
     {
+        // À implémenter si vous avez des inscriptions à l'événement
         return false;
     }
 
@@ -395,18 +409,4 @@ public function getWaitlistCount(): int
         fn(EventRegistration $reg) => $reg->isWaitlisted()
     )->count();
 }
-
-public function setImageFile(?File $imageFile = null): void
-{
-    $this->imageFile = $imageFile;
-    
-    if ($imageFile) {
-        $this->createdDate = new \DateTime(); // Use your existing createdDate field
-    }
-}
-
-    public function getImageFile(): ?File
-    {
-        return $this->imageFile;
-    }
 }

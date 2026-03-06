@@ -8,13 +8,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\ClubRepository;
-use Symfony\Component\HttpFoundation\File\File;
-use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: ClubRepository::class)]
 #[ORM\Table(name: 'clubs')]
 #[ORM\HasLifecycleCallbacks]
-#[Vich\Uploadable]
 class Club
 {
     #[ORM\Id]
@@ -41,7 +38,7 @@ class Club
     #[Assert\NotBlank(message: 'La catégorie est obligatoire')]
     private ?string $category = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'foundedClubs')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'founder_id', referencedColumnName: 'id', nullable: false)]
     private ?User $founder = null;
 
@@ -77,12 +74,12 @@ class Club
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdDate = null;
 
-   #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le chemin de l\'image ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $image = null;
-
-    #[Vich\UploadableField(mapping: 'club_image', fileNameProperty: 'image')]
-    private ?File $imageFile = null;
-
 
     #[ORM\ManyToMany(
         targetEntity: Event::class, 
@@ -93,8 +90,6 @@ class Club
     #[ORM\JoinColumn(name: 'club_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'event_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private Collection $organizedEvents;
-
-
 
     public function __construct()
     {
@@ -295,50 +290,77 @@ class Club
         return $this;
     }
 
+    /**
+     * Calcul les places disponibles
+     */
     public function getAvailableSpots(): int
     {
         return $this->capacity - $this->members->count();
     }
 
+    /**
+     * Vérifie si le club est complet
+     */
     public function isFull(): bool
     {
         return $this->members->count() >= $this->capacity;
     }
 
+    /**
+     * Vérifie si un utilisateur est membre
+     */
     public function isMember(User $user): bool
     {
         return $this->members->contains($user);
     }
 
+    /**
+     * Vérifie si un utilisateur peut rejoindre
+     */
     public function canJoin(): bool
     {
         return !$this->isFull() && $this->status === ClubStatus::ACTIVE;
     }
 
+    /**
+     * Active le club
+     */
     public function activate(): self
     {
         $this->status = ClubStatus::ACTIVE;
         return $this;
     }
 
+    /**
+     * Désactive le club
+     */
     public function deactivate(): self
     {
         $this->status = ClubStatus::INACTIVE;
         return $this;
     }
 
+    /**
+     * Met le club en pause
+     */
     public function pause(): self
     {
         $this->status = ClubStatus::PAUSED;
         return $this;
     }
 
+    /**
+     * Archive le club
+     */
     public function archive(): self
     {
         $this->status = ClubStatus::ARCHIVED;
         return $this;
     }
 
+    /**
+     * Retourne les événements à venir organisés par le club
+     */
     public function getUpcomingEvents(): Collection
     {
         return $this->organizedEvents->filter(
@@ -346,6 +368,9 @@ class Club
         );
     }
 
+    /**
+     * Retourne les événements passés organisés par le club
+     */
     public function getPastEvents(): Collection
     {
         return $this->organizedEvents->filter(
@@ -353,6 +378,9 @@ class Club
         );
     }
 
+    /**
+     * Retourne les événements en cours
+     */
     public function getOngoingEvents(): Collection
     {
         return $this->organizedEvents->filter(
@@ -360,16 +388,25 @@ class Club
         );
     }
 
+    /**
+     * Vérifie si le club organise un événement spécifique
+     */
     public function isOrganizingEvent(Event $event): bool
     {
         return $this->organizedEvents->contains($event);
     }
 
+    /**
+     * Compte le nombre d'événements organisés
+     */
     public function getEventCount(): int
     {
         return $this->organizedEvents->count();
     }
 
+    /**
+     * Retourne le prochain événement organisé
+     */
     public function getNextEvent(): ?Event
     {
         $upcomingEvents = $this->getUpcomingEvents();
@@ -378,6 +415,7 @@ class Club
             return null;
         }
         
+        // Trier par date de début la plus proche
         $eventsArray = $upcomingEvents->toArray();
         usort($eventsArray, fn($a, $b) => $a->getStartDateTime() <=> $b->getStartDateTime());
         
@@ -387,18 +425,5 @@ class Club
     public function __toString(): string
     {
         return $this->title ?? 'Club';
-    }
-    public function setImageFile(?File $imageFile = null): void
-{
-    $this->imageFile = $imageFile;
-    
-    if ($imageFile) {
-        $this->createdDate = new \DateTime(); 
-    }
-}
-
-    public function getImageFile(): ?File
-    {
-        return $this->imageFile;
     }
 }
