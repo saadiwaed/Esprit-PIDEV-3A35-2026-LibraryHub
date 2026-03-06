@@ -71,10 +71,10 @@ symfony server:start
 ## Screenshots
 
 ### 🏠 Page d'accueil
-<img src="assets/screenshots/accueil.png" width="700" alt="Page d'accueil LibraryHub">
+<img src="public/assets/screenshots/accueil.png" width="700" alt="Page d'accueil LibraryHub">
 
 ### 🔐 Page de connexion
-<img src="assets/screenshots/login.png" width="700" alt="Page de connexion LibraryHub">
+<img src="public/assets/screenshots/login.png" width="700" alt="Page de connexion LibraryHub">
 
 ## Acknowledgments
 
