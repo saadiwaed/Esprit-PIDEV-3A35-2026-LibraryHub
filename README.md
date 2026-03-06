@@ -56,15 +56,15 @@ PIDEV – 3A | 2025–2026
 
 ## Getting Started
 
-Clone the repository
+#Clone the repository
 
 git clone https://github.com/saadiwaed/Esprit-PIDEV-3A35-2026-LibraryHub.git
 
-Install dependencies
+#Install dependencies
 
 composer install
 
-Run the project
+#Run the project
 
 symfony server:start
 
