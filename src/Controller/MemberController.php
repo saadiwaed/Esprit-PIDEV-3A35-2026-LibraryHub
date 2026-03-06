@@ -47,7 +47,7 @@ final class MemberController extends AbstractController
     public function myLoans(LoanRepository $loanRepository, LoanService $loanService): Response
     {
         $user = $this->getUser();
-        $loans = $user instanceof User ? $loanRepository->findByMember($user->getId()) : [];
+        $loans = $user instanceof User ? $loanRepository->findByMember((int) $user->getId()) : [];
         $openLoans = [];
         $historyLoans = [];
 
@@ -173,7 +173,7 @@ final class MemberController extends AbstractController
         ]);
         $form->handleRequest($request);
 
-        if (!$form->isSubmitted() || !$form->isValid()) {
+        if (!$form->isSubmitted()) {
             $loanRequests = $member instanceof User ? $loanRequestRepository->findLatestForMember($member, 5) : [];
 
             return $this->render('member/home.html.twig', [

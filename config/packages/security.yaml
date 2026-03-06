@@ -50,6 +50,8 @@ security:
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/perf-test$, roles: PUBLIC_ACCESS }
+        - { path: ^/perf-report$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: PUBLIC_ACCESS }
         
         - { path: ^/admin/face-login, roles: PUBLIC_ACCESS }

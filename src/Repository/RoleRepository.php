@@ -16,6 +16,43 @@ class RoleRepository extends ServiceEntityRepository
         parent::__construct($registry, Role::class);
     }
 
+    /**
+     * @return list<Role>
+     */
+    public function findForIndex(int $limit = 200): array
+    {
+        /** @var list<Role> $roles */
+        $roles = $this->createQueryBuilder('r')
+            ->leftJoin('r.users', 'u')
+            ->addSelect('u')
+            ->orderBy('r.name', 'ASC')
+            ->setMaxResults(max(1, $limit))
+            ->getQuery()
+            ->getResult();
+
+        return $roles;
+    }
+
+    /**
+     * @return list<Role>
+     */
+    public function searchByNameOrDescription(string $query, int $limit = 50): array
+    {
+        /** @var list<Role> $roles */
+        $roles = $this->createQueryBuilder('r')
+            ->leftJoin('r.users', 'u')
+            ->addSelect('u')
+            ->where('LOWER(r.name) LIKE LOWER(:query)')
+            ->orWhere('LOWER(r.description) LIKE LOWER(:query)')
+            ->setParameter('query', '%'.$query.'%')
+            ->orderBy('r.name', 'ASC')
+            ->setMaxResults(max(1, $limit))
+            ->getQuery()
+            ->getResult();
+
+        return $roles;
+    }
+
     //    /**
     //     * @return Role[] Returns an array of Role objects
     //     */

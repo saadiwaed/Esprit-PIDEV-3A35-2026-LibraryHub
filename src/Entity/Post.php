@@ -24,20 +24,20 @@ class Post
     #[Assert\Length(
         min: 5,
         max: 255,
-        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères',
-        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères'
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caractÃ¨res',
+        maxMessage: 'Le titre ne peut pas dÃ©passer {{ limit }} caractÃ¨res'
     )]
-    private ?string $title = null;
+    private string $title = '';
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'Le contenu du post est obligatoire')]
     #[Assert\Length(
         min: 10,
         max: 10000,
-        minMessage: 'Le contenu doit contenir au moins {{ limit }} caractères',
-        maxMessage: 'Le contenu ne peut pas dépasser {{ limit }} caractères'
+        minMessage: 'Le contenu doit contenir au moins {{ limit }} caractÃ¨res',
+        maxMessage: 'Le contenu ne peut pas dÃ©passer {{ limit }} caractÃ¨res'
     )]
-    private ?string $content = null;
+    private string $content = '';
 
     #[ORM\Column(type: 'string', length: 20, enumType: PostStatus::class)]
     private PostStatus $status = PostStatus::DRAFT;
@@ -53,11 +53,11 @@ class Post
 
     #[ORM\Column(type: 'string', length: 500, nullable: true)]
     #[Assert\Url(message: 'L\'URL externe {{ value }} n\'est pas valide')]
-    #[Assert\Length(max: 500, maxMessage: 'L\'URL ne peut pas dépasser {{ limit }} caractères')]
+    #[Assert\Length(max: 500, maxMessage: 'L\'URL ne peut pas dÃ©passer {{ limit }} caractÃ¨res')]
     private ?string $externalUrl = null;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
-    #[Assert\PositiveOrZero(message: 'Le nombre de commentaires ne peut pas être négatif')]
+    #[Assert\PositiveOrZero(message: 'Le nombre de commentaires ne peut pas Ãªtre nÃ©gatif')]
     private int $commentCount = 0;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
@@ -69,20 +69,19 @@ class Post
     private int $dislikeCount = 0;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdPosts')]
     #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?User $createdBy = null;
 
     #[ORM\ManyToOne(targetEntity: Community::class, inversedBy: 'posts')]
-    #[ORM\JoinColumn(name: 'community_id', referencedColumnName: 'id', nullable: false)]
-    #[Assert\NotNull(message: 'La communauté est obligatoire')]
+    #[ORM\JoinColumn(name: 'community_id', referencedColumnName: 'id', nullable: true)]
+    #[Assert\NotNull(message: 'La communautÃ© est obligatoire')]
     private ?Community $community = null;
 
-    /** @var Collection<int, Comment> */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['remove'], orphanRemoval: true)]
-    private Collection $comments;
+     #[ORM\OneToMany(mappedBy: 'post', orphanRemoval: true)]
+    private Collection $comments;  // orphanRemoval=true dit : "supprime les commentaires orphelins"
 
     /** @var Collection<int, PostReaction> */
     #[ORM\OneToMany(targetEntity: PostReaction::class, mappedBy: 'post', cascade: ['remove'], orphanRemoval: true)]
@@ -108,35 +107,33 @@ class Post
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        if ($this->createdAt === null) {
-            $this->createdAt = new \DateTime();
-        }
+        $this->createdAt = new \DateTime();
     }
 
-    // ─── Getters & Setters ───────────────────────────────
+    // â”€â”€â”€ Getters & Setters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function setTitle(?string $title): self
+    public function setTitle(string $title): self
     {
         $this->title = $title;
         return $this;
     }
 
-    public function getContent(): ?string
+    public function getContent(): string
     {
         return $this->content;
     }
 
-    public function setContent(?string $content): self
+    public function setContent(string $content): self
     {
         $this->content = $content;
         return $this;
@@ -232,7 +229,7 @@ class Post
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -265,7 +262,7 @@ class Post
         return $this;
     }
 
-    // ─── Attachments ─────────────────────────────────────
+    // â”€â”€â”€ Attachments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /** @return Collection<int, Comment> */
     public function getComments(): Collection
@@ -373,7 +370,7 @@ class Post
         return $this;
     }
 
-    // ─── Business Logic (Métiers de Base) ────────────────
+    // â”€â”€â”€ Business Logic (MÃ©tiers de Base) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /**
      * Publie le post
@@ -394,7 +391,7 @@ class Post
     }
 
     /**
-     * Vérifie si le post est visible (publié et communauté approuvée)
+     * VÃ©rifie si le post est visible (publiÃ© et communautÃ© approuvÃ©e)
      */
     public function isVisible(): bool
     {
@@ -404,7 +401,7 @@ class Post
     }
 
     /**
-     * Vérifie si le post accepte des commentaires
+     * VÃ©rifie si le post accepte des commentaires
      */
     public function canBeCommented(): bool
     {
@@ -465,7 +462,7 @@ class Post
     }
 
     /**
-     * Épingle ou désépingle le post
+     * Ã‰pingle ou dÃ©sÃ©pingle le post
      */
     public function togglePin(): self
     {
@@ -474,7 +471,7 @@ class Post
     }
 
     /**
-     * Vérifie si le post a des pièces jointes
+     * VÃ©rifie si le post a des piÃ¨ces jointes
      */
     public function hasAttachments(): bool
     {
@@ -482,7 +479,7 @@ class Post
     }
 
     /**
-     * Retourne le nombre de pièces jointes
+     * Retourne le nombre de piÃ¨ces jointes
      */
     public function getAttachmentCount(): int
     {
@@ -490,7 +487,10 @@ class Post
     }
 
     /**
-     * Retourne uniquement les pièces jointes de type image
+     * Retourne uniquement les piÃ¨ces jointes de type image
+     */
+    /**
+     * @return Collection<int, Attachment>
      */
     public function getImageAttachments(): Collection
     {
@@ -501,6 +501,7 @@ class Post
 
     public function __toString(): string
     {
-        return $this->title ?? 'Post';
+        return $this->title;
     }
 }
+

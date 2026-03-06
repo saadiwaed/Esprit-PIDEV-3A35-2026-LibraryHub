@@ -45,6 +45,10 @@ final class FaceRegistrationController extends AbstractController
             $descriptor = implode(',', array_map('strval', $decoded));
         }
 
+        if (!is_string($descriptor)) {
+            $descriptor = (string) $descriptor;
+        }
+
         $user->setFaceDescriptor($descriptor);
         $entityManager->persist($user);
         $entityManager->flush();

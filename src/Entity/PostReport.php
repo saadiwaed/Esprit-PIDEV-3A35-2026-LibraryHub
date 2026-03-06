@@ -19,12 +19,12 @@ class PostReport
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'reports')]
-    #[ORM\JoinColumn(name: 'post_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'post_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     #[Assert\NotNull]
     private ?Post $post = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'reporter_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'reporter_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     #[Assert\NotNull]
     private ?User $reporter = null;
 
@@ -36,13 +36,13 @@ class PostReport
         minMessage: 'Le motif doit contenir au moins {{ limit }} caracteres.',
         maxMessage: 'Le motif ne peut pas depasser {{ limit }} caracteres.'
     )]
-    private ?string $reason = null;
+    private string $reason = '';
 
     #[ORM\Column(type: 'string', length: 20, enumType: PostReportStatus::class)]
     private PostReportStatus $status = PostReportStatus::PENDING;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'reviewed_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
@@ -57,12 +57,15 @@ class PostReport
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $moderatorDecisionReason = null;
 
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+    }
+
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        if ($this->createdAt === null) {
-            $this->createdAt = new \DateTime();
-        }
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): ?int
@@ -94,12 +97,12 @@ class PostReport
         return $this;
     }
 
-    public function getReason(): ?string
+    public function getReason(): string
     {
         return $this->reason;
     }
 
-    public function setReason(?string $reason): self
+    public function setReason(string $reason): self
     {
         $this->reason = $reason;
 
@@ -118,7 +121,7 @@ class PostReport
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -178,3 +181,4 @@ class PostReport
         return $this;
     }
 }
+

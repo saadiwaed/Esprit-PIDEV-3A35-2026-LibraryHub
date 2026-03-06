@@ -17,14 +17,14 @@ class RoleController extends AbstractController
     #[Route('/', name: 'app_role_index', methods: ['GET'])]
     public function index(Request $request, RoleRepository $roleRepository): Response
     {
-        $search = $request->query->get('search', '');
-        
-        if ($search) {
-            $roles = $roleRepository->searchByNameOrDescription($search);
+        $search = trim((string) $request->query->get('search', ''));
+
+        if ($search !== '') {
+            $roles = $roleRepository->searchByNameOrDescription($search, 50);
         } else {
-            $roles = $roleRepository->findAll();
+            $roles = $roleRepository->findForIndex();
         }
-        
+
         return $this->render('role/index.html.twig', [
             'roles' => $roles,
         ]);
@@ -33,15 +33,15 @@ class RoleController extends AbstractController
     #[Route('/search', name: 'app_role_search', methods: ['GET'])]
     public function search(Request $request, RoleRepository $roleRepository): Response
     {
-        $query = $request->query->get('q', '');
-        
+        $query = trim((string) $request->query->get('q', ''));
+
         if (strlen($query) < 2) {
             return $this->json([]);
         }
-        
-        $roles = $roleRepository->searchByNameOrDescription($query);
-        
-        $results = array_map(function($role) {
+
+        $roles = $roleRepository->searchByNameOrDescription($query, 20);
+
+        $results = array_map(static function (Role $role): array {
             return [
                 'id' => $role->getId(),
                 'name' => $role->getName(),
@@ -49,7 +49,7 @@ class RoleController extends AbstractController
                 'usersCount' => $role->getUsers()->count(),
             ];
         }, $roles);
-        
+
         return $this->json($results);
     }
 
@@ -106,7 +106,7 @@ class RoleController extends AbstractController
     #[Route('/{id}/delete', name: 'app_role_delete', methods: ['POST'])]
     public function delete(Request $request, Role $role, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$role->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$role->getId(), (string) $request->request->get('_token'))) {
             try {
                 // Remove this role from all users first
                 foreach ($role->getUsers() as $user) {

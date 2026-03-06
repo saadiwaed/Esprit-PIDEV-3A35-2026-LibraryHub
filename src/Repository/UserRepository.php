@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Loan;
 use App\Entity\User;
+use App\Enum\LoanStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -19,9 +21,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
-    /**
-     * Used to upgrade (rehash) the user's password automatically over time.
-     */
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         if (!$user instanceof User) {
@@ -33,74 +32,127 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    // Methodes personnalisees
-    public function findByRole(string $role): array
+    /**
+     * @return list<User>
+     */
+    public function findForIndex(int $limit = 200): array
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.roles LIKE :role')
-            ->setParameter('role', '%"' . $role . '"%')
+        /** @var list<User> $users */
+        $users = $this->createQueryBuilder('u')
+            ->leftJoin('u.roles', 'r')
+            ->addSelect('r')
+            ->orderBy('u.firstName', 'ASC')
+            ->addOrderBy('u.lastName', 'ASC')
+            ->setMaxResults(max(1, $limit))
             ->getQuery()
             ->getResult();
-    }
 
-    public function findActiveUsers(): array
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.status = :status')
-            ->setParameter('status', 'active')
-            ->orderBy('u.lastName', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findPremiumMembers(): array
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.membershipType = :type')
-            ->setParameter('type', 'premium')
-            ->andWhere('u.status = :status')
-            ->setParameter('status', 'active')
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findUsersWithOverdueLoans(): array
-    {
-        return $this->createQueryBuilder('u')
-            ->leftJoin('u.loans', 'l')
-            ->andWhere('l.status = :status')
-            ->setParameter('status', 'overdue')
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function searchUsers(string $query): array
-    {
-        return $this->createQueryBuilder('u')
-            ->where('u.firstName LIKE :query')
-            ->orWhere('u.lastName LIKE :query')
-            ->orWhere('u.email LIKE :query')
-            ->setParameter('query', '%' . $query . '%')
-            ->orderBy('u.lastName', 'ASC')
-            ->getQuery()
-            ->getResult();
+        return $users;
     }
 
     /**
-     * Search users by name or email with limit for suggestions
+     * @return list<User>
+     */
+    public function findByRole(string $role): array
+    {
+        /** @var list<User> $users */
+        $users = $this->createQueryBuilder('u')
+            ->leftJoin('u.roles', 'r')
+            ->andWhere('r.name = :role')
+            ->setParameter('role', $role)
+            ->getQuery()
+            ->getResult();
+
+        return $users;
+    }
+
+    /**
+     * @return list<User>
+     */
+    public function findActiveUsers(): array
+    {
+        /** @var list<User> $users */
+        $users = $this->createQueryBuilder('u')
+            ->andWhere('u.status = :status')
+            ->setParameter('status', 'ACTIVE')
+            ->orderBy('u.lastName', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $users;
+    }
+
+    /**
+     * @return list<User>
+     */
+    public function findPremiumMembers(): array
+    {
+        /** @var list<User> $users */
+        $users = $this->createQueryBuilder('u')
+            ->andWhere('u.isPremium = :premium')
+            ->setParameter('premium', true)
+            ->andWhere('u.status = :status')
+            ->setParameter('status', 'ACTIVE')
+            ->orderBy('u.lastName', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $users;
+    }
+
+    /**
+     * @return list<User>
+     */
+    public function findUsersWithOverdueLoans(): array
+    {
+        /** @var list<User> $users */
+        $users = $this->createQueryBuilder('u')
+            ->innerJoin(Loan::class, 'l', 'WITH', 'l.member = u')
+            ->andWhere('l.status = :status')
+            ->setParameter('status', LoanStatus::OVERDUE)
+            ->groupBy('u.id')
+            ->getQuery()
+            ->getResult();
+
+        return $users;
+    }
+
+    /**
+     * @return list<User>
+     */
+    public function searchUsers(string $query): array
+    {
+        /** @var list<User> $users */
+        $users = $this->createQueryBuilder('u')
+            ->where('u.firstName LIKE :query')
+            ->orWhere('u.lastName LIKE :query')
+            ->orWhere('u.email LIKE :query')
+            ->setParameter('query', '%'.$query.'%')
+            ->orderBy('u.lastName', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $users;
+    }
+
+    /**
+     * @return list<User>
      */
     public function searchByNameOrEmail(string $query, int $limit = 10): array
     {
-        return $this->createQueryBuilder('u')
+        /** @var list<User> $users */
+        $users = $this->createQueryBuilder('u')
             ->where('LOWER(u.firstName) LIKE LOWER(:query)')
             ->orWhere('LOWER(u.lastName) LIKE LOWER(:query)')
             ->orWhere('LOWER(u.email) LIKE LOWER(:query)')
             ->orWhere("LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(:query)")
-            ->setParameter('query', '%' . $query . '%')
+            ->setParameter('query', '%'.$query.'%')
             ->orderBy('u.firstName', 'ASC')
             ->addOrderBy('u.lastName', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return $users;
     }
 }

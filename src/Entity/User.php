@@ -27,13 +27,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(message: 'L\'email est obligatoire.')]
     #[Assert\Email(message: 'L\'email {{ value }} n\'est pas valide.')]
     #[Assert\Length(max: 180, maxMessage: 'L\'email ne peut pas depasser {{ limit }} caracteres.')]
-    private ?string $email = null;
+    private string $email = '';
 
     /**
      * The hashed password - validation is done on plainPassword in the form
      */
     #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    private string $password = '';
 
     #[ORM\Column(type: 'string', length: 100)]
     #[Assert\NotBlank(message: 'Le prenom est obligatoire.')]
@@ -43,7 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'Le prenom doit contenir au moins {{ limit }} caracteres.',
         maxMessage: 'Le prenom ne peut pas depasser {{ limit }} caracteres.'
     )]
-    private ?string $firstName = null;
+    private string $firstName = '';
 
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'Last name is required.')]
@@ -53,7 +53,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'Le nom doit contenir au moins {{ limit }} caracteres.',
         maxMessage: 'Le nom ne peut pas depasser {{ limit }} caracteres.'
     )]
-    private ?string $lastName = null;
+    private string $lastName = '';
 
     #[ORM\Column(length: 20, nullable: true)]
     #[Assert\Length(max: 20, maxMessage: 'Phone number cannot exceed {{ limit }} characters.')]
@@ -72,10 +72,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         choices: ['PENDING', 'ACTIVE', 'INACTIVE'],
         message: 'Status must be PENDING, ACTIVE, or INACTIVE.'
     )]
-    private ?string $status = 'PENDING';
+    private string $status = 'PENDING';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $lastLoginAt = null;
@@ -96,6 +96,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * RELATION ManyToMany: A User can have many Roles, and a Role can belong to many Users.
      * Example: User "Ali" can be both MEMBER and LIBRARIAN.
      */
+    /** @var Collection<int, Role> */
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
     #[ORM\JoinTable(name: 'user_role')]
     private Collection $roles;
@@ -108,6 +109,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', targetEntity: ReadingProfile::class, cascade: ['persist', 'remove'])]
     private ?ReadingProfile $readingProfile = null;
 
+    /** @var Collection<int, Club> */
     #[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
     private Collection $clubs;
 
@@ -155,7 +157,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): string
     {
         return $this->email;
     }
@@ -175,7 +177,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
-    public function getPassword(): ?string
+    public function getPassword(): string
     {
         return $this->password;
     }
@@ -194,7 +196,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // If you store any temporary, sensitive data on the user, clear it here
     }
 
-    public function getFirstName(): ?string
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
@@ -205,7 +207,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getLastName(): ?string
+    public function getLastName(): string
     {
         return $this->lastName;
     }
@@ -249,7 +251,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -260,7 +262,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -333,6 +335,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * Set roles from a collection (used by forms)
+     */
+    /**
+     * @param Collection<int, Role> $roles
      */
     public function setUserRoles(Collection $roles): static
     {

@@ -330,60 +330,36 @@ final class BiblioCatalogController extends AbstractController
     #[Route('/books/{id}', name: 'biblio_book_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function bookShow(Book $book): Response
     {
-        // construction du texte du QR
+        $authorName = $book->getAuthor()?->getFullName() ?? 'Inconnu';
+        $categoryName = $book->getCategory()?->getName() ?? 'Non classe';
         $status = match ($book->getStatus()) {
             'available' => 'Disponible',
-            'borrowed' => 'Emprunté',
-            'reserved' => 'Réservé',
-            default => 'Maintenance'
+            'borrowed' => 'Emprunte',
+            'reserved' => 'Reserve',
+            default => 'Maintenance',
         };
-    
-        $qrText =
-            "===== BIBLIOTHEQUE =====\n".
-            "Titre : ".$book->getTitle()."\n".
-            "Auteur : ".$book->getAuthor()->getFullName()."\n".
-            "Categorie : ".$book->getCategory()->getName()."\n".
-            "Editeur : ".($book->getPublisher() ?? '—')."\n".
-            "Annee : ".($book->getPublicationYear() ?? '—')."\n".
-            "Pages : ".($book->getPageCount() ?? '—')."\n".
-            "Langue : ".($book->getLanguage() ?? '—')."\n".
-            "Statut : ".$status."\n".
-            "Ajoute le : ".$book->getCreatedAt()->format('d/m/Y');
-    
-            $status = match ($book->getStatus()) {
-                'available' => 'Disponible',
-                'borrowed' => 'Emprunté',
-                'reserved' => 'Réservé',
-                default => 'Maintenance'
-            };
-            
-            $qrText =
-                "===== BIBLIOTHEQUE =====\n".
-                "ID Livre : ".$book->getId()."\n".
-                "Titre : ".$book->getTitle()."\n".
-                "Auteur : ".$book->getAuthor()->getFullName()."\n".
-                "Categorie : ".$book->getCategory()->getName()."\n".
-                "Editeur : ".($book->getPublisher() ?? '—')."\n".
-                "Annee : ".($book->getPublicationYear() ?? '—')."\n".
-                "Pages : ".($book->getPageCount() ?? '—')."\n".
-                "Langue : ".($book->getLanguage() ?? '—')."\n".
-                "Statut : ".$status."\n".
-                "Ajoute le : ".$book->getCreatedAt()->format('d/m/Y');
-            
-            
-            $builder = new Builder(
-                writer: new PngWriter(),
-                data: $qrText,
-                encoding: new Encoding('UTF-8'),
-              //  errorCorrectionLevel: QrCodeErrorCorrectionLevel::h(),
-                size: 350,
-                margin: 10
-            );
-            
-            $result = $builder->build();
-            $qr = $result->getDataUri();
-            
-    
+
+        $qrText = "===== BIBLIOTHEQUE =====\n"
+            ."ID Livre : ".$book->getId()."\n"
+            ."Titre : ".$book->getTitle()."\n"
+            ."Auteur : ".$authorName."\n"
+            ."Categorie : ".$categoryName."\n"
+            ."Editeur : ".($book->getPublisher() ?? '-')."\n"
+            ."Annee : ".($book->getPublicationYear() ?? '-')."\n"
+            ."Pages : ".($book->getPageCount() ?? '-')."\n"
+            ."Langue : ".($book->getLanguage() ?? '-')."\n"
+            ."Statut : ".$status."\n"
+            ."Ajoute le : ".$book->getCreatedAt()->format('d/m/Y');
+
+        $result = Builder::create()
+            ->writer(new PngWriter())
+            ->data($qrText)
+            ->encoding(new Encoding('UTF-8'))
+            ->size(350)
+            ->margin(10)
+            ->build();
+        $qr = $result->getDataUri();
+
         return $this->render('catalog/backoffice/book/show.html.twig', [
             'book' => $book,
             'area' => 'biblio',
@@ -397,60 +373,36 @@ final class BiblioCatalogController extends AbstractController
     #[Route('/books/front/{id}', name: 'biblio_book_show_client', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function bookShowclient(Book $book): Response
     {
-        // construction du texte du QR
+        $authorName = $book->getAuthor()?->getFullName() ?? 'Inconnu';
+        $categoryName = $book->getCategory()?->getName() ?? 'Non classe';
         $status = match ($book->getStatus()) {
             'available' => 'Disponible',
-            'borrowed' => 'Emprunté',
-            'reserved' => 'Réservé',
-            default => 'Maintenance'
+            'borrowed' => 'Emprunte',
+            'reserved' => 'Reserve',
+            default => 'Maintenance',
         };
-    
-        $qrText =
-            "===== BIBLIOTHEQUE =====\n".
-            "Titre : ".$book->getTitle()."\n".
-            "Auteur : ".$book->getAuthor()->getFullName()."\n".
-            "Categorie : ".$book->getCategory()->getName()."\n".
-            "Editeur : ".($book->getPublisher() ?? '—')."\n".
-            "Annee : ".($book->getPublicationYear() ?? '—')."\n".
-            "Pages : ".($book->getPageCount() ?? '—')."\n".
-            "Langue : ".($book->getLanguage() ?? '—')."\n".
-            "Statut : ".$status."\n".
-            "Ajoute le : ".$book->getCreatedAt()->format('d/m/Y');
-    
-            $status = match ($book->getStatus()) {
-                'available' => 'Disponible',
-                'borrowed' => 'Emprunté',
-                'reserved' => 'Réservé',
-                default => 'Maintenance'
-            };
-            
-            $qrText =
-                "===== BIBLIOTHEQUE =====\n".
-                "ID Livre : ".$book->getId()."\n".
-                "Titre : ".$book->getTitle()."\n".
-                "Auteur : ".$book->getAuthor()->getFullName()."\n".
-                "Categorie : ".$book->getCategory()->getName()."\n".
-                "Editeur : ".($book->getPublisher() ?? '—')."\n".
-                "Annee : ".($book->getPublicationYear() ?? '—')."\n".
-                "Pages : ".($book->getPageCount() ?? '—')."\n".
-                "Langue : ".($book->getLanguage() ?? '—')."\n".
-                "Statut : ".$status."\n".
-                "Ajoute le : ".$book->getCreatedAt()->format('d/m/Y');
-            
-            
-            $builder = new Builder(
-                writer: new PngWriter(),
-                data: $qrText,
-                encoding: new Encoding('UTF-8'),
-              //  errorCorrectionLevel: QrCodeErrorCorrectionLevel::h(),
-                size: 350,
-                margin: 10
-            );
-            
-            $result = $builder->build();
-            $qr = $result->getDataUri();
-            
-    
+
+        $qrText = "===== BIBLIOTHEQUE =====\n"
+            ."ID Livre : ".$book->getId()."\n"
+            ."Titre : ".$book->getTitle()."\n"
+            ."Auteur : ".$authorName."\n"
+            ."Categorie : ".$categoryName."\n"
+            ."Editeur : ".($book->getPublisher() ?? '-')."\n"
+            ."Annee : ".($book->getPublicationYear() ?? '-')."\n"
+            ."Pages : ".($book->getPageCount() ?? '-')."\n"
+            ."Langue : ".($book->getLanguage() ?? '-')."\n"
+            ."Statut : ".$status."\n"
+            ."Ajoute le : ".$book->getCreatedAt()->format('d/m/Y');
+
+        $result = Builder::create()
+            ->writer(new PngWriter())
+            ->data($qrText)
+            ->encoding(new Encoding('UTF-8'))
+            ->size(350)
+            ->margin(10)
+            ->build();
+        $qr = $result->getDataUri();
+
         return $this->render('catalog/frontoffice/book/show.html.twig', [
             'book' => $book,
             'area' => 'biblio',

@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use App\Service\FaceRecognitionService;
-use Doctrine\ORM\EntityManagerInterface;
 use Random\RandomException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +18,6 @@ final class FaceLoginController extends AbstractController
 {
     public function __construct(
         private FaceRecognitionService $faceRecognition,
-        private EntityManagerInterface $entityManager,
     ) {
     }
 

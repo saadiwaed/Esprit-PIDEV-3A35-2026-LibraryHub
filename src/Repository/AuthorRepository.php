@@ -15,31 +15,39 @@ class AuthorRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Author::class);
     }
-// ================= AUTHOR STATS =================
+    /**
+     * @return list<array{author: string, total: string}>
+     */
+    public function countBooksByAuthor(): array
+    {
+        /** @var list<array{author: string, total: string}> $result */
+        $result = $this->createQueryBuilder('a')
+            ->select("CONCAT(a.firstname, ' ', a.lastname) as author, COUNT(b.id) as total")
+            ->leftJoin('a.books', 'b')
+            ->groupBy('a.id')
+            ->orderBy('total', 'DESC')
+            ->getQuery()
+            ->getResult();
 
-// Top authors by number of books
-public function countBooksByAuthor()
-{
-    return $this->createQueryBuilder('a')
-        ->select("CONCAT(a.firstname, ' ', a.lastname) as author, COUNT(b.id) as total")
-        ->leftJoin('a.books', 'b')
-        ->groupBy('a.id')
-        ->orderBy('total', 'DESC')
-        ->getQuery()
-        ->getResult();
-}
+        return $result;
+    }
 
-// Authors nationality distribution
-public function countAuthorsByNationality()
-{
-    return $this->createQueryBuilder('a')
-        ->select('a.nationality as nationality, COUNT(a.id) as total')
-        ->where('a.nationality IS NOT NULL')
-        ->groupBy('a.nationality')
-        ->orderBy('total', 'DESC')
-        ->getQuery()
-        ->getResult();
-}
+    /**
+     * @return list<array{nationality: string|null, total: string}>
+     */
+    public function countAuthorsByNationality(): array
+    {
+        /** @var list<array{nationality: string|null, total: string}> $result */
+        $result = $this->createQueryBuilder('a')
+            ->select('a.nationality as nationality, COUNT(a.id) as total')
+            ->where('a.nationality IS NOT NULL')
+            ->groupBy('a.nationality')
+            ->orderBy('total', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
 
     //    /**
     //     * @return Author[] Returns an array of Author objects

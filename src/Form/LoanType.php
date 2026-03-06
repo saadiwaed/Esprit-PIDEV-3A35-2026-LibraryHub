@@ -15,6 +15,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<Loan>
+ */
 class LoanType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -56,7 +59,7 @@ class LoanType extends AbstractType
                 'empty_data' => null,
                 'mapped' => $allowReturnDateEdit,
                 'disabled' => !$allowReturnDateEdit || $isAlreadyReturned,
-                'data' => $isAlreadyReturned ? $loan?->getReturnDate() : null,
+                'data' => $isAlreadyReturned ? $loan->getReturnDate() : null,
                 'help' => $allowReturnDateEdit
                     ? 'Laissez vide tant que le livre n\'est pas retourne.'
                     : 'Renseignee uniquement via le bouton "Marquer comme retourne".',
@@ -124,3 +127,6 @@ class LoanType extends AbstractType
         $resolver->setAllowedTypes('allow_return_date_edit', 'bool');
     }
 }
+
+
+

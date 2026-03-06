@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Enum\ParticipationStatus;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ChallengeParticipantRepository;
 
@@ -17,24 +18,23 @@ class ChallengeParticipant
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $participant = null;
 
-    #[ORM\Column]
-    private ?\DateTimeInterface $joinedAt = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private \DateTimeInterface $joinedAt;
 
     #[ORM\Column]
     private int $booksRead = 0;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $completedAt = null;
 
     #[ORM\Column(enumType: ParticipationStatus::class)]
     private ParticipationStatus $status = ParticipationStatus::ACTIVE;
 
-    #[ORM\ManyToOne(targetEntity: ReadingChallenge::class, inversedBy: 'participants')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?ReadingChallenge $challenge = null;
+    #[ORM\Column(name: 'challenge_id', type: 'integer', nullable: true)]
+    private ?int $challenge = null;
 
     public function __construct()
     {
@@ -57,7 +57,7 @@ class ChallengeParticipant
         return $this;
     }
 
-    public function getJoinedAt(): ?\DateTimeInterface
+    public function getJoinedAt(): \DateTimeInterface
     {
         return $this->joinedAt;
     }
@@ -101,12 +101,12 @@ class ChallengeParticipant
         return $this;
     }
 
-    public function getChallenge(): ?ReadingChallenge
+    public function getChallenge(): ?int
     {
         return $this->challenge;
     }
 
-    public function setChallenge(?ReadingChallenge $challenge): self
+    public function setChallenge(?int $challenge): self
     {
         $this->challenge = $challenge;
         return $this;

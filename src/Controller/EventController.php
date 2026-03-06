@@ -2,14 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Club;
 use App\Entity\Event;
 use App\Entity\EventRegistration;
-use App\Entity\Club;
-use App\Form\EventType;
+use App\Entity\User;
 use App\Enum\EventStatus;
 use App\Enum\RegistrationStatus;
-use App\Repository\EventRepository;
+use App\Form\EventType;
 use App\Repository\EventRegistrationRepository;
+use App\Repository\EventRepository;
 use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,29 +21,31 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/event')]
 final class EventController extends AbstractController
 {
-    private $mailerService;
-    
-    public function __construct(MailerService $mailerService)
+    public function __construct(private readonly MailerService $mailerService)
     {
-        $this->mailerService = $mailerService;
     }
 
     #[Route('/discover', name: 'app_event_discover', methods: ['GET'])]
     public function discover(Request $request, EventRepository $eventRepository, EventRegistrationRepository $registrationRepo): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $user = $this->getUser();
-        
+        $user = $this->getCurrentUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         $search = $request->query->get('search', '');
         $status = $request->query->get('status', '');
         $sort = $request->query->get('sort', 'startDateTime');
         $order = $request->query->get('order', 'asc');
-        
+
         $events = $eventRepository->findDiscoverEvents($user, $search, $status, $sort, $order);
-        
         $userRegistrations = $registrationRepo->findUserRegistrations($user);
-        $registeredEventIds = array_map(fn($reg) => $reg->getEvent()->getId(), $userRegistrations);
-        
+        $registeredEventIds = array_values(array_filter(array_map(
+            static fn (EventRegistration $registration): ?int => $registration->getEvent()?->getId(),
+            $userRegistrations
+        )));
+
         return $this->render('event/discover.html.twig', [
             'events' => $events,
             'registeredEventIds' => $registeredEventIds,
@@ -60,16 +63,15 @@ final class EventController extends AbstractController
     public function myHistory(EventRegistrationRepository $registrationRepo): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $user = $this->getUser();
-        
-        $history = $registrationRepo->findUserHistory($user);
-        $stats = $registrationRepo->getUserStats($user);
-        $cancellations = $registrationRepo->findUserCancellations($user);
-        
+        $user = $this->getCurrentUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         return $this->render('event/my_history.html.twig', [
-            'history' => $history,
-            'stats' => $stats,
-            'cancellations' => $cancellations,
+            'history' => $registrationRepo->findUserHistory($user),
+            'stats' => $registrationRepo->getUserStats($user),
+            'cancellations' => $registrationRepo->findUserCancellations($user),
         ]);
     }
 
@@ -77,21 +79,19 @@ final class EventController extends AbstractController
     public function myEvents(Request $request, EventRepository $eventRepository): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        
-        /** @var \App\Entity\User $user */
-        $user = $this->getUser();
-        
+        $user = $this->getCurrentUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         $search = $request->query->get('search', '');
         $status = $request->query->get('status', '');
         $sort = $request->query->get('sort', 'startDateTime');
         $order = $request->query->get('order', 'asc');
-        
-        $events = $eventRepository->findByUser($user, $search, $status, $sort, $order);
-        $stats = $eventRepository->countByStatusForUser($user);
-        
+
         return $this->render('event/my_events.html.twig', [
-            'events' => $events,
-            'stats' => $stats,
+            'events' => $eventRepository->findByUser($user, $search, $status, $sort, $order),
+            'stats' => $eventRepository->countByStatusForUser($user),
             'current_filters' => [
                 'search' => $search,
                 'status' => $status,
@@ -103,88 +103,16 @@ final class EventController extends AbstractController
     }
 
     #[Route('/new', name: 'app_event_new', methods: ['GET', 'POST'])]
-public function new(Request $request, EntityManagerInterface $entityManager): Response
-{
-    $event = new Event();
-    $event->setCreatedBy($this->getUser());
-    
-    $form = $this->createForm(EventType::class, $event);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        $entityManager->persist($event);
-        $entityManager->flush();
-
-        // ✅ AJOUTER ICI - Notification aux membres des clubs organisateurs
-        foreach ($event->getOrganizingClubs() as $club) {
-            $results = $this->mailerService->sendNewEventNotification($club, $event);
-            $sentCount = count(array_filter($results));
-            if ($sentCount > 0) {
-                $this->addFlash('info', "📧 Annonce envoyée aux membres du club {$club->getTitle()}");
-            }
-        }
-
-        $this->addFlash('success', 'Événement "' . $event->getTitle() . '" créé avec succès !');
-        return $this->redirectToRoute('app_event_index');
-    }
-
-    return $this->render('event/new.html.twig', [
-        'event' => $event,
-        'form' => $form,
-    ]);
-}
-    
-    #[Route('/addformember', name: 'app_event_addformember', methods: ['GET', 'POST'])]
-public function addForMember(Request $request, EntityManagerInterface $entityManager): Response
-{
-    $event = new Event();
-    $event->setCreatedBy($this->getUser());
-
-    $form = $this->createForm(EventType::class, $event);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        $entityManager->persist($event);
-        $entityManager->flush();
-
-        // ✅ AJOUTER ICI - Notification aux membres des clubs organisateurs
-        foreach ($event->getOrganizingClubs() as $club) {
-            $results = $this->mailerService->sendNewEventNotification($club, $event);
-            $sentCount = count(array_filter($results));
-            if ($sentCount > 0) {
-                $this->addFlash('info', "📧 Annonce envoyée aux membres du club {$club->getTitle()}");
-            }
-        }
-
-        $this->addFlash('success', 'Événement "' . $event->getTitle() . '" créé avec succès !');
-        return $this->redirectToRoute('app_event_my_events');
-    }
-
-    return $this->render('event/addformember.html.twig', [
-        'event' => $event,
-        'form' => $form,
-        'button_label' => 'Créer l\'événement'
-    ]);
-}
-
-    #[Route('/addformember/club/{clubId}', name: 'app_event_addformember_club', methods: ['GET', 'POST'])]
-    public function addForMemberClub(Request $request, EntityManagerInterface $entityManager, int $clubId): Response
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $club = $entityManager->getRepository(Club::class)->find($clubId);
-        if (!$club) {
-            throw $this->createNotFoundException('Club non trouvé');
-        }
-
-        if ($club->getFounder() !== $this->getUser()) {
-            $this->addFlash('error', 'Seul le fondateur peut créer des événements pour ce club.');
-            return $this->redirectToRoute('app_showformember', ['id' => $club->getId()]);
+        $user = $this->getCurrentUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
         }
 
         $event = new Event();
-        $event->setCreatedBy($this->getUser());
-        $event->addOrganizingClub($club);
-        $event->setStatus(EventStatus::UPCOMING);
-        
+        $event->setCreatedBy($user);
+
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
@@ -192,15 +120,98 @@ public function addForMember(Request $request, EntityManagerInterface $entityMan
             $entityManager->persist($event);
             $entityManager->flush();
 
-            // ✅ ENVOI EMAIL: Notification aux membres du club
+            foreach ($event->getOrganizingClubs() as $club) {
+                $results = $this->mailerService->sendNewEventNotification($club, $event);
+                $sentCount = count(array_filter($results));
+                if ($sentCount > 0) {
+                    $this->addFlash('info', "Annonce envoyee aux membres du club {$club->getTitle()}");
+                }
+            }
+
+            $this->addFlash('success', 'Evenement "'.$event->getTitle().'" cree avec succes !');
+
+            return $this->redirectToRoute('app_event_index');
+        }
+
+        return $this->render('event/new.html.twig', [
+            'event' => $event,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/addformember', name: 'app_event_addformember', methods: ['GET', 'POST'])]
+    public function addForMember(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getCurrentUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $event = new Event();
+        $event->setCreatedBy($user);
+
+        $form = $this->createForm(EventType::class, $event);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($event);
+            $entityManager->flush();
+
+            foreach ($event->getOrganizingClubs() as $club) {
+                $results = $this->mailerService->sendNewEventNotification($club, $event);
+                $sentCount = count(array_filter($results));
+                if ($sentCount > 0) {
+                    $this->addFlash('info', "Annonce envoyee aux membres du club {$club->getTitle()}");
+                }
+            }
+
+            $this->addFlash('success', 'Evenement "'.$event->getTitle().'" cree avec succes !');
+
+            return $this->redirectToRoute('app_event_my_events');
+        }
+
+        return $this->render('event/addformember.html.twig', [
+            'event' => $event,
+            'form' => $form,
+            'button_label' => "Creer l'evenement",
+        ]);
+    }
+
+    #[Route('/addformember/club/{clubId}', name: 'app_event_addformember_club', methods: ['GET', 'POST'])]
+    public function addForMemberClub(Request $request, EntityManagerInterface $entityManager, int $clubId): Response
+    {
+        $club = $entityManager->getRepository(Club::class)->find($clubId);
+        if (!$club instanceof Club) {
+            throw $this->createNotFoundException('Club non trouve');
+        }
+
+        $user = $this->getCurrentUser();
+        if (!$user instanceof User || $club->getFounder() !== $user) {
+            $this->addFlash('error', 'Seul le fondateur peut creer des evenements pour ce club.');
+
+            return $this->redirectToRoute('app_showformember', ['id' => $club->getId()]);
+        }
+
+        $event = new Event();
+        $event->setCreatedBy($user);
+        $event->addOrganizingClub($club);
+        $event->setStatus(EventStatus::UPCOMING);
+
+        $form = $this->createForm(EventType::class, $event);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($event);
+            $entityManager->flush();
+
             $results = $this->mailerService->sendNewEventNotification($club, $event);
             $sentCount = count(array_filter($results));
             if ($sentCount > 0) {
-                $this->addFlash('info', "📧 Annonce envoyée à $sentCount membre(s) du club");
+                $this->addFlash('info', "Annonce envoyee a $sentCount membre(s) du club");
             }
 
-            $this->addFlash('success', 'Événement "' . $event->getTitle() . '" créé pour le club ' . $club->getTitle());
-            
+            $this->addFlash('success', 'Evenement "'.$event->getTitle().'" cree pour le club '.$club->getTitle());
+
             return $this->redirectToRoute('app_showformember', ['id' => $club->getId()]);
         }
 
@@ -208,7 +219,7 @@ public function addForMember(Request $request, EntityManagerInterface $entityMan
             'event' => $event,
             'club' => $club,
             'form' => $form,
-            'button_label' => 'Créer l\'événement pour le club'
+            'button_label' => "Creer l'evenement pour le club",
         ]);
     }
 
@@ -216,26 +227,30 @@ public function addForMember(Request $request, EntityManagerInterface $entityMan
     public function join(Event $event, EntityManagerInterface $entityManager, EventRegistrationRepository $registrationRepo): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        /** @var \App\Entity\User $user */
-        $user = $this->getUser();
-        
+        $user = $this->getCurrentUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         if ($event->getCreatedBy() === $user) {
-            $this->addFlash('error', 'Vous ne pouvez pas vous inscrire à votre propre événement.');
+            $this->addFlash('error', 'Vous ne pouvez pas vous inscrire a votre propre evenement.');
+
             return $this->redirectToRoute('app_event_discover');
         }
-        
+
         $existingReg = $registrationRepo->findUserRegistrationForEvent($event, $user);
-        if ($existingReg) {
+        if ($existingReg instanceof EventRegistration) {
             if ($existingReg->getStatus() === RegistrationStatus::CONFIRMED) {
-                $this->addFlash('warning', 'Vous êtes déjà inscrit à cet événement.');
+                $this->addFlash('warning', 'Vous etes deja inscrit a cet evenement.');
             } elseif ($existingReg->getStatus() === RegistrationStatus::CANCELLED) {
                 $existingReg->setStatus(RegistrationStatus::CONFIRMED);
                 $entityManager->flush();
-                $this->addFlash('success', 'Votre inscription a été réactivée !');
+                $this->addFlash('success', 'Votre inscription a ete reactivee !');
             }
+
             return $this->redirectToRoute('app_event_discover');
         }
-        
+
         $confirmedCount = $registrationRepo->countConfirmedRegistrations($event);
         if ($confirmedCount >= $event->getCapacity()) {
             $registration = new EventRegistration();
@@ -243,38 +258,34 @@ public function addForMember(Request $request, EntityManagerInterface $entityMan
             $registration->setEvent($event);
             $registration->setStatus(RegistrationStatus::WAITLISTED);
             $registration->setRegisteredAt(new \DateTime());
-            
+
             $entityManager->persist($registration);
             $entityManager->flush();
-            
-            // ✅ ENVOI EMAIL: Confirmation de liste d'attente
-            $emailSent = $this->mailerService->sendEventWaitlistNotification($user, $event);
-            
-            if ($emailSent) {
-                $this->addFlash('info', '📧 Confirmation de liste d\'attente envoyée');
+
+            if ($this->mailerService->sendEventWaitlistNotification($user, $event)) {
+                $this->addFlash('info', "Confirmation de liste d'attente envoyee");
             }
-            
-            $this->addFlash('warning', 'L\'événement est complet. Vous êtes en liste d\'attente.');
+
+            $this->addFlash('warning', "L'evenement est complet. Vous etes en liste d'attente.");
+
             return $this->redirectToRoute('app_event_discover');
         }
-        
+
         $registration = new EventRegistration();
         $registration->setUser($user);
         $registration->setEvent($event);
         $registration->setStatus(RegistrationStatus::CONFIRMED);
         $registration->setRegisteredAt(new \DateTime());
-        
+
         $entityManager->persist($registration);
         $entityManager->flush();
-        
-        // ✅ ENVOI EMAIL: Confirmation d'inscription
-        $emailSent = $this->mailerService->sendEventRegistrationConfirmation($user, $event);
-        
-        if ($emailSent) {
-            $this->addFlash('success', '📧 Email de confirmation envoyé à ' . $user->getEmail());
+
+        if ($this->mailerService->sendEventRegistrationConfirmation($user, $event)) {
+            $this->addFlash('success', 'Email de confirmation envoye a '.$user->getEmail());
         }
-        
-        $this->addFlash('success', 'Vous êtes inscrit à l\'événement : ' . $event->getTitle());
+
+        $this->addFlash('success', "Vous etes inscrit a l'evenement : ".$event->getTitle());
+
         return $this->redirectToRoute('app_event_discover');
     }
 
@@ -282,90 +293,84 @@ public function addForMember(Request $request, EntityManagerInterface $entityMan
     public function leave(Event $event, EntityManagerInterface $entityManager, EventRegistrationRepository $registrationRepo): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $user = $this->getUser();
-        
+        $user = $this->getCurrentUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         $registration = $registrationRepo->findUserRegistrationForEvent($event, $user);
-        
-        if (!$registration) {
-            $this->addFlash('error', 'Vous n\'êtes pas inscrit à cet événement.');
+        if (!$registration instanceof EventRegistration) {
+            $this->addFlash('error', "Vous n'etes pas inscrit a cet evenement.");
+
             return $this->redirectToRoute('app_event_discover');
         }
-        
+
         $wasConfirmed = $registration->getStatus() === RegistrationStatus::CONFIRMED;
         $registration->setStatus(RegistrationStatus::CANCELLED);
         $entityManager->flush();
-        
-        // ✅ ENVOI EMAIL: Confirmation de désinscription
-        $emailSent = $this->mailerService->sendEventCancellationNotification($user, $event);
-        
-        if ($emailSent) {
-            $this->addFlash('info', '📧 Confirmation de désinscription envoyée');
+
+        if ($this->mailerService->sendEventCancellationNotification($user, $event)) {
+            $this->addFlash('info', 'Confirmation de desinscription envoyee');
         }
-        
-        // ✅ SI C'ÉTAIT UNE INSCRIPTION CONFIRMÉE, NOTIFIER LE PREMIER SUR LISTE D'ATTENTE
+
         if ($wasConfirmed) {
             $waitlisted = $registrationRepo->findFirstWaitlisted($event);
-            if ($waitlisted) {
+            if ($waitlisted instanceof EventRegistration) {
                 $waitlisted->setStatus(RegistrationStatus::CONFIRMED);
                 $entityManager->flush();
-                
-                // ✅ ENVOI EMAIL: Notification de place libérée
-                $notifSent = $this->mailerService->sendEventSpotFreedNotification($waitlisted->getUser(), $event);
-                
-                if ($notifSent) {
-                    $this->addFlash('success', '📧 Un membre en liste d\'attente a été notifié');
+
+                $waitlistedUser = $waitlisted->getUser();
+                if ($waitlistedUser instanceof User && $this->mailerService->sendEventSpotFreedNotification($waitlistedUser, $event)) {
+                    $this->addFlash('success', "Un membre en liste d'attente a ete notifie");
                 }
             }
         }
-        
-        $this->addFlash('success', 'Vous vous êtes désinscrit de l\'événement : ' . $event->getTitle());
+
+        $this->addFlash('success', "Vous vous etes desinscrit de l'evenement : ".$event->getTitle());
+
         return $this->redirectToRoute('app_event_discover');
     }
 
     #[Route('/{id}/edit', name: 'app_event_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, ?Event $event, EntityManagerInterface $entityManager): Response
     {
-        if (!$event) {
-            throw $this->createNotFoundException('Cet événement n\'existe pas.');
+        if (!$event instanceof Event) {
+            throw $this->createNotFoundException("Cet evenement n'existe pas.");
         }
 
-        if ($event->getCreatedBy() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas le créateur de cet événement.');
+        $user = $this->getCurrentUser();
+        if ($event->getCreatedBy() !== $user && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException("Vous n'etes pas le createur de cet evenement.");
         }
 
         $oldDate = clone $event->getStartDateTime();
         $oldLocation = $event->getLocation();
-        
+
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-            
-            // ✅ ENVOI EMAIL: Notification de modification aux inscrits
+
             $changes = [];
             if ($oldDate != $event->getStartDateTime()) {
-                $changes[] = "Date modifiée : " . $event->getStartDateTime()->format('d/m/Y H:i');
+                $changes[] = 'Date modifiee : '.$event->getStartDateTime()->format('d/m/Y H:i');
             }
-            if ($oldLocation != $event->getLocation()) {
-                $changes[] = "Lieu modifié : " . $event->getLocation();
+            if ($oldLocation !== $event->getLocation()) {
+                $changes[] = 'Lieu modifie : '.$event->getLocation();
             }
-            
-            if (!empty($changes)) {
+
+            if ($changes !== []) {
                 $results = $this->mailerService->sendEventUpdateNotification($event, $changes);
                 $sentCount = count(array_filter($results));
                 if ($sentCount > 0) {
-                    $this->addFlash('info', "📧 Notification envoyée à $sentCount inscrit(s)");
+                    $this->addFlash('info', "Notification envoyee a $sentCount inscrit(s)");
                 }
             }
-            
-            $this->addFlash('success', 'Événement "' . $event->getTitle() . '" modifié avec succès !');
-            
-            if ($this->isGranted('ROLE_ADMIN')) {
-                return $this->redirectToRoute('app_event_index');
-            } else {
-                return $this->redirectToRoute('app_event_my_events');
-            }
+
+            $this->addFlash('success', 'Evenement "'.$event->getTitle().'" modifie avec succes !');
+
+            return $this->redirectToRoute($this->isGranted('ROLE_ADMIN') ? 'app_event_index' : 'app_event_my_events');
         }
 
         return $this->render('event/edit.html.twig', [
@@ -377,66 +382,58 @@ public function addForMember(Request $request, EntityManagerInterface $entityMan
     #[Route('/{id}', name: 'app_event_show', methods: ['GET'])]
     public function show(?Event $event, EventRegistrationRepository $registrationRepo): Response
     {
-        if (!$event) {
-            throw $this->createNotFoundException('Cet événement n\'existe pas.');
+        if (!$event instanceof Event) {
+            throw $this->createNotFoundException("Cet evenement n'existe pas.");
         }
 
         $isRegistered = false;
         $registrationStatus = null;
-        
-        if ($this->getUser()) {
-            $registration = $registrationRepo->findUserRegistrationForEvent($event, $this->getUser());
-            if ($registration) {
+
+        $user = $this->getCurrentUser();
+        if ($user instanceof User) {
+            $registration = $registrationRepo->findUserRegistrationForEvent($event, $user);
+            if ($registration instanceof EventRegistration) {
                 $isRegistered = true;
                 $registrationStatus = $registration->getStatus();
             }
         }
-        
-        if ($this->isGranted('ROLE_ADMIN')) {
-            return $this->render('event/show.html.twig', [
-                'event' => $event,
-                'isRegistered' => $isRegistered,
-                'registrationStatus' => $registrationStatus,
-            ]);
-        } else {
-            return $this->render('event/showformember.html.twig', [
-                'event' => $event,
-                'isRegistered' => $isRegistered,
-                'registrationStatus' => $registrationStatus,
-            ]);
-        }
+
+        return $this->render($this->isGranted('ROLE_ADMIN') ? 'event/show.html.twig' : 'event/showformember.html.twig', [
+            'event' => $event,
+            'isRegistered' => $isRegistered,
+            'registrationStatus' => $registrationStatus,
+        ]);
     }
 
     #[Route('/{id}', name: 'app_event_delete', methods: ['POST'])]
     public function delete(Request $request, ?Event $event, EntityManagerInterface $entityManager): Response
     {
-        if (!$event) {
-            throw $this->createNotFoundException('Cet événement n\'existe pas.');
+        if (!$event instanceof Event) {
+            throw $this->createNotFoundException("Cet evenement n'existe pas.");
         }
 
-        if ($event->getCreatedBy() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas le créateur de cet événement.');
+        $user = $this->getCurrentUser();
+        if ($event->getCreatedBy() !== $user && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException("Vous n'etes pas le createur de cet evenement.");
         }
 
-        if ($this->isCsrfTokenValid('delete' . $event->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$event->getId(), $request->getPayload()->getString('_token'))) {
             $eventTitle = $event->getTitle();
-            
-            // ✅ ENVOI EMAIL: Notification d'annulation aux inscrits
             $results = $this->mailerService->sendEventDeletionNotification($event);
             $sentCount = count(array_filter($results));
-            
+
             if ($sentCount > 0) {
-                $this->addFlash('info', "📧 Notification d'annulation envoyée à $sentCount inscrit(s)");
+                $this->addFlash('info', "Notification d'annulation envoyee a $sentCount inscrit(s)");
             }
-            
+
             $entityManager->remove($event);
             $entityManager->flush();
-            $this->addFlash('success', 'Événement "' . $eventTitle . '" supprimé avec succès !');
+            $this->addFlash('success', 'Evenement "'.$eventTitle.'" supprime avec succes !');
         }
 
         return $this->redirectToRoute('app_event_index');
     }
-    
+
     #[Route('/', name: 'app_event_index', methods: ['GET'])]
     public function index(Request $request, EventRepository $eventRepository): Response
     {
@@ -444,13 +441,10 @@ public function addForMember(Request $request, EntityManagerInterface $entityMan
         $status = $request->query->get('status', '');
         $sort = $request->query->get('sort', 'startDateTime');
         $order = $request->query->get('order', 'asc');
-        
-        $events = $eventRepository->findByFilters($search, $status, $sort, $order);
-        $stats = $eventRepository->countByStatus();
-        
+
         return $this->render('event/index.html.twig', [
-            'events' => $events,
-            'stats' => $stats,
+            'events' => $eventRepository->findByFilters($search, $status, $sort, $order),
+            'stats' => $eventRepository->countByStatus(),
             'current_filters' => [
                 'search' => $search,
                 'status' => $status,
@@ -464,42 +458,45 @@ public function addForMember(Request $request, EntityManagerInterface $entityMan
     #[Route('/test-email', name: 'app_event_test_email')]
     public function testEmail(): Response
     {
-        /** @var \App\Entity\User $user */
-        $user = $this->getUser();
-        if (!$user) {
-            $this->addFlash('error', 'Vous devez être connecté pour tester les emails.');
+        $user = $this->getCurrentUser();
+        if (!$user instanceof User) {
+            $this->addFlash('error', 'Vous devez etre connecte pour tester les emails.');
+
             return $this->redirectToRoute('app_login');
         }
-        
+
         $result = $this->mailerService->sendTestEmail($user->getEmail());
-        
-        if ($result) {
-            $this->addFlash('success', '✅ Email de test envoyé à ' . $user->getEmail());
-        } else {
-            $this->addFlash('error', '❌ Échec de l\'envoi de l\'email de test. Vérifiez votre configuration.');
-        }
-        
+        $this->addFlash($result ? 'success' : 'error', $result ? 'Email de test envoye.' : "Echec de l'envoi.");
+
         return $this->redirectToRoute('app_event_discover');
     }
 
-    /**
-     * Route pour tester les rappels d'événement (admin seulement)
-     */
     #[Route('/test-reminder/{id}', name: 'app_event_test_reminder', methods: ['GET'])]
     public function testReminder(Event $event): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        
+
         $sentCount = 0;
         foreach ($event->getRegistrations() as $registration) {
-            if ($registration->getStatus() === RegistrationStatus::CONFIRMED) {
-                $sent = $this->mailerService->sendEventReminderNotification($registration->getUser(), $event);
-                if ($sent) $sentCount++;
+            if ($registration->getStatus() !== RegistrationStatus::CONFIRMED) {
+                continue;
+            }
+
+            $user = $registration->getUser();
+            if ($user instanceof User && $this->mailerService->sendEventReminderNotification($user, $event)) {
+                $sentCount++;
             }
         }
-        
-        $this->addFlash('success', "📧 Rappel envoyé à $sentCount inscrit(s) pour l'événement " . $event->getTitle());
-        
+
+        $this->addFlash('success', "Rappel envoye a $sentCount inscrit(s) pour l'evenement ".$event->getTitle());
+
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    private function getCurrentUser(): ?User
+    {
+        $user = $this->getUser();
+
+        return $user instanceof User ? $user : null;
     }
 }

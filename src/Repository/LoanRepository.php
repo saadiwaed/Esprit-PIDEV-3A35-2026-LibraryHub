@@ -134,7 +134,7 @@ class LoanRepository extends ServiceEntityRepository
      *
      * @return Loan[]
      */
-    public function findByMember($memberId): array
+    public function findByMember(int $memberId): array
     {
         return $this->createQueryBuilder('l')
             ->where('l.member = :memberId')
@@ -149,7 +149,7 @@ class LoanRepository extends ServiceEntityRepository
      *
      * @return Loan[]
      */
-    public function findByBookCopy($bookCopyId): array
+    public function findByBookCopy(int $bookCopyId): array
     {
         return $this->createQueryBuilder('l')
             ->where('l.bookCopy = :bookCopyId')
@@ -358,6 +358,15 @@ class LoanRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    /**
+     * @param array{
+     *     search?: string|null,
+     *     filterType?: string|null,
+     *     memberSearch?: string|null,
+     *     dateFrom?: \DateTimeInterface|null,
+     *     dateTo?: \DateTimeInterface|null
+     * } $filters
+     */
     public function getFilteredSortedQueryBuilder(array $filters = [], string $sort = '', string $direction = 'asc'): QueryBuilder
     {
         $direction = strtolower($direction) === 'asc' ? 'asc' : 'desc';
@@ -377,6 +386,9 @@ class LoanRepository extends ServiceEntityRepository
         return $this->findByFiltersAndSort($filters, $sortBy);
     }
 
+    /**
+     * @return array{total: int, active: int, overdue: int, returned: int}
+     */
     public function getLoanCounts(?\DateTimeInterface $from = null, ?\DateTimeInterface $to = null): array
     {
         return [
@@ -405,6 +417,9 @@ class LoanRepository extends ServiceEntityRepository
         return $result !== null ? (float) $result : 0.0;
     }
 
+    /**
+     * @return array{bookCopyId: int, loanCount: int}|null
+     */
     public function getMostBorrowedBookCopy(?\DateTimeInterface $from = null, ?\DateTimeInterface $to = null): ?array
     {
         $qb = $this->createQueryBuilder('l')
@@ -428,6 +443,9 @@ class LoanRepository extends ServiceEntityRepository
         ];
     }
 
+    /**
+     * @return list<array{memberId: int, firstName: string|null, lastName: string|null, loanCount: int}>
+     */
     public function getTopMembersByLoans(int $limit = 5, ?\DateTimeInterface $from = null, ?\DateTimeInterface $to = null): array
     {
         $qb = $this->createQueryBuilder('l')
@@ -439,7 +457,10 @@ class LoanRepository extends ServiceEntityRepository
 
         $this->applyDateRange($qb, 'l.checkoutTime', $from, $to);
 
-        return $qb->getQuery()->getArrayResult();
+        /** @var list<array{memberId: int, firstName: string|null, lastName: string|null, loanCount: int}> $result */
+        $result = $qb->getQuery()->getArrayResult();
+
+        return $result;
     }
 
     public function getAverageRenewalCount(?\DateTimeInterface $from = null, ?\DateTimeInterface $to = null): float
@@ -469,6 +490,9 @@ class LoanRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
+    /**
+     * @return array<string, int>
+     */
     public function getMonthlyLoanCounts(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $rows = $this->createQueryBuilder('l')

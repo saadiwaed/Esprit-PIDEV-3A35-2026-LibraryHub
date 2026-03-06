@@ -59,7 +59,8 @@
         "allow-plugins": {
             "php-http/discovery": true,
             "symfony/flex": true,
-            "symfony/runtime": true
+            "symfony/runtime": true,
+            "phpstan/extension-installer": true
         },
         "sort-packages": true
     },
@@ -93,6 +94,27 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "static:php-syntax": "php -r \"foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator('src')) as $f) { if ($f->isFile() && strtolower($f->getExtension()) === 'php') { passthru('php -l ' . escapeshellarg($f->getPathname()), $c); if ($c !== 0) exit($c); } } foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator('tests')) as $f) { if ($f->isFile() && strtolower($f->getExtension()) === 'php') { passthru('php -l ' . escapeshellarg($f->getPathname()), $c); if ($c !== 0) exit($c); } }\"",
+        "static:composer-validate": "composer validate --no-check-publish",
+        "static:phpstan": "php -r \"if (!getenv('APP_ENV')) { putenv('APP_ENV=test'); } if (!getenv('DATABASE_URL')) { putenv('DATABASE_URL=sqlite:///:memory:'); } passthru('phpstan analyse --configuration=phpstan.neon', $code); exit($code);\"",
+        "static:yaml": "php bin/console lint:yaml config src",
+        "static:twig": "php bin/console lint:twig templates",
+        "static:container": "php bin/console lint:container",
+        "static:all": [
+            "@static:php-syntax",
+            "@static:composer-validate",
+            "@static:phpstan",
+            "@static:yaml",
+            "@static:twig",
+            "@static:container"
+        ],
+        "phpstan": "phpstan analyse",
+        "phpstan-baseline": "phpstan analyse --generate-baseline",
+        "phpstan-ci": "phpstan analyse --no-progress --error-format=github",
+        "test-all": [
+            "@phpstan",
+            "@phpunit"
         ]
     },
     "conflict": {
@@ -100,11 +122,16 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": true,
             "require": "6.4.*"
         }
     },
     "require-dev": {
+        "ahmed-bhs/doctrine-doctor": "^1.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
         "phpunit/phpunit": "^11.5",
         "symfony/browser-kit": "6.4.*",
         "symfony/css-selector": "6.4.*",

@@ -101,7 +101,7 @@ class n8nApiController extends AbstractController
                 'description' => substr($club->getDescription(), 0, 100) . '...',
                 'category' => $club->getCategory(),
                 'founder' => $founder ? $founder->getFullName() : 'Inconnu',
-                'meeting_date' => $club->getMeetingDate() ? $club->getMeetingDate()->format('d/m/Y H:i') : 'Non définie',
+                'meeting_date' => $club->getMeetingDate()->format('d/m/Y H:i'),
                 'meeting_location' => $club->getMeetingLocation(),
                 'members_count' => $club->getMembers()->count(),
                 'created_at' => $club->getCreatedDate()->format('d/m/Y H:i')

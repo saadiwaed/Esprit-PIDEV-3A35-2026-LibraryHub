@@ -30,39 +30,40 @@ class Club
         minMessage: 'Le titre doit contenir au moins {{ limit }} caracteres',
         maxMessage: 'Le titre ne peut pas depasser {{ limit }} caracteres'
     )]
-    private ?string $title = null;
+    private string $title = '';
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'La description est obligatoire')]
     #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caracteres')]
-    private ?string $description = null;
+    private string $description = '';
 
     #[ORM\Column(type: 'string', length: 100)]
     #[Assert\NotBlank(message: 'La categorie est obligatoire')]
-    private ?string $category = null;
+    private string $category = '';
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'foundedClubs')]
-    #[ORM\JoinColumn(name: 'founder_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'founder_id', referencedColumnName: 'id', nullable: true)]
     private ?User $founder = null;
 
+    /** @var Collection<int, User> */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'clubs')]
     #[ORM\JoinTable(name: 'club_members')]
     private Collection $members;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'La date de reunion est obligatoire')]
-    #[Assert\GreaterThan('today', message: 'La date de reunion doit Ãªtre future')]
-    private ?\DateTimeInterface $meetingDate = null;
+    #[Assert\GreaterThan('today', message: 'La date de reunion doit ÃƒÂªtre future')]
+    private \DateTimeInterface $meetingDate;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message: 'Le lieu de reunion est obligatoire')]
-    private ?string $meetingLocation = null;
+    private string $meetingLocation = '';
 
     #[ORM\Column(type: 'integer')]
     #[Assert\NotBlank(message: 'La capacite est obligatoire')]
-    #[Assert\Positive(message: 'La capacite doit Ãªtre un nombre positif')]
+    #[Assert\Positive(message: 'La capacite doit ÃƒÂªtre un nombre positif')]
     #[Assert\LessThanOrEqual(value: 500, message: 'La capacite ne peut pas depasser 500 membres')]
-    private ?int $capacity = null;
+    private int $capacity = 0;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $isPrivate = false;
@@ -75,7 +76,7 @@ class Club
     private ?User $createdBy = null;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $createdDate = null;
+    private \DateTimeInterface $createdDate;
 
    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image = null;
@@ -83,7 +84,7 @@ class Club
     #[Vich\UploadableField(mapping: 'club_image', fileNameProperty: 'image')]
     private ?File $imageFile = null;
 
-
+    /** @var Collection<int, Event> */
     #[ORM\ManyToMany(
         targetEntity: Event::class, 
         inversedBy: 'organizingClubs',
@@ -101,14 +102,13 @@ class Club
         $this->members = new ArrayCollection();
         $this->organizedEvents = new ArrayCollection();
         $this->createdDate = new \DateTime();
+        $this->meetingDate = new \DateTime('+1 day');
     }
 
     #[ORM\PrePersist]
     public function setCreatedDateValue(): void
     {
-        if ($this->createdDate === null) {
-            $this->createdDate = new \DateTime();
-        }
+        $this->createdDate = new \DateTime();
     }
 
     public function getId(): ?int
@@ -116,7 +116,7 @@ class Club
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -127,7 +127,7 @@ class Club
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -138,7 +138,7 @@ class Club
         return $this;
     }
 
-    public function getCategory(): ?string
+    public function getCategory(): string
     {
         return $this->category;
     }
@@ -182,7 +182,7 @@ class Club
         return $this;
     }
 
-    public function getMeetingDate(): ?\DateTimeInterface
+    public function getMeetingDate(): \DateTimeInterface
     {
         return $this->meetingDate;
     }
@@ -193,7 +193,7 @@ class Club
         return $this;
     }
 
-    public function getMeetingLocation(): ?string
+    public function getMeetingLocation(): string
     {
         return $this->meetingLocation;
     }
@@ -204,7 +204,7 @@ class Club
         return $this;
     }
 
-    public function getCapacity(): ?int
+    public function getCapacity(): int
     {
         return $this->capacity;
     }
@@ -248,7 +248,7 @@ class Club
         return $this;
     }
 
-    public function getCreatedDate(): ?\DateTimeInterface
+    public function getCreatedDate(): \DateTimeInterface
     {
         return $this->createdDate;
     }
@@ -339,24 +339,33 @@ class Club
         return $this;
     }
 
+    /**
+     * @return Collection<int, Event>
+     */
     public function getUpcomingEvents(): Collection
     {
         return $this->organizedEvents->filter(
-            fn(Event $event) => $event->getStartDateTime() > new \DateTime()
+            static fn (Event $event): bool => $event->getStartDateTime() > new \DateTime()
         );
     }
 
+    /**
+     * @return Collection<int, Event>
+     */
     public function getPastEvents(): Collection
     {
         return $this->organizedEvents->filter(
-            fn(Event $event) => $event->getEndDateTime() < new \DateTime()
+            static fn (Event $event): bool => $event->getEndDateTime() < new \DateTime()
         );
     }
 
+    /**
+     * @return Collection<int, Event>
+     */
     public function getOngoingEvents(): Collection
     {
         return $this->organizedEvents->filter(
-            fn(Event $event) => $event->isOngoing()
+            static fn (Event $event): bool => $event->isOngoing()
         );
     }
 
@@ -378,24 +387,26 @@ class Club
             return null;
         }
         
-        $eventsArray = $upcomingEvents->toArray();
-        usort($eventsArray, fn($a, $b) => $a->getStartDateTime() <=> $b->getStartDateTime());
+        /** @var array<int, Event> $eventsArray */
+        $eventsArray = array_values($upcomingEvents->toArray());
+        usort($eventsArray, static fn (Event $a, Event $b): int => $a->getStartDateTime() <=> $b->getStartDateTime());
         
         return $eventsArray[0];
     }
 
     public function __toString(): string
     {
-        return $this->title ?? 'Club';
+        return $this->title;
     }
+
     public function setImageFile(?File $imageFile = null): void
-{
-    $this->imageFile = $imageFile;
-    
-    if ($imageFile) {
-        $this->createdDate = new \DateTime(); 
+    {
+        $this->imageFile = $imageFile;
+
+        if ($imageFile) {
+            $this->createdDate = new \DateTime();
+        }
     }
-}
 
     public function getImageFile(): ?File
     {

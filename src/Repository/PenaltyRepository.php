@@ -45,7 +45,7 @@ class PenaltyRepository extends ServiceEntityRepository
      *
      * @return Penalty[]
      */
-    public function findByLoan($loanId): array
+    public function findByLoan(int $loanId): array
     {
         return $this->createQueryBuilder('p')
             ->where('p.loan = :loanId')
@@ -179,7 +179,7 @@ class PenaltyRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        return $result ?? 0.0;
+        return is_numeric($result) ? (float) $result : 0.0;
     }
 
     /**

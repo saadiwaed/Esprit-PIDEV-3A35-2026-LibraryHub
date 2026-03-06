@@ -122,7 +122,7 @@ class PenaltyController extends AbstractController
     #[Route('/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Penalty $penalty): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $penalty->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $penalty->getId(), (string) $request->request->get('_token'))) {
             $this->entityManager->remove($penalty);
             $this->entityManager->flush();
 

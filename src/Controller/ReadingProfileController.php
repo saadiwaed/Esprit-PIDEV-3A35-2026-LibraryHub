@@ -17,14 +17,14 @@ class ReadingProfileController extends AbstractController
     #[Route('/', name: 'app_reading_profile_index', methods: ['GET'])]
     public function index(Request $request, ReadingProfileRepository $readingProfileRepository): Response
     {
-        $search = $request->query->get('search', '');
-        
-        if ($search) {
-            $readingProfiles = $readingProfileRepository->searchByUserNameOrEmail($search);
+        $search = trim((string) $request->query->get('search', ''));
+
+        if ($search !== '') {
+            $readingProfiles = $readingProfileRepository->searchByUserNameOrEmail($search, 50);
         } else {
-            $readingProfiles = $readingProfileRepository->findAll();
+            $readingProfiles = $readingProfileRepository->findForIndex();
         }
-        
+
         return $this->render('reading_profile/index.html.twig', [
             'reading_profiles' => $readingProfiles,
         ]);
@@ -33,23 +33,24 @@ class ReadingProfileController extends AbstractController
     #[Route('/search', name: 'app_reading_profile_search', methods: ['GET'])]
     public function search(Request $request, ReadingProfileRepository $readingProfileRepository): Response
     {
-        $query = $request->query->get('q', '');
-        
+        $query = trim((string) $request->query->get('q', ''));
+
         if (strlen($query) < 2) {
             return $this->json([]);
         }
-        
-        $profiles = $readingProfileRepository->searchByUserNameOrEmail($query);
-        
-        $results = array_map(function($profile) {
+
+        $profiles = $readingProfileRepository->searchByUserNameOrEmail($query, 20);
+
+        $results = array_map(static function (ReadingProfile $profile): array {
+            $user = $profile->getUser();
             return [
                 'id' => $profile->getId(),
-                'userName' => $profile->getUser()->getFullName(),
-                'userEmail' => $profile->getUser()->getEmail(),
+                'userName' => $user?->getFullName() ?? 'Unknown',
+                'userEmail' => $user?->getEmail() ?? '',
                 'booksRead' => $profile->getTotalBooksRead(),
             ];
         }, $profiles);
-        
+
         return $this->json($results);
     }
 
@@ -91,7 +92,7 @@ class ReadingProfileController extends AbstractController
     {
         $form = $this->createForm(ReadingProfileType::class, $readingProfile, [
             'is_edit' => true,
-            'current_user_id' => $readingProfile->getUser()->getId()
+            'current_user_id' => $readingProfile->getUser()?->getId()
         ]);
         $form->handleRequest($request);
 
@@ -112,7 +113,7 @@ class ReadingProfileController extends AbstractController
     #[Route('/{id}/delete', name: 'app_reading_profile_delete', methods: ['POST'])]
     public function delete(Request $request, ReadingProfile $readingProfile, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$readingProfile->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$readingProfile->getId(), (string) $request->request->get('_token'))) {
             try {
                 // Get the user and clear the relationship before deleting
                 $user = $readingProfile->getUser();

@@ -15,6 +15,9 @@ use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
 use Yippy\ToastUiEditorBundle\Form\Type\ToastUiEditorType;
 
+/**
+ * @extends AbstractType<Post>
+ */
 class FrontPostType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -109,3 +112,5 @@ class FrontPostType extends AbstractType
         ]);
     }
 }
+
+

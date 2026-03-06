@@ -21,6 +21,9 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<Penalty>
+ */
 class PenaltyType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -139,6 +142,9 @@ class PenaltyType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface<Penalty> $form
+     */
     private function addReasonFields(FormInterface $form, string $reasonChoice, string $customReason): void
     {
         $isOther = $reasonChoice === Penalty::REASON_OTHER;
@@ -174,3 +180,6 @@ class PenaltyType extends AbstractType
         ]);
     }
 }
+
+
+
