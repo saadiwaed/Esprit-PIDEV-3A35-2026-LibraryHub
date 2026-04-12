@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="12" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.AjouterBook">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <Label text="Book" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Title" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="titleField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Description" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextArea fx:id="descriptionArea" prefRowCount="3" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Publisher" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="publisherField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Publication year" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="publicationYearField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Page count" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="pageCountField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Language" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="languageField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="Cover image" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="coverImageField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+        <Label text="Status" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="statusCombo" prefWidth="240" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+        <Label text="Category ID" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+        <TextField fx:id="categoryIdField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+        <Label text="Author ID" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+        <TextField fx:id="authorIdField" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancel" onAction="#handleCancel"/>
+        <Button text="Save" onAction="#handleSave"/>
+    </HBox>
+</VBox>

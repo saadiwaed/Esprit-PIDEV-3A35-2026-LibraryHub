@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="12" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.AjouterLoan">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <Label text="Loan" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Checkout time" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="checkoutTimeField" promptText="yyyy-MM-dd HH:mm" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Due date" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="dueDatePicker" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Return date" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="returnDateField" promptText="yyyy-MM-dd HH:mm" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Status" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="statusCombo" prefWidth="240" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Renewal count" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="renewalCountField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Book copy ID" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="bookCopyIdField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="Member ID" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="memberIdField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+        <Label text="Phone" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <TextField fx:id="phoneField" promptText="+216XXXXXXXX" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+        <Label text="Notes" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+        <TextArea fx:id="notesArea" prefRowCount="3" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancel" onAction="#handleCancel"/>
+        <Button text="Save" onAction="#handleSave"/>
+    </HBox>
+</VBox>
