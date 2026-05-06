@@ -1,98 +1,58 @@
+// public/js/admin-face-register.js
 const video = document.getElementById('face-video');
 const canvas = document.getElementById('face-canvas');
 const btnStart = document.getElementById('btn-start-webcam');
 const btnSave = document.getElementById('btn-save-face');
 const alertBox = document.getElementById('face-alert');
 
-// Emplacement des modèles face-api.js.
-// Pour éviter d'avoir à les copier en local, on pointe vers l'hébergement officiel.
-// Si tu veux les héberger toi‑même plus tard, remplace par '/models' et ajoute les fichiers dans public/models.
-const modelPath = 'https://justadudewhohacks.github.io/face-api.js/models';
-let displaySize;
-
-function showMessage(message, ok = false) {
-    if (!alertBox) {
-        return;
-    }
+function showMessage(msg, success = false) {
     alertBox.classList.remove('d-none', 'alert-danger', 'alert-success');
-    alertBox.classList.add(ok ? 'alert-success' : 'alert-danger');
-    alertBox.textContent = message;
+    alertBox.classList.add(success ? 'alert-success' : 'alert-danger');
+    alertBox.textContent = msg;
 }
 
-async function loadModels() {
-    await Promise.all([
-        faceapi.nets.faceRecognitionNet.loadFromUri(modelPath),
-        faceapi.nets.tinyFaceDetector.loadFromUri(modelPath),
-        faceapi.nets.faceLandmark68TinyNet.loadFromUri(modelPath),
-    ]);
+function captureFrame() {
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    return canvas.toDataURL('image/png').split(',')[1];
 }
 
-btnStart?.addEventListener('click', async (event) => {
-    event.preventDefault();
+btnStart.addEventListener('click', async () => {
     try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showMessage('Votre navigateur ne supporte pas la webcam sur ce site. Essayez avec Chrome sur 127.0.0.1 ou localhost.');
-            return;
-        }
-
-        await loadModels();
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user' },
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
         video.srcObject = stream;
-        video.addEventListener('loadedmetadata', () => {
-            displaySize = { width: video.videoWidth, height: video.videoHeight };
-            canvas.width = displaySize.width;
-            canvas.height = displaySize.height;
-        });
         btnSave.disabled = false;
-        showMessage('Webcam activée. Positionnez votre visage puis cliquez sur « Enregistrer mon visage ».', true);
+        showMessage('Webcam activée. Positionnez votre visage.', true);
     } catch (e) {
-        console.error('Erreur getUserMedia (register):', e);
-        const reason = e && e.name === 'NotAllowedError'
-            ? 'Accès caméra refusé. Autorisez la caméra pour 127.0.0.1 dans votre navigateur.'
-            : 'Impossible d’activer la webcam. Vérifiez les autorisations du navigateur.';
-        showMessage(reason);
+        showMessage('Erreur webcam: ' + e.message);
     }
 });
 
-btnSave?.addEventListener('click', async (event) => {
-    event.preventDefault();
+btnSave.addEventListener('click', async () => {
+    btnSave.disabled = true;
+    showMessage('Encodage en cours (512-dim)...', true);
+
     try {
-        const detection = await faceapi
-            .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
-            .withFaceLandmarks(true);
+        const b64 = captureFrame();
 
-        if (!detection) {
-            showMessage('Aucun visage détecté. Approchez-vous de la caméra.');
-            return;
-        }
-
-        const descriptor = await faceapi.computeFaceDescriptor(video);
-        const descriptorArray = Array.from(descriptor);
-
-        const formData = new FormData();
-        formData.append('descriptor', JSON.stringify(descriptorArray));
-
-        const response = await fetch('/admin/face/descriptor', {
+        const res = await fetch('/admin/face/register-image', {
             method: 'POST',
-            body: formData,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: b64 })
         });
 
-        if (!response.ok) {
-            showMessage("Erreur lors de l'enregistrement du descripteur.");
-            return;
-        }
+        const data = await res.json();
 
-        const data = await response.json();
-        if (!data.isSuccessful) {
-            showMessage(data.message || "Impossible d'enregistrer le descripteur.");
-            return;
+        if (data.isSuccessful) {
+            showMessage(data.message, true);
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showMessage(data.message);
+            btnSave.disabled = false;
         }
-
-        showMessage(data.message || 'Visage enregistré avec succès.', true);
     } catch (e) {
-        showMessage('Une erreur est survenue pendant la capture du visage.');
+        showMessage('Erreur de connexion au serveur.');
+        btnSave.disabled = false;
     }
 });
-

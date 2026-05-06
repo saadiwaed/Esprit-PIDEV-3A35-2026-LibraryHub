@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\Comment;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[ORM\Table(name: 'post')]
@@ -75,13 +76,13 @@ class Post
     #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?User $createdBy = null;
 
-    #[ORM\ManyToOne(targetEntity: Community::class, inversedBy: 'posts')]
+        #[ORM\ManyToOne(targetEntity: Community::class, inversedBy: 'posts')]
     #[ORM\JoinColumn(name: 'community_id', referencedColumnName: 'id', nullable: true)]
-    #[Assert\NotNull(message: 'La communautÃ© est obligatoire')]
+    #[Assert\NotNull(message: 'La communauté est obligatoire')]
     private ?Community $community = null;
 
-     #[ORM\OneToMany(mappedBy: 'post', orphanRemoval: true)]
-    private Collection $comments;  // orphanRemoval=true dit : "supprime les commentaires orphelins"
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', orphanRemoval: true)]
+    private Collection $comments;
 
     /** @var Collection<int, PostReaction> */
     #[ORM\OneToMany(targetEntity: PostReaction::class, mappedBy: 'post', cascade: ['remove'], orphanRemoval: true)]
