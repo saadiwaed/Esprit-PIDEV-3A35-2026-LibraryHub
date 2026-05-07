@@ -13,14 +13,14 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 #[AsEventListener(event: KernelEvents::REQUEST, priority: 10)]
 class MfaSetupListener
 {
-    // Routes that are always accessible without MFA (whitelist)
     private const ALLOWED_ROUTES = [
         'app_register',
         'app_login',
         'app_logout',
         'app_mfa_setup',
-        '_wdt',       // Symfony web debug toolbar
-        '_profiler',  // Symfony profiler
+        'app_mfa_verify', // must be accessible without being logged in
+        '_wdt',
+        '_profiler',
     ];
 
     public function __construct(
@@ -30,7 +30,6 @@ class MfaSetupListener
 
     public function __invoke(RequestEvent $event): void
     {
-        // Only handle the main request, not sub-requests
         if (!$event->isMainRequest()) {
             return;
         }
@@ -38,7 +37,6 @@ class MfaSetupListener
         $request = $event->getRequest();
         $route   = $request->attributes->get('_route');
 
-        // Allow whitelisted routes without any check
         if ($this->isRouteAllowed($route)) {
             return;
         }
@@ -53,11 +51,17 @@ class MfaSetupListener
             return;
         }
 
-        // If user is logged in but MFA is not enabled → force MFA setup
+        // Logged-in user with MFA not configured → force setup
         if (!$user->isMfaEnabled()) {
             $url = $this->router->generate('app_mfa_setup', ['id' => $user->getId()]);
             $event->setResponse(new RedirectResponse($url));
         }
+
+        // NOTE: We no longer check mfa_verified here.
+        // When mfa_enabled=1, LoginSuccessHandler invalidates the session and
+        // stores only mfa_pending_user_id — the user is NOT authenticated.
+        // So $token->getUser() will never be a fully logged-in MFA user
+        // unless they already passed /mfa/verify and were re-authenticated.
     }
 
     private function isRouteAllowed(?string $route): bool
@@ -65,13 +69,11 @@ class MfaSetupListener
         if ($route === null) {
             return true;
         }
-
         foreach (self::ALLOWED_ROUTES as $allowed) {
             if (str_starts_with($route, $allowed)) {
                 return true;
             }
         }
-
         return false;
     }
 }

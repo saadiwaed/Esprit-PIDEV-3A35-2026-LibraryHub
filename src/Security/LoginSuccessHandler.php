@@ -12,35 +12,25 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerI
 
 class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 {
-    private RouterInterface $router;
-
-    public function __construct(RouterInterface $router)
-    {
-        $this->router = $router;
-    }
+    public function __construct(private readonly RouterInterface $router) {}
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): RedirectResponse
     {
         $user  = $token->getUser();
         $roles = $user instanceof UserInterface ? $user->getRoles() : [];
 
-        // User has MFA enabled → store their ID in session and send back to
-        // login page where the popup will open to ask for the TOTP code.
-        // The real session/token is NOT yet fully established for them.
+        // MFA enabled → invalidate session, store pending user ID, redirect to verify
         if ($user instanceof User && $user->isMfaEnabled()) {
-            // Invalidate the just-created security token so the user is NOT
-            // considered logged in until they pass MFA.
+            $userId = $user->getId();
             $request->getSession()->invalidate();
-            $request->getSession()->set('mfa_pending_user_id', $user->getId());
+            $request->getSession()->set('mfa_pending_user_id', $userId);
 
-            return new RedirectResponse(
-                $this->router->generate('app_login') . '?mfa=1'
-            );
+            return new RedirectResponse($this->router->generate('app_mfa_verify'));
+            // ↑ Changed: go directly to /mfa/verify (not login?mfa=1)
         }
 
-        // MFA not set up yet → force setup first
+        // MFA not set up yet → force setup
         if ($user instanceof User && !$user->isMfaEnabled()) {
-            $request->getSession()->set('mfa_setup_user_id', $user->getId());
             return new RedirectResponse(
                 $this->router->generate('app_mfa_setup', ['id' => $user->getId()])
             );
