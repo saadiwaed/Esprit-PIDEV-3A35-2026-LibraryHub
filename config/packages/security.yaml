@@ -76,6 +76,7 @@ security:
         
         # Role management - Admin ONLY
         - { path: ^/role, roles: ROLE_ADMIN }
+        - { path: ^/mfa/setup, roles: PUBLIC_ACCESS }
 
         # Community/Post management - Admin and Librarian only
         - { path: ^/community, roles: [ROLE_ADMIN, ROLE_LIBRARIAN] }

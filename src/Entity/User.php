@@ -548,4 +548,64 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
         return $this;
     }
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $mfaSecret = null;
+
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $mfaEnabled = false;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $backupCodes = null; // "CODE1,CODE2,CODE3..."
+
+    // === GETTERS / SETTERS MFA ===
+
+    public function getMfaSecret(): ?string
+    {
+        return $this->mfaSecret;
+    }
+
+    public function setMfaSecret(?string $mfaSecret): static
+    {
+        $this->mfaSecret = $mfaSecret;
+        return $this;
+    }
+
+    public function isMfaEnabled(): bool
+    {
+        return $this->mfaEnabled;
+    }
+
+    public function setMfaEnabled(bool $mfaEnabled): static
+    {
+        $this->mfaEnabled = $mfaEnabled;
+        return $this;
+    }
+
+    public function getBackupCodes(): ?string
+    {
+        return $this->backupCodes;
+    }
+
+    public function setBackupCodes(?string $backupCodes): static
+    {
+        $this->backupCodes = $backupCodes;
+        return $this;
+    }
+
+    /**
+     * Retourne les backup codes sous forme de tableau
+     */
+    public function getBackupCodesList(): array
+    {
+        if (empty($this->backupCodes)) {
+            return [];
+        }
+        return array_filter(explode(',', $this->backupCodes));
+    }
+
+    // Helper utile
+    public function hasMfa(): bool
+    {
+        return $this->mfaEnabled && $this->mfaSecret !== null;
+    }
 }
