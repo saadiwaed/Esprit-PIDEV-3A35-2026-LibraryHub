@@ -39,6 +39,7 @@ final class JournalLectureController extends AbstractController
 
     ): Response {
         // ✅ UTILISATEUR CONNECTÉ
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -251,6 +252,7 @@ public function frontNew(
     EmailServiceDefi $emailServiceDefi // ✅ Garder ici
 ): Response {
     // ✅ UTILISATEUR CONNECTÉ
+    /** @var \App\Entity\User $user */
     $user = $this->getUser();
     
     if (!$user) {
@@ -333,6 +335,7 @@ public function frontNew(
     #[Route('/{id}', name: 'app_front_journal_show', methods: ['GET'])]
     public function frontShow(JournalLecture $journalLecture): Response
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user || $journalLecture->getUser()->getId() !== $user->getId()) {
@@ -353,6 +356,7 @@ public function frontNew(
         JournalLecture $journalLecture,
         EntityManagerInterface $entityManager
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user || $journalLecture->getUser()->getId() !== $user->getId()) {
@@ -389,6 +393,7 @@ public function frontNew(
         JournalLecture $journalLecture,
         EntityManagerInterface $entityManager
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user || $journalLecture->getUser()->getId() !== $user->getId()) {

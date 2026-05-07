@@ -22,6 +22,7 @@ class JournalLectureType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /** @var \App\Entity\User $user */
         $user = $this->tokenStorage->getToken()?->getUser();
 
         $builder

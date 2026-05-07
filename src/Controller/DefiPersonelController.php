@@ -40,6 +40,7 @@ final class DefiPersonelController extends AbstractController
         PaginatorInterface $paginator
     ): Response {
         // ✅ UTILISATEUR CONNECTÉ
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -204,6 +205,7 @@ final class DefiPersonelController extends AbstractController
     #[Route('/new', name: 'app_front_defi_new', methods: ['GET', 'POST'])]
     public function frontNew(Request $request, EntityManagerInterface $entityManager): Response
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -244,6 +246,7 @@ final class DefiPersonelController extends AbstractController
         EmailServiceDefi $emailServiceDefi
 
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user || $defiPersonel->getUserId() != $user->getId()) {
@@ -322,6 +325,7 @@ final class DefiPersonelController extends AbstractController
         DefiPersonel $defiPersonel,
         EntityManagerInterface $entityManager
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user || $defiPersonel->getUserId() != $user->getId()) {
@@ -358,6 +362,7 @@ final class DefiPersonelController extends AbstractController
         DefiPersonel $defiPersonel,
         EntityManagerInterface $entityManager
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         if (!$user || $defiPersonel->getUserId() != $user->getId()) {
@@ -379,6 +384,7 @@ final class DefiPersonelController extends AbstractController
 #[Route('/api/search', name: 'app_defi_api_search', methods: ['GET'])]
 public function apiSearch(Request $request, DefiPersonelRepository $defiPersonelRepository): Response
 {
+    /** @var \App\Entity\User $user */
     $user = $this->getUser();
     
     if (!$user) {
