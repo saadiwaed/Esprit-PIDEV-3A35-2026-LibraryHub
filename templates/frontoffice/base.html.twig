@@ -9,7 +9,23 @@
 	<meta name="author" content="Webestica.com">
 	<meta name="description" content="Eduport- LMS, Education and Course Theme">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
+<style>
+	.avatar-initials {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    user-select: none;
+}
+</style>
 	<!-- Dark mode -->
 	<script>
 		const storedTheme = localStorage.getItem('theme')
@@ -224,10 +240,12 @@
 
 						<!-- Abonnement -->
 						<li class="nav-item">
-							<a class="nav-link" href="{{ path('app_membership_index') }}">
-								<i class="bi bi-credit-card me-1"></i>Abonnement
-							</a>
-						</li>
+    <a class="nav-link d-flex align-items-center" href="{{ path('app_membership_index') }}">
+        <i class="bi bi-credit-card me-md-1"></i>
+        <span class="d-none d-md-inline">Abonnement</span>
+    </a>
+</li>
+
 
 						
 
@@ -295,38 +313,78 @@
 							<!-- Notification dropdown menu END -->
 						</li>
 						<!-- Links -->
-						<li> <hr class="dropdown-divider"></li>
-						<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Modifier Profile</a></li>
-						<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Parametres Compte</a></li>
-
-{# MFA Toggle item #}
-<li>
-    <a class="dropdown-item d-flex align-items-center justify-content-between"
+						<li class="nav-item dropdown">
+    <a class="btn btn-light btn-round mb-0"
        href="#"
-       onclick="confirmMfaToggle(event, {{ app.user.mfaEnabled ? 'true' : 'false' }})">
-        <span>
-            <i class="bi bi-shield-lock fa-fw me-2"></i>
-            Double authentification
-        </span>
-        {% if app.user.mfaEnabled %}
-            <span class="badge bg-success ms-2">ON</span>
-        {% else %}
-            <span class="badge bg-danger ms-2">OFF</span>
+       role="button"
+       data-bs-toggle="dropdown"
+       aria-expanded="false">
+
+        {# Avatar with initials #}
+       <div class="avatar-initials">
+            {{ app.user.firstName|first|upper }}{{ app.user.lastName|first|upper }}
+        </div>
+    </a>
+
+    <ul class="dropdown-menu dropdown-menu-end shadow">
+        <!-- Your existing menu items remain the same -->
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="bi bi-person fa-fw me-2"></i>
+                Modifier Profile
+            </a>
+        </li>
+
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="bi bi-gear fa-fw me-2"></i>
+                Paramètres Compte
+            </a>
+        </li>
+
+        {# MFA #}
+        <li>
+            <a class="dropdown-item d-flex align-items-center justify-content-between"
+               href="#"
+               onclick="confirmMfaToggle(event, {{ app.user.mfaEnabled ? 'true' : 'false' }})">
+
+                <span>
+                    <i class="bi bi-shield-lock fa-fw me-2"></i>
+                    Double authentification
+                </span>
+
+                {% if app.user.mfaEnabled %}
+                    <span class="badge bg-success ms-2">ON</span>
+                {% else %}
+                    <span class="badge bg-danger ms-2">OFF</span>
+                {% endif %}
+            </a>
+        </li>
+
+        {% if app.user and app.user.backupCodes %}
+        <li>
+            <a class="dropdown-item"
+               href="{{ path('app_mfa_backup_codes_download') }}">
+                ⬇️ Télécharger les codes de secours
+            </a>
+        </li>
         {% endif %}
-    </a>
-</li>
-{% if app.user and app.user.backupCodes %}
-    <a href="{{ path('app_mfa_backup_codes_download') }}" class="btn btn-sm btn-outline-secondary">
-        ⬇️ Télécharger les codes de secours
-    </a>
-{% endif %}
-						<li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Aider</a></li>
-						{% if app.user %}
-							<li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Se déconnecter</a></li>
-						{% else %}
-							<li><a class="dropdown-item" href="{{ path('app_login') }}"><i class="bi bi-box-arrow-in-right fa-fw me-2"></i>Se connecter</a></li>
-						{% endif %}
-						<li> <hr class="dropdown-divider"></li>
+
+        <li>
+            <a class="dropdown-item bg-danger-soft-hover"
+               href="{{ path('app_logout') }}">
+
+                <i class="bi bi-power fa-fw me-2"></i>
+                Se déconnecter
+            </a>
+        </li>
+
+        <li><hr class="dropdown-divider"></li>
+
+        <!-- Dark mode options -->
+        <li>
+            <div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center p-1 rounded mt-2">
+                 <hr class="dropdown-divider"></li>
 						<!-- Dark mode options START -->
 						<li>
 							<div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center p-1 rounded mt-2">
@@ -351,6 +409,12 @@
 								</button>
 							</div>
 						</li> 
+    </ul>
+            </div>
+        </li>
+    </ul>
+</li>
+					
 						<!-- Dark mode options END-->
 					</ul>
 				{% endif %}
