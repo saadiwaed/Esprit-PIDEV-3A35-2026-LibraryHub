@@ -306,4 +306,9 @@
     object-fit: cover;
 }
 </style>
+
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('assets/js/live-update.js') }}"></script>
+{% endblock %}
 {% endblock %}
