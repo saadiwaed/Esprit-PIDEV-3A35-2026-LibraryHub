@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\FormLoginAuthenticator;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class MfaController extends AbstractController
 {
@@ -19,6 +21,7 @@ class MfaController extends AbstractController
         private readonly UserAuthenticatorInterface $userAuthenticator,
         #[Autowire(service: 'security.authenticator.form_login.main')]
         private readonly FormLoginAuthenticator $formLoginAuthenticator,
+        private readonly TokenStorageInterface $tokenStorage,
     ) {}
 
     #[Route('/mfa/setup/{id}', name: 'app_mfa_setup', requirements: ['id' => '\d+'])]
@@ -36,7 +39,7 @@ class MfaController extends AbstractController
 
         // If MFA already enabled, no need to set up again
         if ($user->isMfaEnabled()) {
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('app_frontoffice');
         }
 
         // Generate a new secret each GET — keep it in the form as a hidden field
@@ -57,13 +60,11 @@ class MfaController extends AbstractController
                 $em->flush();
 
                 $this->addFlash('success', '🎉 MFA activé avec succès ! Vous êtes maintenant connecté.');
-
-                // Log the user in now that MFA is confirmed
-                return $this->userAuthenticator->authenticateUser(
-                    $user,
-                    $this->formLoginAuthenticator,
-                    $request
-                ) ?? $this->redirectToRoute('app_home');
+$token = new UsernamePasswordToken($user, 'main', $user->getRoles());
+$this->tokenStorage->setToken($token);
+$request->getSession()->set('_security_main', serialize($token));
+return $this->redirectToRoute('app_frontoffice');
+         
             } else {
                 $this->addFlash('error', 'Code MFA invalide. Veuillez réessayer.');
             }

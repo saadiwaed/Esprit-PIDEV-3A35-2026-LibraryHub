@@ -1,75 +1,327 @@
 {% extends 'frontoffice/base.html.twig' %}
 
-{% block title %}Connexion admin - Reconnaissance faciale{% endblock %}
+{% block title %}Connexion admin — Reconnaissance faciale{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .fl-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+        }
+
+        /* ── Left dark panel ── */
+        .fl-left {
+            width: 42%;
+            background: #0f1117;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .fl-left::before, .fl-left::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .fl-left::before {
+            top: -120px; left: -120px;
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, rgba(99,102,241,.18) 0%, transparent 70%);
+        }
+        .fl-left::after {
+            bottom: -80px; right: -60px;
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(99,102,241,.12) 0%, transparent 70%);
+        }
+
+        .fl-logo {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .fl-logo i { color: #fff; font-size: 1.6rem; }
+        .fl-brand-title { color: #fff; font-size: 1.9rem; font-weight: 700; letter-spacing: -.5px; margin-bottom: .4rem; }
+        .fl-brand-sub { color: #6b7280; font-size: .85rem; line-height: 1.6; max-width: 260px; text-align: center; }
+        .fl-divider { width: 40px; height: 3px; background: linear-gradient(90deg, #6366f1, #8b5cf6); border-radius: 4px; margin: 1.75rem auto; }
+
+        .fl-features { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .9rem; width: 100%; max-width: 250px; }
+        .fl-features li { display: flex; align-items: center; gap: .75rem; color: #9ca3af; font-size: .8rem; }
+        .fl-feat-icon {
+            width: 30px; height: 30px; border-radius: 8px;
+            background: rgba(99,102,241,.15);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .fl-feat-icon i { font-size: .95rem; color: #818cf8; }
+
+        /* ── Right panel ── */
+        .fl-right {
+            flex: 1;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 3.5rem;
+        }
+        .fl-form-wrap { width: 100%; max-width: 420px; }
+
+        .fl-form-title { font-size: 1.6rem; font-weight: 700; color: #111827; margin-bottom: .4rem; }
+        .fl-form-sub { font-size: .9rem; color: #6b7280; margin-bottom: 1.8rem; }
+
+        /* Alert */
+        #face-login-alert {
+            padding: .75rem 1rem;
+            border-radius: 10px;
+            font-size: .85rem;
+            font-weight: 500;
+            margin-bottom: 1.2rem;
+            display: none;
+            align-items: center;
+            gap: .5rem;
+        }
+        #face-login-alert.show { display: flex; }
+        #face-login-alert.fl-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+        #face-login-alert.fl-error   { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+        #face-login-alert.fl-info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #2563eb; }
+
+        /* Video */
+        .fl-video-box {
+            position: relative; 
+            width: 100%; 
+            aspect-ratio: 4/3;
+            background: #f8fafc; 
+            border: 3px solid #e2e8f0;
+            border-radius: 16px; 
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .fl-video-box.active { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
+
+        .fl-video-box video,
+        .fl-video-box canvas { 
+            position: absolute; 
+            inset: 0; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+
+        .fl-scan-line {
+            position: absolute; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, #6366f1, #8b5cf6, transparent);
+            animation: fl-sweep 2s linear infinite;
+            display: none;
+            z-index: 5;
+        }
+        @keyframes fl-sweep { 0%{top:0;opacity:1} 100%{top:100%;opacity:0} }
+
+        .fl-placeholder {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #94a3b8; gap: .6rem;
+        }
+        .fl-placeholder i { font-size: 3rem; opacity: .35; }
+
+        /* Buttons */
+        .fl-btn-row { display: flex; gap: .8rem; }
+        .fl-btn {
+            flex: 1; 
+            padding: .85rem; 
+            border-radius: 12px; 
+            font-size: .9rem; 
+            font-weight: 600;
+            cursor: pointer; 
+            border: none; 
+            transition: all .2s;
+        }
+        .fl-btn-outline { background: white; border: 2px solid #6366f1; color: #6366f1; }
+        .fl-btn-outline:hover:not(:disabled) { background: #6366f1; color: white; }
+        .fl-btn-primary { background: #6366f1; color: white; }
+        .fl-btn-primary:hover:not(:disabled) { background: #4f46e5; }
+
+        .fl-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .fl-page { flex-direction: column; }
+            .fl-left { width: 100%; padding: 2rem 1.5rem; }
+            .fl-right { padding: 2rem 1.5rem; }
+        }
+
+        .fl-spin { animation: fl-spin 1s linear infinite; }
+        @keyframes fl-spin { to { transform: rotate(360deg); } }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="fl-page">
+
+    <!-- Left Panel -->
+    <div class="fl-left">
+        <div class="fl-logo">
+            <i class="bi bi-book"></i>
+        </div>
+        <div class="fl-brand-title">LibraryHub</div>
+        <div class="fl-brand-sub">Portail d'accès administrateur sécurisé par intelligence artificielle</div>
+        <div class="fl-divider"></div>
+        <ul class="fl-features">
+            <li><div class="fl-feat-icon"><i class="bi bi-person-bounding-box"></i></div> Reconnaissance faciale ultra-rapide</li>
+            <li><div class="fl-feat-icon"><i class="bi bi-shield-check"></i></div> Authentification sécurisée</li>
+            <li><div class="fl-feat-icon"><i class="bi bi-lightning-charge"></i></div> Accès instantané au backoffice</li>
+        </ul>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="fl-right">
+        <div class="fl-form-wrap">
+            <div class="fl-form-title">Connexion par Visage</div>
+            <div class="fl-form-sub">
+                Placez votre visage devant la caméra pour vous connecter
+            </div>
+
+            <div id="face-login-alert" role="alert"></div>
+
+            <div id="step-face">
+
+                <div class="fl-video-box" id="fl-video-wrap">
+                    <div class="fl-placeholder" id="fl-placeholder">
+                        <i class="bi bi-camera-video-off"></i>
+                        <span>Cliquez sur "Activer la caméra"</span>
+                    </div>
+
+                    <video id="face-login-video" autoplay muted playsinline style="display:none"></video>
+                    <canvas id="face-login-canvas" style="display:none"></canvas>
+                    <div class="fl-scan-line" id="fl-scan-line"></div>
+                </div>
+
+                <p class="text-center mb-4" style="font-size:0.8rem; color:#64748b;">
+                    Assurez-vous d'être bien éclairé et regardez directement la caméra
+                </p>
+
+                <div class="fl-btn-row">
+                    <button class="fl-btn fl-btn-outline" id="btn-start-webcam">
+                        <i class="bi bi-camera-video"></i> Activer la caméra
+                    </button>
+                    <button class="fl-btn fl-btn-primary" id="btn-scan-face" disabled>
+                        <i class="bi bi-person-bounding-box"></i> Scanner mon visage
+                    </button>
+                </div>
+            </div>
+
+            <!-- Success message (shown just before redirect) -->
+            <div id="success-screen" class="text-center d-none">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                <h4 class="mt-3 mb-2">Authentification réussie !</h4>
+                <p class="text-muted">Redirection vers le tableau de bord...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
     <script src="{{ asset('js/admin-face-login.js') }}" defer></script>
+    <script>
+    // DOM Elements
+    const btnStart    = document.getElementById('btn-start-webcam');
+    const btnScan     = document.getElementById('btn-scan-face');
+    const video       = document.getElementById('face-login-video');
+    const canvas      = document.getElementById('face-login-canvas');
+    const scanLine    = document.getElementById('fl-scan-line');
+    const placeholder = document.getElementById('fl-placeholder');
+    const videoWrap   = document.getElementById('fl-video-wrap');
+    const alertEl     = document.getElementById('face-login-alert');
+    const successScreen = document.getElementById('success-screen');
+
+    let stream = null;
+
+    function showAlert(type, msg) {
+        const classes = { success: 'fl-success', error: 'fl-error', info: 'fl-info' };
+        const icons   = { success: 'check-circle', error: 'x-circle', info: 'info-circle' };
+        
+        alertEl.className = `show ${classes[type]}`;
+        alertEl.innerHTML = `<i class="bi bi-${icons[type]}"></i> ${msg}`;
+    }
+
+    // Start Webcam
+    btnStart.addEventListener('click', async () => {
+        alertEl.classList.remove('show');
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'user', width: 640, height: 480 } 
+            });
+            
+            video.srcObject = stream;
+            video.style.display = 'block';
+            canvas.style.display = 'block';
+            scanLine.style.display = 'block';
+            placeholder.style.display = 'none';
+            videoWrap.classList.add('active');
+
+            btnScan.disabled = false;
+            btnStart.disabled = true;
+
+            showAlert('info', 'Caméra activée. Cliquez sur <strong>Scanner mon visage</strong> quand vous êtes prêt.');
+        } catch (err) {
+            showAlert('error', 'Impossible d\'accéder à la caméra. Vérifiez vos permissions.');
+        }
+    });
+
+    // Scan button (called by your face detection logic)
+    btnScan.addEventListener('click', async () => {
+        alertEl.classList.remove('show');
+        btnScan.disabled = true;
+        btnScan.innerHTML = `<i class="bi bi-arrow-repeat fl-spin"></i> Analyse en cours...`;
+
+        // Capture frame
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        try {
+            const fd = new FormData();
+            fd.append('image', canvas.toDataURL('image/png'));
+
+            const res = await fetch('{{ path('admin_face_login_recognize') }}', {
+                method: 'POST',
+                body: fd
+            });
+
+            const data = await res.json();
+
+            if (data.isSuccessful) {
+    videoWrap.classList.add('active');
+    showAlert('success', 'Visage reconnu avec succès ! Redirection...');
+
+    // Show success screen
+    document.getElementById('step-face').classList.add('d-none');
+    successScreen.classList.remove('d-none');
+
+    // Auto refresh after 3 seconds
+    setTimeout(() => {
+        location.reload();
+    }, 3000);
+}else {
+                showAlert('error', data.message || 'Visage non reconnu. Veuillez réessayer.');
+                btnScan.disabled = false;
+                btnScan.innerHTML = `<i class="bi bi-person-bounding-box"></i> Scanner mon visage`;
+            }
+        } catch (err) {
+            showAlert('error', 'Erreur de connexion. Veuillez réessayer.');
+            btnScan.disabled = false;
+            btnScan.innerHTML = `<i class="bi bi-person-bounding-box"></i> Scanner mon visage`;
+        }
+    });
+    </script>
 {% endblock %}
-
-{% block body %}
-<section class="py-5">
-    <div class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div id="face-login-alert" class="alert d-none" role="alert"></div>
-
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-4">
-                        <h1 class="h4 mb-3 text-center">Connexion administrateur</h1>
-                        <p class="text-muted text-center mb-4">
-                            Étape 1 : identifiez-vous par reconnaissance faciale, puis saisissez votre mot de passe.
-                        </p>
-
-                        <div id="step-face">
-                            <div class="mb-3 text-center">
-                                <button class="btn btn-outline-primary me-2" id="btn-start-webcam">
-                                    <i class="bi bi-camera-video me-1"></i> Activer la webcam
-                                </button>
-                                <button class="btn btn-success" id="btn-scan-face" disabled>
-                                    <i class="bi bi-person-bounding-box me-1"></i> Scanner mon visage
-                                </button>
-                            </div>
-                            <div class="border rounded-3 p-3 bg-light mb-3">
-                                <div class="position-relative mx-auto" style="max-width: 480px;">
-                                    <video id="face-login-video" autoplay muted playsinline class="w-100 rounded-3 border"></video>
-                                    <canvas id="face-login-canvas" class="position-absolute top-0 start-0"></canvas>
-                                </div>
-                                <p class="small text-muted mt-3 mb-0 text-center">
-                                    Regardez la caméra et attendez que votre visage soit détecté, puis cliquez sur
-                                    <strong>Scanner mon visage</strong>.
-                                </p>
-                            </div>
-                        </div>
-
-                        <form id="face-login-form" class="d-none" method="post" action="{{ path('app_login') }}">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-                            <input type="hidden" name="face_login_token" id="face_login_token">
-
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Adresse e-mail</label>
-                                <input type="email" class="form-control" id="email" name="_username" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Mot de passe</label>
-                                <input type="password" class="form-control" id="password" name="_password" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">
-                                Se connecter au backoffice
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="text-center">
-                    <a href="{{ path('app_login') }}" class="small text-muted text-decoration-none">
-                        &larr; Retour à la connexion classique
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %}
-

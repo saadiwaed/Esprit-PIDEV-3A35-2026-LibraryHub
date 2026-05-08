@@ -50,6 +50,8 @@ security:
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/mot-de-passe-oublie, roles: PUBLIC_ACCESS }
+        - { path: ^/reinitialiser-mot-de-passe, roles: PUBLIC_ACCESS }
         - { path: ^/perf-test$, roles: PUBLIC_ACCESS }
         - { path: ^/perf-report$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: PUBLIC_ACCESS }
@@ -78,6 +80,7 @@ security:
         - { path: ^/role, roles: ROLE_ADMIN }
         - { path: ^/mfa/verify, roles: PUBLIC_ACCESS }
         - { path: ^/mfa/setup,  roles: PUBLIC_ACCESS }
+        - { path: ^/mfa/toggle, roles: ROLE_USER }
         
 
         # Community/Post management - Admin and Librarian only

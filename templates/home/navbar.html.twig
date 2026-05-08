@@ -184,6 +184,22 @@
 								<!-- Links -->
 								<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Edit Profile</a></li>
 								<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Account Settings</a></li>
+                                <!-- MFA Toggle -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center justify-content-between"
+                                       href="{{ path('app_mfa_toggle') }}"
+                                       onclick="return confirmMfaToggle(event, {{ app.user.mfaEnabled ? 'true' : 'false' }})">
+                                        <span>
+                                            <i class="bi bi-shield-lock fa-fw me-2"></i>
+                                            Double authentification (MFA)
+                                        </span>
+                                        {% if app.user.mfaEnabled %}
+                                            <span class="badge bg-success ms-2">Activé</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary ms-2">Désactivé</span>
+                                        {% endif %}
+                                    </a>
+                                </li>
                                 {% if is_granted('ROLE_ADMIN') %}
                                     <li>
                                         <a class="dropdown-item" href="{{ path('admin_face_register') }}">
@@ -233,3 +249,21 @@
 	</nav>
 	<!-- Top bar END -->
 
+
+{# ── MFA toggle confirmation + hidden form ───────────────────────────────── #}
+<form id="mfa-toggle-form" method="POST" action="{{ path('app_mfa_toggle') }}" style="display:none;">
+    <input type="hidden" name="_token" value="{{ csrf_token('mfa_toggle') }}">
+</form>
+
+<script>
+function confirmMfaToggle(e, isEnabled) {
+    e.preventDefault();
+    const action  = isEnabled ? 'désactiver' : 'activer';
+    const warning = isEnabled
+        ? '\n⚠️ Désactiver le MFA réduira la sécurité de votre compte.'
+        : '';
+    if (confirm('Voulez-vous ' + action + ' la double authentification ?' + warning)) {
+        document.getElementById('mfa-toggle-form').submit();
+    }
+}
+</script>

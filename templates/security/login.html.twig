@@ -154,8 +154,12 @@
                             <input type="checkbox" name="_remember_me" class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 bg-white transition-colors"/>
                             <span class="ml-2 text-slate-600 group-hover:text-slate-900 transition-colors">Se souvenir de moi</span>
                         </label>
-                        <a class="text-primary font-semibold hover:underline decoration-2 underline-offset-4" href="#">Mot de passe oublié ?</a>
-                    </div>
+<a
+    class="text-primary font-semibold hover:underline decoration-2 underline-offset-4 relative z-50"
+    href="{{ path('app_forgot_password') }}"
+>
+    Mot de passe oublié ?
+</a>                    </div>
 
                     <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg shadow-lg transition-all transform active:scale-[0.98]">
                         Se connecter à la bibliothèque

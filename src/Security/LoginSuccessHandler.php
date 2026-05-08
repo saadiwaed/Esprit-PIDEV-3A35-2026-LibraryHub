@@ -29,12 +29,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             // ↑ Changed: go directly to /mfa/verify (not login?mfa=1)
         }
 
-        // MFA not set up yet → force setup
-        if ($user instanceof User && !$user->isMfaEnabled()) {
-            return new RedirectResponse(
-                $this->router->generate('app_mfa_setup', ['id' => $user->getId()])
-            );
-        }
+        
 
         // Admin / Librarian → backoffice
         if (in_array('ROLE_ADMIN', $roles, true) || in_array('ROLE_LIBRARIAN', $roles, true)) {

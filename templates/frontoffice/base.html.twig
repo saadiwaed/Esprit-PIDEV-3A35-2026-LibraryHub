@@ -399,6 +399,28 @@
 						<li> <hr class="dropdown-divider"></li>
 						<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Modifier Profile</a></li>
 						<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Parametres Compte</a></li>
+
+{# MFA Toggle item #}
+<li>
+    <a class="dropdown-item d-flex align-items-center justify-content-between"
+       href="#"
+       onclick="confirmMfaToggle(event, {{ app.user.mfaEnabled ? 'true' : 'false' }})">
+        <span>
+            <i class="bi bi-shield-lock fa-fw me-2"></i>
+            Double authentification
+        </span>
+        {% if app.user.mfaEnabled %}
+            <span class="badge bg-success ms-2">ON</span>
+        {% else %}
+            <span class="badge bg-danger ms-2">OFF</span>
+        {% endif %}
+    </a>
+</li>
+{% if app.user and app.user.backupCodes %}
+    <a href="{{ path('app_mfa_backup_codes_download') }}" class="btn btn-sm btn-outline-secondary">
+        ⬇️ Télécharger les codes de secours
+    </a>
+{% endif %}
 						<li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Aider</a></li>
 						{% if app.user %}
 							<li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Se déconnecter</a></li>
@@ -1348,6 +1370,22 @@ Footer END -->
 
 
 </body>
+{# MFA toggle hidden form + confirmation JS #}
+<form id="mfa-toggle-form" method="POST" action="{{ path('app_mfa_toggle') }}" style="display:none;">
+    <input type="hidden" name="_token" value="{{ csrf_token('mfa_toggle') }}">
+</form>
+
+<script>
+function confirmMfaToggle(e, isEnabled) {
+    e.preventDefault();
+    const msg = isEnabled
+        ? 'Désactiver la double authentification ? ⚠️ Votre compte sera moins sécurisé.'
+        : 'Activer la double authentification ?';
+    if (confirm(msg)) {
+        document.getElementById('mfa-toggle-form').submit();
+    }
+}
+</script>
 
 <!-- Mirrored from eduport.webestica.com/index-11.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 07 Nov 2023 13:13:18 GMT -->
 </html>

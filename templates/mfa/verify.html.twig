@@ -29,7 +29,7 @@
         <input id="mfa-code"
                type="text"
                inputmode="numeric"
-               maxlength="14"
+               maxlength="17    "
                placeholder="000000"
                autocomplete="one-time-code"
                autofocus
@@ -64,7 +64,8 @@
     input.addEventListener('focus', () => input.style.borderColor = '#4f46e5');
     input.addEventListener('blur',  () => input.style.borderColor = '#d1d5db');
     input.addEventListener('input', () => {
-        input.value = input.value.replace(/[^0-9\-]/g, '');
+        // ✅ Fix — allow letters too for backup codes
+input.value = input.value.replace(/[^0-9A-Za-z\-]/g, '').toUpperCase();
     });
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') submitCode();
