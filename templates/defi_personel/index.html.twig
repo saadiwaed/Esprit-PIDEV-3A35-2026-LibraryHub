@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}DefiPersonel index{% endblock %}
+
+{% block body %}
+    <h1>DefiPersonel index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>User_id</th>
+                <th>Created_at</th>
+                <th>Progression</th>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Type_defi</th>
+                <th>Date_debut</th>
+                <th>Date_fin</th>
+                <th>Objectif</th>
+                <th>Unite</th>
+                <th>Difficulte</th>
+                <th>Recompense</th>
+                <th>Statut</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for defi_personel in defi_personels %}
+            <tr>
+                <td>{{ defi_personel.id }}</td>
+                <td>{{ defi_personel.userId }}</td>
+                <td>{{ defi_personel.createdAt ? defi_personel.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ defi_personel.progression }}</td>
+                <td>{{ defi_personel.titre }}</td>
+                <td>{{ defi_personel.description }}</td>
+                <td>{{ defi_personel.typeDefi }}</td>
+                <td>{{ defi_personel.dateDebut ? defi_personel.dateDebut|date('Y-m-d') : '' }}</td>
+                <td>{{ defi_personel.dateFin ? defi_personel.dateFin|date('Y-m-d') : '' }}</td>
+                <td>{{ defi_personel.objectif }}</td>
+                <td>{{ defi_personel.unite }}</td>
+                <td>{{ defi_personel.difficulte }}</td>
+                <td>{{ defi_personel.recompense }}</td>
+                <td>{{ defi_personel.statut }}</td>
+                <td>
+                    <a href="{{ path('app_defi_personel_show', {'id': defi_personel.id}) }}">show</a>
+                    <a href="{{ path('app_defi_personel_edit', {'id': defi_personel.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="15">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_defi_personel_new') }}">Create new</a>
+{% endblock %}

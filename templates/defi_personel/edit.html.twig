@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit DefiPersonel{% endblock %}
+
+{% block body %}
+    <h1>Edit DefiPersonel</h1>
+
+    {{ include('defi_personel/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_defi_personel_index') }}">back to list</a>
+
+    {{ include('defi_personel/_delete_form.html.twig') }}
+{% endblock %}

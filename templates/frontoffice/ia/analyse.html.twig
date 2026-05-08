@@ -1,0 +1,74 @@
+{% extends 'frontoffice/base_journal.html.twig' %}
+
+{% block title %}📊 Analyse IA - Mes habitudes{% endblock %}
+
+{% block body %}
+<!-- BANNER -->
+<section class="position-relative py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white bg-opacity-20 rounded-3 p-3 me-4">
+                        <i class="fas fa-robot fa-3x text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="display-5 fw-bold text-white mb-2">📊 Analyse IA</h1>
+                        <p class="text-white mb-0 opacity-90">Découvre ce que l'IA pense de tes habitudes de lecture</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTENU -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border-radius: 30px;">
+                    <div class="card-body p-5">
+                        
+                        {% if analyse.succes %}
+                            <div class="bg-light p-4 rounded-4 mb-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 rounded-2 p-2 me-3">
+                                        <i class="fas fa-lightbulb fa-2x text-primary"></i>
+                                    </div>
+                                    <h3 class="h4 mb-0 fw-bold">🧠 Analyse personnalisée</h3>
+                                </div>
+                               <!-- Dans analyse.html.twig, tu peux styliser chaque conseil -->
+<div class="bg-gradient-primary p-4 rounded-4 mb-3">
+    {{ analyse.contenu|nl2br }}
+</div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <a href="{{ path('app_front_journal_index') }}" class="btn btn-primary px-5 py-3">
+                                    <i class="fas fa-book-open me-2"></i>Voir mes lectures
+                                </a>
+                                <a href="{{ path('app_front_defi_index') }}" class="btn btn-outline-primary px-5 py-3 ms-2">
+                                    <i class="fas fa-trophy me-2"></i>Mes défis
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="bg-light rounded-circle d-inline-flex p-5 mb-4">
+                                    <i class="fas fa-robot fa-4x text-muted"></i>
+                                </div>
+                                <h3 class="fw-bold mb-3">🤖 Analyse temporairement indisponible</h3>
+                                <p class="text-muted mb-4">{{ analyse.message }}</p>
+                                <a href="{{ path('app_front_journal_index') }}" class="btn btn-primary btn-lg px-5">
+                                    <i class="fas fa-undo me-2"></i>Retour au journal
+                                </a>
+                            </div>
+                        {% endif %}
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

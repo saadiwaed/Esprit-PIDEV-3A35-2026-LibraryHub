@@ -149,3 +149,8 @@
         {% endfor %}
     </div>
     {% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('assets/js/live-update.js') }}"></script>
+{% endblock %}

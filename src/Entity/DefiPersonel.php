@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert; // âœ… AJOUTER CETTE LIGNE
+use Symfony\Component\Validator\Constraints as Assert; // ✅ AJOUTER CETTE LIGNE
 
 #[ORM\Entity(repositoryClass: DefiPersonelRepository::class)]
 class DefiPersonel
@@ -17,98 +17,98 @@ class DefiPersonel
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column]
     private ?int $user_id = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(nullable: true)]
     private ?float $progression = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: "âŒ Le titre du dÃ©fi est obligatoire")]
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "❌ Le titre du défi est obligatoire")]
     #[Assert\Length(
         min: 3,
         max: 255,
-        minMessage: "âŒ Le titre doit contenir au moins {{ limit }} caractÃ¨res",
-        maxMessage: "âŒ Le titre ne peut pas dÃ©passer {{ limit }} caractÃ¨res"
+        minMessage: "❌ Le titre doit contenir au moins {{ limit }} caractères",
+        maxMessage: "❌ Le titre ne peut pas dépasser {{ limit }} caractères"
     )]
     private ?string $titre = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: "âŒ La description est obligatoire")]
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "❌ La description est obligatoire")]
     #[Assert\Length(
         min: 10,
         max: 255,
-        minMessage: "âŒ La description doit contenir au moins {{ limit }} caractÃ¨res",
-        maxMessage: "âŒ La description ne peut pas dÃ©passer {{ limit }} caractÃ¨res"
+        minMessage: "❌ La description doit contenir au moins {{ limit }} caractères",
+        maxMessage: "❌ La description ne peut pas dépasser {{ limit }} caractères"
     )]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: "âŒ Le type de dÃ©fi est obligatoire")]
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "❌ Le type de défi est obligatoire")]
     #[Assert\Choice(
-        choices: ["Quantitatif", "ThÃ©matique", "DÃ©couverte"],
-        message: "âŒ Veuillez choisir un type valide"
+        choices: ["Quantitatif", "Thématique", "Découverte"],
+        message: "❌ Veuillez choisir un type valide"
     )]
     private ?string $type_defi = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    #[Assert\NotBlank(message: "âŒ La date de dÃ©but est obligatoire")]
-    #[Assert\Type(type: "\DateTime", message: "âŒ Format de date invalide")]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotBlank(message: "❌ La date de début est obligatoire")]
+    #[Assert\Type(type: "\DateTime", message: "❌ Format de date invalide")]
     #[Assert\GreaterThanOrEqual(
         value: "today",
-        message: "âŒ La date de dÃ©but ne peut pas Ãªtre dans le passÃ©"
+        message: "❌ La date de début ne peut pas être dans le passé"
     )]
     private ?\DateTime $date_debut = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    #[Assert\NotBlank(message: "âŒ La date de fin est obligatoire")]
-    #[Assert\Type(type: "\DateTime", message: "âŒ Format de date invalide")]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotBlank(message: "❌ La date de fin est obligatoire")]
+    #[Assert\Type(type: "\DateTime", message: "❌ Format de date invalide")]
     #[Assert\GreaterThan(
         propertyPath: "date_debut",
-        message: "âŒ La date de fin doit Ãªtre postÃ©rieure Ã  la date de dÃ©but"
+        message: "❌ La date de fin doit être postérieure à la date de début"
     )]
     private ?\DateTime $date_fin = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\NotBlank(message: "âŒ L'objectif est obligatoire")]
-    #[Assert\Positive(message: "âŒ L'objectif doit Ãªtre un nombre positif")]
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "❌ L'objectif est obligatoire")]
+    #[Assert\Positive(message: "❌ L'objectif doit être un nombre positif")]
     #[Assert\LessThan(
         value: 1000,
-        message: "âŒ L'objectif ne peut pas dÃ©passer {{ value }}"
+        message: "❌ L'objectif ne peut pas dépasser {{ value }}"
     )]
     private ?int $objectif = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: "âŒ L'unitÃ© est obligatoire parmi Livres Pages Heures ")]
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "❌ L'unité est obligatoire parmi Livres Pages Heures ")]
     #[Assert\Choice(
         choices: ["Livres", "Pages", "Heures"],
-        message: "âŒ Veuillez choisir une unitÃ© valide"
+        message: "❌ Veuillez choisir une unité valide"
     )]
     private ?string $unite = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\NotBlank(message: "âŒ La difficultÃ© est obligatoire")]
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "❌ La difficulté est obligatoire")]
     #[Assert\Range(
         min: 1,
         max: 5,
-        notInRangeMessage: "âŒ La difficultÃ© doit Ãªtre entre {{ min }} et {{ max }}"
+        notInRangeMessage: "❌ La difficulté doit être entre {{ min }} et {{ max }}"
     )]
     private ?int $difficulte = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(
         max: 255,
-        maxMessage: "âŒ La rÃ©compense ne peut pas dÃ©passer {{ limit }} caractÃ¨res"
+        maxMessage: "❌ La récompense ne peut pas dépasser {{ limit }} caractères"
     )]
     private ?string $recompense = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
     #[Assert\Choice(
-        choices: ["En cours", "TerminÃ©", "AbandonnÃ©"],
-        message: "âŒ Statut invalide"
+        choices: ["En cours", "Terminé", "Abandonné"],
+        message: "❌ Statut invalide"
     )]
     private ?string $statut = null;
 
@@ -123,7 +123,7 @@ class DefiPersonel
         $this->journaux = new ArrayCollection();
     }
 
-    // ... Getters et setters existants (inchangÃ©s) ...
+    // ... Getters et setters existants (inchangés) ...
     
     public function getId(): ?int
     {

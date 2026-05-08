@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<!-- Mirrored from eduport.webestica.com/index-11.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 07 Nov 2023 13:13:10 GMT -->
 <head>
-	<title>LibraryHub</title>
+	<title>{% block title %}LibraryHub{% endblock %}</title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
@@ -37,363 +35,264 @@
 		    var el = document.querySelector('.theme-icon-active');
 			if(el != 'undefined' && el != null) {
 				const showActiveTheme = theme => {
-				const activeThemeIcon = document.querySelector('.theme-icon-active use')
-				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+					const activeThemeIcon = document.querySelector('.theme-icon-active use')
+					const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+					const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
 
-				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-					element.classList.remove('active')
-				})
-
-				btnToActive.classList.add('active')
-				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
-			}
-
-			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-				if (storedTheme !== 'light' || storedTheme !== 'dark') {
-					setTheme(getPreferredTheme())
-				}
-			})
-
-			showActiveTheme(getPreferredTheme())
-
-			document.querySelectorAll('[data-bs-theme-value]')
-				.forEach(toggle => {
-					toggle.addEventListener('click', () => {
-						const theme = toggle.getAttribute('data-bs-theme-value')
-						localStorage.setItem('theme', theme)
-						setTheme(theme)
-						showActiveTheme(theme)
+					document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+						element.classList.remove('active')
 					})
+
+					btnToActive.classList.add('active')
+					activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+				}
+
+				window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+					if (storedTheme !== 'light' || storedTheme !== 'dark') {
+						setTheme(getPreferredTheme())
+					}
 				})
 
+				showActiveTheme(getPreferredTheme())
+
+				document.querySelectorAll('[data-bs-theme-value]')
+					.forEach(toggle => {
+						toggle.addEventListener('click', () => {
+							const theme = toggle.getAttribute('data-bs-theme-value')
+							localStorage.setItem('theme', theme)
+							setTheme(theme)
+							showActiveTheme(theme)
+						})
+					})
 			}
 		})
-
-            {% block stylesheets %}
-
-		
 	</script>
 
 	<!-- Favicon -->
+	<link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
 
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap">
 
-<!-- Google Font -->
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap">
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/tiny-slider/tiny-slider.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
 
-<!-- Plugins CSS -->
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/tiny-slider/tiny-slider.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
-
-<!-- Theme CSS -->
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-    {% endblock %}
-
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+    
+    {% block stylesheets %}{% endblock %}
 </head>
 
 <body>
-
-<!-- Header START -->
-<header class="navbar-light navbar-sticky">
-	<!-- Logo Nav START -->
-	<nav class="navbar navbar-expand-xl">
-		<div class="container">
-			<!-- Logo START -->
-			<a class="navbar-brand" href="{{ path('app_frontoffice') }}">
-				<h3 class="mb-0 text-primary">
-					<i class="fas fa-book-open me-2"></i>
-					<span class="text-dark">LIBRARY</span><span class="text-warning">HUB</span>
-				</h3>
-			</a>
-			<!-- Logo END -->
-	
-			<!-- Responsive navbar toggler -->
-			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-				aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-animation">
-					<span></span>
-					<span></span>
-					<span></span>
-				</span>
-			</button>
-	
-			<!-- Main navbar START -->
-			<div class="navbar-collapse collapse" id="navbarCollapse">
-		<!-- Nav Main menu START -->
-<ul class="navbar-nav navbar-nav-scroll ms-auto align-items-center">
-
-	<!-- Parcourir Dropdown (catalog branch) -->
-	<li class="nav-item dropdown">
-		<a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			Parcourir
-		</a>
-		<ul class="dropdown-menu" aria-labelledby="demoMenu">
-			<li><a class="dropdown-item" href="index.html">Home Default</a></li>
-			<li><a class="dropdown-item" href="index-2.html">Forum et discussions</a></li>
-			<li><a class="dropdown-item" href="index-3.html">Catalogue et inventaire</a></li>
-			<li><a class="dropdown-item" href="index-4.html">Emprunts et Retours</a></li>
-			<li><a class="dropdown-item" href="index-5.html">Journal et Defi</a></li>
-			<li><a class="dropdown-item" href="index-6.html">Événements et activités</a></li>
-			<li><a class="dropdown-item" href="index-7.html">Forum et discussions</a></li>
-		</ul>
-	</li>
-
-					<li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-people-fill me-1"></i>Mes Clubs & Événements
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item" href="{{ path('app_club_discover') }}">
-                                    <i class="bi bi-people-fill me-2"></i>Clubs de Lecture
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ path('app_event_discover') }}">
-                                    <i class="bi bi-calendar-event me-2"></i>Mes Événements
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="{{ path('app_recommendations') }}">
-                                    <i class="bi bi-star-fill me-2 text-warning"></i>Recommandations
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-	
-	<!-- Bibliothèque Dropdown -->
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-book me-1"></i>Bibliothèque
-    </a>
-    <ul class="dropdown-menu">
-        <li>
-            <a class="dropdown-item" href="{{ path('biblio_catalog_index_client') }}">
-                <i class="bi bi-book me-2"></i>Livres
-            </a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{{ path('biblio_catalog_index_client') }}">
-                <i class="bi bi-person me-2"></i>Auteurs
-            </a>
-        </li>
-        <li><hr class="dropdown-divider"></li>
-        <li>
-            <a class="dropdown-item" href="{{ path('app_stats') }}">
-                <i class="bi bi-bar-chart me-2"></i>Statistiques
-            </a>
-        </li>
-    </ul>
-</li>
-
-	
-
-	<!-- Forum Dropdown -->
-	<li class="nav-item dropdown">
-		<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-			<i class="bi bi-chat-dots me-1"></i>Forum
-		</a>
-		<ul class="dropdown-menu">
-			<li>
-				<a class="dropdown-item" href="{{ path('app_front_community_index') }}">
-					<i class="bi bi-people me-2"></i>Toutes les communautés
+	<!-- Header START -->
+	<header class="navbar-light navbar-sticky">
+		<!-- Logo Nav START -->
+		<nav class="navbar navbar-expand-xl">
+			<div class="container">
+				<!-- Logo START -->
+				<a class="navbar-brand" href="{{ path('app_frontoffice') }}">
+					<h3 class="mb-0 text-primary">
+						<i class="fas fa-book-open me-2"></i>
+						<span class="text-dark">LIBRARY</span><span class="text-warning">HUB</span>
+					</h3>
 				</a>
-			</li>
-			<li>
-				<a class="dropdown-item" href="{{ path('app_front_community_new') }}">
-					<i class="bi bi-plus-circle me-2"></i>Créer une communauté
-				</a>
-			</li>
-			<li><hr class="dropdown-divider"></li>
-			<li>
-				<a class="dropdown-item" href="#">
-					<i class="bi bi-bookmark me-2"></i>Mes communautés
-				</a>
-			</li>
-			<li>
-				<a class="dropdown-item" href="#">
-					<i class="bi bi-file-text me-2"></i>Mes posts
-				</a>
-			</li>
-		</ul>
-	</li>
+				<!-- Logo END -->
+		
+				<!-- Responsive navbar toggler -->
+				<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+					aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-animation">
+						<span></span>
+						<span></span>
+						<span></span>
+					</span>
+				</button>
+		
+				<!-- Main navbar START -->
+				<div class="navbar-collapse collapse" id="navbarCollapse">
+					<!-- Nav Main menu START -->
+					<ul class="navbar-nav navbar-nav-scroll ms-auto align-items-center">
 
-	<!-- Abonnement -->
-	<li class="nav-item">
-		<a class="nav-link" href="{{ path('app_membership_index') }}">
-			<i class="bi bi-credit-card me-1"></i>Abonnement
-		</a>
-	</li>
+						<!-- Clubs & Événements Dropdown -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+								<i class="bi bi-people-fill me-1"></i>Mes Clubs & Événements
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="{{ path('app_club_discover') }}">
+										<i class="bi bi-people-fill me-2"></i>Clubs de Lecture
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_event_discover') }}">
+										<i class="bi bi-calendar-event me-2"></i>Mes Événements
+									</a>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_recommendations') }}">
+										<i class="bi bi-star-fill me-2 text-warning"></i>Recommandations
+									</a>
+								</li>
+							</ul>
+						</li>
 
-	<!-- Composants (catalog branch) -->
-	<li class="nav-item">
-		<a class="nav-link" href="docs/alerts.html">Composants</a>
-	</li>
+						<!-- Journal et Défi Dropdown -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="bi bi-journal-bookmark-fill me-1"></i>Journal et Defi
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="{{ path('app_front_journal_index') }}">
+										<i class="bi bi-journal me-2"></i>Journal
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_front_defi_index') }}">
+										<i class="bi bi-trophy me-2"></i>Défi
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_ia_analyse') }}">
+										<i class="fas fa-robot me-2"></i>Analyse IA
+									</a>
+								</li>
+							</ul>
+						</li>
 
-	<!-- Auth Buttons -->
-	{% if not app.user %}
-		<li class="nav-item ms-3">
-			<a class="btn btn-sm btn-outline-primary" href="{{ path('app_login') }}">
-				<i class="bi bi-box-arrow-in-right me-1"></i>Connexion
-			</a>
-		</li>
-		<li class="nav-item ms-2">
-			<a class="btn btn-sm btn-primary" href="{{ path('app_register') }}">
-				<i class="bi bi-person-plus me-1"></i>S'inscrire
-			</a>
-		</li>
-	{% endif %}
+						<!-- Bibliothèque Dropdown -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="bi bi-book me-1"></i>Bibliothèque
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="{{ path('biblio_catalog_index_client') }}">
+										<i class="bi bi-book me-2"></i>Livres
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('biblio_catalog_index_client') }}">
+										<i class="bi bi-person me-2"></i>Auteurs
+									</a>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_stats') }}">
+										<i class="bi bi-bar-chart me-2"></i>Statistiques
+									</a>
+								</li>
+							</ul>
+						</li>
 
-</ul>
-<!-- Nav Main menu END -->
-</div>
-<!-- Main navbar END -->
+						<!-- Forum Dropdown -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+								<i class="bi bi-chat-dots me-1"></i>Forum
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="{{ path('app_front_community_index') }}">
+										<i class="bi bi-people me-2"></i>Toutes les communautés
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('app_front_community_new') }}">
+										<i class="bi bi-plus-circle me-2"></i>Créer une communauté
+									</a>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								<li>
+									<a class="dropdown-item" href="#">
+										<i class="bi bi-bookmark me-2"></i>Mes communautés
+									</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="#">
+										<i class="bi bi-file-text me-2"></i>Mes posts
+									</a>
+								</li>
+							</ul>
+						</li>
 
-			<!-- Profile and notification START (only for logged-in users) -->
-			{% if app.user %}
-			<ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-				<!-- Notification dropdown START -->
-				<li class="nav-item ms-0 ms-md-3 dropdown">
-					<!-- Notification button -->
-					<a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-						<i class="bi bi-bell fa-fw"></i>
-					</a>
-					<!-- Notification dote -->
-					<span class="notif-badge animation-blink"></span>
+						<!-- Abonnement -->
+						<li class="nav-item">
+							<a class="nav-link" href="{{ path('app_membership_index') }}">
+								<i class="bi bi-credit-card me-1"></i>Abonnement
+							</a>
+						</li>
 
-					<!-- Notification dropdown menu START -->
-					<div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
-						<div class="card bg-transparent">
-							<div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
-								<h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
-								<a class="small" href="#">Supprimer Tous</a>
-							</div>
-							<div class="card-body p-0">
-								<ul class="list-group list-unstyled list-group-flush">
-									<!-- Notif item -->
-									<li>
-										<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-											<div class="me-3">
-												<div class="avatar avatar-md">
-													<img class="avatar-img rounded-circle" src="assets/images/avatar/08.jpg" alt="avatar">
-												</div>
-											</div>
-											<div>
-												<p class="text-body small m-0">Congratulate <b>Joan Wallace</b> for graduating from <b>Microverse university</b></p>
-												<u class="small">Feliciter</u>
-											</div>
-										</a>
-									</li>
-	
-									<!-- Notif item -->
-									<li>
-										<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-											<div class="me-3">
-												<div class="avatar avatar-md">
-													<img class="avatar-img rounded-circle" src="assets/images/avatar/02.jpg" alt="avatar">
-												</div>
-											</div>
-											<div>
-												<h6 class="mb-1">Larry Lawson Added a new course</h6>
-												<p class="small text-body m-0">What's new! Find out about new features</p>
-												<u class="small">Voir Detaille</u>
-											</div>
-										</a>
-									</li>
-	
-									<!-- Notif item -->
-									<li>
-										<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-											<div class="me-3">
-												<div class="avatar avatar-md">
-													<img class="avatar-img rounded-circle" src="assets/images/avatar/05.jpg" alt="avatar">
-												</div>
-											</div>
-											<div>
-												<h6 class="mb-1">New request to apply for Instructor</h6>
-												<u class="small">Voir Detaille</u>
-											</div>
-										</a>
-									</li>
-	
-									<!-- Notif item -->
-									<li>
-										<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-											<div class="me-3">
-												<div class="avatar avatar-md">
-													<img class="avatar-img rounded-circle" src="assets/images/avatar/03.jpg" alt="avatar">
-												</div>
-											</div>
-											<div>
-												<h6 class="mb-1">Update v2.3 completed successfully</h6>
-												<p class="small text-body m-0">What's new! Find out about new features</p>
-												<small class="text-body">il y a 5 minutes</small>
-											</div>
-										</a>
-									</li>
-								</ul>
-							</div>
-							<!-- Button -->
-							<div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
-								<a href="#" class="stretched-link">Voir toute lâ€™activite entrante</a>
-							</div>
-						</div>
-					</div>
-					<!-- Notification dropdown menu END -->
-				</li>
-				<!-- Notification dropdown END -->
+						
 
-				<!-- Profile dropdown START -->
-				<li class="nav-item ms-3 dropdown">
-					<!-- Avatar -->
-					<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
-						{% if app.user %}
-							{% if app.user.avatar %}
-								<img class="avatar-img rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
-							{% else %}
-								<div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-									{{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
-								</div>
-							{% endif %}
-						{% else %}
-							<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/zaiminhobaltinhocotinho.jfif') }}" alt="avatar">
+						<!-- Auth Buttons -->
+						{% if not app.user %}
+							<li class="nav-item ms-3">
+								<a class="btn btn-sm btn-outline-primary" href="{{ path('app_login') }}">
+									<i class="bi bi-box-arrow-in-right me-1"></i>Connexion
+								</a>
+							</li>
+							<li class="nav-item ms-2">
+								<a class="btn btn-sm btn-primary" href="{{ path('app_register') }}">
+									<i class="bi bi-person-plus me-1"></i>S'inscrire
+								</a>
+							</li>
 						{% endif %}
-					</a>
+					</ul>
+					<!-- Nav Main menu END -->
+				</div>
+				<!-- Main navbar END -->
 
-					<!-- Profile dropdown START -->
-					<ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
-						<!-- Profile info -->
-						<li class="px-3 mb-3">
-							<div class="d-flex align-items-center">
-								<!-- Avatar -->
-								<div class="avatar me-3">
-									{% if app.user %}
-										{% if app.user.avatar %}
-											<img class="avatar-img rounded-circle shadow" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
-										{% else %}
-											<div class="avatar-img rounded-circle shadow bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-												{{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
-											</div>
-										{% endif %}
-									{% else %}
-										<img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/zaiminhobaltinhocotinho.jfif') }}" alt="avatar">
-									{% endif %}
-								</div>
-								<div>
-									{% if app.user %}
-										<a class="h6" href="#">{{ app.user.fullName }}</a>
-										<p class="small m-0">{{ app.user.email }}</p>
-									{% else %}
-										<a class="h6" href="#">Invité</a>
-										<p class="small m-0">Non connecté</p>
-									{% endif %}
+				<!-- Profile and notification START (only for logged-in users) -->
+				{% if app.user %}
+					<ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
+						<!-- Notification dropdown START -->
+						<li class="nav-item ms-0 ms-md-3 dropdown">
+							<!-- Notification button -->
+							<a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+								<i class="bi bi-bell fa-fw"></i>
+							</a>
+							<!-- Notification dote -->
+							<span class="notif-badge animation-blink"></span>
+
+							<!-- Notification dropdown menu START -->
+							<div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
+								<div class="card bg-transparent">
+									<div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
+										<h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
+										<a class="small" href="#">Supprimer Tous</a>
+									</div>
+									<div class="card-body p-0">
+										<ul class="list-group list-unstyled list-group-flush">
+											<!-- Notif items -->
+											<li>
+												<a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
+													<div class="me-3">
+														<div class="avatar avatar-md">
+															<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/08.jpg') }}" alt="avatar">
+														</div>
+													</div>
+													<div>
+														<p class="text-body small m-0">Congratulate <b>Joan Wallace</b> for graduating from <b>Microverse university</b></p>
+														<u class="small">Feliciter</u>
+													</div>
+												</a>
+											</li>
+											<!-- Autres notifications... -->
+										</ul>
+									</div>
+									<div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
+										<a href="#" class="stretched-link">Voir toute l'activité entrante</a>
+									</div>
 								</div>
 							</div>
+							<!-- Notification dropdown menu END -->
 						</li>
 						<!-- Links -->
 						<li> <hr class="dropdown-divider"></li>
@@ -454,17 +353,12 @@
 						</li> 
 						<!-- Dark mode options END-->
 					</ul>
-					<!-- Profile dropdown END -->
-				</li>
-				<!-- Profile dropdown END -->
-			</ul>
-			<!-- Profile and notification END -->
-			{% endif %}
-		
-		</div>
-	</nav>
-	<!-- Logo Nav END -->
-</header>
+				{% endif %}
+				<!-- Profile and notification END -->
+			</div>
+		</nav>
+		<!-- Logo Nav END -->
+	</header>
 <!-- Header END -->
 
 <!-- **************** MAIN CONTENT START **************** -->
@@ -1389,3 +1283,4 @@ function confirmMfaToggle(e, isEnabled) {
 
 <!-- Mirrored from eduport.webestica.com/index-11.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 07 Nov 2023 13:13:18 GMT -->
 </html>
+

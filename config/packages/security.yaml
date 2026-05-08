@@ -58,6 +58,7 @@ security:
         
         - { path: ^/admin/face-login, roles: PUBLIC_ACCESS }
         - { path: ^/assistant, roles: PUBLIC_ACCESS }
+        - { path: ^/live, roles: PUBLIC_ACCESS }
 
         # Forum member actions
         - { path: ^/forum/communities/new, roles: ROLE_MEMBER }

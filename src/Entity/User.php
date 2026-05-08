@@ -109,7 +109,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', targetEntity: ReadingProfile::class, cascade: ['persist', 'remove'])]
     private ?ReadingProfile $readingProfile = null;
 
-    /** @var Collection<int, Club> */
+     #[ORM\OneToMany(targetEntity: JournalLecture::class, mappedBy: 'user')]
+    private Collection $journalLectures;
     #[ORM\ManyToMany(targetEntity: Club::class, mappedBy: 'members')]
     private Collection $clubs;
 
@@ -140,6 +141,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->roles = new ArrayCollection();
+        $this->createdAt = new \DateTime();
+        $this->status = 'PENDING';
+        $this->journalLectures = new ArrayCollection(); // ✅ AJOUTER CETTE LIGNE
+
+    
+
+        
         $this->clubs = new ArrayCollection();
         $this->communities = new ArrayCollection();
         $this->createdCommunities = new ArrayCollection();
@@ -418,7 +426,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->getFullName();
     }
 
-    /** @return Collection<int, Club> */
+     // ✅ AJOUTER LES GETTERS ET SETTERS
+    public function getJournalLectures(): Collection
+    {
+        return $this->journalLectures;
+    }
+
+    public function addJournalLecture(JournalLecture $journalLecture): self
+    {
+        if (!$this->journalLectures->contains($journalLecture)) {
+            $this->journalLectures->add($journalLecture);
+            $journalLecture->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeJournalLecture(JournalLecture $journalLecture): self
+    {
+        if ($this->journalLectures->removeElement($journalLecture)) {
+            if ($journalLecture->getUser() === $this) {
+                $journalLecture->setUser(null);
+            }
+        }
+        return $this;
+    }
+
     public function getClubs(): Collection
     {
         return $this->clubs;

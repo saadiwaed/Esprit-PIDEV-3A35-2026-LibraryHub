@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}JournalLecture index{% endblock %}
+
+{% block body %}
+    <h1>JournalLecture index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>User_id</th>
+                <th>Created_at</th>
+                <th>Titre</th>
+                <th>Livre_id</th>
+                <th>Date_lecture</th>
+                <th>Duree_minutes</th>
+                <th>Lieu</th>
+                <th>Concentration</th>
+                <th>Page_lues</th>
+                <th>Resume</th>
+                <th>Reflexion</th>
+                <th>Note_perso</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for journal_lecture in journal_lectures %}
+            <tr>
+                <td>{{ journal_lecture.id }}</td>
+                <td>{{ journal_lecture.userId }}</td>
+                <td>{{ journal_lecture.createdAt ? journal_lecture.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ journal_lecture.titre }}</td>
+                <td>{{ journal_lecture.livreId }}</td>
+                <td>{{ journal_lecture.dateLecture ? journal_lecture.dateLecture|date('Y-m-d') : '' }}</td>
+                <td>{{ journal_lecture.dureeMinutes }}</td>
+                <td>{{ journal_lecture.lieu }}</td>
+                <td>{{ journal_lecture.concentration }}</td>
+                <td>{{ journal_lecture.pageLues }}</td>
+                <td>{{ journal_lecture.resume }}</td>
+                <td>{{ journal_lecture.reflexion }}</td>
+                <td>{{ journal_lecture.notePerso }}</td>
+                <td>
+                    <a href="{{ path('app_journal_lecture_show', {'id': journal_lecture.id}) }}">show</a>
+                    <a href="{{ path('app_journal_lecture_edit', {'id': journal_lecture.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="14">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_journal_lecture_new') }}">Create new</a>
+{% endblock %}

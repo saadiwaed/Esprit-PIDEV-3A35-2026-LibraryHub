@@ -118,19 +118,28 @@
 		<!-- Nav Main menu START -->
 <ul class="navbar-nav navbar-nav-scroll ms-auto align-items-center">
 
-	<!-- Parcourir Dropdown (catalog branch) -->
+	<!-- Journal et Défi Dropdown -->
 	<li class="nav-item dropdown">
-		<a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			Parcourir
+		<a class="nav-link dropdown-toggle" href="#" id="journalDefiMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			<i class="bi bi-journal-bookmark-fill me-1"></i>Journal et Défi
 		</a>
-		<ul class="dropdown-menu" aria-labelledby="demoMenu">
-			<li><a class="dropdown-item" href="index.html">Home Default</a></li>
-			<li><a class="dropdown-item" href="index-2.html">Forum et discussions</a></li>
-			<li><a class="dropdown-item" href="index-3.html">Catalogue et inventaire</a></li>
-			<li><a class="dropdown-item" href="index-4.html">Emprunts et Retours</a></li>
-			<li><a class="dropdown-item" href="index-5.html">Journal et Defi</a></li>
-			<li><a class="dropdown-item" href="index-6.html">Événements et activités</a></li>
-			<li><a class="dropdown-item" href="index-7.html">Forum et discussions</a></li>
+		<ul class="dropdown-menu" aria-labelledby="journalDefiMenu">
+			<li>
+				<a class="dropdown-item" href="{{ path('app_front_journal_index') }}">
+					<i class="bi bi-journal-text me-2"></i>Journal
+				</a>
+			</li>
+			<li>
+				<a class="dropdown-item" href="{{ path('app_front_defi_index') }}">
+					<i class="bi bi-trophy me-2"></i>Défi
+				</a>
+			</li>
+			<li><hr class="dropdown-divider"></li>
+			<li>
+				<a class="dropdown-item" href="{{ path('app_ia_analyse') }}">
+					<i class="bi bi-robot me-2"></i>Analyse IA
+				</a>
+			</li>
 		</ul>
 	</li>
 
@@ -219,11 +228,6 @@
 		<a class="nav-link" href="{{ path('app_membership_index') }}">
 			<i class="bi bi-credit-card me-1"></i>Abonnement
 		</a>
-	</li>
-
-	<!-- Composants (catalog branch) -->
-	<li class="nav-item">
-		<a class="nav-link" href="docs/alerts.html">Composants</a>
 	</li>
 
 	<!-- Auth Buttons -->

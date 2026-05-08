@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\JournalLectureRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert; // âœ… AJOUTER CETTE LIGNE
+use Symfony\Component\Validator\Constraints as Assert; // ✅ AJOUTER CETTE LIGNE
 
 #[ORM\Entity(repositoryClass: JournalLectureRepository::class)]
 class JournalLecture
@@ -16,93 +16,93 @@ class JournalLecture
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: "âŒ Le titre de la lecture est obligatoire")]
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "❌ Le titre de la lecture est obligatoire")]
     #[Assert\Length(
         min: 3,
         max: 255,
-        minMessage: "âŒ Le titre doit contenir au moins {{ limit }} caractÃ¨res",
-        maxMessage: "âŒ Le titre ne peut pas dÃ©passer {{ limit }} caractÃ¨res"
+        minMessage: "❌ Le titre doit contenir au moins {{ limit }} caractères",
+        maxMessage: "❌ Le titre ne peut pas dépasser {{ limit }} caractères"
     )]
     private ?string $titre = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\NotBlank(message: "âŒ L'ID du livre est obligatoire")]
-    #[Assert\Positive(message: "âŒ L'ID du livre doit Ãªtre un nombre positif")]
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "❌ L'ID du livre est obligatoire")]
+    #[Assert\Positive(message: "❌ L'ID du livre doit être un nombre positif")]
     private ?int $livre_id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    #[Assert\NotBlank(message: "âŒ La date de lecture est obligatoire")]
-    #[Assert\Type(type: "\DateTime", message: "âŒ Format de date invalide")]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotBlank(message: "❌ La date de lecture est obligatoire")]
+    #[Assert\Type(type: "\DateTime", message: "❌ Format de date invalide")]
     #[Assert\LessThanOrEqual(
         value: "today",
-        message: "âŒ La date de lecture ne peut pas Ãªtre dans le futur"
+        message: "❌ La date de lecture ne peut pas être dans le futur"
     )]
     private ?\DateTime $date_lecture = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\NotBlank(message: "âŒ La durÃ©e est obligatoire")]
-    #[Assert\Positive(message: "âŒ La durÃ©e doit Ãªtre un nombre positif")]
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "❌ La durée est obligatoire")]
+    #[Assert\Positive(message: "❌ La durée doit être un nombre positif")]
     #[Assert\LessThan(
         value: 1440,
-        message: "âŒ La durÃ©e ne peut pas dÃ©passer 24 heures (1440 minutes)"
+        message: "❌ La durée ne peut pas dépasser 24 heures (1440 minutes)"
     )]
     private ?int $duree_minutes = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(
         max: 255,
-        maxMessage: "âŒ Le lieu ne peut pas dÃ©passer {{ limit }} caractÃ¨res"
+        maxMessage: "❌ Le lieu ne peut pas dépasser {{ limit }} caractères"
     )]
     private ?string $lieu = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\NotBlank(message: "âŒ La concentration est obligatoire")]
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "❌ La concentration est obligatoire")]
     #[Assert\Range(
         min: 1,
         max: 10,
-        notInRangeMessage: "âŒ La concentration doit Ãªtre entre {{ min }} et {{ max }}"
+        notInRangeMessage: "❌ La concentration doit être entre {{ min }} et {{ max }}"
     )]
     private ?int $concentration = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\NotBlank(message: "âŒ Le nombre de pages est obligatoire")]
-    #[Assert\Positive(message: "âŒ Le nombre de pages doit Ãªtre positif")]
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "❌ Le nombre de pages est obligatoire")]
+    #[Assert\Positive(message: "❌ Le nombre de pages doit être positif")]
     #[Assert\LessThan(
         value: 2000,
-        message: "âŒ Le nombre de pages ne peut pas dÃ©passer {{ value }}"
+        message: "❌ Le nombre de pages ne peut pas dépasser {{ value }}"
     )]
     private ?int $page_lues = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: "âŒ Le rÃ©sumÃ© est obligatoire")]
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "❌ Le résumé est obligatoire")]
     #[Assert\Length(
         min: 10,
         max: 255,
-        minMessage: "âŒ Le rÃ©sumÃ© doit contenir au moins {{ limit }} caractÃ¨res",
-        maxMessage: "âŒ Le rÃ©sumÃ© ne peut pas dÃ©passer {{ limit }} caractÃ¨res"
+        minMessage: "❌ Le résumé doit contenir au moins {{ limit }} caractères",
+        maxMessage: "❌ Le résumé ne peut pas dépasser {{ limit }} caractères"
     )]
     private ?string $resume = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(
         max: 255,
-        maxMessage: "âŒ Les rÃ©flexions ne peuvent pas dÃ©passer {{ limit }} caractÃ¨res"
+        maxMessage: "❌ Les réflexions ne peuvent pas dépasser {{ limit }} caractères"
     )]
     private ?string $reflexion = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\NotBlank(message: "âŒ La note est obligatoire")]
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "❌ La note est obligatoire")]
     #[Assert\Range(
         min: 1,
         max: 5,
-        notInRangeMessage: "âŒ La note doit Ãªtre entre {{ min }} et {{ max }}"
+        notInRangeMessage: "❌ La note doit être entre {{ min }} et {{ max }}"
     )]
     private ?int $note_perso = null;
 
@@ -115,20 +115,20 @@ class JournalLecture
     }
 
    
-    // âœ… NOUVEAU GETTER : getUser() retourne l'objet User
+    // ✅ NOUVEAU GETTER : getUser() retourne l'objet User
     public function getUser(): ?User
     {
         return $this->user;
     }
 
-    // âœ… NOUVEAU SETTER : setUser() prend un objet User
+    // ✅ NOUVEAU SETTER : setUser() prend un objet User
     public function setUser(?User $user): static
     {
         $this->user = $user;
         return $this;
     }
 
-    // âœ… GARDER getUserId() pour la compatibilitÃ© (optionnel)
+    // ✅ GARDER getUserId() pour la compatibilité (optionnel)
     public function getUserId(): ?int
     {
         return $this->user?->getId();
