@@ -17,12 +17,10 @@ class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
     public function register(
-        Request $request, 
-        UserPasswordHasherInterface $passwordHasher, 
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager
-    ): Response
-    {
-        // If user is already logged in, redirect based on role
+    ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
         }
@@ -32,41 +30,37 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hash the password
+
             $plainPassword = $form->get('plainPassword')->getData();
             $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
-
-            // Set default status
             $user->setStatus('PENDING');
 
-            // ✅ 1. Récupérer ou créer le rôle MEMBRE
+            // Rôle MEMBER
             $roleRepository = $entityManager->getRepository(Role::class);
             $memberRole = $roleRepository->findOneBy(['name' => 'ROLE_MEMBER']);
-            
+
             if (!$memberRole) {
                 $memberRole = new Role();
                 $memberRole->setName('ROLE_MEMBER');
                 $memberRole->setDescription('Membre standard de LibraryHub');
                 $entityManager->persist($memberRole);
             }
-            
-            // ✅ 2. Assigner le rôle MEMBRE à l'utilisateur
+
             $user->addRole($memberRole);
-            
-            // ✅ 3. Créer un profil de lecture par défaut
+
+            // Reading Profile
             $readingProfile = new ReadingProfile();
             $readingProfile->setUser($user);
             $readingProfile->setTotalBooksRead(0);
 
-            // Ajoute d'autres valeurs par défaut selon ton entité ReadingProfile
-            
             $entityManager->persist($readingProfile);
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Inscription réussie ! Bienvenue sur LibraryHub.');
+            // NO auto-login — user must complete MFA setup first
+            $this->addFlash('success', 'Compte créé ! Configurez d\'abord votre double authentification.');
 
-            return $this->redirectToRoute('app_login');
+            return $this->redirectToRoute('app_mfa_setup', ['id' => $user->getId()]);
         }
 
         return $this->render('registration/register.html.twig', [

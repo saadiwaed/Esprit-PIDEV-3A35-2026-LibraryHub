@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Service\AIRecommendationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +16,9 @@ class RecommendationController extends AbstractController
     public function index(AIRecommendationService $aiService): Response
     {
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('Utilisateur non authentifie.');
+        }
         
         // Vérifier l'état du service IA
         $aiAvailable = $aiService->isAvailable();

@@ -26,11 +26,11 @@ class Loan
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Assert\NotNull(message: 'La date de sortie est obligatoire.')]
     private ?\DateTimeInterface $checkoutTime = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     #[Assert\NotNull(message: 'La date limite est obligatoire.')]
     private ?\DateTimeInterface $dueDate = null;
 
@@ -56,18 +56,20 @@ class Loan
     private ?string $notes = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Assert\NotNull(message: 'L\'exemplaire est obligatoire.')]
     private ?BookCopy $bookCopy = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Assert\NotNull(message: 'L\'adherent est obligatoire.')]
     private ?User $member = null;
 
+    /** @var Collection<int, Penalty> */
     #[ORM\OneToMany(targetEntity: Penalty::class, mappedBy: 'loan', cascade: ['remove'], fetch: 'EXTRA_LAZY')]
     private Collection $penalties;
 
+    /** @var Collection<int, Renewal> */
     #[ORM\OneToMany(targetEntity: Renewal::class, mappedBy: 'loan', cascade: ['remove'])]
     private Collection $renewals;
 

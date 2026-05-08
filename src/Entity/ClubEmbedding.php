@@ -15,14 +15,15 @@ class ClubEmbedding
     private ?int $id = null;
 
     #[ORM\OneToOne(targetEntity: Club::class)]
-    #[ORM\JoinColumn(name: 'club_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'club_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?Club $club = null;
 
+    /** @var list<float> */
     #[ORM\Column(type: 'json')]
     private array $embedding = [];
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $generatedAt = null;
+    private \DateTimeImmutable $generatedAt;
 
     public function __construct()
     {
@@ -45,18 +46,20 @@ class ClubEmbedding
         return $this;
     }
 
+    /** @return list<float> */
     public function getEmbedding(): array
     {
         return $this->embedding;
     }
 
+    /** @param list<float> $embedding */
     public function setEmbedding(array $embedding): self
     {
         $this->embedding = $embedding;
         return $this;
     }
 
-    public function getGeneratedAt(): ?\DateTimeImmutable
+    public function getGeneratedAt(): \DateTimeImmutable
     {
         return $this->generatedAt;
     }

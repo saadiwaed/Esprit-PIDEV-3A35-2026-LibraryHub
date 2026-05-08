@@ -46,7 +46,7 @@ class Penalty
     #[Assert\Length(max: 255, maxMessage: 'La raison ne doit pas depasser {{ limit }} caracteres.')]
     private string $reason = '';
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     #[Assert\NotNull(message: 'La date d\'emission est obligatoire.')]
     #[Assert\LessThanOrEqual(value: 'today', message: 'La date d\'emission ne peut pas etre dans le futur.')]
     private ?\DateTimeInterface $issueDate = null;
@@ -64,7 +64,7 @@ class Penalty
     private PaymentStatus $status = PaymentStatus::UNPAID;
 
     #[ORM\ManyToOne(inversedBy: 'penalties')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Assert\NotNull(message: 'L\'emprunt associe est obligatoire.')]
     private ?Loan $loan = null;
 

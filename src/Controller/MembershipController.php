@@ -49,7 +49,7 @@ final class MembershipController extends AbstractController
         }
 
         $user = $this->getUser();
-        if (!$user instanceof User || !method_exists($user, 'getEmail')) {
+        if (!$user instanceof User) {
             $this->addFlash('error', 'Vous devez être connecté pour vous abonner.');
             return $this->redirectToRoute('app_login');
         }
@@ -85,7 +85,7 @@ final class MembershipController extends AbstractController
             return $this->redirectToRoute('app_membership_index');
         }
 
-        return new RedirectResponse($session->url);
+        return new RedirectResponse((string) $session->url);
     }
 
     #[Route('/abonnement/success', name: 'app_membership_success', methods: ['GET'])]
@@ -102,9 +102,11 @@ final class MembershipController extends AbstractController
             Stripe::setApiKey($this->stripeConfig->getSecretKey());
             try {
                 $session = StripeSession::retrieve($sessionId);
-                if ($session->payment_status === 'paid' && $session->metadata?->user_id) {
-                    $user = $this->entityManager->getRepository(User::class)->find((int) $session->metadata->user_id);
-                    if ($user instanceof User && $user->getId() === $this->getUser()?->getId()) {
+                $metadataUserId = $session->metadata['user_id'] ?? null;
+                if ($session->payment_status === 'paid' && is_numeric($metadataUserId)) {
+                    $user = $this->entityManager->getRepository(User::class)->find((int) $metadataUserId);
+                    $currentUser = $this->getUser();
+                    if ($user instanceof User && $currentUser instanceof User && $user->getId() === $currentUser->getId()) {
                         $user->setIsPremium(true);
                         $this->entityManager->persist($user);
                         $this->entityManager->flush();

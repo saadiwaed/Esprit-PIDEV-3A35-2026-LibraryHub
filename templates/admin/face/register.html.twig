@@ -1,10 +1,11 @@
+{# templates/admin/face/register.html.twig #}
 {% extends 'frontoffice/base.html.twig' %}
 
 {% block title %}Enregistrer mon visage - Admin{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
+    {# No need for face-api.js anymore for registration #}
     <script src="{{ asset('js/admin-face-register.js') }}" defer></script>
 {% endblock %}
 
@@ -13,16 +14,15 @@
     <div class="container py-4">
         <div class="row justify-content-center">
             <div class="col-lg-7">
-                <h1 class="h3 mb-2">Sécurité biométrique administrateur</h1>
+                <h1 class="h3 mb-2">Enregistrer mon visage (Admin)</h1>
+                
                 {% if app.user and app.user.faceDescriptor %}
-                    <div class="alert alert-success mb-3" role="alert">
-                        Votre visage est déjà enregistré pour ce compte administrateur.
-                        Vous pouvez enregistrer à nouveau si besoin.
+                    <div class="alert alert-success mb-3">
+                        Votre visage est déjà enregistré. Vous pouvez le réenregistrer.
                     </div>
                 {% else %}
                     <p class="text-muted mb-3">
-                        Enregistrez votre visage pour activer la connexion par reconnaissance faciale.
-                        Aucune image n'est stockée, uniquement un descripteur numérique.
+                        Capturez votre visage. Aucune image n'est stockée, uniquement le descripteur.
                     </p>
                 {% endif %}
 
@@ -42,9 +42,8 @@
                         <video id="face-video" autoplay muted playsinline class="w-100 rounded-3 border"></video>
                         <canvas id="face-canvas" class="position-absolute top-0 start-0"></canvas>
                     </div>
-                    <p class="small text-muted mt-3 mb-0">
-                        Conseil : placez-vous face à la caméra, dans un environnement bien éclairé, puis regardez droit devant vous
-                        avant de cliquer sur <strong>Enregistrer mon visage</strong>.
+                    <p class="small text-muted mt-3 mb-0 text-center">
+                        Placez-vous face à la caméra dans un bon éclairage, puis cliquez sur <strong>Enregistrer mon visage</strong>.
                     </p>
                 </div>
             </div>
@@ -52,4 +51,3 @@
     </div>
 </section>
 {% endblock %}
-

@@ -1,0 +1,107 @@
+{# 
+  Add this block ANYWHERE in your existing login.html.twig, right before </body>.
+  
+  The MfaSetupListener now redirects to /mfa/verify after login when mfa_enabled=1,
+  so the user lands on verify.html.twig (above).
+
+  BUT if you prefer to keep the user on the LOGIN page and show the modal inline
+  (e.g. a two-step login form without any redirect), here is an alternative approach
+  using a second step on the same page:
+#}
+
+{# ── STEP 1: Normal login form (your existing code) ─────────────────────── #}
+{% if not app.request.query.get('mfa') %}
+
+    {# ... your existing login form here ... #}
+
+{# ── STEP 2: MFA popup shown when redirected with ?mfa=1 ─────────────────── #}
+{% else %}
+
+<div id="mfa-overlay"
+     style="position:fixed;inset:0;background:rgba(0,0,0,.55);
+            display:flex;align-items:center;justify-content:center;z-index:9999;">
+
+    <div style="background:#fff;border-radius:16px;padding:2.5rem 2rem;
+                width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25);
+                text-align:center;font-family:sans-serif;">
+
+        <div style="font-size:3rem;margin-bottom:.5rem;">🔐</div>
+
+        <h2 style="margin:0 0 .4rem;font-size:1.4rem;color:#1a1a2e;">
+            Vérification en deux étapes
+        </h2>
+        <p style="margin:0 0 1.5rem;color:#6b7280;font-size:.95rem;">
+            Saisissez le code à 6 chiffres de votre application d'authentification.
+        </p>
+
+        <div id="mfa-error"
+             style="display:none;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;
+                    border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.9rem;"></div>
+
+        <input id="mfa-code"
+               type="text" inputmode="numeric" pattern="\d{6}" maxlength="6"
+               placeholder="000 000" autocomplete="one-time-code" autofocus
+               style="width:100%;box-sizing:border-box;font-size:2rem;letter-spacing:.4rem;
+                      text-align:center;border:2px solid #d1d5db;border-radius:10px;
+                      padding:.75rem;outline:none;transition:border-color .2s;">
+
+        <p style="margin:.75rem 0 1.5rem;font-size:.8rem;color:#9ca3af;">
+            Code de secours accepté (format XXXX-XXXX-XXXX).
+        </p>
+
+        <button id="mfa-submit"
+                style="width:100%;padding:.85rem;border:none;border-radius:10px;
+                       background:#4f46e5;color:#fff;font-size:1rem;font-weight:600;
+                       cursor:pointer;">
+            Vérifier
+        </button>
+    </div>
+</div>
+
+<script>
+(function () {
+    const input  = document.getElementById('mfa-code');
+    const btn    = document.getElementById('mfa-submit');
+    const errBox = document.getElementById('mfa-error');
+
+    input.addEventListener('focus', () => input.style.borderColor = '#4f46e5');
+    input.addEventListener('blur',  () => input.style.borderColor = '#d1d5db');
+    input.addEventListener('input', () => { input.value = input.value.replace(/[^0-9\-]/g, ''); });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitCode(); });
+    btn.addEventListener('click', submitCode);
+
+    async function submitCode() {
+        const code = input.value.trim();
+        if (!code) return;
+
+        btn.disabled = true;
+        btn.textContent = 'Vérification…';
+        errBox.style.display = 'none';
+
+        try {
+            const res  = await fetch('/mfa/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ code }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                window.location.href = '/';
+            } else {
+                errBox.textContent   = data.message ?? 'Code invalide.';
+                errBox.style.display = 'block';
+                input.value = '';
+                input.focus();
+            }
+        } catch {
+            errBox.textContent   = 'Erreur réseau. Veuillez réessayer.';
+            errBox.style.display = 'block';
+        } finally {
+            btn.disabled    = false;
+            btn.textContent = 'Vérifier';
+        }
+    }
+})();
+</script>
+{% endif %}

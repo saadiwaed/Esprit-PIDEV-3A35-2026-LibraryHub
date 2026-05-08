@@ -1,0 +1,23 @@
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    tmpDir: var/cache/phpstan
+
+    symfony:
+        containerXmlPath: var/cache/test/App_KernelTestDebugContainer.xml
+
+    doctrine:
+        objectManagerLoader: tests/doctrine-orm-bootstrap.php
+
+    checkUninitializedProperties: true
+
+    excludePaths:
+        - src/Migrations/*
+        - src/Kernel.php
+        - var/cache/*
+        - tests/bootstrap.php
+

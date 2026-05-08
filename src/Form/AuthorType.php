@@ -11,6 +11,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 
+/**
+ * @extends AbstractType<Author>
+ */
 class AuthorType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -59,3 +62,5 @@ class AuthorType extends AbstractType
         ]);
     }
 }
+
+

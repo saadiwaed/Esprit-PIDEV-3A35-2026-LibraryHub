@@ -31,6 +31,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -192,7 +193,8 @@ final class PostController extends AbstractController
     ): Response {
         $attachment = $entityManager->getRepository(Attachment::class)->find($attachmentId);
 
-        if (!$attachment || $attachment->getPost()->getId() !== $postId) {
+        $post = $attachment?->getPost();
+        if (!$attachment || !$post instanceof Post || $post->getId() !== $postId) {
             throw $this->createNotFoundException('Piece jointe introuvable.');
         }
 
@@ -838,14 +840,19 @@ final class PostController extends AbstractController
         return $this->redirectToRoute('app_front_post_show', ['id' => $post->getId()], Response::HTTP_SEE_OTHER);
     }
 
-    private function createNamedCommentForm(string $name, Comment $comment, array $options = [])
+    /**
+     * @param array<string, mixed> $options
+     * @return FormInterface<Comment>
+     */
+    private function createNamedCommentForm(string $name, Comment $comment, array $options = []): FormInterface
     {
+        /** @var FormFactoryInterface $formFactory */
         $formFactory = $this->container->get('form.factory');
-        if (!$formFactory instanceof FormFactoryInterface) {
-            throw new \LogicException('Le service form.factory est indisponible.');
-        }
 
-        return $formFactory->createNamed($name, CommentType::class, $comment, $options);
+        /** @var FormInterface<Comment> $form */
+        $form = $formFactory->createNamed($name, CommentType::class, $comment, $options);
+
+        return $form;
     }
 
     private function getVisibleFrontCommunity(Post $post): ?Community

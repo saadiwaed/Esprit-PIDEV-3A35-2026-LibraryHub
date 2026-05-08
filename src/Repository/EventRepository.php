@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\EventStatus;
+use App\Enum\RegistrationStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -18,6 +19,9 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
+    /**
+     * @return list<Event>
+     */
     public function findByFilters(
         string $search = '',
         string $status = '',
@@ -26,9 +30,8 @@ class EventRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('e')
             ->leftJoin('e.organizingClubs', 'c');
-        
-        // Recherche
-        if (!empty($search)) {
+
+        if ($search !== '') {
             $qb->andWhere(
                 $qb->expr()->orX(
                     $qb->expr()->like('e.title', ':search'),
@@ -37,137 +40,166 @@ class EventRepository extends ServiceEntityRepository
                     $qb->expr()->like('c.title', ':search')
                 )
             )
-            ->setParameter('search', '%' . $search . '%');
+                ->setParameter('search', '%'.$search.'%');
         }
-        
-        // Filtre par statut
-        if (!empty($status)) {
+
+        if ($status !== '') {
             $qb->andWhere('e.status = :status')
-               ->setParameter('status', $status);
+                ->setParameter('status', $status);
         }
-        
-        // Tri
+
         $validSortFields = ['title', 'startDateTime', 'createdDate', 'capacity'];
-        $sort = in_array($sort, $validSortFields) ? $sort : 'startDateTime';
+        $sort = in_array($sort, $validSortFields, true) ? $sort : 'startDateTime';
         $order = strtolower($order) === 'desc' ? 'desc' : 'asc';
-        
-        $qb->orderBy('e.' . $sort, $order);
-        
-        return $qb->getQuery()->getResult();
+
+        $qb->orderBy('e.'.$sort, $order);
+
+        /** @var list<Event> $events */
+        $events = $qb->getQuery()->getResult();
+
+        return $events;
     }
-    
+
+    /**
+     * @return array<string, int>
+     */
     public function countByStatus(): array
     {
+        /** @var list<array{status: EventStatus|string, count: string}> $results */
         $results = $this->createQueryBuilder('e')
             ->select('e.status, COUNT(e.id) as count')
             ->groupBy('e.status')
             ->getQuery()
             ->getResult();
-        
+
         $stats = [];
         foreach ($results as $result) {
-            $stats[$result['status']->value] = $result['count'];
+            $status = $result['status'] instanceof EventStatus
+                ? $result['status']->value
+                : (string) $result['status'];
+
+            $stats[$status] = (int) $result['count'];
         }
-        
+
         return $stats;
-    }
-    
-    /**
-     * Trouve les événements créés par l'utilisateur connecté
-     */
-    public function findByUser(User $user, string $search = '', ?string $status = null, string $sort = 'startDateTime', string $order = 'asc'): array
-    {
-        $qb = $this->createQueryBuilder('e')
-            ->where('e.createdBy = :user')
-            ->setParameter('user', $user);
-        
-        if ($search) {
-            $qb->andWhere('e.title LIKE :search OR e.description LIKE :search')
-               ->setParameter('search', '%' . $search . '%');
-        }
-        
-        if ($status) {
-            $qb->andWhere('e.status = :status')
-               ->setParameter('status', $status);
-        }
-        
-        $qb->orderBy('e.' . $sort, $order);
-        
-        return $qb->getQuery()->getResult();
     }
 
     /**
-     * Compte les événements par statut pour l'utilisateur connecté
+     * @return list<Event>
+     */
+    public function findByUser(
+        User $user,
+        string $search = '',
+        ?string $status = null,
+        string $sort = 'startDateTime',
+        string $order = 'asc'
+    ): array {
+        $qb = $this->createQueryBuilder('e')
+            ->where('e.createdBy = :user')
+            ->setParameter('user', $user);
+
+        if ($search !== '') {
+            $qb->andWhere('e.title LIKE :search OR e.description LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if ($status !== null && $status !== '') {
+            $qb->andWhere('e.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        $validSortFields = ['title', 'startDateTime', 'createdDate', 'capacity'];
+        $safeSort = in_array($sort, $validSortFields, true) ? $sort : 'startDateTime';
+        $safeOrder = strtolower($order) === 'desc' ? 'desc' : 'asc';
+        $qb->orderBy('e.'.$safeSort, $safeOrder);
+
+        /** @var list<Event> $events */
+        $events = $qb->getQuery()->getResult();
+
+        return $events;
+    }
+
+    /**
+     * @return array<string, int>
      */
     public function countByStatusForUser(User $user): array
     {
-        $qb = $this->createQueryBuilder('e')
+        /** @var list<array{status: EventStatus|string, count: string}> $results */
+        $results = $this->createQueryBuilder('e')
             ->select('e.status, COUNT(e.id) as count')
             ->where('e.createdBy = :user')
             ->setParameter('user', $user)
-            ->groupBy('e.status');
-        
-        $results = $qb->getQuery()->getResult();
-        
+            ->groupBy('e.status')
+            ->getQuery()
+            ->getResult();
+
         $counts = [];
         foreach (EventStatus::cases() as $status) {
             $counts[$status->value] = 0;
         }
-        
+
         foreach ($results as $result) {
-            $status = $result['status'] instanceof EventStatus 
-                ? $result['status']->value 
-                : $result['status'];
-            $counts[$status] = (int)$result['count'];
+            $statusValue = $result['status'] instanceof EventStatus
+                ? $result['status']->value
+                : (string) $result['status'];
+            $counts[$statusValue] = (int) $result['count'];
         }
-        
+
         return $counts;
     }
-    // src/Repository/EventRepository.php
 
-/**
- * Trouve tous les événements disponibles pour inscription
- * (sauf ceux créés par l'utilisateur, avec places disponibles, date limite non dépassée)
- */
-public function findDiscoverEvents(User $user, string $search = '', ?string $status = null, string $sort = 'startDateTime', string $order = 'asc'): array
-{
-    $qb = $this->createQueryBuilder('e')
-        ->where('e.createdBy != :user')
-        ->andWhere('e.registrationDeadline > :now')
-        ->andWhere('e.startDateTime > :now')
-        ->setParameter('user', $user)
-        ->setParameter('now', new \DateTime());
-    
-    if ($search) {
-        $qb->andWhere('e.title LIKE :search OR e.description LIKE :search')
-           ->setParameter('search', '%' . $search . '%');
-    }
-    
-    if ($status) {
-        $qb->andWhere('e.status = :status')
-           ->setParameter('status', $status);
-    }
-    
-    $qb->orderBy('e.' . $sort, $order);
-    
-    return $qb->getQuery()->getResult();
-}
+    /**
+     * @return list<Event>
+     */
+    public function findDiscoverEvents(
+        User $user,
+        string $search = '',
+        ?string $status = null,
+        string $sort = 'startDateTime',
+        string $order = 'asc'
+    ): array {
+        $qb = $this->createQueryBuilder('e')
+            ->where('e.createdBy != :user')
+            ->andWhere('e.registrationDeadline > :now')
+            ->andWhere('e.startDateTime > :now')
+            ->setParameter('user', $user)
+            ->setParameter('now', new \DateTimeImmutable());
 
-/**
- * Vérifie si l'utilisateur est inscrit à l'événement
- */
-public function isUserRegistered(Event $event, User $user): bool
-{
-    $qb = $this->getEntityManager()->createQueryBuilder()
-        ->select('COUNT(r.id)')
-        ->from('App\Entity\EventRegistration', 'r')
-        ->where('r.event = :event')
-        ->andWhere('r.user = :user')
-        ->andWhere('r.status = :status')
-        ->setParameter('event', $event)
-        ->setParameter('user', $user)
-        ->setParameter('status', \App\Enum\RegistrationStatus::CONFIRMED);
-    
-    return (bool) $qb->getQuery()->getSingleScalarResult();
-}
+        if ($search !== '') {
+            $qb->andWhere('e.title LIKE :search OR e.description LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if ($status !== null && $status !== '') {
+            $qb->andWhere('e.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        $validSortFields = ['title', 'startDateTime', 'createdDate', 'capacity'];
+        $safeSort = in_array($sort, $validSortFields, true) ? $sort : 'startDateTime';
+        $safeOrder = strtolower($order) === 'desc' ? 'desc' : 'asc';
+        $qb->orderBy('e.'.$safeSort, $safeOrder);
+
+        /** @var list<Event> $events */
+        $events = $qb->getQuery()->getResult();
+
+        return $events;
+    }
+
+    public function isUserRegistered(Event $event, User $user): bool
+    {
+        $count = (int) $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(r.id)')
+            ->from('App\Entity\EventRegistration', 'r')
+            ->where('r.event = :event')
+            ->andWhere('r.user = :user')
+            ->andWhere('r.status = :status')
+            ->setParameter('event', $event)
+            ->setParameter('user', $user)
+            ->setParameter('status', RegistrationStatus::CONFIRMED)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EventRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -32,61 +33,63 @@ class Event
         minMessage: 'Le titre doit contenir au moins {{ limit }} caracteres',
         maxMessage: 'Le titre ne peut pas depasser {{ limit }} caracteres'
     )]
-    private ?string $title = null;
+    private string $title = '';
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'La description est obligatoire')]
     #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins {{ limit }} caracteres')]
-    private ?string $description = null;
+    private string $description = '';
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'La date de debut est obligatoire')]
-    #[Assert\GreaterThan('today', message: 'La date de debut doit Ãªtre future')]
-    private ?\DateTimeInterface $startDateTime = null;
+    #[Assert\GreaterThan('today', message: 'La date de debut doit ÃƒÂªtre future')]
+    private \DateTimeInterface $startDateTime;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'La date de fin est obligatoire')]
     #[Assert\GreaterThan(
         propertyPath: 'startDateTime',
-        message: 'La date de fin doit Ãªtre apres la date de debut'
+        message: 'La date de fin doit ÃƒÂªtre apres la date de debut'
     )]
-    private ?\DateTimeInterface $endDateTime = null;
+    private \DateTimeInterface $endDateTime;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message: 'Le lieu est obligatoire')]
-    private ?string $location = null;
+    private string $location = '';
 
     #[ORM\Column(type: 'integer')]
     #[Assert\NotBlank(message: 'La capacite est obligatoire')]
-    #[Assert\Positive(message: 'La capacite doit Ãªtre un nombre positif')]
+    #[Assert\Positive(message: 'La capacite doit ÃƒÂªtre un nombre positif')]
     #[Assert\LessThanOrEqual(value: 1000, message: 'La capacite ne peut pas depasser 1000 personnes')]
-    private ?int $capacity = null;
+    private int $capacity = 0;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'La date limite d\'inscription est obligatoire')]
     #[Assert\LessThan(
         propertyPath: 'startDateTime',
-        message: 'La date limite d\'inscription doit Ãªtre avant la date de debut'
+        message: 'La date limite d\'inscription doit ÃƒÂªtre avant la date de debut'
     )]
-    private ?\DateTimeInterface $registrationDeadline = null;
+    private \DateTimeInterface $registrationDeadline;
 
     #[ORM\Column(type: 'string', length: 20, enumType: EventStatus::class)]
     private EventStatus $status = EventStatus::UPCOMING;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdEvents')]
-    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true)]
     private ?User $createdBy = null;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $createdDate = null;
+    private \DateTimeInterface $createdDate;
 
 
+    /** @var Collection<int, Club> */
     #[ORM\ManyToMany(
         targetEntity: Club::class, 
         mappedBy: 'organizedEvents'
     )]
     private Collection $organizingClubs;
 
+    /** @var Collection<int, EventRegistration> */
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: EventRegistration::class)]
     private Collection $registrations;
 
@@ -101,6 +104,9 @@ class Event
         $this->organizingClubs = new ArrayCollection();
         $this->createdDate = new \DateTime();
         $this->registrations = new ArrayCollection();
+        $this->startDateTime = new \DateTime('+1 day');
+        $this->endDateTime = new \DateTime('+1 day +1 hour');
+        $this->registrationDeadline = new \DateTime('+12 hours');
     }
 #[ORM\Column(type: 'string', length: 50, enumType: EventTypes::class)]
     private EventTypes $type = EventTypes::READING; 
@@ -119,9 +125,7 @@ class Event
     #[ORM\PrePersist]
     public function setCreatedDateValue(): void
     {
-        if ($this->createdDate === null) {
-            $this->createdDate = new \DateTime();
-        }
+        $this->createdDate = new \DateTime();
     }
 
     public function getId(): ?int
@@ -136,7 +140,7 @@ public function getRegistrations(): Collection
     return $this->registrations;
 }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -147,7 +151,7 @@ public function getRegistrations(): Collection
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -158,7 +162,7 @@ public function getRegistrations(): Collection
         return $this;
     }
 
-    public function getStartDateTime(): ?\DateTimeInterface
+    public function getStartDateTime(): \DateTimeInterface
     {
         return $this->startDateTime;
     }
@@ -169,7 +173,7 @@ public function getRegistrations(): Collection
         return $this;
     }
 
-    public function getEndDateTime(): ?\DateTimeInterface
+    public function getEndDateTime(): \DateTimeInterface
     {
         return $this->endDateTime;
     }
@@ -180,7 +184,7 @@ public function getRegistrations(): Collection
         return $this;
     }
 
-    public function getLocation(): ?string
+    public function getLocation(): string
     {
         return $this->location;
     }
@@ -191,7 +195,7 @@ public function getRegistrations(): Collection
         return $this;
     }
 
-    public function getCapacity(): ?int
+    public function getCapacity(): int
     {
         return $this->capacity;
     }
@@ -202,7 +206,7 @@ public function getRegistrations(): Collection
         return $this;
     }
 
-    public function getRegistrationDeadline(): ?\DateTimeInterface
+    public function getRegistrationDeadline(): \DateTimeInterface
     {
         return $this->registrationDeadline;
     }
@@ -235,7 +239,7 @@ public function getRegistrations(): Collection
         return $this;
     }
 
-    public function getCreatedDate(): ?\DateTimeInterface
+    public function getCreatedDate(): \DateTimeInterface
     {
         return $this->createdDate;
     }
@@ -325,10 +329,6 @@ public function getRegistrations(): Collection
 
     public function getDurationInHours(): float
     {
-        if (!$this->startDateTime || !$this->endDateTime) {
-            return 0.0;
-        }
-        
         $interval = $this->startDateTime->diff($this->endDateTime);
         $hours = $interval->h + ($interval->days * 24);
         $hours += $interval->i / 60;
@@ -345,15 +345,20 @@ public function getRegistrations(): Collection
         return $difference > 0 && $difference <= 86400; // 24h en secondes
     }
 
+    /**
+     * @return Collection<int, User>
+     */
     public function getAllOrganizersMembers(): Collection
     {
+        /** @var Collection<int, User> $allMembers */
         $allMembers = new ArrayCollection();
         
         foreach ($this->organizingClubs as $club) {
             foreach ($club->getMembers() as $member) {
-                if (!$allMembers->contains($member)) {
-                    $allMembers->add($member);
+                if ($allMembers->contains($member)) {
+                    continue;
                 }
+                $allMembers->add($member);
             }
         }
         
@@ -378,7 +383,7 @@ public function getRegistrations(): Collection
 
     public function __toString(): string
     {
-        return $this->title ?? 'Evenement';
+        return $this->title;
     }
     public function getAvailableSpots(): int
 {

@@ -20,14 +20,14 @@ class UserController extends AbstractController
     #[Route('/', name: 'app_user_index', methods: ['GET'])]
     public function index(Request $request, UserRepository $userRepository): Response
     {
-        $search = $request->query->get('search', '');
-        
-        if ($search) {
-            $users = $userRepository->searchByNameOrEmail($search);
+        $search = trim((string) $request->query->get('search', ''));
+
+        if ($search !== '') {
+            $users = $userRepository->searchByNameOrEmail($search, 50);
         } else {
-            $users = $userRepository->findAll();
+            $users = $userRepository->findForIndex();
         }
-        
+
         return $this->render('user/index.html.twig', [
             'users' => $users,
         ]);
@@ -36,15 +36,15 @@ class UserController extends AbstractController
     #[Route('/search', name: 'app_user_search', methods: ['GET'])]
     public function search(Request $request, UserRepository $userRepository): Response
     {
-        $query = $request->query->get('q', '');
-        
+        $query = trim((string) $request->query->get('q', ''));
+
         if (strlen($query) < 2) {
             return $this->json([]);
         }
-        
-        $users = $userRepository->searchByNameOrEmail($query);
-        
-        $results = array_map(function($user) {
+
+        $users = $userRepository->searchByNameOrEmail($query, 20);
+
+        $results = array_map(static function (User $user): array {
             return [
                 'id' => $user->getId(),
                 'fullName' => $user->getFullName(),
@@ -53,7 +53,7 @@ class UserController extends AbstractController
                 'initials' => substr($user->getFirstName(), 0, 1) . substr($user->getLastName(), 0, 1),
             ];
         }, $users);
-        
+
         return $this->json($results);
     }
 
@@ -179,7 +179,7 @@ class UserController extends AbstractController
     #[Route('/{id}/delete', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$user->getId(), (string) $request->request->get('_token'))) {
             try {
                 // Delete avatar if exists
                 if ($user->getAvatar()) {

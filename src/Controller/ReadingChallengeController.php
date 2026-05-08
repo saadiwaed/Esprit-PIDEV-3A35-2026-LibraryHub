@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\ReadingChallenge;
+use App\Entity\ChallengeParticipant;
 use App\Form\ReadingChallengeType;
 use App\Repository\ReadingChallengeRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,14 +18,14 @@ final class ReadingChallengeController extends AbstractController
     public function index(ReadingChallengeRepository $readingChallengeRepository): Response
     {
         return $this->render('reading_challenge/index.html.twig', [
-            'reading_challenges' => $readingChallengeRepository->findAll(),
+            'reading_challenges' => $readingChallengeRepository->findForIndex(),
         ]);
     }
 
     #[Route('/new', name: 'app_reading_challenge_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $readingChallenge = new ReadingChallenge();
+        $readingChallenge = new ChallengeParticipant();
         $form = $this->createForm(ReadingChallengeType::class, $readingChallenge);
         $form->handleRequest($request);
 
@@ -43,7 +43,7 @@ final class ReadingChallengeController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_reading_challenge_show', methods: ['GET'])]
-    public function show(ReadingChallenge $readingChallenge): Response
+    public function show(ChallengeParticipant $readingChallenge): Response
     {
         return $this->render('reading_challenge/show.html.twig', [
             'reading_challenge' => $readingChallenge,
@@ -51,7 +51,7 @@ final class ReadingChallengeController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_reading_challenge_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, ReadingChallenge $readingChallenge, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, ChallengeParticipant $readingChallenge, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(ReadingChallengeType::class, $readingChallenge);
         $form->handleRequest($request);
@@ -69,7 +69,7 @@ final class ReadingChallengeController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_reading_challenge_delete', methods: ['POST'])]
-    public function delete(Request $request, ReadingChallenge $readingChallenge, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, ChallengeParticipant $readingChallenge, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$readingChallenge->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($readingChallenge);

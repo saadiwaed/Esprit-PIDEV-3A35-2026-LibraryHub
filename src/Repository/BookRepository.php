@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Book;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,9 +18,10 @@ class BookRepository extends ServiceEntityRepository
         parent::__construct($registry, Book::class);
     }
 
-
-
-    public function search(array $filters)
+    /**
+     * @param array{q?: string, category?: int|string, sort?: string} $filters
+     */
+    public function search(array $filters): QueryBuilder
     {
         $qb = $this->createQueryBuilder('b')
             ->leftJoin('b.category', 'c')
@@ -46,7 +49,14 @@ class BookRepository extends ServiceEntityRepository
         return $qb;
     }
 
-    public function createFilteredQuery($q,$category,$author,$order)
+    /**
+     * @param string|null $q
+     * @param int|string|null $category
+     * @param int|string|null $author
+     * @param string|null $order
+     * @return Query<null, Book>
+     */
+    public function createFilteredQuery(?string $q, int|string|null $category, int|string|null $author, ?string $order): Query
     {
         $qb = $this->createQueryBuilder('b')  // FROM book b
             ->leftJoin('b.author','a')
@@ -81,40 +91,52 @@ class BookRepository extends ServiceEntityRepository
     
         return $qb->getQuery();
     }
-    
-// ===================== STATS =====================
 
-// 1) Books per category (BAR CHART)
-public function countBooksByCategory()
-{
-    return $this->createQueryBuilder('b')
-        ->select('c.name as category, COUNT(b.id) as total')
-        ->join('b.category', 'c')
-        ->groupBy('c.id')
-        ->orderBy('total', 'DESC')
-        ->getQuery()
-        ->getResult();
-}
+    /**
+     * @return list<array{category: string, total: string}>
+     */
+    public function countBooksByCategory(): array
+    {
+        /** @var list<array{category: string, total: string}> $result */
+        $result = $this->createQueryBuilder('b')
+            ->select('c.name as category, COUNT(b.id) as total')
+            ->join('b.category', 'c')
+            ->groupBy('c.id')
+            ->orderBy('total', 'DESC')
+            ->getQuery()
+            ->getResult();
 
-// 2) Books by status (PIE CHART)
-public function countBooksByStatus()
-{
-    return $this->createQueryBuilder('b')
-        ->select('b.status as status, COUNT(b.id) as total')
-        ->groupBy('b.status')
-        ->getQuery()
-        ->getResult();
-}
+        return $result;
+    }
 
-// 3) Books added per month (LINE CHART)
- // 3) Books added per month (LINE CHART)
-public function findAllBooksForStats()
-{
-    return $this->createQueryBuilder('b')
-        ->select('b.createdAt')
-        ->getQuery()
-        ->getResult();
-}
+    /**
+     * @return list<array{status: string, total: string}>
+     */
+    public function countBooksByStatus(): array
+    {
+        /** @var list<array{status: string, total: string}> $result */
+        $result = $this->createQueryBuilder('b')
+            ->select('b.status as status, COUNT(b.id) as total')
+            ->groupBy('b.status')
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @return list<array{createdAt: \DateTimeInterface}>
+     */
+    public function findAllBooksForStats(): array
+    {
+        /** @var list<array{createdAt: \DateTimeInterface}> $result */
+        $result = $this->createQueryBuilder('b')
+            ->select('b.createdAt')
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
 
 
     //    /**

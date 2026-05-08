@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Club;
+use App\Enum\ClubStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,12 +17,16 @@ class ClubRepository extends ServiceEntityRepository
         parent::__construct($registry, Club::class);
     }
 
+    /**
+     * @return list<Club>
+     */
     public function findByFilters(
         string $search = '',
         string $status = '',
         string $category = '',
         string $sort = 'createdDate',
-        string $order = 'desc'
+        string $order = 'desc',
+        int $limit = 200
     ): array {
         $qb = $this->createQueryBuilder('c')
             ->leftJoin('c.organizedEvents', 'e');
@@ -53,16 +58,24 @@ class ClubRepository extends ServiceEntityRepository
         
         // Tri
         $validSortFields = ['title', 'createdDate', 'meetingDate', 'capacity'];
-        $sort = in_array($sort, $validSortFields) ? $sort : 'createdDate';
+        $sort = in_array($sort, $validSortFields, true) ? $sort : 'createdDate';
         $order = strtolower($order) === 'asc' ? 'asc' : 'desc';
         
-        $qb->orderBy('c.' . $sort, $order);
+        $qb->orderBy('c.' . $sort, $order)
+            ->setMaxResults(max(1, $limit));
         
-        return $qb->getQuery()->getResult();
+        /** @var list<Club> $clubs */
+        $clubs = $qb->getQuery()->getResult();
+
+        return $clubs;
     }
     
+    /**
+     * @return array<string, int>
+     */
     public function countByStatus(): array
     {
+        /** @var list<array{status: ClubStatus|string, count: string}> $results */
         $results = $this->createQueryBuilder('c')
             ->select('c.status, COUNT(c.id) as count')
             ->groupBy('c.status')
@@ -71,20 +84,29 @@ class ClubRepository extends ServiceEntityRepository
         
         $stats = [];
         foreach ($results as $result) {
-            $stats[$result['status']->value] = $result['count'];
+            $status = $result['status'] instanceof ClubStatus ? $result['status']->value : (string) $result['status'];
+            $stats[$status] = (int) $result['count'];
         }
         
         return $stats;
     }
     
+    /**
+     * @return list<string>
+     */
     public function findAllCategories(): array
     {
+        /** @var list<array{category: string|null}> $results */
         $results = $this->createQueryBuilder('c')
             ->select('DISTINCT c.category')
             ->orderBy('c.category', 'ASC')
             ->getQuery()
             ->getResult();
         
-        return array_column($results, 'category');
+        $categories = array_values(array_filter(array_column($results, 'category'), static fn ($value): bool => is_string($value) && $value !== ''));
+
+        /** @var list<string> $categories */
+        return $categories;
     }
+
 }

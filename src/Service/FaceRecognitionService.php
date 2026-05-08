@@ -5,31 +5,21 @@ namespace App\Service;
 use App\Entity\User;
 use App\Repository\UserRepository;
 
-/**
- * Service de reconnaissance faciale pour les administrateurs.
- *
- * - Stockage des descripteurs dans User::faceDescriptor (chaîne "v1,v2,...").
- * - Recherche de l'admin le plus proche selon une distance euclidienne.
- */
 final class FaceRecognitionService
 {
     public function __construct(
         private UserRepository $userRepository,
-        private float $threshold = 0.43,
-    ) {
-    }
+        private float $threshold = 0.50,
+    ) {}
 
-    public function getThreshold(): float
-    {
-        return $this->threshold;
-    }
-
-    /**
-     * @param float[] $probeDescriptor Descripteur calculé côté navigateur (face-api.js).
-     */
     public function findMatchingAdmin(array $probeDescriptor): ?User
     {
-        // Récupère les utilisateurs qui ont ROLE_ADMIN et un descripteur enregistré
+        $dimension = count($probeDescriptor);
+        
+        // Adjust threshold according to descriptor size (128 or 512)
+        // Match Java implementation: 0.6 for 128-d, 0.8 for 512-d
+        $dynamicThreshold = ($dimension === 128) ? 0.6 : 0.8;
+
         $qb = $this->userRepository->createQueryBuilder('u')
             ->innerJoin('u.roles', 'r')
             ->andWhere('r.name = :roleAdmin')
@@ -39,7 +29,7 @@ final class FaceRecognitionService
         /** @var User[] $admins */
         $admins = $qb->getQuery()->getResult();
 
-        if (!$admins) {
+        if (empty($admins)) {
             return null;
         }
 
@@ -53,7 +43,8 @@ final class FaceRecognitionService
             }
 
             $storedArray = array_map('floatval', explode(',', $stored));
-            if (count($storedArray) !== count($probeDescriptor)) {
+
+            if (count($storedArray) !== $dimension) {
                 continue;
             }
 
@@ -65,28 +56,21 @@ final class FaceRecognitionService
             }
         }
 
-        if ($bestUser && $bestDistance <= $this->threshold) {
+        if ($bestUser && $bestDistance <= $dynamicThreshold) {
             return $bestUser;
         }
 
         return null;
     }
 
-    /**
-     * Calcule la distance euclidienne entre deux descripteurs.
-     *
-     * @param float[] $a
-     * @param float[] $b
-     */
     private function euclideanDistance(array $a, array $b): float
     {
-        $diffs = array_map(
-            static fn (float $x, float $y): float => ($x - $y) ** 2,
-            $a,
-            $b,
-        );
-
-        return sqrt(array_sum($diffs));
-    }
+        $sum = 0.0;
+        $count = count($a);
+        for ($i = 0; $i < $count; $i++) {
+            $diff = $a[$i] - $b[$i];
+            $sum += $diff * $diff;
+        }
+        return sqrt($sum);
+    }   
 }
-

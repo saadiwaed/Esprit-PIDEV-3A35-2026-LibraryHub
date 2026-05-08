@@ -15,6 +15,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Vich\UploaderBundle\Form\Type\VichImageType;
 
+/**
+ * @extends AbstractType<Club>
+ */
 class ClubType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -101,3 +104,4 @@ class ClubType extends AbstractType
         ]);
     }
 }
+

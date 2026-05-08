@@ -26,7 +26,7 @@ class Category
         minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
     )]
-    private ?string $name = null;
+    private string $name = '';
 
     #[ORM\Column(name: 'description_cat', type: 'text', nullable: true)]
 
@@ -46,6 +46,7 @@ class Category
     )]
     private ?string $icon = null;
 
+    /** @var Collection<int, Book> */
     #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'category', cascade: ['remove'])]
     private Collection $books;
 
@@ -59,7 +60,7 @@ class Category
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }

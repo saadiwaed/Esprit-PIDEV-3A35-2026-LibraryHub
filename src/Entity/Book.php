@@ -24,7 +24,7 @@ class Book
         minMessage: 'Le titre doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères.'
     )]
-    private ?string $title = null;
+    private string $title = '';
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\NotBlank(message: 'La description est obligatoire.')]
@@ -88,15 +88,15 @@ class Book
 
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     #[Assert\NotNull(message: 'La date d\'ajout est obligatoire.')]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'books')]
-    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id_cat', nullable: false)]
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id_cat', nullable: true)]
     #[Assert\NotNull(message: 'La catégorie est obligatoire.')]
     private ?Category $category = null;
 
     #[ORM\ManyToOne(targetEntity: Author::class, inversedBy: 'books')]
-    #[ORM\JoinColumn(name: 'author_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'author_id', referencedColumnName: 'id', nullable: true)]
     #[Assert\NotNull(message: 'L\'auteur est obligatoire.')]
     private ?Author $author = null;
 
@@ -110,7 +110,7 @@ class Book
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -198,7 +198,7 @@ class Book
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }

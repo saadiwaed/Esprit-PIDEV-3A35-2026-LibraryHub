@@ -26,7 +26,7 @@ class Comment
         minMessage: 'Le commentaire doit contenir au moins {{ limit }} caracteres',
         maxMessage: 'Le commentaire ne peut pas depasser {{ limit }} caracteres'
     )]
-    private ?string $content = null;
+    private string $content = '';
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     #[Assert\PositiveOrZero]
@@ -37,10 +37,10 @@ class Comment
     private int $dislikeCount = 0;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'comments')]
-    #[ORM\JoinColumn(name: 'post_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'post_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     #[Assert\NotNull]
     private ?Post $post = null;
 
@@ -71,9 +71,7 @@ class Comment
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        if ($this->createdAt === null) {
-            $this->createdAt = new \DateTime();
-        }
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): ?int
@@ -81,12 +79,12 @@ class Comment
         return $this->id;
     }
 
-    public function getContent(): ?string
+    public function getContent(): string
     {
         return $this->content;
     }
 
-    public function setContent(?string $content): self
+    public function setContent(string $content): self
     {
         $this->content = $content;
 
@@ -117,7 +115,7 @@ class Comment
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -265,3 +263,4 @@ class Comment
         return $this->likeCount - $this->dislikeCount;
     }
 }
+

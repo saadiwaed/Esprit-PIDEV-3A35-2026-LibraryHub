@@ -22,18 +22,18 @@ class CommentReaction
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'reactions')]
-    #[ORM\JoinColumn(name: 'comment_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'comment_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?Comment $comment = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\Column(type: 'string', length: 10, enumType: ReactionType::class)]
     private ReactionType $type = ReactionType::LIKE;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
 
     public function __construct()
     {
@@ -43,9 +43,7 @@ class CommentReaction
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        if ($this->createdAt === null) {
-            $this->createdAt = new \DateTime();
-        }
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): ?int
@@ -89,7 +87,7 @@ class CommentReaction
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -101,3 +99,4 @@ class CommentReaction
         return $this;
     }
 }
+

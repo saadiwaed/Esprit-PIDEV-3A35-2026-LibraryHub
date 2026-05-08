@@ -38,13 +38,11 @@ final class StatsController extends AbstractController
 
         foreach ($books as $book) {
             $date = $book['createdAt'];
-            if ($date instanceof \DateTimeInterface) {
-                $month = $date->format('Y-m');
-                if (!isset($months[$month])) {
-                    $months[$month] = 0;
-                }
-                $months[$month]++;
+            $month = $date->format('Y-m');
+            if (!isset($months[$month])) {
+                $months[$month] = 0;
             }
+            $months[$month]++;
         }
         ksort($months);
 
@@ -77,13 +75,11 @@ final class StatsController extends AbstractController
 
         foreach ($books as $book) {
             $date = $book['createdAt'];
-            if ($date instanceof \DateTimeInterface) {
-                $month = $date->format('Y-m');
-                if (!isset($months[$month])) {
-                    $months[$month] = 0;
-                }
-                $months[$month]++;
+            $month = $date->format('Y-m');
+            if (!isset($months[$month])) {
+                $months[$month] = 0;
             }
+            $months[$month]++;
         }
         ksort($months);
 
@@ -296,6 +292,10 @@ final class StatsController extends AbstractController
         return new \DateTimeImmutable('last day of this month 23:59:59');
     }
 
+    /**
+     * @param array<string, int> $counts
+     * @return array{0: list<string>, 1: list<int>}
+     */
     private function buildMonthlySeries(array $counts, \DateTimeImmutable $start, \DateTimeImmutable $end): array
     {
         $labels = [];
@@ -313,6 +313,9 @@ final class StatsController extends AbstractController
         return [$labels, $data];
     }
 
+    /**
+     * @return array<string, int>
+     */
     private function getMonthlyPenaltyCounts(
         EntityManagerInterface $entityManager,
         \DateTimeImmutable $start,

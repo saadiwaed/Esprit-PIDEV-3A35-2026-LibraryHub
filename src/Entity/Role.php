@@ -24,7 +24,7 @@ class Role
         minMessage: 'Role name must be at least {{ limit }} characters.',
         maxMessage: 'Role name cannot exceed {{ limit }} characters.'
     )]
-    private ?string $name = null;
+    private string $name = '';
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255, maxMessage: 'Description cannot exceed {{ limit }} characters.')]
@@ -34,6 +34,7 @@ class Role
      * RELATION ManyToMany (inverse side): This is the "other side" of User's roles.
      * inversedBy on User side + mappedBy here = they are connected.
      */
+    /** @var Collection<int, User> */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'roles')]
     private Collection $users;
 
@@ -47,7 +48,7 @@ class Role
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -99,6 +100,6 @@ class Role
      */
     public function __toString(): string
     {
-        return $this->name ?? '';
+        return $this->name;
     }
 }

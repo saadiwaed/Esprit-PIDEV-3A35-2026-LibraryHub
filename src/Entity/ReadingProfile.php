@@ -20,13 +20,15 @@ class ReadingProfile
      * JoinColumn means this table has the foreign key column "user_id".
      */
     #[ORM\OneToOne(inversedBy: 'readingProfile', targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Assert\NotNull(message: 'A user must be selected for this reading profile.')]
     private ?User $user = null;
 
+    /** @var list<string>|null */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $favoriteGenres = null;
 
+    /** @var list<string>|null */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $preferredLanguages = null;
 
@@ -36,7 +38,7 @@ class ReadingProfile
 
     #[ORM\Column(options: ['default' => 0])]
     #[Assert\PositiveOrZero(message: 'Total books read cannot be negative.')]
-    private ?int $totalBooksRead = 0;
+    private int $totalBooksRead = 0;
 
     #[ORM\Column(nullable: true)]
     #[Assert\Range(
@@ -62,22 +64,26 @@ class ReadingProfile
         return $this;
     }
 
+    /** @return list<string>|null */
     public function getFavoriteGenres(): ?array
     {
         return $this->favoriteGenres;
     }
 
+    /** @param list<string>|null $favoriteGenres */
     public function setFavoriteGenres(?array $favoriteGenres): static
     {
         $this->favoriteGenres = $favoriteGenres;
         return $this;
     }
 
+    /** @return list<string>|null */
     public function getPreferredLanguages(): ?array
     {
         return $this->preferredLanguages;
     }
 
+    /** @param list<string>|null $preferredLanguages */
     public function setPreferredLanguages(?array $preferredLanguages): static
     {
         $this->preferredLanguages = $preferredLanguages;
@@ -95,7 +101,7 @@ class ReadingProfile
         return $this;
     }
 
-    public function getTotalBooksRead(): ?int
+    public function getTotalBooksRead(): int
     {
         return $this->totalBooksRead;
     }

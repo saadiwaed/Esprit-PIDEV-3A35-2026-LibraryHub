@@ -17,10 +17,10 @@ class Attachment
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message: 'Le chemin du fichier est obligatoire')]
-    private ?string $filePath = null;
+    private string $filePath = '';
 
     #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'attachments')]
-    #[ORM\JoinColumn(name: 'post_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'post_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?Post $post = null;
 
     // ─── Getters & Setters ───────────────────────────────
@@ -30,7 +30,7 @@ class Attachment
         return $this->id;
     }
 
-    public function getFilePath(): ?string
+    public function getFilePath(): string
     {
         return $this->filePath;
     }
@@ -98,6 +98,6 @@ class Attachment
 
     public function __toString(): string
     {
-        return $this->filePath ?? 'Pièce jointe';
+        return $this->filePath;
     }
 }

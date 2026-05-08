@@ -688,7 +688,7 @@ PROMPT;
 
         $legacyContextPattern = '/contexte\s*:\s*(.*?)\s*point\s+principal\s*:/uis';
         if (preg_match($legacyContextPattern, $clean, $matches) === 1) {
-            $candidate = trim((string) ($matches[1] ?? ''));
+            $candidate = trim((string) $matches[1]);
             if ($candidate !== '') {
                 $clean = $candidate;
             }

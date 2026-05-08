@@ -2,12 +2,13 @@
 
 namespace App\Repository;
 
+use App\Entity\Event;
 use App\Entity\EventRegistration;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\User;
 use App\Enum\RegistrationStatus;
-use App\Entity\Event;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+
 /**
  * @extends ServiceEntityRepository<EventRegistration>
  */
@@ -18,16 +19,22 @@ class EventRegistrationRepository extends ServiceEntityRepository
         parent::__construct($registry, EventRegistration::class);
     }
 
-public function findUserRegistrations(User $user): array
+    /**
+     * @return list<EventRegistration>
+     */
+    public function findUserRegistrations(User $user): array
     {
-        return $this->createQueryBuilder('r')
+        /** @var list<EventRegistration> $result */
+        $result = $this->createQueryBuilder('r')
             ->where('r.user = :user')
             ->andWhere('r.status = :status')
             ->setParameter('user', $user)
-            ->setParameter('status', RegistrationStatus::CONFIRMED) // ✅ Objet, PAS string
+            ->setParameter('status', RegistrationStatus::CONFIRMED)
             ->orderBy('r.registeredAt', 'DESC')
             ->getQuery()
             ->getResult();
+
+        return $result;
     }
 
     public function findUserRegistrationForEvent(Event $event, User $user): ?EventRegistration
@@ -48,62 +55,88 @@ public function findUserRegistrations(User $user): array
             ->where('r.event = :event')
             ->andWhere('r.status = :status')
             ->setParameter('event', $event)
-            ->setParameter('status', RegistrationStatus::CONFIRMED) // ✅ Objet, PAS string
+            ->setParameter('status', RegistrationStatus::CONFIRMED)
             ->getQuery()
             ->getSingleScalarResult();
     }
-    // ✅ HISTORIQUE COMPLET (TOUS LES STATUTS)
+
+    /**
+     * @return list<EventRegistration>
+     */
     public function findUserHistory(User $user): array
     {
-        return $this->createQueryBuilder('r')
+        /** @var list<EventRegistration> $result */
+        $result = $this->createQueryBuilder('r')
             ->where('r.user = :user')
             ->setParameter('user', $user)
             ->orderBy('r.registeredAt', 'DESC')
             ->getQuery()
             ->getResult();
+
+        return $result;
     }
 
-    // ✅ UNIQUEMENT LES ANNULATIONS
+    /**
+     * @return list<EventRegistration>
+     */
     public function findUserCancellations(User $user): array
     {
-        return $this->createQueryBuilder('r')
+        /** @var list<EventRegistration> $result */
+        $result = $this->createQueryBuilder('r')
             ->where('r.user = :user')
             ->andWhere('r.status = :status')
             ->setParameter('user', $user)
-            ->setParameter('status', RegistrationStatus::CANCELLED->value)
+            ->setParameter('status', RegistrationStatus::CANCELLED)
             ->orderBy('r.registeredAt', 'DESC')
             ->getQuery()
             ->getResult();
+
+        return $result;
     }
 
-    // ✅ STATISTIQUES RAPIDES
+    /**
+     * @return array{total: int, confirmed: int, cancelled: int, active: int}
+     */
     public function getUserStats(User $user): array
     {
         $total = $this->count(['user' => $user]);
-        
+
         $confirmed = $this->createQueryBuilder('r')
             ->select('COUNT(r.id)')
             ->where('r.user = :user')
             ->andWhere('r.status = :status')
             ->setParameter('user', $user)
-            ->setParameter('status', RegistrationStatus::CONFIRMED->value)
+            ->setParameter('status', RegistrationStatus::CONFIRMED)
             ->getQuery()
             ->getSingleScalarResult();
-            
+
         $cancelled = $this->createQueryBuilder('r')
             ->select('COUNT(r.id)')
             ->where('r.user = :user')
             ->andWhere('r.status = :status')
             ->setParameter('user', $user)
-            ->setParameter('status', RegistrationStatus::CANCELLED->value)
+            ->setParameter('status', RegistrationStatus::CANCELLED)
             ->getQuery()
             ->getSingleScalarResult();
-            
+
         return [
             'total' => (int) $total,
             'confirmed' => (int) $confirmed,
             'cancelled' => (int) $cancelled,
-            'active' => (int) $confirmed, // alias
+            'active' => (int) $confirmed,
         ];
+    }
+
+    public function findFirstWaitlisted(Event $event): ?EventRegistration
+    {
+        return $this->createQueryBuilder('r')
+            ->where('r.event = :event')
+            ->andWhere('r.status = :status')
+            ->setParameter('event', $event)
+            ->setParameter('status', RegistrationStatus::WAITLISTED)
+            ->orderBy('r.registeredAt', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

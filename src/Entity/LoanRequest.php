@@ -22,20 +22,20 @@ class LoanRequest
     private ?User $member = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Assert\NotNull(message: 'Le livre est obligatoire.')]
     private ?Book $book = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     #[Assert\NotNull(message: "La date d'emprunt souhaitée est obligatoire.")]
     #[Assert\GreaterThanOrEqual(value: 'today', message: "La date d'emprunt souhaitée doit être aujourd'hui ou plus tard.")]
     private ?\DateTimeImmutable $desiredLoanDate = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     #[Assert\NotNull(message: 'La date de retour souhaitée est obligatoire.')]
     private ?\DateTimeImmutable $desiredReturnDate = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $requestedAt = null;
 
     #[ORM\Column(enumType: LoanRequestStatus::class)]
