@@ -24,7 +24,7 @@ class Book
         minMessage: 'Le titre doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères.'
     )]
-    private string $title = '';
+    private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\NotBlank(message: 'La description est obligatoire.')]
@@ -71,7 +71,6 @@ class Book
     private ?string $language = null;
 
     #[ORM\Column(name: 'cover_image', length: 500, nullable: true)]
-    #[Assert\NotBlank(message: 'L\'image de couverture est obligatoire.')]
     #[Assert\Length(
         max: 500,
         maxMessage: 'Le chemin de l\'image ne peut pas dépasser {{ limit }} caractères.'
@@ -88,15 +87,15 @@ class Book
 
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     #[Assert\NotNull(message: 'La date d\'ajout est obligatoire.')]
-    private \DateTimeInterface $createdAt;
+    private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'books')]
-    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id_cat', nullable: true)]
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id_cat', nullable: false)]
     #[Assert\NotNull(message: 'La catégorie est obligatoire.')]
     private ?Category $category = null;
 
     #[ORM\ManyToOne(targetEntity: Author::class, inversedBy: 'books')]
-    #[ORM\JoinColumn(name: 'author_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'author_id', referencedColumnName: 'id', nullable: false)]
     #[Assert\NotNull(message: 'L\'auteur est obligatoire.')]
     private ?Author $author = null;
 
@@ -110,7 +109,7 @@ class Book
         return $this->id;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
@@ -198,7 +197,7 @@ class Book
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
