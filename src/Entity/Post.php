@@ -40,8 +40,8 @@ class Post
     )]
     private string $content = '';
 
-    #[ORM\Column(type: 'string', length: 20, enumType: PostStatus::class)]
-    private PostStatus $status = PostStatus::DRAFT;
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $status = PostStatus::DRAFT->value;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $spoilerWarning = false;
@@ -142,12 +142,15 @@ class Post
 
     public function getStatus(): PostStatus
     {
-        return $this->status;
+        return PostStatus::fromNormalized($this->status);
     }
 
-    public function setStatus(PostStatus $status): self
+    public function setStatus(PostStatus|string $status): self
     {
-        $this->status = $status;
+        $this->status = $status instanceof PostStatus
+            ? $status->value
+            : PostStatus::fromNormalized($status)->value;
+
         return $this;
     }
 
@@ -378,7 +381,7 @@ class Post
      */
     public function publish(): self
     {
-        $this->status = PostStatus::PUBLISHED;
+        $this->status = PostStatus::PUBLISHED->value;
         return $this;
     }
 
@@ -387,7 +390,7 @@ class Post
      */
     public function archive(): self
     {
-        $this->status = PostStatus::ARCHIVED;
+        $this->status = PostStatus::ARCHIVED->value;
         return $this;
     }
 
@@ -396,7 +399,7 @@ class Post
      */
     public function isVisible(): bool
     {
-        return $this->status === PostStatus::PUBLISHED
+        return $this->getStatus() === PostStatus::PUBLISHED
             && $this->community !== null
             && $this->community->getStatus() === \App\Enum\CommunityStatus::APPROVED;
     }

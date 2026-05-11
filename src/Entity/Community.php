@@ -121,8 +121,8 @@ class Community
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isPublic = true;
 
-    #[ORM\Column(type: 'string', length: 20, enumType: CommunityStatus::class)]
-    private CommunityStatus $status = CommunityStatus::PENDING;
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $status = CommunityStatus::PENDING->value;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     #[Assert\PositiveOrZero(message: 'Le nombre de membres ne peut pas être négatif')]
@@ -310,12 +310,12 @@ class Community
 
     public function getStatus(): CommunityStatus
     {
-        return $this->status;
+        return CommunityStatus::from(strtolower($this->status));
     }
 
     public function setStatus(CommunityStatus $status): self
     {
-        $this->status = $status;
+        $this->status = $status->value;
         return $this;
     }
 
@@ -425,7 +425,7 @@ class Community
      */
     public function canAcceptPosts(): bool
     {
-        return $this->status === CommunityStatus::APPROVED && $this->isPublic;
+        return $this->getStatus() === CommunityStatus::APPROVED && $this->isPublic;
     }
 
     /**
@@ -433,7 +433,7 @@ class Community
      */
     public function approve(): self
     {
-        $this->status = CommunityStatus::APPROVED;
+        $this->setStatus(CommunityStatus::APPROVED);
         return $this;
     }
 
@@ -442,7 +442,7 @@ class Community
      */
     public function reject(): self
     {
-        $this->status = CommunityStatus::REJECTED;
+        $this->setStatus(CommunityStatus::REJECTED);
         return $this;
     }
 

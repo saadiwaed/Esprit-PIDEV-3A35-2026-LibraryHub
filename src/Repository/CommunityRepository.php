@@ -50,9 +50,9 @@ class CommunityRepository extends ServiceEntityRepository
             ->leftJoin('c.createdBy', 'creator')
             ->addSelect('creator')
             ->andWhere('c.isPublic = :isPublic')
-            ->andWhere('c.status = :status')
+            ->andWhere('LOWER(c.status) = :status')
             ->setParameter('isPublic', true)
-            ->setParameter('status', CommunityStatus::APPROVED)
+            ->setParameter('status', CommunityStatus::APPROVED->value)
         ;
 
         $this->applySearch($qb, $search);

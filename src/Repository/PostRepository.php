@@ -63,9 +63,9 @@ class PostRepository extends ServiceEntityRepository
             ->leftJoin('p.createdBy', 'author')
             ->addSelect('author')
             ->andWhere('p.community = :community')
-            ->andWhere('p.status = :status')
+            ->andWhere('LOWER(p.status) = :status')
             ->setParameter('community', $community)
-            ->setParameter('status', PostStatus::PUBLISHED)
+            ->setParameter('status', PostStatus::PUBLISHED->value)
         ;
 
         $this->applySearch($qb, $search);

@@ -9,6 +9,11 @@ enum PostStatus: string
     case HIDDEN = 'hidden';
     case ARCHIVED = 'archived';
 
+    public static function fromNormalized(string $value): self
+    {
+        return self::from(strtolower(trim($value)));
+    }
+
     public function getLabel(): string
     {
         return match ($this) {
